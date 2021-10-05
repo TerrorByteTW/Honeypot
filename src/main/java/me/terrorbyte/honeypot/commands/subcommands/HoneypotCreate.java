@@ -1,14 +1,10 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.CustomBlockData;
-import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.storagemanager.HoneypotFileManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.SubCommand;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,22 +30,16 @@ public class HoneypotCreate extends SubCommand {
     @Override
     public void perform(Player p, String[] args) {
 
-        //Create a new NamedspacedKey called honeypot
-        final NamespacedKey key = new NamespacedKey(Honeypot.getPlugin(), "honeypot");
-
         //Get block the player is looking at
         Block block = p.getTargetBlock(null, 5);
-
-        //Get the block's data
-        final PersistentDataContainer blockData = new CustomBlockData(block, Honeypot.getPlugin());
         
         //If the blocks meta has a honeypot tag, let them know
-        if (blockData.has(key, PersistentDataType.INTEGER) && blockData.get(key, PersistentDataType.INTEGER).equals(1)) {
+        if (HoneypotFileManager.isHoneypotBlock(block)) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
             //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
         } else {
-            blockData.set(new NamespacedKey(Honeypot.getPlugin(), "honeypot"), PersistentDataType.INTEGER, 1);
+            HoneypotFileManager.createBlock(block, "kick");
             p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
         }
     }

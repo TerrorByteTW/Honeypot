@@ -2,19 +2,29 @@ package me.terrorbyte.honeypot;
 
 import me.terrorbyte.honeypot.commands.CommandManager;
 import me.terrorbyte.honeypot.events.HoneypotBreakEventListener;
+import me.terrorbyte.honeypot.storagemanager.HoneypotFileManager;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.IOException;
 
 public final class Honeypot extends JavaPlugin {
 
     //On enable, register the block break event listener, register the command manager, and log to the console
     @Override
     public void onEnable() {
+        plugin = this;
+
         getServer().getPluginManager().registerEvents(new HoneypotBreakEventListener(), this);
         getCommand("honeypot").setExecutor(new CommandManager());
         getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled TSS anti-cheat honeypot plugin!");
 
-        plugin = this;
+        try {
+            HoneypotFileManager.loadHoneypotBlocks(plugin);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     //On disable, do nothing, really
