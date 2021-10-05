@@ -15,4 +15,4 @@ These are the goals for Honeypot. Not all of these have been achieved yet, but I
 This is a hobby project and may be dropped at will. However, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me.
 
 ## Credits
-TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any pull requests are welcomed.
+TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed!
