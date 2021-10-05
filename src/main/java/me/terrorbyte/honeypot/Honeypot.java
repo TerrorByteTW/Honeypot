@@ -20,6 +20,8 @@ public final class Honeypot extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled TSS anti-cheat honeypot plugin!");
 
         try {
+            //For whatever reason, if we don't explicitly pass the plugin variable instead of letting HoneypotFileManager
+            //use Honeypot.getPlugin(), it crashes the plugin. Idk, it worked fine in the YouTube tutorial I watched lol
             HoneypotFileManager.loadHoneypotBlocks(plugin);
         } catch (IOException e) {
             e.printStackTrace();
