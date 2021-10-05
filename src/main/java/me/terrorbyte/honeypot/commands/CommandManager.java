@@ -32,7 +32,7 @@ public class CommandManager implements TabExecutor {
         //Check if the command sender is a player
         if(sender instanceof Player p) {
 
-            if(p.hasPermission("honeypot.commands")){
+            if(p.hasPermission("honeypot.commands") || p.hasPermission("honeypot.*") || p.isOp()){
                 //If it's a player, ensure there is at least 1 argument given
                 if(args.length > 0) {
                     //For each subcommand in the subcommands array list, check if the argument is the same as the command. If so, run said subcommand
@@ -71,7 +71,7 @@ public class CommandManager implements TabExecutor {
         Player p = (Player) sender;
 
         //Only auto-complete if they have the permissions
-        if(p.hasPermission("honeypot.commands")){
+        if(p.hasPermission("honeypot.commands") || p.hasPermission("honeypot.*") || p.isOp()){
             //If the argument is the first one return the subcommands
             if (args.length == 1) {
                 //Create a subcommands array list and a subcommandsString array list to store the subcommands as strings

@@ -5,6 +5,7 @@ import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.SubCommand;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class HoneypotCreate extends SubCommand {
     public void perform(Player p, String[] args) {
 
         //If player has create permission, let them do this
-        if(p.hasPermission("honeypot.create") || p.isOp()){
+        if(p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*") || p.isOp()){
             //Get block the player is looking at
             Block block = p.getTargetBlock(null, 5);
 
@@ -41,9 +42,17 @@ public class HoneypotCreate extends SubCommand {
 
                 //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
             } else {
-                //TODO - Add error handling for if the argument passed does not equal a valid one or if one isn't passed
-                HoneypotManager.createBlock(block, args[1]);
-                p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+                if(args.length >= 2 && (args[1].equalsIgnoreCase("kick") ||
+                        args[1].equalsIgnoreCase("ban") ||
+                        args[1].equalsIgnoreCase("warn") ||
+                        args[1].equalsIgnoreCase("notify") ||
+                        args[1].equalsIgnoreCase("nothing")))
+                {
+                    HoneypotManager.createBlock(block, args[1]);
+                    p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+                } else {
+                    p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+                }
             }
         } else {
             //If no permissions, let the player know

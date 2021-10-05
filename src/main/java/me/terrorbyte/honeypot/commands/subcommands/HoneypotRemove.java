@@ -28,7 +28,7 @@ public class HoneypotRemove extends SubCommand {
     public void perform(Player p, String[] args) {
 
         //Check if they have permission
-        if(p.hasPermission("honeypot.remove") || p.isOp()){
+        if(p.hasPermission("honeypot.remove") || p.hasPermission("honeypot.*") || p.isOp() ){
             //Get the block data for the block the player is looking at
             Block block = p.getTargetBlock(null, 5);
 
