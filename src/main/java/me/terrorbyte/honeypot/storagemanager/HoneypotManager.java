@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class HoneypotFileManager {
+public class HoneypotManager {
 
     //Create an array list for all honeypotBlocks to reside in while plugin is functioning
     private static ArrayList<HoneypotBlock> honeypotBlocks = new ArrayList<>();

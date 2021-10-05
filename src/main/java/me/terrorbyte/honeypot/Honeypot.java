@@ -2,7 +2,7 @@ package me.terrorbyte.honeypot;
 
 import me.terrorbyte.honeypot.commands.CommandManager;
 import me.terrorbyte.honeypot.events.HoneypotBreakEventListener;
-import me.terrorbyte.honeypot.storagemanager.HoneypotFileManager;
+import me.terrorbyte.honeypot.storagemanager.HoneypotManager;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,7 +22,7 @@ public final class Honeypot extends JavaPlugin {
         try {
             //For whatever reason, if we don't explicitly pass the plugin variable instead of letting HoneypotFileManager
             //use Honeypot.getPlugin(), it crashes the plugin. Idk, it worked fine in the YouTube tutorial I watched lol
-            HoneypotFileManager.loadHoneypotBlocks(plugin);
+            HoneypotManager.loadHoneypotBlocks(plugin);
         } catch (IOException e) {
             e.printStackTrace();
         }

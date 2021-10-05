@@ -1,6 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.storagemanager.HoneypotFileManager;
+import me.terrorbyte.honeypot.storagemanager.HoneypotManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.SubCommand;
 import org.bukkit.block.Block;
@@ -27,17 +27,23 @@ public class HoneypotRemove extends SubCommand {
     @Override
     public void perform(Player p, String[] args) {
 
-        //Get the block data for the block the player is looking at
-        Block block = p.getTargetBlock(null, 5);
+        //Check if they have permission
+        if(p.hasPermission("honeypot.remove") || p.isOp()){
+            //Get the block data for the block the player is looking at
+            Block block = p.getTargetBlock(null, 5);
 
-        //If it is a pot
-        if(HoneypotFileManager.isHoneypotBlock(block)){
-            HoneypotFileManager.deleteBlock(block);
-            p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
+            //If it is a pot
+            if(HoneypotManager.isHoneypotBlock(block)){
+                HoneypotManager.deleteBlock(block);
+                p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
 
-            //If it is not a pot
+                //If it is not a pot
+            } else {
+                p.sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
+            }
         } else {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
+            //If they don't have permission disregard the command and let them know
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
         }
     }
 

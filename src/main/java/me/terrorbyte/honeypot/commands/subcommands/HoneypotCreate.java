@@ -1,6 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.storagemanager.HoneypotFileManager;
+import me.terrorbyte.honeypot.storagemanager.HoneypotManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.SubCommand;
 import org.bukkit.block.Block;
@@ -30,18 +30,26 @@ public class HoneypotCreate extends SubCommand {
     @Override
     public void perform(Player p, String[] args) {
 
-        //Get block the player is looking at
-        Block block = p.getTargetBlock(null, 5);
-        
-        //If the blocks meta has a honeypot tag, let them know
-        if (HoneypotFileManager.isHoneypotBlock(block)) {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
+        //If player has create permission, let them do this
+        if(p.hasPermission("honeypot.create") || p.isOp()){
+            //Get block the player is looking at
+            Block block = p.getTargetBlock(null, 5);
 
-            //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
+            //If the blocks meta has a honeypot tag, let them know
+            if (HoneypotManager.isHoneypotBlock(block)) {
+                p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
+
+                //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
+            } else {
+                //TODO - Add error handling for if the argument passed does not equal a valid one or if one isn't passed
+                HoneypotManager.createBlock(block, args[1]);
+                p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+            }
         } else {
-            HoneypotFileManager.createBlock(block, "kick");
-            p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+            //If no permissions, let the player know
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
         }
+
     }
 
     @Override
@@ -56,6 +64,8 @@ public class HoneypotCreate extends SubCommand {
             actions.add("warn");
             actions.add("kick");
             actions.add("ban");
+            actions.add("notify");
+            actions.add("nothing");
             return actions;
         }
 

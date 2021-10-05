@@ -32,18 +32,22 @@ public class CommandManager implements TabExecutor {
         //Check if the command sender is a player
         if(sender instanceof Player p) {
 
-            //If it's a player, ensure there is at least 1 argument given
-            if(args.length > 0) {
-                //For each subcommand in the subcommands array list, check if the argument is the same as the command. If so, run said subcommand
-                for (SubCommand subcommand : subcommands) {
-                    if (args[0].equalsIgnoreCase(subcommand.getName())) {
-                        subcommand.perform(p, args);
+            if(p.hasPermission("honeypot.commands")){
+                //If it's a player, ensure there is at least 1 argument given
+                if(args.length > 0) {
+                    //For each subcommand in the subcommands array list, check if the argument is the same as the command. If so, run said subcommand
+                    for (SubCommand subcommand : subcommands) {
+                        if (args[0].equalsIgnoreCase(subcommand.getName())) {
+                            subcommand.perform(p, args);
+                        }
                     }
+                } else {
+                    //If none of the subcommands are in the list, send the usage command feedback.
+                    p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
                 }
             } else {
-
-                //If none of the subcommands are in the list, send the usage command feedback.
-                p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+                //If they don't have permissions, let the player know
+                p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             }
         } else {
             //If the sender is not a player (Probably the console), send this message
@@ -63,21 +67,28 @@ public class CommandManager implements TabExecutor {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
 
-        //If we're tab-completing the first argument, show them all subcommands
-        if (args.length == 1){
-            //Create a subcommands array list and a subcommandsString array list to store the subcommands as strings
-            ArrayList<String> subcommands = new ArrayList<>();
+        //Cast the CommandSender object to Player
+        Player p = (Player) sender;
 
-            //For each subcommand in the subcommands array list, convert it to a string and add it to the subcommandsString list
-            for (int i = 0; i < getSubcommands().size(); i++){
-                subcommands.add(getSubcommands().get(i).getName());
-            }
+        //Only auto-complete if they have the permissions
+        if(p.hasPermission("honeypot.commands")){
+            //If the argument is the first one return the subcommands
+            if (args.length == 1) {
+                //Create a subcommands array list and a subcommandsString array list to store the subcommands as strings
+                ArrayList<String> subcommands = new ArrayList<>();
 
-            return subcommands;
-        } else if (args.length >= 2){
-            for (SubCommand subcommand : subcommands) {
-                if (args[0].equalsIgnoreCase(subcommand.getName())) {
-                    return subcommand.getSubcommands((Player) sender, args);
+                //For each subcommand in the subcommands array list, convert it to a string and add it to the subcommandsString list
+                for (int i = 0; i < getSubcommands().size(); i++) {
+                    subcommands.add(getSubcommands().get(i).getName());
+                }
+
+                return subcommands;
+            } else if (args.length >= 2) {
+                //If the argument is the 2nd one or more, return the subcommands for that subcommand
+                for (SubCommand subcommand : subcommands) {
+                    if (args[0].equalsIgnoreCase(subcommand.getName())) {
+                        return subcommand.getSubcommands((Player) sender, args);
+                    }
                 }
             }
         }
