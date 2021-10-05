@@ -9,7 +9,7 @@ These are the goals for Honeypot. Not all of these have been achieved yet, but I
 * **Lightweight.** I wanted this Honeypot plugin to be lightweight. I'm still working on optimizing the code but so far so good.
 * **Easy to update.** The code in this plugin uses really basic Java and Bukkit/Spigot APIs, so it's not too overly complicate to update.
 * **Easy to build on to.** I designed the Command Manager to be extensible, enabling me to add commands and subcommands at any time without too many major updates to the code or base classes. It also has the added benefit of making it easier for other developers to fork and add on to.
-* So far we've metthose goals, but are working on adding more features to the plugin and continuously optimizing as time goes on.
+* So far we've met those goals, but are working on adding more features to the plugin and continuously optimizing as time goes on.
 
 ## What's the current state of development?
 This is a hobby project and may be dropped at will. However, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me.
