@@ -34,7 +34,7 @@ public class HoneypotCreate extends SubCommand {
     @Override
     public void perform(Player p, String[] args) {
 
-        //Create a new NamedspaceKey called honeypot
+        //Create a new NamedspacedKey called honeypot
         final NamespacedKey key = new NamespacedKey(Honeypot.getPlugin(), "honeypot");
 
         //Get block the player is looking at
@@ -42,7 +42,7 @@ public class HoneypotCreate extends SubCommand {
 
         //Get the block's data
         final PersistentDataContainer blockData = new CustomBlockData(block, Honeypot.getPlugin());
-
+        
         //If the blocks meta has a honeypot tag, let them know
         if (blockData.has(key, PersistentDataType.INTEGER) && blockData.get(key, PersistentDataType.INTEGER).equals(1)) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
