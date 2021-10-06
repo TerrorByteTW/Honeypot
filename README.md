@@ -20,6 +20,7 @@ If your server is using Honeypot, let me know! I'd love to add it to this list.
 This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me.
 
 ## To-do 📝
+* Command to easily locate honeyblocks. Currently, if you've lost one you gotta go to the JSON file 😖
 * Add custom actions to honeyblocks (Want to teleport them to the void? Want to charge them a griefing fee? These are all things I want to do).
 * Increase speed of database lookups
 * Add the ability to whitelist or blacklist exemptions based on permissions
