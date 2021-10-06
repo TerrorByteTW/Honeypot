@@ -4,6 +4,10 @@
 Honeypot is a customizable anti-grief plugin which allows any placeable block to be used as a trap for players looking to grief. It can be used to catch Xray-ers, deter griefers from breaking unprotected builds, and more.
 Honeypot plugins were popularized back in the early days of Minecraft servers but never really took off due to their lack of customization, updates, or difficulty to configure, setup, and/or maintain. This plugin was designed to be simple, lightweight, and easy to use for staff and admins.
 
+**View a demo here**
+
+[![Honeypot Demo](https://img.youtube.com/vi/Ff2Ju91CgxA/0.jpg)](https://www.youtube.com/watch?v=Ff2Ju91CgxA)
+
 ## Goals
 These are the goals for Honeypot. Not all of these have been achieved yet, but I think I'm on the right track.
 * **👀 Privacy focused.** This plugin collects no data or statistics.
