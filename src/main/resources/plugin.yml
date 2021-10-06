@@ -1,7 +1,6 @@
 name: Honeypot
 version: '${project.version}'
 author: TerrorByte
-website: survival-saga.com
 description: Creates honeypot blocks designed to prevent griefing on your server
 main: me.terrorbyte.honeypot.Honeypot
 api-version: 1.17
