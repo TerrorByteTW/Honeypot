@@ -1,14 +1,14 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.storagemanager.HoneypotManager;
-import me.terrorbyte.honeypot.commands.CommandFeedback;
-import me.terrorbyte.honeypot.commands.SubCommand;
+import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
+import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class HoneypotRemove extends SubCommand {
+public class HoneypotRemove extends HoneypotSubCommand {
     @Override
     public String getName() {
         return "remove";
@@ -33,17 +33,17 @@ public class HoneypotRemove extends SubCommand {
             Block block = p.getTargetBlock(null, 5);
 
             //If it is a pot
-            if(HoneypotManager.isHoneypotBlock(block)){
-                HoneypotManager.deleteBlock(block);
-                p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
+            if(HoneypotBlockStorageManager.isHoneypotBlock(block)){
+                HoneypotBlockStorageManager.deleteBlock(block);
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("success", false));
 
                 //If it is not a pot
             } else {
-                p.sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("notapot"));
             }
         } else {
             //If they don't have permission disregard the command and let them know
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
         }
     }
 

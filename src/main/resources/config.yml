@@ -1,0 +1,16 @@
+# Number of honeypot blocks a player must break before action is taken. Action will be taken immediately
+# after the number is reached, therefore set to 1 or less for instant action
+blocks-broken-before-action-taken: 1
+
+# Allow destruction of Honeypot blocks. If set to false, the honeypot block will be disabled from breaking.
+# If this is true, then blocks-broken-before-action-taken will be ignored and action will immediately be taken
+allow-destruction: true
+
+# Kick reason
+kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
+
+# Ban reason
+ban-reason: "You have been banned for breaking honeypot blocks"
+
+# Warn message
+warn-message: "Please don't grief builds!"

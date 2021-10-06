@@ -9,14 +9,14 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class HoneypotManager {
+public class HoneypotBlockStorageManager {
 
     //Create an array list for all honeypotBlocks to reside in while plugin is functioning
-    private static ArrayList<HoneypotBlock> honeypotBlocks = new ArrayList<>();
+    private static ArrayList<HoneypotBlockObject> honeypotBlocks = new ArrayList<>();
 
     //Create a honeypot block by creating a HoneypotBlock object and storing it to the array, then saving it to the file for safe keeping
-    public static HoneypotBlock createBlock(Block block, String action){
-        HoneypotBlock honeypotBlock = new HoneypotBlock(block, action);
+    public static HoneypotBlockObject createBlock(Block block, String action){
+        HoneypotBlockObject honeypotBlock = new HoneypotBlockObject(block, action);
         honeypotBlocks.add(honeypotBlock);
 
         try {
@@ -32,7 +32,7 @@ public class HoneypotManager {
     public static void deleteBlock(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
 
-        for (HoneypotBlock honeypot : honeypotBlocks){
+        for (HoneypotBlockObject honeypot : honeypotBlocks){
             if(honeypot.getCoordinates().equalsIgnoreCase(coordinates)){
                 honeypotBlocks.remove(honeypot);
                 try {
@@ -49,7 +49,7 @@ public class HoneypotManager {
     public static Boolean isHoneypotBlock(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
 
-        for (HoneypotBlock honeypot : honeypotBlocks){
+        for (HoneypotBlockObject honeypot : honeypotBlocks){
             if (honeypot.getCoordinates().equalsIgnoreCase(coordinates)){
                 return true;
             }
@@ -61,7 +61,7 @@ public class HoneypotManager {
     public static String getAction(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
 
-        for (HoneypotBlock honeypot : honeypotBlocks){
+        for (HoneypotBlockObject honeypot : honeypotBlocks){
             if(honeypot.getCoordinates().equalsIgnoreCase((coordinates))){
                 return honeypot.getAction();
             }
@@ -89,7 +89,7 @@ public class HoneypotManager {
         File file = new File(Honeypot.getPlugin().getDataFolder().getAbsolutePath() + "/HoneypotBlocks.json");
         if (file.exists()){
             Reader reader = new FileReader(file);
-            HoneypotBlock[] blockList = gson.fromJson(reader, HoneypotBlock[].class);
+            HoneypotBlockObject[] blockList = gson.fromJson(reader, HoneypotBlockObject[].class);
             honeypotBlocks = new ArrayList<>(Arrays.asList(blockList));
         }
     }
@@ -99,7 +99,7 @@ public class HoneypotManager {
         File file = new File(plugin.getDataFolder().getAbsolutePath() + "/HoneypotBlocks.json");
         if (file.exists()){
             Reader reader = new FileReader(file);
-            HoneypotBlock[] blockList = gson.fromJson(reader, HoneypotBlock[].class);
+            HoneypotBlockObject[] blockList = gson.fromJson(reader, HoneypotBlockObject[].class);
             honeypotBlocks = new ArrayList<>(Arrays.asList(blockList));
         }
     }

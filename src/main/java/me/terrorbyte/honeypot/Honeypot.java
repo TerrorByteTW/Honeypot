@@ -1,8 +1,9 @@
 package me.terrorbyte.honeypot;
 
-import me.terrorbyte.honeypot.commands.CommandManager;
+import me.terrorbyte.honeypot.commands.HoneypotCommandManager;
 import me.terrorbyte.honeypot.events.HoneypotBreakEventListener;
-import me.terrorbyte.honeypot.storagemanager.HoneypotManager;
+import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
+import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,25 +17,35 @@ public final class Honeypot extends JavaPlugin {
         plugin = this;
 
         getServer().getPluginManager().registerEvents(new HoneypotBreakEventListener(), this);
-        getCommand("honeypot").setExecutor(new CommandManager());
-        getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled TSS anti-cheat honeypot plugin!");
+        getCommand("honeypot").setExecutor(new HoneypotCommandManager());
+        getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
 
         try {
             //For whatever reason, if we don't explicitly pass the plugin variable instead of letting HoneypotFileManager
             //use Honeypot.getPlugin(), it crashes the plugin. Idk, it worked fine in the YouTube tutorial I watched lol
-            HoneypotManager.loadHoneypotBlocks(plugin);
+            HoneypotBlockStorageManager.loadHoneypotBlocks(plugin);
+            HoneypotPlayerStorageManager.loadHoneypotPlayers(plugin);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        getConfig().options().copyDefaults();
+        saveDefaultConfig();
 
     }
 
     //On disable, do nothing, really
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        // Save any unsaved HoneypotBlocks for whatever reason
 
-        getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Disabled TSS anti-cheat honeypot plugin!");
+        try {
+            HoneypotBlockStorageManager.saveHoneypotBlocks();
+            HoneypotPlayerStorageManager.saveHoneypotPlayers();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Disabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
     }
 
     //Return the plugin instance

@@ -1,15 +1,15 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.storagemanager.HoneypotManager;
-import me.terrorbyte.honeypot.commands.CommandFeedback;
-import me.terrorbyte.honeypot.commands.SubCommand;
+import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
+import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HoneypotCreate extends SubCommand {
+public class HoneypotCreate extends HoneypotSubCommand {
     //Abstract methods. Return name, description, and syntax
 
     @Override
@@ -36,8 +36,8 @@ public class HoneypotCreate extends SubCommand {
             Block block = p.getTargetBlock(null, 5);
 
             //If the blocks meta has a honeypot tag, let them know
-            if (HoneypotManager.isHoneypotBlock(block)) {
-                p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
+            if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("alreadyexists"));
 
                 //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
             } else {
@@ -47,15 +47,15 @@ public class HoneypotCreate extends SubCommand {
                         args[1].equalsIgnoreCase("notify") ||
                         args[1].equalsIgnoreCase("nothing")))
                 {
-                    HoneypotManager.createBlock(block, args[1]);
-                    p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+                    HoneypotBlockStorageManager.createBlock(block, args[1]);
+                    p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("success", true));
                 } else {
-                    p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+                    p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
                 }
             }
         } else {
             //If no permissions, let the player know
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
         }
 
     }

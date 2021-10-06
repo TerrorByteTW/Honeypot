@@ -2,6 +2,7 @@ package me.terrorbyte.honeypot.commands;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotCreate;
+import me.terrorbyte.honeypot.commands.subcommands.HoneypotReload;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotRemove;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -14,15 +15,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommandManager implements TabExecutor {
+public class HoneypotCommandManager implements TabExecutor {
 
     //Create an ArrayList of SubCommands called subcommands
-    private final ArrayList<SubCommand> subcommands = new ArrayList<>();
+    private final ArrayList<HoneypotSubCommand> subcommands = new ArrayList<>();
 
     //Register all our subcommands to the array list
-    public CommandManager(){
+    public HoneypotCommandManager(){
         subcommands.add(new HoneypotCreate());
         subcommands.add(new HoneypotRemove());
+        subcommands.add(new HoneypotReload());
     }
 
     //This method allows for running our commands
@@ -36,18 +38,18 @@ public class CommandManager implements TabExecutor {
                 //If it's a player, ensure there is at least 1 argument given
                 if(args.length > 0) {
                     //For each subcommand in the subcommands array list, check if the argument is the same as the command. If so, run said subcommand
-                    for (SubCommand subcommand : subcommands) {
+                    for (HoneypotSubCommand subcommand : subcommands) {
                         if (args[0].equalsIgnoreCase(subcommand.getName())) {
                             subcommand.perform(p, args);
                         }
                     }
                 } else {
                     //If none of the subcommands are in the list, send the usage command feedback.
-                    p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+                    p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
                 }
             } else {
                 //If they don't have permissions, let the player know
-                p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
             }
         } else {
             //If the sender is not a player (Probably the console), send this message
@@ -58,7 +60,7 @@ public class CommandManager implements TabExecutor {
     }
 
     //Return a list of all subcommands (used for tab completion).
-    public ArrayList<SubCommand> getSubcommands(){
+    public ArrayList<HoneypotSubCommand> getSubcommands(){
         return subcommands;
     }
 
@@ -85,7 +87,7 @@ public class CommandManager implements TabExecutor {
                 return subcommands;
             } else if (args.length >= 2) {
                 //If the argument is the 2nd one or more, return the subcommands for that subcommand
-                for (SubCommand subcommand : subcommands) {
+                for (HoneypotSubCommand subcommand : subcommands) {
                     if (args[0].equalsIgnoreCase(subcommand.getName())) {
                         return subcommand.getSubcommands((Player) sender, args);
                     }
