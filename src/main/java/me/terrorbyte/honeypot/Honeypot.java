@@ -22,15 +22,28 @@ public final class Honeypot extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HoneypotExplosionEventListener(), this);
         getServer().getPluginManager().registerEvents(new HoneypotEntityChangeEventListener(), this);
         getCommand("honeypot").setExecutor(new HoneypotCommandManager());
-        getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
+        //getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
+
+        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n _____                         _\n" +
+        "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
+        "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
+        "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
+        "                  |___|_|\n");
 
         try {
             //For whatever reason, if we don't explicitly pass the plugin variable instead of letting HoneypotFileManager
             //use Honeypot.getPlugin(), it crashes the plugin. Idk, it worked fine in the YouTube tutorial I watched lol
+            getLogger().info("Loading honeypot blocks...");
             HoneypotBlockStorageManager.loadHoneypotBlocks(plugin);
+
+            getLogger().info("Loading honeypot players...");
             HoneypotPlayerStorageManager.loadHoneypotPlayers(plugin);
+
+            getLogger().info("Successfully enabled");
         } catch (IOException e) {
             e.printStackTrace();
+            getLogger().severe("Could not load honeypot blocks or players, disabling! Please alert the plugin author with the full stack trace above");
+            this.getPluginLoader().disablePlugin(this);
         }
 
         getConfig().options().copyDefaults();
@@ -52,12 +65,15 @@ public final class Honeypot extends JavaPlugin {
         // Save any unsaved HoneypotBlocks for whatever reason
 
         try {
+            getLogger().info("Saving honeypot blocks...");
             HoneypotBlockStorageManager.saveHoneypotBlocks();
+            getLogger().info("Saving honeypot players...");
             HoneypotPlayerStorageManager.saveHoneypotPlayers();
+            getLogger().info("Successfully shutdown Honeypot. Bye for !");
         } catch (IOException e) {
             e.printStackTrace();
+            getLogger().severe("Could not save honeypot blocks or players. You may experience issues restarting this plugin. Please alert the plugin author with the full stack trace above");
         }
-        getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Disabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
     }
 
     //Return the plugin instance
