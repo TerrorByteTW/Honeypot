@@ -9,26 +9,28 @@ import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import java.io.IOException;
 
-public class HoneypotBreakEventListener implements Listener {
+public class HoneypotPlayerBreakEventListener implements Listener {
 
-    @EventHandler
+    //Player block break event
+    @EventHandler(priority = EventPriority.LOW)
     public static void BlockBreakEvent(BlockBreakEvent event) throws IOException {
         if(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock())){
 
             boolean deleteBlock = false;
 
-            if((Honeypot.getPlugin().getConfig().getBoolean("allow-destruction")) || (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
+            if((Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction")) || (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                 deleteBlock = true;
             } else {
                 event.setCancelled(true);
             }
 
-            if(Honeypot.getPlugin().getConfig().getInt("blocks-broken-before-action-taken") <= 1 || Honeypot.getPlugin().getConfig().getBoolean("allow-destruction")){
+            if(Honeypot.getPlugin().getConfig().getInt("blocks-broken-before-action-taken") <= 1 || Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction")){
                 breakAction(event);
             } else {
                 countBreak(event);
