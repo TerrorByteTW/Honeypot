@@ -1,7 +1,7 @@
 # Honeypot Anti-Grief Solution 🍯🚫 
 
 ## What is Honeypot?
-Honeypot Anti-Grief Solution is a Minecraft Spigot server plugin which is designed to catch bad actors and punish them. It is not designed to replace existing anti-grief plugins, but instead is meant to compliment them as a grief deterrent.
+Honeypot Anti-Grief Solution is a Minecraft Spigot server plugin which is designed to catch bad actors and punish them in the act. The goal is to catch them before damage is done, especially if staff doesn't realize it's happening or are unable to intervene. Its job is to minimize damage and make less of a mess for staff to clean up later on. 
 
 ## Why was Honeypot created?
 Honeypot is a customizable anti-grief plugin which allows any placeable block to be used as a trap for players looking to grief. It can be used to catch Xray-ers, deter griefers from breaking unprotected builds, and more.
@@ -27,7 +27,6 @@ If your server is using Honeypot, let me know! I'd love to add it to this list.
 This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me.
 
 ## To-do 📝
-* Add an in-game update checker to notify operators of updates and even potentially automatically update it for you
 * Command to easily locate honeyblocks. Currently, if you've lost one you gotta go to the JSON file 😖
 * Add custom actions to honeyblocks (Want to teleport them to the void? Want to charge them a griefing fee? These are all things I want to do).
 * Increase speed of database lookups
@@ -41,4 +40,4 @@ TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintai
 Google Gson is also used as a "database" of sorts to persistently store Honeypot blocks and players who break them in JSON files and load them to RAM at plugin startup for quicker lookups.
 
 ## Note 📒
-Honeypot Anti-Grief Solution is not designed to replace land protection plugins such as [Lands](https://www.spigotmc.org/resources/lands-land-claim-plugin-grief-prevention-protection-gui-management-nations-wars-1-17-support.53313/), [WorldGuard](https://dev.bukkit.org/projects/worldguard), [GriefPrevention](https://www.spigotmc.org/resources/griefprevention.1884/), [CoreProtect](https://www.spigotmc.org/resources/coreprotect.8631/), etc. Please make sure you have another protection and rollback plugin to prevent mass griefing. Honeypot is just meant to keep honest people honest and to catch bad actors without moderators monitoring players. I actually recommend CoreProtect and the paid Lands plugin, as I used them in production servers and they are fantastic! Honeypot is a perfect plugin to compliment them both.
+Honeypot Anti-Grief Solution is not designed to replace land protection plugins such as [Lands](https://www.spigotmc.org/resources/lands-land-claim-plugin-grief-prevention-protection-gui-management-nations-wars-1-17-support.53313/), [WorldGuard](https://dev.bukkit.org/projects/worldguard), [GriefPrevention](https://www.spigotmc.org/resources/griefprevention.1884/), [CoreProtect](https://www.spigotmc.org/resources/coreprotect.8631/), etc. Please make sure you have another protection and rollback plugin to prevent mass griefing. Honeypot is just meant to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I actually recommend CoreProtect and the paid Lands plugin, as I used them in production servers and they are fantastic! Honeypot is a perfect plugin to compliment them both.
