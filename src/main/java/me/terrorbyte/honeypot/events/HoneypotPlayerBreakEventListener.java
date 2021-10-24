@@ -3,6 +3,7 @@ package me.terrorbyte.honeypot.events;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
+import me.terrorbyte.honeypot.HoneypotConfigColorManager;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,7 +25,7 @@ public class HoneypotPlayerBreakEventListener implements Listener {
 
             boolean deleteBlock = false;
 
-            if((Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction")) || (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
+            if(Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction") || (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                 deleteBlock = true;
             } else {
                 event.setCancelled(true);
@@ -33,7 +34,9 @@ public class HoneypotPlayerBreakEventListener implements Listener {
             if(Honeypot.getPlugin().getConfig().getInt("blocks-broken-before-action-taken") <= 1 || Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction")){
                 breakAction(event);
             } else {
-                countBreak(event);
+                if(!event.getPlayer().hasPermission("honeypot.exempt") && !event.getPlayer().isOp() && !event.getPlayer().hasPermission("honeypot.remove")){
+                    countBreak(event);
+                }
             }
 
             if(deleteBlock) {
@@ -44,6 +47,7 @@ public class HoneypotPlayerBreakEventListener implements Listener {
 
     private static void breakAction(BlockBreakEvent event){
         Block block = event.getBlock();
+        String chatPrefix = HoneypotConfigColorManager.getChatPrefix();
 
         if(!(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())){
 
@@ -52,25 +56,27 @@ public class HoneypotPlayerBreakEventListener implements Listener {
             assert action != null;
             switch (action) {
                 case "kick" ->
-                        event.getPlayer().kickPlayer("[Honeypot] You have been kicked for breaking honeypot blocks");
+                        event.getPlayer().kickPlayer(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("kick"));
 
                 case "ban" -> {
-                    Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), "[Honeypot] " + Honeypot.getPlugin().getConfig().getString("ban-reason"), null, "[Honeypot]");
-                    event.getPlayer().kickPlayer("[Honeypot] " + Honeypot.getPlugin().getConfig().getString("ban-reason"));
+                    String banReason = chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("ban");
+
+                    Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), banReason, null, chatPrefix);
+                    event.getPlayer().kickPlayer(banReason);
                 }
 
                 case "warn" ->
-                        event.getPlayer().sendMessage(ChatColor.AQUA + "[Honeypot] " + ChatColor.RED + Honeypot.getPlugin().getConfig().getString("warn-message"));
+                        event.getPlayer().sendMessage(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("warn"));
 
                 case "notify" -> {
                     //Notify all staff members with permission or Op that someone tried to break a honeypot block
                     for (Player player : Bukkit.getOnlinePlayers()){
                         if (player.hasPermission("honeypot.notify") || player.hasPermission("honeypot.*") || player.isOp()){
-                            player.sendMessage(ChatColor.AQUA + "[Honeypot] " + ChatColor.RED + event.getPlayer().getName() + " was caught breaking a Honeypot block at x=" + block.getX() + ", y=" + block.getY() + ", z=" + block.getZ());
+                            player.sendMessage(chatPrefix + " " + ChatColor.RED + event.getPlayer().getName() + " was caught breaking a Honeypot block at x=" + block.getX() + ", y=" + block.getY() + ", z=" + block.getZ());
                         }
                     }
 
-                    Honeypot.getPlugin().getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "[Honeypot] " + ChatColor.RED + event.getPlayer().getName() + " was caught breaking a Honeypot block");
+                    Honeypot.getPlugin().getServer().getConsoleSender().sendMessage(chatPrefix + " " + ChatColor.RED + event.getPlayer().getName() + " was caught breaking a Honeypot block");
                 }
 
                 default -> {
@@ -79,10 +85,10 @@ public class HoneypotPlayerBreakEventListener implements Listener {
             }
         } else if (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp()){
             HoneypotBlockStorageManager.deleteBlock(block);
-            event.getPlayer().sendMessage(ChatColor.AQUA + "[Honeypot] " + ChatColor.WHITE + "Just an FYI this was a honeypot. Since you broke it we've removed it");
+            event.getPlayer().sendMessage(chatPrefix + " " + ChatColor.WHITE + "Just an FYI this was a honeypot. Since you broke it we've removed it");
         } else {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(ChatColor.AQUA + "[Honeypot] " + ChatColor.RED + "You are exempt from break actions, but do not have permissions to remove honeypot blocks. Sorry!");
+            event.getPlayer().sendMessage(chatPrefix + " " + ChatColor.RED + "You are exempt from break actions, but do not have permissions to remove honeypot blocks. Sorry!");
         }
     }
 
@@ -103,5 +109,4 @@ public class HoneypotPlayerBreakEventListener implements Listener {
             HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer().getName(), blocksBroken);
         }
     }
-
 }

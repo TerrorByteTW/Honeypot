@@ -10,7 +10,6 @@ import java.util.Arrays;
 
 public class HoneypotPlayerStorageManager {
 
-    //TODO - Convert this to track players, not blocks
     //Create an array list for all honeypotBlocks to reside in while plugin is functioning
     private static ArrayList<HoneypotPlayerObject> honeypotPlayers = new ArrayList<>();
 

@@ -1,9 +1,7 @@
 package me.terrorbyte.honeypot;
 
 import me.terrorbyte.honeypot.commands.HoneypotCommandManager;
-import me.terrorbyte.honeypot.events.HoneypotEntityChangeEventListener;
-import me.terrorbyte.honeypot.events.HoneypotExplosionEventListener;
-import me.terrorbyte.honeypot.events.HoneypotPlayerBreakEventListener;
+import me.terrorbyte.honeypot.events.*;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.ChatColor;
@@ -21,6 +19,8 @@ public final class Honeypot extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HoneypotPlayerBreakEventListener(), this);
         getServer().getPluginManager().registerEvents(new HoneypotExplosionEventListener(), this);
         getServer().getPluginManager().registerEvents(new HoneypotEntityChangeEventListener(), this);
+        getServer().getPluginManager().registerEvents(new HoneypotPlayerContainerOpenListener(), this);
+        getServer().getPluginManager().registerEvents(new HoneypotPistonMoveListener(), this);
         getCommand("honeypot").setExecutor(new HoneypotCommandManager());
         //getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
 
@@ -46,17 +46,15 @@ public final class Honeypot extends JavaPlugin {
             this.getPluginLoader().disablePlugin(this);
         }
 
-        getConfig().options().copyDefaults();
-        saveDefaultConfig();
+        setupConfig();
 
-        new HoneypotUpdateChecker(this, 96665).getVersion(version -> {
+        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/redstonefreak589/Honeypot/master/version.txt").getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
                 getLogger().info(ChatColor.GREEN + "You are on the latest version of Honeypot!");
             } else {
                 getLogger().info(ChatColor.RED + "There is a new update available: " + version + ". Please download for the latest features and security updates!");
             }
         });
-
     }
 
     //On disable, do nothing, really
@@ -74,6 +72,21 @@ public final class Honeypot extends JavaPlugin {
             e.printStackTrace();
             getLogger().severe("Could not save honeypot blocks or players. You may experience issues restarting this plugin. Please alert the plugin author with the full stack trace above");
         }
+    }
+
+    public void setupConfig(){
+        getConfig().addDefault("blocks-broken-before-action-taken", 1);
+        getConfig().addDefault("allow-player-destruction", true);
+        getConfig().addDefault("allow-explode", true);
+        getConfig().addDefault("allow-enderman", true);
+        getConfig().addDefault("enable-container-actions", true);
+        getConfig().addDefault("kick-reason", "Kicked for breaking honeypot blocks. Don't grief!");
+        getConfig().addDefault("ban-reason", "You have been banned for breaking honeypot blocks");
+        getConfig().addDefault("warn-message", "Please don't grief builds!");
+        getConfig().addDefault("chat-prefix", "&b[Honeypot]");
+
+        getConfig().options().copyDefaults(true);
+        saveConfig();
     }
 
     //Return the plugin instance

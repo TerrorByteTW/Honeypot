@@ -1,24 +1,10 @@
-# Number of Honeypot blocks a player must break before action is taken. Action will be taken immediately
-# after the number is reached, therefore set to 1 or less for instant action
+# For a detailed explanation of what these config items do, please visit the GitHub Wiki page here: https://github.com/redstonefreak589/Honeypot/wiki#configyml
 blocks-broken-before-action-taken: 1
-
-# Allows players to break/mine Honeypot blocks. If set to false, the Honeypot block will be disabled from breaking.
-# If this is true, then blocks-broken-before-action-taken will be ignored and action will immediately be taken
 allow-player-destruction: true
-
-# Allows explosions to destroy honeypot blocks. If set to false, explosions will not remove Honeypot blocks
-# If set to true, Honeypots destroyed by players using TNT, summing Withers, etc. will not be counted towards them
 allow-explode: false
-
-# Allows Enderman to pickup Honeypot blocks. If set to true, Honeypot blocks will be removed and will not function,
-# even if the Enderman places it right back down in the exact same spot
 allow-enderman: false
-
-# Kick reason
+enable-container-actions: true
 kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
-
-# Ban reason
 ban-reason: "You have been banned for breaking honeypot blocks"
-
-# Warn message
 warn-message: "Please don't grief builds!"
+chat-prefix: "&b[Honeypot]&r"
