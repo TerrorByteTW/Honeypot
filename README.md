@@ -27,13 +27,11 @@ If your server is using Honeypot, let me know! I'd love to add it to this list.
 This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me. Development is done at the pace in which I have time to do so, but it is currently **active** ✅
 
 ## To-do 📝
-* Command to easily locate honeyblocks. Currently, if you've lost one you gotta go to the JSON file 😖
-* Add custom actions to honeyblocks (Want to teleport them to the void? Want to charge them a griefing fee? These are all things I want to do).
-* Increase speed of database lookups
-* Add the ability to whitelist or blacklist exemptions based on permissions
+* Command to easily locate honeyblocks. Currently, if you've lost one you gotta go to the JSON file 😖 *(In progress!)*
+* Add custom actions to honeyblocks *(Researching)*
+* Increase speed of database lookups *(Researching)*
 * Add ability to store in different database types (SQLite, H2, etc.)
 * Add block filtering to avoid checking every single BlockBreakEvent for a honeypot (This would limit the type of honeypots you can create, however)
-* Support for land claim and rollback plugins
 
 ## Credits 🎬
 TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed!
