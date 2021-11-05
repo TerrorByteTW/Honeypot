@@ -2,6 +2,7 @@ package me.terrorbyte.honeypot.commands;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotCreate;
+import me.terrorbyte.honeypot.commands.subcommands.HoneypotLocate;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotReload;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotRemove;
 import org.bukkit.ChatColor;
@@ -25,6 +26,7 @@ public class HoneypotCommandManager implements TabExecutor {
         subcommands.add(new HoneypotCreate());
         subcommands.add(new HoneypotRemove());
         subcommands.add(new HoneypotReload());
+        subcommands.add(new HoneypotLocate());
     }
 
     //This method allows for running our commands
