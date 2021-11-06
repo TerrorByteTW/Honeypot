@@ -18,6 +18,9 @@ permissions:
   honeypot.remove:
     description: Allows a user to remove honeypot blocks
     default: op
+  honeypot.locate:
+    description: Allows a user to see nearby honeypot blocks
+    default: op
   honeypot.exempt:
     description: Exempts a player from break actions
     default: op
@@ -26,6 +29,9 @@ permissions:
     default: op
   honeypot.reload:
     description: Allows user to reload the config
+    default: op
+  honeypot.update:
+    description: Notifies player on join if a Honeypot plugin update is available
     default: op
   honeypot.*:
     description: Allows all honeypot permissions
@@ -37,3 +43,5 @@ permissions:
       honeypot.exempt: true
       honeypot.notify: true
       honeypot.reload: true
+      honeypot.locate: true
+      honeypot.update: true

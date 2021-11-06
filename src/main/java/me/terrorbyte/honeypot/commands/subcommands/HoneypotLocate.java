@@ -1,12 +1,15 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
+import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigColorManager;
+import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
-import org.bukkit.Color;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
@@ -28,29 +31,62 @@ public class HoneypotLocate extends HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) {
-        final double radius = 10d;
-        final double xCoord = p.getLocation().getX();
-        final double yCoord = p.getLocation().getY();
-        final double zCoord = p.getLocation().getZ();
 
-        //TODO - Test this code to see if it actually works lmao
-        for (double x = xCoord - radius; x < xCoord + radius; x++) {
-            for (double y = yCoord - radius; y < yCoord + radius; y++) {
-                for (double z = zCoord - radius; z < zCoord + radius; z++) {
-                    final Block b = new Location(p.getWorld(), x, y, z).getBlock();
-                    if (HoneypotBlockStorageManager.isHoneypotBlock(b)){
-                        Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(252, 186, 3), 1.0F);
-                        for (int i = 1; i <= 10; i++) {
-                            p.getWorld().spawnParticle(Particle.REDSTONE, b.getLocation().add(0, i, 0), 10, dustOptions);
-                            p.getWorld().spawnParticle(Particle.REDSTONE, b.getLocation().add(0, -i, 0), 10, dustOptions);
-                            p.getWorld().spawnParticle(Particle.REDSTONE, b.getLocation().add(i, 0, 0), 10, dustOptions);
-                            p.getWorld().spawnParticle(Particle.REDSTONE, b.getLocation().add(-i, 0, 0), 10, dustOptions);
-                            p.getWorld().spawnParticle(Particle.REDSTONE, b.getLocation().add(0, 0, i), 10, dustOptions);
-                            p.getWorld().spawnParticle(Particle.REDSTONE, b.getLocation().add(0, 0, -i), 10, dustOptions);
+        //If the player has locate permissions, do this
+        if(p.hasPermission("honeypot.locate") || p.hasPermission("honeypot.*") || p.isOp()) {
+
+            //Set a 5 block search radius
+            final double radius = 5d;
+            final double xCoord = p.getLocation().getX();
+            final double yCoord = p.getLocation().getY();
+            final double zCoord = p.getLocation().getZ();
+            boolean potFound = false;
+
+            //For every x value within 5 blocks
+            for (double x = xCoord - radius; x < xCoord + radius; x++) {
+                //For every y value within 5 blocks
+                for (double y = yCoord - radius; y < yCoord + radius; y++) {
+                    //For every z value within 5 blocks
+                    for (double z = zCoord - radius; z < zCoord + radius; z++) {
+
+                        //Check the block at coords x,y,z to see if it's a Honeypot
+                        final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+
+                        //If it is a honeypot do this
+                        if (HoneypotBlockStorageManager.isHoneypotBlock(b)) {
+                            potFound = true;
+
+                            //Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn it inside the block
+                            Slime slime = (Slime) Bukkit.getWorld(b.getWorld().getName()).spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
+                            slime.setSize(2);
+                            slime.setAI(false);
+                            slime.setGlowing(true);
+                            slime.setInvulnerable(true);
+                            slime.setHealth(4.0);
+                            slime.setInvisible(true);
+
+                            //After 5 seconds, remove the slime. Setting its health to 0 causes the death animation, removing it just makes it go away. Poof!
+                            new BukkitRunnable() {
+
+                                @Override
+                                public void run() {
+                                    slime.remove();
+                                }
+                            }.runTaskLater(Honeypot.getPlugin(), 20 * 5);
+
                         }
                     }
                 }
             }
+
+            //Let the player know if a pot was found or not
+            if (potFound) {
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("foundpot"));
+            } else {
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopotfound"));
+            }
+        } else {
+            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
         }
     }
 

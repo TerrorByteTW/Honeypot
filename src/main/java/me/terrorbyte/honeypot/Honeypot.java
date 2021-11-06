@@ -21,6 +21,7 @@ public final class Honeypot extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HoneypotEntityChangeEventListener(), this);
         getServer().getPluginManager().registerEvents(new HoneypotPlayerContainerOpenListener(), this);
         getServer().getPluginManager().registerEvents(new HoneypotPistonMoveListener(), this);
+        getServer().getPluginManager().registerEvents(new HoneypotPlayerJoinListener(), this);
         getCommand("honeypot").setExecutor(new HoneypotCommandManager());
         //getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
 

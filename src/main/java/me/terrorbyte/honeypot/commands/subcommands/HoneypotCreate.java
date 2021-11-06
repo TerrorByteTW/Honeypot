@@ -31,7 +31,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
     public void perform(Player p, String[] args) {
 
         //If player has create permission, let them do this
-        if(p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*") || p.isOp()){
+        if(p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*") || p.isOp()) {
             //Get block the player is looking at
             Block block = p.getTargetBlock(null, 5);
 

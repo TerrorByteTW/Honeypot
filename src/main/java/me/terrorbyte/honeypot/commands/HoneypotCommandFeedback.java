@@ -12,7 +12,9 @@ public class HoneypotCommandFeedback {
         if (feedback.equalsIgnoreCase("usage")) {
             feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Incorrect usage!\n" +
                     chatPrefix + " " + ChatColor.WHITE + "/honeypot create [ban | kick | warn | notify | nothing]\n" +
-                    chatPrefix + " " + ChatColor.WHITE + "/honeypot remove");
+                    chatPrefix + " " + ChatColor.WHITE + "/honeypot remove\n" +
+                    chatPrefix + " " + ChatColor.WHITE + "/honeypot reload\n" +
+                    chatPrefix + " " + ChatColor.WHITE + "/honeypot locate");
 
         } else if (feedback.equalsIgnoreCase("alreadyexists")) {
             feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This is already a honeypot block. If you wish to change the action, please remove and recreate it.");
@@ -35,6 +37,12 @@ public class HoneypotCommandFeedback {
             feedbackMessage = (chatPrefix + " " + ChatColor.RED + "You don't have permission to use this command");
         } else if (feedback.equalsIgnoreCase("reload")){
             feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Reloading config file");
+        } else if (feedback.equalsIgnoreCase("foundpot")) {
+            feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Highlighting honeypot blocks within range");
+        } else if (feedback.equalsIgnoreCase("nopotfound")) {
+            feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "No honeypot blocks found within range");
+        } else if (feedback.equalsIgnoreCase("updateavailable")){
+            feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "An update is available for this plugin. Download it at " + ChatColor.GOLD + "https://github.com/redstonefreak589/Honeypot " + ChatColor.WHITE + "for the latest features and security updates!");
         } else {
             feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED + "Unknown error, please contact server admin");
         }
