@@ -1,18 +1,16 @@
 package me.terrorbyte.honeypot.storagemanager;
 
-import com.google.gson.Gson;
 import me.terrorbyte.honeypot.Honeypot;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class HoneypotBlockStorageManager {
 
     //Create an array list for all honeypotBlocks to reside in while plugin is functioning
-    private static ArrayList<HoneypotBlockObject> honeypotBlocks = new ArrayList<>();
+    private static final ArrayList<HoneypotBlockObject> honeypotBlocks = new ArrayList<>();
 
     //Create a honeypot block by creating a HoneypotBlock object and storing it to the array, then saving it to the file for safe keeping
     public static HoneypotBlockObject createBlock(Block block, String action){
@@ -29,7 +27,7 @@ public class HoneypotBlockStorageManager {
         return honeypotBlock;
     }
 
-    //Compare the coordinates of the sent block to every block in the JSON list. If it exists, delete it and break to avoid a Java error
+    //Compare the coordinates of the received block to every block in the JSON list. If it exists, delete it and break to avoid a Java error
     public static void deleteBlock(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
 
@@ -73,36 +71,27 @@ public class HoneypotBlockStorageManager {
 
     //Save the list to JSON
     public static void saveHoneypotBlocks() throws IOException {
-        Gson gson = new Gson();
-        File file = new File(Honeypot.getPlugin().getDataFolder().getAbsolutePath() + "/HoneypotBlocks.json");
-        file.getParentFile().mkdir();
-        file.createNewFile();
-
-        Writer writer = new FileWriter(file, false);
-        gson.toJson(honeypotBlocks, writer);
-        writer.flush();
-        writer.close();
-    }
-
-    //Retrieve the JSON and store it in a list
-    public static void loadHoneypotBlocks() throws IOException {
-        Gson gson = new Gson();
-        File file = new File(Honeypot.getPlugin().getDataFolder().getAbsolutePath() + "/HoneypotBlocks.json");
-        if (file.exists()){
-            Reader reader = new FileReader(file);
-            HoneypotBlockObject[] blockList = gson.fromJson(reader, HoneypotBlockObject[].class);
-            honeypotBlocks = new ArrayList<>(Arrays.asList(blockList));
+        switch (Honeypot.getDatabase()) {
+            case "json":
+                JSONManager.saveHoneypotBlocks(honeypotBlocks);
+                break;
+            case "sqlite":
+                break;
+            default:
+                break;
         }
     }
 
+    //Retrieve JSON List
     public static void loadHoneypotBlocks(Plugin plugin) throws IOException {
-        Gson gson = new Gson();
-        File file = new File(plugin.getDataFolder().getAbsolutePath() + "/HoneypotBlocks.json");
-        if (file.exists()){
-            Reader reader = new FileReader(file);
-            HoneypotBlockObject[] blockList = gson.fromJson(reader, HoneypotBlockObject[].class);
-            honeypotBlocks = new ArrayList<>(Arrays.asList(blockList));
+        switch (Honeypot.getDatabase()) {
+            case "json":
+                JSONManager.loadHoneypotBlocks(plugin);
+                break;
+            case "sqlite":
+                break;
+            default:
+                break;
         }
     }
-
 }

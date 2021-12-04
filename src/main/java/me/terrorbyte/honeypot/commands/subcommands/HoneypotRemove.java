@@ -1,6 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import org.bukkit.block.Block;
@@ -19,7 +19,7 @@ public class HoneypotRemove extends HoneypotSubCommand {
 
         //Check if they have permission
         if(!(p.hasPermission("honeypot.remove"))) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
@@ -29,11 +29,11 @@ public class HoneypotRemove extends HoneypotSubCommand {
         //If it is a pot
         if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
             HoneypotBlockStorageManager.deleteBlock(block);
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("success", false));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
 
             //If it is not a pot
         } else {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("notapot"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
         }
     }
 

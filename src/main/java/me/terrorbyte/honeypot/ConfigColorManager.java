@@ -4,7 +4,7 @@ import org.bukkit.ChatColor;
 
 import java.util.Objects;
 
-public class HoneypotConfigColorManager {
+public class ConfigColorManager {
 
     public static String getChatPrefix(){
         return ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(Honeypot.getPlugin().getConfig().getString("chat-prefix")));

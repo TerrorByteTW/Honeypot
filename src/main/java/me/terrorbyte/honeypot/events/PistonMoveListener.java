@@ -10,7 +10,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 
 import java.util.List;
 
-public class HoneypotPistonMoveListener implements Listener {
+public class PistonMoveListener implements Listener {
 
     //Player block break event
     @EventHandler(priority = EventPriority.LOW)

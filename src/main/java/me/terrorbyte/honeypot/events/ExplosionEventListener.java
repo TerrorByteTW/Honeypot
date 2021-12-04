@@ -11,7 +11,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HoneypotExplosionEventListener implements Listener {
+public class ExplosionEventListener implements Listener {
 
     //Explosion listener
     @EventHandler(priority = EventPriority.LOW)

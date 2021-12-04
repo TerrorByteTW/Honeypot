@@ -1,7 +1,7 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
@@ -21,15 +21,15 @@ public class HoneypotReload extends HoneypotSubCommand {
 
         //Check if they have permission
         if(!(p.hasPermission("honeypot.reload"))){
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
-        p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("reload"));
+        p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
         Honeypot.getPlugin().reloadConfig();
         try {
-            HoneypotBlockStorageManager.loadHoneypotBlocks();
-            HoneypotPlayerStorageManager.loadHoneypotPlayers();
+            HoneypotBlockStorageManager.loadHoneypotBlocks(Honeypot.getPlugin());
+            HoneypotPlayerStorageManager.loadHoneypotPlayers(Honeypot.getPlugin());
         } catch (IOException e) {
             //Nothing
         }

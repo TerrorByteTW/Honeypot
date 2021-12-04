@@ -16,13 +16,13 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HoneypotCommandManager implements TabExecutor {
+public class CommandManager implements TabExecutor {
 
     //Create an ArrayList of SubCommands called subcommands
     private final ArrayList<HoneypotSubCommand> subcommands = new ArrayList<>();
 
     //Register all our subcommands to the array list
-    public HoneypotCommandManager(){
+    public CommandManager(){
         subcommands.add(new HoneypotCreate());
         subcommands.add(new HoneypotRemove());
         subcommands.add(new HoneypotReload());
@@ -37,7 +37,7 @@ public class HoneypotCommandManager implements TabExecutor {
         if(sender instanceof Player p) {
 
             if(!(p.hasPermission("honeypot.commands") || p.hasPermission("honeypot.*") || p.isOp())) {
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+                p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
                 return false;
             }
 
@@ -51,7 +51,7 @@ public class HoneypotCommandManager implements TabExecutor {
                 }
             } else {
                 //If none of the subcommands are in the list, send the usage command feedback.
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
+                p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
             }
 
         } else {
