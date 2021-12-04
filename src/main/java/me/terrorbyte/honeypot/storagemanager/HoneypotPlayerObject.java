@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 public class HoneypotPlayerObject {
 
-    private String playerName;
+    private final String playerName;
     private int blocksBroken;
 
     public HoneypotPlayerObject(String playerName, int blocksBroken) {

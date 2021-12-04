@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public final class Honeypot extends JavaPlugin {
 
@@ -22,14 +23,14 @@ public final class Honeypot extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new HoneypotPlayerContainerOpenListener(), this);
         getServer().getPluginManager().registerEvents(new HoneypotPistonMoveListener(), this);
         getServer().getPluginManager().registerEvents(new HoneypotPlayerJoinListener(), this);
-        getCommand("honeypot").setExecutor(new HoneypotCommandManager());
+        Objects.requireNonNull(getCommand("honeypot")).setExecutor(new HoneypotCommandManager());
         //getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
 
-        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n _____                         _\n" +
+        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + " _____                         _\n" +
         "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
         "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
         "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
-        "                  |___|_|\n");
+        "                  |___|_|");
 
         try {
             //For whatever reason, if we don't explicitly pass the plugin variable instead of letting HoneypotFileManager
@@ -51,9 +52,9 @@ public final class Honeypot extends JavaPlugin {
 
         new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/redstonefreak589/Honeypot/master/version.txt").getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
-                getLogger().info(ChatColor.GREEN + "You are on the latest version of Honeypot!");
+                getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "You are on the latest version of Honeypot!");
             } else {
-                getLogger().info(ChatColor.RED + "There is a new update available: " + version + ". Please download for the latest features and security updates!");
+                getServer().getConsoleSender().sendMessage(ChatColor.RED + "There is a new update available: " + version + ". Please download for the latest features and security updates!");
             }
         });
     }

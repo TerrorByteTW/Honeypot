@@ -36,23 +36,24 @@ public class HoneypotCommandManager implements TabExecutor {
         //Check if the command sender is a player
         if(sender instanceof Player p) {
 
-            if(p.hasPermission("honeypot.commands") || p.hasPermission("honeypot.*") || p.isOp()){
-                //If it's a player, ensure there is at least 1 argument given
-                if(args.length > 0) {
-                    //For each subcommand in the subcommands array list, check if the argument is the same as the command. If so, run said subcommand
-                    for (HoneypotSubCommand subcommand : subcommands) {
-                        if (args[0].equalsIgnoreCase(subcommand.getName())) {
-                            subcommand.perform(p, args);
-                        }
+            if(!(p.hasPermission("honeypot.commands") || p.hasPermission("honeypot.*") || p.isOp())) {
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+                return false;
+            }
+
+            //If it's a player, ensure there is at least 1 argument given
+            if (args.length > 0) {
+                //For each subcommand in the subcommands array list, check if the argument is the same as the command. If so, run said subcommand
+                for (HoneypotSubCommand subcommand : subcommands) {
+                    if (args[0].equalsIgnoreCase(subcommand.getName())) {
+                        subcommand.perform(p, args);
                     }
-                } else {
-                    //If none of the subcommands are in the list, send the usage command feedback.
-                    p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
                 }
             } else {
-                //If they don't have permissions, let the player know
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+                //If none of the subcommands are in the list, send the usage command feedback.
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
             }
+
         } else {
             //If the sender is not a player (Probably the console), send this message
             Honeypot.getPlugin().getServer().getConsoleSender().sendMessage(ChatColor.DARK_RED + "You must run this command as an in-game player!");

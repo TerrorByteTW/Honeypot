@@ -14,12 +14,14 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 
+import java.util.Objects;
+
 public class HoneypotPlayerContainerOpenListener implements Listener {
 
     //Player block break event
     @EventHandler(priority = EventPriority.LOW)
     public static void InventoryOpenEvent(InventoryOpenEvent event) {
-        if (!(event.getPlayer().getTargetBlockExact(10).getType().equals(Material.ENDER_CHEST)) && HoneypotBlockStorageManager.isHoneypotBlock(event.getPlayer().getTargetBlockExact(10))) {
+        if (!(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(10)).getType().equals(Material.ENDER_CHEST)) && HoneypotBlockStorageManager.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(10)))) {
             if(Honeypot.getPlugin().getConfig().getBoolean("enable-container-actions") && !(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())){
                 event.setCancelled(true);
                 openAction(event);
@@ -34,12 +36,13 @@ public class HoneypotPlayerContainerOpenListener implements Listener {
 
         if(!(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())){
 
+            assert block != null;
             String action = HoneypotBlockStorageManager.getAction(block);
 
             assert action != null;
+            assert player != null;
             switch (action) {
-                case "kick" ->
-                        player.kickPlayer(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("kick"));
+                case "kick" -> player.kickPlayer(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("kick"));
 
                 case "ban" -> {
                     String banReason = chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("ban");

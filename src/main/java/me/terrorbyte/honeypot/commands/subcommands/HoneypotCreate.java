@@ -18,46 +18,34 @@ public class HoneypotCreate extends HoneypotSubCommand {
     }
 
     @Override
-    public String getDescription() {
-        return "Create a honeypot";
-    }
-
-    @Override
-    public String getSyntax() {
-        return "/honeypot create <action> <reason>";
-    }
-
-    @Override
     public void perform(Player p, String[] args) {
 
-        //If player has create permission, let them do this
-        if(p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*") || p.isOp()) {
-            //Get block the player is looking at
-            Block block = p.getTargetBlock(null, 5);
-
-            //If the blocks meta has a honeypot tag, let them know
-            if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("alreadyexists"));
-
-                //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
-            } else {
-                if(args.length >= 2 && (args[1].equalsIgnoreCase("kick") ||
-                        args[1].equalsIgnoreCase("ban") ||
-                        args[1].equalsIgnoreCase("warn") ||
-                        args[1].equalsIgnoreCase("notify") ||
-                        args[1].equalsIgnoreCase("nothing")))
-                {
-                    HoneypotBlockStorageManager.createBlock(block, args[1]);
-                    p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("success", true));
-                } else {
-                    p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
-                }
-            }
-        } else {
-            //If no permissions, let the player know
+        //If player doesn't have the create permission, don't let them do this
+        if (!(p.hasPermission("honeypot.create"))) {
             p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            return;
         }
 
+        //Get block the player is looking at
+        Block block = p.getTargetBlock(null, 5);
+
+        //If the blocks meta has a honeypot tag, let them know
+        if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
+            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("alreadyexists"));
+
+            //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
+        } else {
+            if (args.length >= 2 && (args[1].equalsIgnoreCase("kick") ||
+                    args[1].equalsIgnoreCase("ban") ||
+                    args[1].equalsIgnoreCase("warn") ||
+                    args[1].equalsIgnoreCase("notify") ||
+                    args[1].equalsIgnoreCase("nothing"))) {
+                HoneypotBlockStorageManager.createBlock(block, args[1]);
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("success", true));
+            } else {
+                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
+            }
+        }
     }
 
     @Override

@@ -2,7 +2,6 @@ package me.terrorbyte.honeypot.events;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,7 +18,7 @@ public class HoneypotExplosionEventListener implements Listener {
     public static void EntityExplodeEvent(EntityExplodeEvent event){
         //Get every block that would've been blown up
         List<Block> destroyedBlocks = event.blockList();
-        ArrayList<Block> foundHoneypotBlocks = new ArrayList<Block>();
+        ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
 
         //For every block, check if it was a Honeypot. If it was, check if explosions are allowed. If so, just delete the Honeypot. If not, cancel the explosion
         for (Block block : destroyedBlocks) {
