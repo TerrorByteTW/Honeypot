@@ -9,15 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Scanner;
 
-public class HoneypotUpdateChecker {
-
-    private final Plugin plugin;
-    private final String link;
-
-    public HoneypotUpdateChecker(Plugin plugin, String link) {
-        this.plugin = plugin;
-        this.link = link;
-    }
+public record HoneypotUpdateChecker(Plugin plugin, String link) {
 
     public void getVersion(final Consumer<String> consumer) {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {

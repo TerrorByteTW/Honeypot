@@ -24,6 +24,7 @@ public class HoneypotPlayerStorageManager {
             e.printStackTrace();
         }
 
+        //While we currently don't use this return statement, we might in the future, so I'm leaving it with a compiler warning for now
         return honeypotPlayer;
     }
 

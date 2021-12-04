@@ -3,7 +3,6 @@ package me.terrorbyte.honeypot.events;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.HoneypotUpdateChecker;
 import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
