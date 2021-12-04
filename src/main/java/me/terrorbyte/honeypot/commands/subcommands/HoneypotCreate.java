@@ -1,6 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import org.bukkit.block.Block;
@@ -22,7 +22,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
 
         //If player doesn't have the create permission, don't let them do this
         if (!(p.hasPermission("honeypot.create"))) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
@@ -31,7 +31,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
 
         //If the blocks meta has a honeypot tag, let them know
         if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("alreadyexists"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
             //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
         } else {
@@ -41,9 +41,9 @@ public class HoneypotCreate extends HoneypotSubCommand {
                     args[1].equalsIgnoreCase("notify") ||
                     args[1].equalsIgnoreCase("nothing"))) {
                 HoneypotBlockStorageManager.createBlock(block, args[1]);
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("success", true));
+                p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
             } else {
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
+                p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
             }
         }
     }

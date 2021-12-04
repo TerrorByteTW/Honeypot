@@ -1,4 +1,5 @@
 # For a detailed explanation of what these config items do, please visit the GitHub Wiki page here: https://github.com/redstonefreak589/Honeypot/wiki#configyml
+database: sqlite
 blocks-broken-before-action-taken: 1
 allow-player-destruction: true
 allow-explode: false

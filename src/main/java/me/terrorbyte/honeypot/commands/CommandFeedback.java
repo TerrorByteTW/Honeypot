@@ -1,13 +1,13 @@
 package me.terrorbyte.honeypot.commands;
 
-import me.terrorbyte.honeypot.HoneypotConfigColorManager;
+import me.terrorbyte.honeypot.ConfigColorManager;
 import org.bukkit.ChatColor;
 
-public class HoneypotCommandFeedback {
+public class CommandFeedback {
 
     public static String sendCommandFeedback(String feedback, Boolean... success) {
         String feedbackMessage;
-        String chatPrefix = HoneypotConfigColorManager.getChatPrefix();
+        String chatPrefix = ConfigColorManager.getChatPrefix();
 
         if (feedback.equalsIgnoreCase("usage")) {
             feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Incorrect usage!\n" +

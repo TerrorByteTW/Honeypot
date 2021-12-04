@@ -1,7 +1,7 @@
 package me.terrorbyte.honeypot.events;
 
 import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.HoneypotConfigColorManager;
+import me.terrorbyte.honeypot.ConfigColorManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -16,7 +16,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 
 import java.util.Objects;
 
-public class HoneypotPlayerContainerOpenListener implements Listener {
+public class PlayerContainerOpenListener implements Listener {
 
     //Player block break event
     @EventHandler(priority = EventPriority.LOW)
@@ -31,7 +31,7 @@ public class HoneypotPlayerContainerOpenListener implements Listener {
 
     private static void openAction(InventoryOpenEvent event){
         Block block = event.getPlayer().getTargetBlockExact(10);
-        String chatPrefix = HoneypotConfigColorManager.getChatPrefix();
+        String chatPrefix = ConfigColorManager.getChatPrefix();
         Player player = Bukkit.getPlayer(event.getPlayer().getName());
 
         if(!(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())){
@@ -42,17 +42,17 @@ public class HoneypotPlayerContainerOpenListener implements Listener {
             assert action != null;
             assert player != null;
             switch (action) {
-                case "kick" -> player.kickPlayer(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("kick"));
+                case "kick" -> player.kickPlayer(chatPrefix + " " + ConfigColorManager.getConfigMessage("kick"));
 
                 case "ban" -> {
-                    String banReason = chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("ban");
+                    String banReason = chatPrefix + " " + ConfigColorManager.getConfigMessage("ban");
 
                     Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), banReason, null, chatPrefix);
                     player.kickPlayer(banReason);
                 }
 
                 case "warn" ->
-                        event.getPlayer().sendMessage(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("warn"));
+                        event.getPlayer().sendMessage(chatPrefix + " " + ConfigColorManager.getConfigMessage("warn"));
 
                 case "notify" -> {
                     //Notify all staff members with permission or Op that someone tried to break a honeypot block

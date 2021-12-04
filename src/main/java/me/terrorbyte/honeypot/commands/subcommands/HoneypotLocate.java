@@ -1,7 +1,7 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import org.bukkit.Bukkit;
@@ -24,7 +24,7 @@ public class HoneypotLocate extends HoneypotSubCommand {
 
         //If the player has locate permissions, do this
         if(!(p.hasPermission("honeypot.locate"))) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
@@ -74,9 +74,9 @@ public class HoneypotLocate extends HoneypotSubCommand {
 
         //Let the player know if a pot was found or not
         if (potFound) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("foundpot"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
         } else {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopotfound"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
         }
     }
 
