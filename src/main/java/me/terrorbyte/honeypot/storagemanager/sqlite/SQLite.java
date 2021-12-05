@@ -26,9 +26,9 @@ public class SQLite extends Database{
 
     public String SQLiteCreateBlocksTable = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
             "`coordinates` varchar(10) NOT NULL," +
-            "`action` varchar(10) NOT NULL," +
             "`worldName` varchar(10) NOT NULL," +
-            "PRIMARY KEY (`coordinates`)" +
+            "`action` varchar(10) NOT NULL," +
+            "PRIMARY KEY (`coordinates`, `worldName`)" +
             ");";
 
     public Connection getSQLConnection(){

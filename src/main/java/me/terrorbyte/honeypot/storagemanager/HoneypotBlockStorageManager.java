@@ -13,13 +13,13 @@ public class HoneypotBlockStorageManager {
 
     //Create an array list for all honeypotBlocks to reside in while plugin is functioning
     private static ArrayList<HoneypotBlockObject> honeypotBlocks = new ArrayList<>();
-    private static Honeypot plugin;
+    private static final Honeypot plugin = Honeypot.getPlugin();
 
     //Create a honeypot block by creating a HoneypotBlock object and storing it to the array, then saving it to the file for safe keeping
     public static void createBlock(Block block, String action){
         switch (Honeypot.getDatabase()) {
             case "json" -> {
-                HoneypotBlockObject honeypotBlock = new HoneypotBlockObject(block, action, block.getWorld().getName());
+                HoneypotBlockObject honeypotBlock = new HoneypotBlockObject(block, action);
                 honeypotBlocks.add(honeypotBlock);
                 try {
                     saveHoneypotBlocks();
@@ -39,12 +39,12 @@ public class HoneypotBlockStorageManager {
 
     //Compare the coordinates of the received block to every block in the JSON list. If it exists, delete it and break to avoid a Java error
     public static void deleteBlock(Block block){
-        String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
+        String coordinates = block.getWorld().getName() + " " + block.getX() + ", " + block.getY() + ", " + block.getZ();
 
         switch (Honeypot.getDatabase()) {
             case "json":
                 for (HoneypotBlockObject honeypot : honeypotBlocks){
-                    if(honeypot.getCoordinates().equalsIgnoreCase(coordinates) && block.getWorld().getName().equals(honeypot.getWorldName())){
+                    if(honeypot.getCoordinates().equalsIgnoreCase(coordinates)){
                         honeypotBlocks.remove(honeypot);
                         try {
                             saveHoneypotBlocks();
@@ -68,12 +68,12 @@ public class HoneypotBlockStorageManager {
 
     //Check if the coordinates of the Honeypot already exist within the list
     public static Boolean isHoneypotBlock(Block block){
-        String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
+        String coordinates = block.getWorld().getName() + " " + block.getX() + ", " + block.getY() + ", " + block.getZ();
 
         switch (Honeypot.getDatabase()) {
             case "json":
                 for (HoneypotBlockObject honeypot : honeypotBlocks){
-                    if (honeypot.getCoordinates().equalsIgnoreCase(coordinates) && block.getWorld().getName().equals(honeypot.getWorldName())){
+                    if (honeypot.getCoordinates().equalsIgnoreCase(coordinates)){
                         return true;
                     }
                 }
@@ -97,7 +97,7 @@ public class HoneypotBlockStorageManager {
 
     //Return the action for the honeypot block (Meant for ban, kick, etc.)
     public static String getAction(Block block){
-        String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
+        String coordinates = block.getWorld().getName() + " " + block.getX() + ", " + block.getY() + ", " + block.getZ();
 
         switch (Honeypot.getDatabase()) {
 
@@ -123,6 +123,7 @@ public class HoneypotBlockStorageManager {
     }
 
     //Return the world the block is in
+    /*
     public static String getWorld(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
 
@@ -148,6 +149,7 @@ public class HoneypotBlockStorageManager {
 
         return null;
     }
+    */
 
     //Save the list to JSON
     public static void saveHoneypotBlocks() throws IOException {

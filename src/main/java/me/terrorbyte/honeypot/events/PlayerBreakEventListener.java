@@ -24,8 +24,6 @@ public class PlayerBreakEventListener implements Listener {
     public static void BlockBreakEvent(BlockBreakEvent event) throws IOException {
         if(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock())){
 
-            if (!Objects.equals(HoneypotBlockStorageManager.getWorld(event.getBlock()), event.getPlayer().getWorld().getName())) { return; }
-
             boolean deleteBlock = false;
 
             if(Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction") || (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {

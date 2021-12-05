@@ -19,11 +19,12 @@ public class ExplosionEventListener implements Listener {
         //Get every block that would've been blown up
         List<Block> destroyedBlocks = event.blockList();
         ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
+        boolean allowExplosions = Honeypot.getPlugin().getConfig().getBoolean("allow-explode");
 
         //For every block, check if it was a Honeypot. If it was, check if explosions are allowed. If so, just delete the Honeypot. If not, cancel the explosion
         for (Block block : destroyedBlocks) {
             if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
-                if(Honeypot.getPlugin().getConfig().getBoolean("allow-explode")){
+                if(allowExplosions){
                     HoneypotBlockStorageManager.deleteBlock(block);
                 } else {
                     foundHoneypotBlocks.add(block);

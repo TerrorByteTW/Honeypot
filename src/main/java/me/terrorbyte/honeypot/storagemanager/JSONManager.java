@@ -2,7 +2,6 @@ package me.terrorbyte.honeypot.storagemanager;
 
 import com.google.gson.Gson;
 import me.terrorbyte.honeypot.Honeypot;
-import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;

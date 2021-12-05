@@ -1,7 +1,6 @@
 package me.terrorbyte.honeypot.storagemanager.sqlite;
 
 import me.terrorbyte.honeypot.Honeypot;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 
 import java.sql.Connection;
