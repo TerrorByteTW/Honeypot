@@ -8,6 +8,7 @@ import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotReload extends HoneypotSubCommand {
@@ -35,8 +36,9 @@ public class HoneypotReload extends HoneypotSubCommand {
         }
     }
 
+    //We don't have any subcommands here, but we cannot return null otherwise the tab completer in the CommandManager will throw an exception since CopyPartialMatches doesn't allow null values
     @Override
     public List<String> getSubcommands(Player p, String[] args) {
-        return null;
+        return new ArrayList<>();
     }
 }

@@ -34,6 +34,9 @@ public final class Honeypot extends JavaPlugin {
         "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
         "                  |___|_|");
 
+        setupConfig();
+        databaseType = getConfig().getString("database");
+
         try {
             getLogger().info("Loading honeypot blocks...");
             HoneypotBlockStorageManager.loadHoneypotBlocks(plugin);
@@ -47,9 +50,6 @@ public final class Honeypot extends JavaPlugin {
             getLogger().severe("Could not load honeypot blocks or players, disabling! Please alert the plugin author with the full stack trace above");
             this.getPluginLoader().disablePlugin(this);
         }
-
-        setupConfig();
-        databaseType = getConfig().getString("database");
 
         new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/redstonefreak589/Honeypot/master/version.txt").getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
@@ -78,6 +78,7 @@ public final class Honeypot extends JavaPlugin {
     }
 
     public void setupConfig(){
+        getConfig().addDefault("database", "sqlite");
         getConfig().addDefault("blocks-broken-before-action-taken", 1);
         getConfig().addDefault("allow-player-destruction", true);
         getConfig().addDefault("allow-explode", true);
@@ -107,5 +108,4 @@ public final class Honeypot extends JavaPlugin {
             default -> "sqlite";
         };
     }
-
 }

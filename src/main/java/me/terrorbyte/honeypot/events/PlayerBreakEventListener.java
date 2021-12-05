@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class PlayerBreakEventListener implements Listener {
 
@@ -22,6 +23,8 @@ public class PlayerBreakEventListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     public static void BlockBreakEvent(BlockBreakEvent event) throws IOException {
         if(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock())){
+
+            if (!Objects.equals(HoneypotBlockStorageManager.getWorld(event.getBlock()), event.getPlayer().getWorld().getName())) { return; }
 
             boolean deleteBlock = false;
 
@@ -36,6 +39,8 @@ public class PlayerBreakEventListener implements Listener {
             } else {
                 if(!event.getPlayer().hasPermission("honeypot.exempt") && !event.getPlayer().isOp() && !event.getPlayer().hasPermission("honeypot.remove")){
                     countBreak(event);
+                } else {
+                    breakAction(event);
                 }
             }
 
@@ -84,7 +89,6 @@ public class PlayerBreakEventListener implements Listener {
                 }
             }
         } else if (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp()){
-            HoneypotBlockStorageManager.deleteBlock(block);
             event.getPlayer().sendMessage(chatPrefix + " " + ChatColor.WHITE + "Just an FYI this was a honeypot. Since you broke it we've removed it");
         } else {
             event.setCancelled(true);
@@ -95,12 +99,13 @@ public class PlayerBreakEventListener implements Listener {
     private static void countBreak(BlockBreakEvent event) throws IOException {
         int breaksBeforeAction = Honeypot.getPlugin().getConfig().getInt("blocks-broken-before-action-taken");
         int blocksBroken = HoneypotPlayerStorageManager.getCount(event.getPlayer().getName());
-        blocksBroken += 1;
 
         if(blocksBroken == -1){
-            HoneypotPlayerStorageManager.addPlayer(event.getPlayer().getName(), 1);
-            blocksBroken = 1;
+            HoneypotPlayerStorageManager.addPlayer(event.getPlayer().getName(), 0);
+            blocksBroken = 0;
         }
+
+        blocksBroken += 1;
 
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
             HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer().getName(), 0);

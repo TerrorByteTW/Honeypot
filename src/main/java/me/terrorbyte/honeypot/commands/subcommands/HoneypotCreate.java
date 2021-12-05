@@ -27,9 +27,10 @@ public class HoneypotCreate extends HoneypotSubCommand {
         }
 
         //Get block the player is looking at
-        Block block = p.getTargetBlock(null, 5);
+        Block block = p.getTargetBlockExact(5);
 
         //If the blocks meta has a honeypot tag, let them know
+        assert block != null;
         if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
@@ -50,21 +51,20 @@ public class HoneypotCreate extends HoneypotSubCommand {
 
     @Override
     public List<String> getSubcommands(Player p, String[] args) {
+        List<String> subcommands = new ArrayList<>();
 
         //We are already in argument 1 of the command, hence why this is a subcommand class. Argument 2 is the subcommand for the subcommand,
         //aka /honeypot create <THIS ONE>
 
         if(args.length == 2){
             //Return all action types for the /honeypot create command
-            List<String> actions = new ArrayList<>();
-            actions.add("warn");
-            actions.add("kick");
-            actions.add("ban");
-            actions.add("notify");
-            actions.add("nothing");
-            return actions;
+            subcommands.add("warn");
+            subcommands.add("kick");
+            subcommands.add("ban");
+            subcommands.add("notify");
+            subcommands.add("nothing");
         }
 
-        return null;
+        return subcommands;
     }
 }
