@@ -1,13 +1,14 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotReload extends HoneypotSubCommand {
@@ -21,22 +22,23 @@ public class HoneypotReload extends HoneypotSubCommand {
 
         //Check if they have permission
         if(!(p.hasPermission("honeypot.reload"))){
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
-        p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("reload"));
+        p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
         Honeypot.getPlugin().reloadConfig();
         try {
-            HoneypotBlockStorageManager.loadHoneypotBlocks();
-            HoneypotPlayerStorageManager.loadHoneypotPlayers();
+            HoneypotBlockStorageManager.loadHoneypotBlocks(Honeypot.getPlugin());
+            HoneypotPlayerStorageManager.loadHoneypotPlayers(Honeypot.getPlugin());
         } catch (IOException e) {
             //Nothing
         }
     }
 
+    //We don't have any subcommands here, but we cannot return null otherwise the tab completer in the CommandManager will throw an exception since CopyPartialMatches doesn't allow null values
     @Override
     public List<String> getSubcommands(Player p, String[] args) {
-        return null;
+        return new ArrayList<>();
     }
 }

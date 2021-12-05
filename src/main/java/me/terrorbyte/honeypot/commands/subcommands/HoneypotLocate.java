@@ -1,7 +1,7 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import org.bukkit.Bukkit;
@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +25,7 @@ public class HoneypotLocate extends HoneypotSubCommand {
 
         //If the player has locate permissions, do this
         if(!(p.hasPermission("honeypot.locate"))) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
@@ -74,14 +75,15 @@ public class HoneypotLocate extends HoneypotSubCommand {
 
         //Let the player know if a pot was found or not
         if (potFound) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("foundpot"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
         } else {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopotfound"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
         }
     }
 
+    //We don't have any subcommands here, but we cannot return null otherwise the tab completer in the CommandManager will throw an exception since CopyPartialMatches doesn't allow null values
     @Override
     public List<String> getSubcommands(Player p, String[] args) {
-        return null;
+        return new ArrayList<>();
     }
 }

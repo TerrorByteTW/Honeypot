@@ -3,7 +3,7 @@ package me.terrorbyte.honeypot.events;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
-import me.terrorbyte.honeypot.HoneypotConfigColorManager;
+import me.terrorbyte.honeypot.ConfigColorManager;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,13 +15,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import java.io.IOException;
+import java.util.Objects;
 
-public class HoneypotPlayerBreakEventListener implements Listener {
+public class PlayerBreakEventListener implements Listener {
 
     //Player block break event
     @EventHandler(priority = EventPriority.LOW)
     public static void BlockBreakEvent(BlockBreakEvent event) throws IOException {
         if(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock())){
+
+            if (!Objects.equals(HoneypotBlockStorageManager.getWorld(event.getBlock()), event.getPlayer().getWorld().getName())) { return; }
 
             boolean deleteBlock = false;
 
@@ -36,6 +39,8 @@ public class HoneypotPlayerBreakEventListener implements Listener {
             } else {
                 if(!event.getPlayer().hasPermission("honeypot.exempt") && !event.getPlayer().isOp() && !event.getPlayer().hasPermission("honeypot.remove")){
                     countBreak(event);
+                } else {
+                    breakAction(event);
                 }
             }
 
@@ -47,7 +52,7 @@ public class HoneypotPlayerBreakEventListener implements Listener {
 
     private static void breakAction(BlockBreakEvent event){
         Block block = event.getBlock();
-        String chatPrefix = HoneypotConfigColorManager.getChatPrefix();
+        String chatPrefix = ConfigColorManager.getChatPrefix();
 
         if(!(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())){
 
@@ -56,17 +61,17 @@ public class HoneypotPlayerBreakEventListener implements Listener {
             assert action != null;
             switch (action) {
                 case "kick" ->
-                        event.getPlayer().kickPlayer(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("kick"));
+                        event.getPlayer().kickPlayer(chatPrefix + " " + ConfigColorManager.getConfigMessage("kick"));
 
                 case "ban" -> {
-                    String banReason = chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("ban");
+                    String banReason = chatPrefix + " " + ConfigColorManager.getConfigMessage("ban");
 
                     Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), banReason, null, chatPrefix);
                     event.getPlayer().kickPlayer(banReason);
                 }
 
                 case "warn" ->
-                        event.getPlayer().sendMessage(chatPrefix + " " + HoneypotConfigColorManager.getConfigMessage("warn"));
+                        event.getPlayer().sendMessage(chatPrefix + " " + ConfigColorManager.getConfigMessage("warn"));
 
                 case "notify" -> {
                     //Notify all staff members with permission or Op that someone tried to break a honeypot block
@@ -84,7 +89,6 @@ public class HoneypotPlayerBreakEventListener implements Listener {
                 }
             }
         } else if (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp()){
-            HoneypotBlockStorageManager.deleteBlock(block);
             event.getPlayer().sendMessage(chatPrefix + " " + ChatColor.WHITE + "Just an FYI this was a honeypot. Since you broke it we've removed it");
         } else {
             event.setCancelled(true);
@@ -95,12 +99,13 @@ public class HoneypotPlayerBreakEventListener implements Listener {
     private static void countBreak(BlockBreakEvent event) throws IOException {
         int breaksBeforeAction = Honeypot.getPlugin().getConfig().getInt("blocks-broken-before-action-taken");
         int blocksBroken = HoneypotPlayerStorageManager.getCount(event.getPlayer().getName());
-        blocksBroken += 1;
 
         if(blocksBroken == -1){
-            HoneypotPlayerStorageManager.addPlayer(event.getPlayer().getName(), 1);
-            blocksBroken = 1;
+            HoneypotPlayerStorageManager.addPlayer(event.getPlayer().getName(), 0);
+            blocksBroken = 0;
         }
+
+        blocksBroken += 1;
 
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
             HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer().getName(), 0);

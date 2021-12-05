@@ -8,7 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 
-public class HoneypotEntityChangeEventListener implements Listener {
+public class EntityChangeEventListener implements Listener {
 
     //Enderman event
     @EventHandler(priority = EventPriority.LOW)

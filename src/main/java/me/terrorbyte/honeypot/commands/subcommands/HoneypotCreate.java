@@ -1,6 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.commands.HoneypotCommandFeedback;
+import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import org.bukkit.block.Block;
@@ -22,16 +22,17 @@ public class HoneypotCreate extends HoneypotSubCommand {
 
         //If player doesn't have the create permission, don't let them do this
         if (!(p.hasPermission("honeypot.create"))) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
         //Get block the player is looking at
-        Block block = p.getTargetBlock(null, 5);
+        Block block = p.getTargetBlockExact(5);
 
         //If the blocks meta has a honeypot tag, let them know
+        assert block != null;
         if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
-            p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("alreadyexists"));
+            p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
             //If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
         } else {
@@ -41,30 +42,29 @@ public class HoneypotCreate extends HoneypotSubCommand {
                     args[1].equalsIgnoreCase("notify") ||
                     args[1].equalsIgnoreCase("nothing"))) {
                 HoneypotBlockStorageManager.createBlock(block, args[1]);
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("success", true));
+                p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
             } else {
-                p.sendMessage(HoneypotCommandFeedback.sendCommandFeedback("usage"));
+                p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
             }
         }
     }
 
     @Override
     public List<String> getSubcommands(Player p, String[] args) {
+        List<String> subcommands = new ArrayList<>();
 
         //We are already in argument 1 of the command, hence why this is a subcommand class. Argument 2 is the subcommand for the subcommand,
         //aka /honeypot create <THIS ONE>
 
         if(args.length == 2){
             //Return all action types for the /honeypot create command
-            List<String> actions = new ArrayList<>();
-            actions.add("warn");
-            actions.add("kick");
-            actions.add("ban");
-            actions.add("notify");
-            actions.add("nothing");
-            return actions;
+            subcommands.add("warn");
+            subcommands.add("kick");
+            subcommands.add("ban");
+            subcommands.add("notify");
+            subcommands.add("nothing");
         }
 
-        return null;
+        return subcommands;
     }
 }
