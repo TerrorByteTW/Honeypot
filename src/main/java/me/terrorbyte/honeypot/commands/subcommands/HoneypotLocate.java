@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -80,8 +81,9 @@ public class HoneypotLocate extends HoneypotSubCommand {
         }
     }
 
+    //We don't have any subcommands here, but we cannot return null otherwise the tab completer in the CommandManager will throw an exception since CopyPartialMatches doesn't allow null values
     @Override
     public List<String> getSubcommands(Player p, String[] args) {
-        return null;
+        return new ArrayList<>();
     }
 }

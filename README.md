@@ -27,8 +27,8 @@ If your server is using Honeypot, let me know! I'd love to add it to this list.
 This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me. Development is done at the pace in which I have time to do so, but it is currently **active** ✅
 
 ## To-do 📝
-* Add ability to store in different database types (SQLite, H2, etc.) *(In progress)*
-* Increase speed of database lookups *(In progress [due to SQLite support])*
+* Add ability to store in different database types (SQLite, H2, etc.) *(Complete in 1.4!)*
+* Increase speed of database lookups *(Complete in 1.4! [due to SQLite support])*
 * Add custom actions to honeyblocks *(Researching)*
 * Add block filtering to avoid checking every single BlockBreakEvent for a honeypot (This would limit the type of honeypots you can create, however) *(On Hold)*
 
