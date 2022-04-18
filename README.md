@@ -27,6 +27,7 @@ If your server is using Honeypot, let me know! I'd love to add it to this list.
 This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me. Development is done at the pace in which I have time to do so, but it is currently **in progress** ▶
 
 ## To-do 📝
+* Add block and inventory filters to Honeypot *(In progress)*
 * Add custom actions to honeyblocks *(Researching)*
 * Add block filtering to avoid checking every single BlockBreakEvent for a honeypot (This would limit the type of honeypots you can create, however) *(On Hold)*
 
