@@ -29,6 +29,7 @@ This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out o
 ## To-do 📝
 * Add block and inventory filters to Honeypot *(In progress)*
 * Add custom actions to honeyblocks *(Researching)*
+* Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
 * Add block filtering to avoid checking every single BlockBreakEvent for a honeypot (This would limit the type of honeypots you can create, however) *(On Hold)*
 
 ## Credits 🎬
