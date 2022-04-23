@@ -7,10 +7,7 @@ import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
-import org.bukkit.entity.AbstractHorse;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,12 +19,11 @@ import java.util.Objects;
 public class PlayerContainerOpenListener implements Listener {
 
     //Player block break event
-    //TODO - Make this prettier
     @EventHandler(priority = EventPriority.LOW)
     public static void InventoryOpenEvent(InventoryOpenEvent event) {
         try {
             if (Objects.requireNonNull(event.getPlayer().getTargetBlockExact(10)).getType().equals(Material.ENDER_CHEST) && HoneypotBlockStorageManager.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(10)))) {
-                if (Honeypot.getPlugin().getConfig().getBoolean("enable-container-actions") && !(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
+                if (Honeypot.config.getBoolean("enable-container-actions") && !(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                     event.setCancelled(true);
                     openAction(event);
                 }

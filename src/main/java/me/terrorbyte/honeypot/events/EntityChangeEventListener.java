@@ -17,7 +17,7 @@ public class EntityChangeEventListener implements Listener {
         //If the entity grabbing the block is an enderman, if they are allowed to, delete the Honeypot, otherwise cancel it
         if (event.getEntity().getType().equals(EntityType.ENDERMAN)){
             if(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock())) {
-                if (Honeypot.getPlugin().getConfig().getBoolean("allow-enderman")) {
+                if (Honeypot.config.getBoolean("allow-enderman")) {
                     HoneypotBlockStorageManager.deleteBlock(event.getBlock());
                 } else {
                     event.setCancelled(true);

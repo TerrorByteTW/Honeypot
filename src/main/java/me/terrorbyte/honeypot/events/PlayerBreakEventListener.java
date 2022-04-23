@@ -26,13 +26,13 @@ public class PlayerBreakEventListener implements Listener {
 
             boolean deleteBlock = false;
 
-            if(Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction") || (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
+            if(Honeypot.config.getBoolean("allow-player-destruction") || (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                 deleteBlock = true;
             } else {
                 event.setCancelled(true);
             }
 
-            if(Honeypot.getPlugin().getConfig().getInt("blocks-broken-before-action-taken") <= 1 || Honeypot.getPlugin().getConfig().getBoolean("allow-player-destruction")){
+            if(Honeypot.config.getInt("blocks-broken-before-action-taken") <= 1 || Honeypot.config.getBoolean("allow-player-destruction")){
                 breakAction(event);
             } else {
                 if(!event.getPlayer().hasPermission("honeypot.exempt") && !event.getPlayer().isOp() && !event.getPlayer().hasPermission("honeypot.remove")){
@@ -95,7 +95,7 @@ public class PlayerBreakEventListener implements Listener {
     }
 
     private static void countBreak(BlockBreakEvent event) throws IOException {
-        int breaksBeforeAction = Honeypot.getPlugin().getConfig().getInt("blocks-broken-before-action-taken");
+        int breaksBeforeAction = Honeypot.config.getInt("blocks-broken-before-action-taken");
         int blocksBroken = HoneypotPlayerStorageManager.getCount(event.getPlayer().getName());
 
         if(blocksBroken == -1){

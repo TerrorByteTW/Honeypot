@@ -1,5 +1,11 @@
 package me.terrorbyte.honeypot;
 
+import dev.dejvokep.boostedyaml.YamlDocument;
+import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
+import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
+import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
+import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
+import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import me.terrorbyte.honeypot.commands.CommandManager;
 import me.terrorbyte.honeypot.events.*;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
@@ -7,12 +13,14 @@ import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
 public final class Honeypot extends JavaPlugin {
 
     private static String databaseType;
+    public static YamlDocument config;
 
     //On enable, register the block break event listener, register the command manager, and log to the console
     @Override
@@ -34,8 +42,15 @@ public final class Honeypot extends JavaPlugin {
         "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
         "                  |___|_|");
 
-        setupConfig();
-        databaseType = getConfig().getString("database");
+        try {
+            setupConfig();
+        } catch (IOException e) {
+            e.printStackTrace();
+            getLogger().severe("Could not create config, disabling! Please alert the plugin author with the full stack trace above");
+            this.getPluginLoader().disablePlugin(this);
+        }
+
+        databaseType = config.getString("database");
 
         try {
             getLogger().info("Loading honeypot blocks...");
@@ -77,20 +92,20 @@ public final class Honeypot extends JavaPlugin {
         }
     }
 
-    public void setupConfig(){
-        getConfig().addDefault("database", "sqlite");
-        getConfig().addDefault("blocks-broken-before-action-taken", 1);
-        getConfig().addDefault("allow-player-destruction", true);
-        getConfig().addDefault("allow-explode", true);
-        getConfig().addDefault("allow-enderman", true);
-        getConfig().addDefault("enable-container-actions", true);
-        getConfig().addDefault("kick-reason", "Kicked for breaking honeypot blocks. Don't grief!");
-        getConfig().addDefault("ban-reason", "You have been banned for breaking honeypot blocks");
-        getConfig().addDefault("warn-message", "Please don't grief builds!");
-        getConfig().addDefault("chat-prefix", "&b[Honeypot]");
+    public void setupConfig() throws IOException {
+        config = YamlDocument.create(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.DEFAULT, LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version")).build());
 
-        getConfig().options().copyDefaults(true);
-        saveConfig();
+        config.set("database", "sqlite");
+        config.set("blocks-broken-before-action-taken", 1);
+        config.set("allow-player-destruction", true);
+        config.set("allow-explode", true);
+        config.set("allow-enderman", true);
+        config.set("enable-container-actions", true);
+        config.set("kick-reason", "Kicked for breaking honeypot blocks. Don't grief!");
+        config.set("ban-reason", "You have been banned for breaking honeypot blocks");
+        config.set("warn-message", "Please don't grief builds!");
+        config.set("chat-prefix", "&b[Honeypot]");
+        config.save();
     }
 
     //Return the plugin instance

@@ -4,6 +4,7 @@ author: TerrorByte
 description: Creates honeypot blocks designed to prevent griefing on your server
 main: me.terrorbyte.honeypot.Honeypot
 api-version: 1.17
+load: POSTWORLD
 commands:
   honeypot:
     description: Creates or deletes a honeypot block

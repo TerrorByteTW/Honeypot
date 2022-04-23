@@ -1,11 +1,28 @@
-# For a detailed explanation of what these config items do, please visit the GitHub Wiki page here: https://github.com/redstonefreak589/Honeypot/wiki#configyml
+# File verison (do NOT edit):
+file-version: 1
+
+# Default database. Options are sqlite or json, sqlite is default (JSON is NOT recommended, but available)
 database: sqlite
+
+# The number of honeypot blocks a player is allowed to break before any action is taken. Default is 1 (immediate action)
 blocks-broken-before-action-taken: 1
+
+# Allow players to break Honeypot blocks. If set to false, the block will not be allowed to be broken
 allow-player-destruction: true
+
+# Allow honeypot blocks to be blown up (TnT, Creepers, Ghasts, etc.). Default is false
 allow-explode: false
+
+# Allow enderman to pick up Honeypot blocks. Default is false
 allow-enderman: false
+
+# Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
 enable-container-actions: true
+
+# Set the reason given when a honeypot kicks, bans, or warns a player
 kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
 ban-reason: "You have been banned for breaking honeypot blocks"
 warn-message: "Please don't grief builds!"
+
+# The chat prefix for the plugin. Allows you to format it to match your server! :)
 chat-prefix: "&b[Honeypot]&r"
