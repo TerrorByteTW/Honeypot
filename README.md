@@ -27,10 +27,10 @@ If your server is using Honeypot, let me know! I'd love to add it to this list.
 This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me. Development is done at the pace in which I have time to do so, but it is currently **in progress** ▶
 
 ## To-do 📝
-* Add block and inventory filters to Honeypot *(In progress)*
+* Add block and inventory filters to Honeypot *(Implemented in [Honeypot v1.5!](https://github.com/redstonefreak589/Honeypot/releases/tag/v1.5))*
 * Add custom actions to honeyblocks *(Researching)*
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
-* Add block filtering to avoid checking every single BlockBreakEvent for a honeypot (This would limit the type of honeypots you can create, however) *(On Hold)*
+* Add block filtering on the BlockBreakEvent to avoid checking every single block *(On Hold)*
 
 ## Credits 🎬
 TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed!
