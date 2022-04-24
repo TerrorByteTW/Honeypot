@@ -3,18 +3,20 @@ package me.terrorbyte.honeypot.storagemanager;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
+
 public class HoneypotPlayerObject {
 
-    private final String playerName;
+    private final UUID uuid;
     private int blocksBroken;
 
-    public HoneypotPlayerObject(String playerName, int blocksBroken) {
-        this.playerName = playerName;
+    public HoneypotPlayerObject(UUID uuid, int blocksBroken) {
+        this.uuid = uuid;
         this.blocksBroken = blocksBroken;
     }
 
-    public String getPlayerName() {
-        return playerName;
+    public UUID getUUID() {
+        return uuid;
     }
 
     public int getBlocksBroken() {

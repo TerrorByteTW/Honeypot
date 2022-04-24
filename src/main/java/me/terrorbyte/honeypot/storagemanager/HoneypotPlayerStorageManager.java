@@ -3,6 +3,7 @@ package me.terrorbyte.honeypot.storagemanager;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.storagemanager.sqlite.Database;
 import me.terrorbyte.honeypot.storagemanager.sqlite.SQLite;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;
@@ -16,10 +17,10 @@ public class HoneypotPlayerStorageManager {
     private static ArrayList<HoneypotPlayerObject> honeypotPlayers = new ArrayList<>();
 
     //Create a honeypot block by creating a HoneypotBlock object and storing it to the array, then saving it to the file for safe keeping
-    public static void addPlayer(String playerName, int blocksBroken){
+    public static void addPlayer(Player player, int blocksBroken){
         switch (Honeypot.getDatabase()) {
             case "json" -> {
-                HoneypotPlayerObject honeypotPlayer = new HoneypotPlayerObject(playerName, blocksBroken);
+                HoneypotPlayerObject honeypotPlayer = new HoneypotPlayerObject(player.getUniqueId(), blocksBroken);
                 honeypotPlayers.add(honeypotPlayer);
                 try {
                     saveHoneypotPlayers();
@@ -30,7 +31,7 @@ public class HoneypotPlayerStorageManager {
             case "sqlite" -> {
                 Database db;
                 db = new SQLite(plugin);
-                db.createHoneypotPlayer(playerName, blocksBroken);
+                db.createHoneypotPlayer(player, blocksBroken);
             }
             default -> {
             }
@@ -38,11 +39,11 @@ public class HoneypotPlayerStorageManager {
     }
 
     //Compare the coordinates of the received block to every block in the JSON list. If it exists, delete it and break to avoid a Java error
-    public static void setPlayerCount(String playerName, int blocksBroken) throws IOException {
+    public static void setPlayerCount(Player playerName, int blocksBroken) throws IOException {
         switch (Honeypot.getDatabase()) {
             case "json":
                 for (HoneypotPlayerObject potBreaker : honeypotPlayers){
-                    if(potBreaker.getPlayerName().equals(playerName)){
+                    if(potBreaker.getUUID().toString().equals(playerName.getUniqueId().toString())){
                         potBreaker.setBlocksBroken(blocksBroken);
                         saveHoneypotPlayers();
                     }
@@ -62,11 +63,11 @@ public class HoneypotPlayerStorageManager {
     }
 
     //Return the action for the honeypot block (Meant for ban, kick, etc.)
-    public static int getCount(String playerName){
+    public static int getCount(Player playerName){
         switch (Honeypot.getDatabase()) {
             case "json" -> {
                 for (HoneypotPlayerObject potBreaker : honeypotPlayers) {
-                    if (potBreaker.getPlayerName().equals(playerName)) {
+                    if (potBreaker.getUUID().toString().equals(playerName.getUniqueId().toString())) {
                         return potBreaker.getBlocksBroken();
                     }
                 }

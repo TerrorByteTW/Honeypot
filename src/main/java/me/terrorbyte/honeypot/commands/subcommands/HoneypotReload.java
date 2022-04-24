@@ -27,8 +27,9 @@ public class HoneypotReload extends HoneypotSubCommand {
         }
 
         p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
-        Honeypot.getPlugin().reloadConfig();
         try {
+            Honeypot.config.reload();
+            Honeypot.config.save();
             HoneypotBlockStorageManager.loadHoneypotBlocks(Honeypot.getPlugin());
             HoneypotPlayerStorageManager.loadHoneypotPlayers(Honeypot.getPlugin());
         } catch (IOException e) {

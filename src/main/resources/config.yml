@@ -1,13 +1,22 @@
+######################################################################
+#                 D A T A B A S E   S E T T I N G S                  #
+######################################################################
+
 # File verison (do NOT edit):
 file-version: 1
 
 # Default database. Options are sqlite or json, sqlite is default (JSON is NOT recommended, but available)
 database: sqlite
 
+######################################################################
+#                     A C T I O N   S E T T I N G S                  #
+######################################################################
+
 # The number of honeypot blocks a player is allowed to break before any action is taken. Default is 1 (immediate action)
 blocks-broken-before-action-taken: 1
 
 # Allow players to break Honeypot blocks. If set to false, the block will not be allowed to be broken
+# If set to true, then blocks-broken-before-player-action-taken will be IGNORED
 allow-player-destruction: true
 
 # Allow honeypot blocks to be blown up (TnT, Creepers, Ghasts, etc.). Default is false
@@ -19,6 +28,10 @@ allow-enderman: false
 # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
 enable-container-actions: true
 
+######################################################################
+#                      C H A T   S E T T I N G S                     #
+######################################################################
+
 # Set the reason given when a honeypot kicks, bans, or warns a player
 kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
 ban-reason: "You have been banned for breaking honeypot blocks"
@@ -26,3 +39,23 @@ warn-message: "Please don't grief builds!"
 
 # The chat prefix for the plugin. Allows you to format it to match your server! :)
 chat-prefix: "&b[Honeypot]&r"
+
+######################################################################
+#                     F I L T E R   S E T T I N G S                  #
+######################################################################
+
+# Enabling these filters will prevent staff from creating honeypot blocks that AREN'T in the respective list below.
+filters:
+  blocks: false
+  inventories: false
+
+# These filter inventory openings and creation of honeypot blocks on inventories. If the filter is enabled and a player tries to open an Honeypot block that has an inventory
+# not listed here, they will be allowed to open it without actions being taken. If they try to break the Honeypot, action WILL be taken (Unless block filters are enabled)
+allowed-inventories:
+  - CHEST
+  - FURNACE
+
+# This filter only prevents creation of these types of honeypots. If a honeypot has been previously created but is not a part of the filter, actions will still apply
+# This is to prevent honeypots from being created but not removed upon breaking
+allowed-blocks:
+  - DIAMOND_ORE

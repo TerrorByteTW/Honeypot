@@ -2,6 +2,7 @@ package me.terrorbyte.honeypot.storagemanager.sqlite;
 
 import me.terrorbyte.honeypot.Honeypot;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -196,7 +197,7 @@ public abstract class Database {
         return null;
     }
 
-    public void createHoneypotPlayer(String playerName, int blocksBroken){
+    public void createHoneypotPlayer(Player player, int blocksBroken){
 
         Connection c = null;
         PreparedStatement ps = null;
@@ -204,7 +205,7 @@ public abstract class Database {
         try {
             c = getSQLConnection();
             ps = c.prepareStatement("INSERT INTO " + playerTable + " (playerName, blocksBroken) VALUES (?, ?);");
-            ps.setString(1, playerName);
+            ps.setString(1, player.getUniqueId().toString());
             ps.setInt(2, blocksBroken);
             ps.executeUpdate();
 
@@ -220,7 +221,7 @@ public abstract class Database {
         }
     }
 
-    public void setPlayerCount(String playerName, int blocksBroken){
+    public void setPlayerCount(Player playerName, int blocksBroken){
 
         Connection c = null;
         PreparedStatement ps = null;
@@ -228,7 +229,7 @@ public abstract class Database {
         try {
             c = getSQLConnection();
             ps = c.prepareStatement("REPLACE INTO " + playerTable + " (playerName, blocksBroken) VALUES (?, ?);");
-            ps.setString(1, playerName);
+            ps.setString(1, playerName.getUniqueId().toString());
             ps.setInt(2, blocksBroken);
             ps.executeUpdate();
 
@@ -244,7 +245,7 @@ public abstract class Database {
         }
     }
 
-    public int getCount(String playerName){
+    public int getCount(Player playerName){
 
         Connection c = null;
         PreparedStatement ps = null;
@@ -252,11 +253,11 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("SELECT * FROM " + playerTable + " WHERE playerName = '" + playerName + "';");
+            ps = c.prepareStatement("SELECT * FROM " + playerTable + " WHERE playerName = '" + playerName.getUniqueId() + "';");
             rs = ps.executeQuery();
 
             while(rs.next()){
-                if(rs.getString("playerName").equalsIgnoreCase(playerName)){
+                if(rs.getString("playerName").equalsIgnoreCase(playerName.getUniqueId().toString())){
                     return rs.getInt("blocksBroken");
                 }
             }

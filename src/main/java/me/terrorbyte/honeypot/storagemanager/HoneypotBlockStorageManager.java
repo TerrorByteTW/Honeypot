@@ -122,35 +122,6 @@ public class HoneypotBlockStorageManager {
         return null;
     }
 
-    //Return the world the block is in
-    /*
-    public static String getWorld(Block block){
-        String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
-
-        switch (Honeypot.getDatabase()) {
-
-            case "json":
-                for (HoneypotBlockObject honeypot : honeypotBlocks){
-                    if(honeypot.getCoordinates().equalsIgnoreCase((coordinates))){
-                        return honeypot.getWorldName();
-                    }
-                }
-                break;
-            case "sqlite":
-                Database db;
-
-                db = new SQLite(plugin);
-                db.load();
-
-                return db.getWorld(block);
-            default:
-                return null;
-        }
-
-        return null;
-    }
-    */
-
     //Save the list to JSON
     public static void saveHoneypotBlocks() throws IOException {
         if ("json".equals(Honeypot.getDatabase())) {

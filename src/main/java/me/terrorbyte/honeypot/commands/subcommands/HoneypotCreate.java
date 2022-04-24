@@ -1,5 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
+import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
@@ -28,6 +29,37 @@ public class HoneypotCreate extends HoneypotSubCommand {
 
         //Get block the player is looking at
         Block block = p.getTargetBlockExact(5);
+
+        if(Honeypot.config.getBoolean("filters.blocks") || Honeypot.config.getBoolean("filters.inventories")) {
+            List<String> allowedBlocks = (List<String>) Honeypot.config.getList("allowed-blocks");
+            List<String> allowedInventories = (List<String>) Honeypot.config.getList("allowed-inventories");
+            boolean allowed = false;
+
+            if (Honeypot.config.getBoolean("filters.blocks")){
+                for (String blockType : allowedBlocks) {
+                    assert block != null;
+                    if (block.getType().name().equals(blockType)){
+                        allowed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (Honeypot.config.getBoolean("filters.inventories")){
+                for (String blockType : allowedInventories) {
+                    assert block != null;
+                    if (block.getType().name().equals(blockType)){
+                        allowed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!allowed){
+                p.sendMessage(CommandFeedback.sendCommandFeedback("againstfilter"));
+                return;
+            }
+        }
 
         //If the blocks meta has a honeypot tag, let them know
         assert block != null;

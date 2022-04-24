@@ -55,7 +55,11 @@ public class CommandManager implements TabExecutor {
                 //For each subcommand in the subcommands array list, check if the argument is the same as the command. If so, run said subcommand
                 for (HoneypotSubCommand subcommand : subcommands) {
                     if (args[0].equalsIgnoreCase(subcommand.getName())) {
-                        subcommand.perform(p, args);
+                        try {
+                            subcommand.perform(p, args);
+                        } catch (IOException e) {
+                            Honeypot.getPlugin().getLogger().severe("Error while running command " + args[0] + "! Full stack trace: " + e);
+                        }
                     }
                 }
             } else {
@@ -64,9 +68,15 @@ public class CommandManager implements TabExecutor {
             }
 
         } else {
-            if (args[0].equals("reload")){
+            if (args.length > 0 && args[0].equals("reload")){
                 Honeypot.getPlugin().getServer().getConsoleSender().sendMessage(CommandFeedback.sendCommandFeedback("reload"));
-                Honeypot.getPlugin().reloadConfig();
+                try {
+                    Honeypot.config.reload();
+                    Honeypot.config.save();
+                } catch (IOException e) {
+                    Honeypot.getPlugin().getLogger().severe("Could not reload honeypot config! Full stack trace: " + e);
+                }
+
                 try {
                     HoneypotBlockStorageManager.loadHoneypotBlocks(Honeypot.getPlugin());
                     HoneypotPlayerStorageManager.loadHoneypotPlayers(Honeypot.getPlugin());

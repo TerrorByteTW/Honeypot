@@ -1,6 +1,7 @@
 package me.terrorbyte.honeypot.events;
 
 import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import me.terrorbyte.honeypot.ConfigColorManager;
@@ -15,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class PlayerBreakEventListener implements Listener {
@@ -96,20 +99,20 @@ public class PlayerBreakEventListener implements Listener {
 
     private static void countBreak(BlockBreakEvent event) throws IOException {
         int breaksBeforeAction = Honeypot.config.getInt("blocks-broken-before-action-taken");
-        int blocksBroken = HoneypotPlayerStorageManager.getCount(event.getPlayer().getName());
+        int blocksBroken = HoneypotPlayerStorageManager.getCount(event.getPlayer());
 
         if(blocksBroken == -1){
-            HoneypotPlayerStorageManager.addPlayer(event.getPlayer().getName(), 0);
+            HoneypotPlayerStorageManager.addPlayer(event.getPlayer(), 0);
             blocksBroken = 0;
         }
 
         blocksBroken += 1;
 
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
-            HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer().getName(), 0);
+            HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer(), 0);
             breakAction(event);
         } else {
-            HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer().getName(), blocksBroken);
+            HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer(), blocksBroken);
         }
     }
 }

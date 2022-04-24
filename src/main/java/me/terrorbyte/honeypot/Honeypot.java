@@ -22,6 +22,20 @@ public final class Honeypot extends JavaPlugin {
     private static String databaseType;
     public static YamlDocument config;
 
+    public static Honeypot getPlugin() {
+        return plugin;
+    }
+
+    private static Honeypot plugin;
+
+    //Retrieve the database type from config in order to decide which storage mediums we're going to use
+    public static String getDatabase() {
+        return switch (Objects.requireNonNull(databaseType)) {
+            case "sqlite", "json" -> databaseType;
+            default -> "sqlite";
+        };
+    }
+
     //On enable, register the block break event listener, register the command manager, and log to the console
     @Override
     public void onEnable() {
@@ -36,14 +50,15 @@ public final class Honeypot extends JavaPlugin {
         Objects.requireNonNull(getCommand("honeypot")).setExecutor(new CommandManager());
         //getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
 
-        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + " _____                         _\n" +
+        getServer().getConsoleSender().sendMessage(ChatColor.GOLD +
+        " _____                         _\n" +
         "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
         "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
         "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
         "                  |___|_|");
 
         try {
-            setupConfig();
+            config = HoneypotConfigManager.setupConfig(YamlDocument.create(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.DEFAULT, LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version")).build()));
         } catch (IOException e) {
             e.printStackTrace();
             getLogger().severe("Could not create config, disabling! Please alert the plugin author with the full stack trace above");
@@ -90,37 +105,5 @@ public final class Honeypot extends JavaPlugin {
             e.printStackTrace();
             getLogger().severe("Could not save honeypot blocks or players. You may experience issues restarting this plugin. Please alert the plugin author with the full stack trace above");
         }
-    }
-
-    public void setupConfig() throws IOException {
-        config = YamlDocument.create(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.DEFAULT, LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version")).build());
-
-        config.set("database", "sqlite");
-        config.set("blocks-broken-before-action-taken", 1);
-        config.set("allow-player-destruction", true);
-        config.set("allow-explode", true);
-        config.set("allow-enderman", true);
-        config.set("enable-container-actions", true);
-        config.set("kick-reason", "Kicked for breaking honeypot blocks. Don't grief!");
-        config.set("ban-reason", "You have been banned for breaking honeypot blocks");
-        config.set("warn-message", "Please don't grief builds!");
-        config.set("chat-prefix", "&b[Honeypot]");
-        config.save();
-    }
-
-    //Return the plugin instance
-    public static Honeypot getPlugin() {
-        return plugin;
-    }
-
-    //Static plugin variable, private to Honeypot to prevent changes
-    private static Honeypot plugin;
-
-    //Retrieve the database type from config in order to decide which storage mediums we're going to use
-    public static String getDatabase() {
-        return switch (Objects.requireNonNull(databaseType)) {
-            case "sqlite", "json" -> databaseType;
-            default -> "sqlite";
-        };
     }
 }
