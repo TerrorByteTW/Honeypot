@@ -28,7 +28,7 @@ This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out o
 
 ## To-do 📝
 * Add block and inventory filters to Honeypot *(Implemented in [Honeypot v1.5!](https://github.com/redstonefreak589/Honeypot/releases/tag/v1.5))*
-* Add custom actions to honeyblocks *(Researching)*
+* Add custom actions to honeyblocks *(Implemented in [Honeypot v1.6!](https://github.com/redstonefreak589/Honeypot/releases/tag/v1.6))*
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
 
 ## Credits 🎬
