@@ -28,7 +28,6 @@ public final class Honeypot extends JavaPlugin {
 
     private static Honeypot plugin;
 
-    //Retrieve the database type from config in order to decide which storage mediums we're going to use
     public static String getDatabase() {
         return switch (Objects.requireNonNull(databaseType)) {
             case "sqlite", "json" -> databaseType;
@@ -36,7 +35,6 @@ public final class Honeypot extends JavaPlugin {
         };
     }
 
-    //On enable, register the block break event listener, register the command manager, and log to the console
     @Override
     public void onEnable() {
         plugin = this;
@@ -48,7 +46,6 @@ public final class Honeypot extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PistonMoveListener(), this);
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         Objects.requireNonNull(getCommand("honeypot")).setExecutor(new CommandManager());
-        //getServer().getConsoleSender().sendMessage(ChatColor.AQUA + "Enabled " + ChatColor.GOLD + "Honeypot" + ChatColor.AQUA + " anti-cheat honeypot plugin");
 
         getServer().getConsoleSender().sendMessage(ChatColor.GOLD +
         " _____                         _\n" +
@@ -58,7 +55,12 @@ public final class Honeypot extends JavaPlugin {
         "                  |___|_|");
 
         try {
-            config = HoneypotConfigManager.setupConfig(YamlDocument.create(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.DEFAULT, LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version")).build()));
+            config = HoneypotConfigManager.setupConfig(YamlDocument.create(new File(getDataFolder(), "config.yml"),
+                    getResource("config.yml"),
+                    GeneralSettings.DEFAULT,
+                    LoaderSettings.builder().setAutoUpdate(true).build(),
+                    DumperSettings.DEFAULT,
+                    UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version")).build()));
         } catch (IOException e) {
             e.printStackTrace();
             getLogger().severe("Could not create config, disabling! Please alert the plugin author with the full stack trace above");
@@ -90,11 +92,8 @@ public final class Honeypot extends JavaPlugin {
         });
     }
 
-    //On disable, do nothing, really
     @Override
     public void onDisable() {
-        // Save any unsaved HoneypotBlocks for whatever reason
-
         try {
             getLogger().info("Saving honeypot blocks...");
             HoneypotBlockStorageManager.saveHoneypotBlocks();

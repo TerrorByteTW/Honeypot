@@ -8,7 +8,9 @@ import me.terrorbyte.honeypot.ConfigColorManager;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public class PlayerBreakEventListener implements Listener {
 
@@ -86,7 +89,10 @@ public class PlayerBreakEventListener implements Listener {
                 }
 
                 default -> {
-                    //Do nothing
+                    if(Honeypot.config.getBoolean("enable-custom-actions")){
+                        String formattedAction = action.replace("%player%", event.getPlayer().getName());
+                        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), formattedAction);
+                    }
                 }
             }
         } else if (event.getPlayer().hasPermission("honeypot.remove") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp()){

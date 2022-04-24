@@ -30,7 +30,6 @@ This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out o
 * Add block and inventory filters to Honeypot *(Implemented in [Honeypot v1.5!](https://github.com/redstonefreak589/Honeypot/releases/tag/v1.5))*
 * Add custom actions to honeyblocks *(Researching)*
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
-* Add block filtering on the BlockBreakEvent to avoid checking every single block *(On Hold)*
 
 ## Credits 🎬
 TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed!

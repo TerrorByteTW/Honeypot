@@ -2,16 +2,19 @@ package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
+import me.terrorbyte.honeypot.events.PlayerConversationListener;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.conversations.Conversation;
+import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotCreate extends HoneypotSubCommand {
-    //Abstract methods. Return name, description, and syntax
 
     @Override
     public String getName() {
@@ -72,9 +75,26 @@ public class HoneypotCreate extends HoneypotSubCommand {
                     args[1].equalsIgnoreCase("ban") ||
                     args[1].equalsIgnoreCase("warn") ||
                     args[1].equalsIgnoreCase("notify") ||
-                    args[1].equalsIgnoreCase("nothing"))) {
-                HoneypotBlockStorageManager.createBlock(block, args[1]);
-                p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+                    args[1].equalsIgnoreCase("nothing") ||
+                    args[1].equalsIgnoreCase("custom"))) {
+                if(args[1].equalsIgnoreCase("custom")) {
+                    if (Honeypot.config.getBoolean("enable-custom-actions")){
+                        if (!p.hasPermission("honeypot.custom")){
+                            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+                        } else {
+                            p.sendTitle(ChatColor.AQUA + "Enter action", "Enter your custom action command (WITHOUT THE /) in chat. Type cancel to exit", 10, 60, 10);
+                            ConversationFactory cf = new ConversationFactory(Honeypot.getPlugin());
+                            Conversation conv = cf.withFirstPrompt(new PlayerConversationListener()).withLocalEcho(false).withEscapeSequence("cancel").addConversationAbandonedListener(new PlayerConversationListener()).withTimeout(10).buildConversation(p);
+                            PlayerConversationListener.block = block;
+                            conv.begin();
+                        }
+                    } else {
+                        p.sendMessage(CommandFeedback.sendCommandFeedback("customactionsdisabled"));
+                    }
+                } else {
+                    HoneypotBlockStorageManager.createBlock(block, args[1]);
+                    p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+                }
             } else {
                 p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
             }
@@ -95,6 +115,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
             subcommands.add("ban");
             subcommands.add("notify");
             subcommands.add("nothing");
+            if (Honeypot.config.getBoolean("enable-custom-actions")) { subcommands.add("custom"); }
         }
 
         return subcommands;

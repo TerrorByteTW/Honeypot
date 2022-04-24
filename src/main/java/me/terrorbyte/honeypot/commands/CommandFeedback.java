@@ -45,6 +45,10 @@ public class CommandFeedback {
             feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "An update is available for this plugin. Download it at " + ChatColor.GOLD + "https://github.com/redstonefreak589/Honeypot " + ChatColor.WHITE + "for the latest features and security updates!");
         } else if (feedback.equalsIgnoreCase("againstfilter")){
             feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This block is not in the filter, so you can't do that!");
+        } else if (feedback.equalsIgnoreCase("inputcancelled")) {
+            feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypot creation cancelled");
+        } else if (feedback.equalsIgnoreCase("customactionsdisabled")){
+            feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Custom actions are disabled. Enable them in the config");
         } else {
             feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED + "Unknown error, please contact server admin");
         }

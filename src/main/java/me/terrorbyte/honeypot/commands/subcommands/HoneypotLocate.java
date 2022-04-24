@@ -67,7 +67,6 @@ public class HoneypotLocate extends HoneypotSubCommand {
                                 slime.remove();
                             }
                         }.runTaskLater(Honeypot.getPlugin(), 20 * 5);
-
                     }
                 }
             }
