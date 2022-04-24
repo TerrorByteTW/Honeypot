@@ -166,37 +166,6 @@ public abstract class Database {
         return null;
     }
 
-    public String getWorld(Block block){
-        String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
-
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs;
-
-        try {
-            c = getSQLConnection();
-            ps = c.prepareStatement("SELECT * FROM " + blockTable + " WHERE coordinates = '" + coordinates + "';");
-            rs = ps.executeQuery();
-
-            while(rs.next()){
-                if(rs.getString("coordinates").equalsIgnoreCase(coordinates)){
-                    return rs.getString("worldName");
-                }
-            }
-        } catch (SQLException e){
-            Honeypot.getPlugin().getLogger().severe("Error while executing world SQL statement on block table: " + e);
-        } finally {
-            try {
-                if (ps != null) ps.close();
-                if (c != null) c.close();
-            } catch (SQLException e){
-                Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
-            }
-        }
-
-        return null;
-    }
-
     public void createHoneypotPlayer(Player player, int blocksBroken){
 
         Connection c = null;
