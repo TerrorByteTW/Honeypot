@@ -11,9 +11,6 @@ import java.sql.Statement;
 
 public class SQLite extends Database{
 
-    private final String playerTable = "honeypot_players";
-    private final String blockTable = "honeypot_blocks";
-
     public SQLite(Honeypot instance){
         super(instance);
     }

@@ -1,27 +1,21 @@
 package me.terrorbyte.honeypot.events;
 
-import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.HoneypotConfigManager;
-import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
-import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
-import me.terrorbyte.honeypot.ConfigColorManager;
+import java.io.IOException;
+
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import me.terrorbyte.honeypot.ConfigColorManager;
+import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
+import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 
 public class PlayerBreakEventListener implements Listener {
 

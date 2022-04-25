@@ -1,8 +1,5 @@
 package me.terrorbyte.honeypot.storagemanager;
 
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-
 import java.util.UUID;
 
 public class HoneypotPlayerObject {

@@ -21,6 +21,7 @@ public class PlayerContainerOpenListener implements Listener {
 
     //Player block break event
     @EventHandler(priority = EventPriority.LOW)
+    @SuppressWarnings("unchecked")
     public static void InventoryOpenEvent(InventoryOpenEvent event) {
 
         //We want to filter on inventories upon opening, not just creation (Like in the HoneypotCreate class) because inventories can be both broken AND open :)

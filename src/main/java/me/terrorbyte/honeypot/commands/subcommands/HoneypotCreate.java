@@ -22,6 +22,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void perform(Player p, String[] args) {
 
         //If player doesn't have the create permission, don't let them do this

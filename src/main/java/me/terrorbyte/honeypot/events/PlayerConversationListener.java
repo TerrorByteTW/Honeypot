@@ -2,7 +2,6 @@ package me.terrorbyte.honeypot.events;
 
 import me.terrorbyte.honeypot.ConfigColorManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
-import me.terrorbyte.honeypot.commands.subcommands.HoneypotCreate;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.*;
