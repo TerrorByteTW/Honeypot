@@ -90,6 +90,7 @@ public class PlayerContainerOpenListener implements Listener {
             default -> {
                 if(Honeypot.config.getBoolean("enable-custom-actions")){
                     String formattedAction = action.replace("%player%", event.getPlayer().getName());
+                    formattedAction = formattedAction.replace("%location%", event.getPlayer().getLocation().getX() + " " + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
                     Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), formattedAction);
                 }
             }

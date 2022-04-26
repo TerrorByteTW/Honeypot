@@ -21,12 +21,11 @@ public final class Honeypot extends JavaPlugin {
 
     private static String databaseType;
     public static YamlDocument config;
+    private static Honeypot plugin;
 
     public static Honeypot getPlugin() {
         return plugin;
     }
-
-    private static Honeypot plugin;
 
     public static String getDatabase() {
         return switch (Objects.requireNonNull(databaseType)) {
@@ -38,14 +37,10 @@ public final class Honeypot extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+        databaseType = config.getString("database");
 
-        getServer().getPluginManager().registerEvents(new PlayerBreakEventListener(), this);
-        getServer().getPluginManager().registerEvents(new ExplosionEventListener(), this);
-        getServer().getPluginManager().registerEvents(new EntityChangeEventListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerContainerOpenListener(), this);
-        getServer().getPluginManager().registerEvents(new PistonMoveListener(), this);
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
-        Objects.requireNonNull(getCommand("honeypot")).setExecutor(new CommandManager());
+        ListenerSetup.SetupListeners(this);
+        getCommand("honeypot").setExecutor(new CommandManager());
 
         getServer().getConsoleSender().sendMessage(ChatColor.GOLD +
         " _____                         _\n" +
@@ -66,8 +61,6 @@ public final class Honeypot extends JavaPlugin {
             getLogger().severe("Could not create config, disabling! Please alert the plugin author with the full stack trace above");
             this.getPluginLoader().disablePlugin(this);
         }
-
-        databaseType = config.getString("database");
 
         try {
             getLogger().info("Loading honeypot blocks...");
@@ -99,7 +92,7 @@ public final class Honeypot extends JavaPlugin {
             HoneypotBlockStorageManager.saveHoneypotBlocks();
             getLogger().info("Saving honeypot players...");
             HoneypotPlayerStorageManager.saveHoneypotPlayers();
-            getLogger().info("Successfully shutdown Honeypot. Bye for !");
+            getLogger().info("Successfully shutdown Honeypot. Bye for now!");
         } catch (IOException e) {
             e.printStackTrace();
             getLogger().severe("Could not save honeypot blocks or players. You may experience issues restarting this plugin. Please alert the plugin author with the full stack trace above");
