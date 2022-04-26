@@ -37,17 +37,6 @@ public final class Honeypot extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-        databaseType = config.getString("database");
-
-        ListenerSetup.SetupListeners(this);
-        getCommand("honeypot").setExecutor(new CommandManager());
-
-        getServer().getConsoleSender().sendMessage(ChatColor.GOLD +
-        " _____                         _\n" +
-        "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
-        "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
-        "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
-        "                  |___|_|");
 
         try {
             config = HoneypotConfigManager.setupConfig(YamlDocument.create(new File(getDataFolder(), "config.yml"),
@@ -75,6 +64,18 @@ public final class Honeypot extends JavaPlugin {
             getLogger().severe("Could not load honeypot blocks or players, disabling! Please alert the plugin author with the full stack trace above");
             this.getPluginLoader().disablePlugin(this);
         }
+
+        databaseType = config.getString("database");
+
+        ListenerSetup.SetupListeners(this);
+        getCommand("honeypot").setExecutor(new CommandManager());
+
+        getServer().getConsoleSender().sendMessage(ChatColor.GOLD +
+        " _____                         _\n" +
+        "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
+        "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
+        "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
+        "                  |___|_|");
 
         new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/redstonefreak589/Honeypot/master/version.txt").getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
