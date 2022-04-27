@@ -3,8 +3,6 @@ package me.terrorbyte.honeypot.commands.subcommands;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
-import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
-import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -30,8 +28,6 @@ public class HoneypotReload extends HoneypotSubCommand {
         try {
             Honeypot.config.reload();
             Honeypot.config.save();
-            HoneypotBlockStorageManager.loadHoneypotBlocks(Honeypot.getPlugin());
-            HoneypotPlayerStorageManager.loadHoneypotPlayers(Honeypot.getPlugin());
         } catch (IOException e) {
             //Nothing
         }

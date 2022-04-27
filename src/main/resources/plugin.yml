@@ -19,6 +19,9 @@ permissions:
   honeypot.remove:
     description: Allows a user to remove honeypot blocks
     default: op
+    honeypot.removecommand:
+    description: Allows players to remove honeypots with the command, but not break them if honeypot.remove is set
+    default: op
   honeypot.locate:
     description: Allows a user to see nearby honeypot blocks
     default: op
@@ -44,6 +47,7 @@ permissions:
       honeypot.commands: true
       honeypot.create: true
       honeypot.remove: true
+      honeypot.removecommand: true
       honeypot.exempt: true
       honeypot.notify: true
       honeypot.reload: true

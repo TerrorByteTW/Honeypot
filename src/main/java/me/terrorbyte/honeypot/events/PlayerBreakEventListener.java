@@ -82,6 +82,10 @@ public class PlayerBreakEventListener implements Listener {
                     Honeypot.getPlugin().getServer().getConsoleSender().sendMessage(chatPrefix + " " + ChatColor.RED + event.getPlayer().getName() + " was caught breaking a Honeypot block");
                 }
 
+                case "nothing" -> {
+                    //Do...nothing
+                }
+
                 default -> {
                     if(Honeypot.config.getBoolean("enable-custom-actions")){
                         String formattedAction = action.replace("%player%", event.getPlayer().getName());

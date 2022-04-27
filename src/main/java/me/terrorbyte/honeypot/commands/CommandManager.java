@@ -5,8 +5,6 @@ import me.terrorbyte.honeypot.commands.subcommands.HoneypotCreate;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotLocate;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotReload;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotRemove;
-import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
-import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -75,13 +73,6 @@ public class CommandManager implements TabExecutor {
                     Honeypot.config.save();
                 } catch (IOException e) {
                     Honeypot.getPlugin().getLogger().severe("Could not reload honeypot config! Full stack trace: " + e);
-                }
-
-                try {
-                    HoneypotBlockStorageManager.loadHoneypotBlocks(Honeypot.getPlugin());
-                    HoneypotPlayerStorageManager.loadHoneypotPlayers(Honeypot.getPlugin());
-                } catch (IOException e) {
-                    //Nothing
                 }
             } else {
                 //If the sender is not a player (Probably the console) and did not use the reload command, send this message

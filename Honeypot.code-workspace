@@ -4,5 +4,8 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic",
+		"java.jdt.ls.java.home": "/usr/lib/jvm/zulu17-ca-amd64"
+	}
 }

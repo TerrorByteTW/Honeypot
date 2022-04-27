@@ -13,7 +13,7 @@ public class CommandFeedback {
             case "usage" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Incorrect usage!\n" +
                 chatPrefix + " " + ChatColor.WHITE + "/honeypot create [ban | kick | warn | notify | nothing]\n" +
-                chatPrefix + " " + ChatColor.WHITE + "/honeypot remove\n" +
+                chatPrefix + " " + ChatColor.WHITE + "/honeypot remove (all | near) (optional)\n" +
                 chatPrefix + " " + ChatColor.WHITE + "/honeypot reload\n" +
                 chatPrefix + " " + ChatColor.WHITE + "/honeypot locate");
             }
@@ -69,6 +69,18 @@ public class CommandFeedback {
 
             case "customactionsdisabled" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Custom actions are disabled. Enable them in the config");
+            }
+
+            case "notlookingatblock" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "You need to be looking at a block to perform this command");
+            }
+
+            case "deletedall" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Deleted all honeypot blocks");
+            }
+
+            case "deletednear" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Deleted all honeypot blocks within a 5 block radius");
             }
 
             default -> {

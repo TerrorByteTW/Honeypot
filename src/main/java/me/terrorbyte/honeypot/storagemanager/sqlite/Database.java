@@ -244,4 +244,46 @@ public abstract class Database {
         return -1;
     }
 
+    public void deleteAllBlocks(){
+        Connection c = null;
+        PreparedStatement ps = null;
+
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement("DELETE FROM " + blockTable + ";");
+            ps.executeUpdate();
+
+        } catch (SQLException e){
+            Honeypot.getPlugin().getLogger().severe("Error while executing create SQL statement on player table: " + e);
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                if (c != null) c.close();
+            } catch (SQLException e){
+                Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
+            }
+        }
+    }
+    
+    public void deleteAllPlayers(){
+        Connection c = null;
+        PreparedStatement ps = null;
+
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement("DELETE FROM " + playerTable + ";");
+            ps.executeUpdate();
+
+        } catch (SQLException e){
+            Honeypot.getPlugin().getLogger().severe("Error while executing create SQL statement on player table: " + e);
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                if (c != null) c.close();
+            } catch (SQLException e){
+                Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
+            }
+        }
+    }
+
 }

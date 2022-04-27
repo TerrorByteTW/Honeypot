@@ -8,30 +8,19 @@ import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import me.terrorbyte.honeypot.commands.CommandManager;
 import me.terrorbyte.honeypot.events.*;
-import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
-import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 public final class Honeypot extends JavaPlugin {
 
-    private static String databaseType;
     public static YamlDocument config;
     private static Honeypot plugin;
 
     public static Honeypot getPlugin() {
         return plugin;
-    }
-
-    public static String getDatabase() {
-        return switch (Objects.requireNonNull(databaseType)) {
-            case "sqlite", "json" -> databaseType;
-            default -> "sqlite";
-        };
     }
 
     @Override
@@ -50,23 +39,7 @@ public final class Honeypot extends JavaPlugin {
             getLogger().severe("Could not create config, disabling! Please alert the plugin author with the full stack trace above");
             this.getPluginLoader().disablePlugin(this);
         }
-
-        try {
-            getLogger().info("Loading honeypot blocks...");
-            HoneypotBlockStorageManager.loadHoneypotBlocks(plugin);
-
-            getLogger().info("Loading honeypot players...");
-            HoneypotPlayerStorageManager.loadHoneypotPlayers(plugin);
-
-            getLogger().info("Successfully enabled");
-        } catch (IOException e) {
-            e.printStackTrace();
-            getLogger().severe("Could not load honeypot blocks or players, disabling! Please alert the plugin author with the full stack trace above");
-            this.getPluginLoader().disablePlugin(this);
-        }
-
-        databaseType = config.getString("database");
-
+        
         ListenerSetup.SetupListeners(this);
         getCommand("honeypot").setExecutor(new CommandManager());
 
@@ -88,15 +61,6 @@ public final class Honeypot extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        try {
-            getLogger().info("Saving honeypot blocks...");
-            HoneypotBlockStorageManager.saveHoneypotBlocks();
-            getLogger().info("Saving honeypot players...");
-            HoneypotPlayerStorageManager.saveHoneypotPlayers();
-            getLogger().info("Successfully shutdown Honeypot. Bye for now!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            getLogger().severe("Could not save honeypot blocks or players. You may experience issues restarting this plugin. Please alert the plugin author with the full stack trace above");
-        }
+        getLogger().info("Successfully shutdown Honeypot. Bye for now!");
     }
 }

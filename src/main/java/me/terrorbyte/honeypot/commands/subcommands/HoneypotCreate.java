@@ -24,6 +24,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
     @Override
     @SuppressWarnings("unchecked")
     public void perform(Player p, String[] args) {
+        Block block;
 
         //If player doesn't have the create permission, don't let them do this
         if (!(p.hasPermission("honeypot.create"))) {
@@ -32,7 +33,12 @@ public class HoneypotCreate extends HoneypotSubCommand {
         }
 
         //Get block the player is looking at
-        Block block = p.getTargetBlockExact(5);
+        if(p.getTargetBlockExact(5) != null){
+             block = p.getTargetBlockExact(5);
+        } else {
+            p.sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
+            return;
+        }
 
         if(Honeypot.config.getBoolean("filters.blocks") || Honeypot.config.getBoolean("filters.inventories")) {
             List<String> allowedBlocks = (List<String>) Honeypot.config.getList("allowed-blocks");
@@ -51,7 +57,6 @@ public class HoneypotCreate extends HoneypotSubCommand {
 
             if (Honeypot.config.getBoolean("filters.inventories")){
                 for (String blockType : allowedInventories) {
-                    assert block != null;
                     if (block.getType().name().equals(blockType)){
                         allowed = true;
                         break;
@@ -66,7 +71,6 @@ public class HoneypotCreate extends HoneypotSubCommand {
         }
 
         //If the blocks meta has a honeypot tag, let them know
-        assert block != null;
         if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
