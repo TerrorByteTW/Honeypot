@@ -49,7 +49,8 @@ public class SQLite extends Database{
         } catch (SQLException e) {
             Honeypot.getPlugin().getLogger().severe("SQLite exception on initialize: " + e);
         } catch (ClassNotFoundException e){
-            Honeypot.getPlugin().getLogger().severe("SQLite JBDC Library not found. Please install this on your PC to use SQLite: " + e);
+            Honeypot.getPlugin().getLogger().severe("SQLite JDBC Library not found. Please install this on your PC to use SQLite: " + e);
+            Honeypot.getPlugin().getPluginLoader().disablePlugin(Honeypot.getPlugin());
         }
 
         return null;
