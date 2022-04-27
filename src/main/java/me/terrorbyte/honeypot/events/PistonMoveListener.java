@@ -15,26 +15,22 @@ public class PistonMoveListener implements Listener {
     //Player block break event
     @EventHandler(priority = EventPriority.LOW)
     public static void PistonPushEvent(BlockPistonExtendEvent event) {
-        if(event.isSticky()){
-            List<Block> blocks = event.getBlocks();
-            for (Block b : blocks){
-                if(HoneypotBlockStorageManager.isHoneypotBlock(b)){
-                    event.setCancelled(true);
-                    break;
-                }
+        List<Block> blocks = event.getBlocks();
+        for (Block b : blocks){
+            if(HoneypotBlockStorageManager.isHoneypotBlock(b)){
+                event.setCancelled(true);
+                break;
             }
         }
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public static void PistonPullEvent(BlockPistonRetractEvent event){
-        if(event.isSticky()){
-            List<Block> blocks = event.getBlocks();
-            for (Block b : blocks){
-                if(HoneypotBlockStorageManager.isHoneypotBlock(b)){
-                    event.setCancelled(true);
-                    break;
-                }
+        List<Block> blocks = event.getBlocks();
+        for (Block b : blocks){
+            if(HoneypotBlockStorageManager.isHoneypotBlock(b)){
+                event.setCancelled(true);
+                break;
             }
         }
     }
