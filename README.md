@@ -33,8 +33,9 @@ This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out o
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
 
 ## Credits 🎬
-TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed!
-Google Gson is used as a "database" of sorts to persistently store Honeypot blocks and players who break them in JSON files and load them to RAM at plugin startup for quicker lookups. Big thanks to dejvokep for their [BoostedYAML](https://www.spigotmc.org/threads/%E2%9A%A1-boostedyaml-standalone-yaml-library-with-updater-and-comment-support-much-more-5min-setup-%E2%9A%A1.545585/) library!
+TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed! Big thanks to dejvokep for their [BoostedYAML](https://www.spigotmc.org/threads/%E2%9A%A1-boostedyaml-standalone-yaml-library-with-updater-and-comment-support-much-more-5min-setup-%E2%9A%A1.545585/) library!
 
 ## Note 📒
 Honeypot Anti-Grief Solution is not designed to replace land protection plugins such as [Lands](https://www.spigotmc.org/resources/lands-land-claim-plugin-grief-prevention-protection-gui-management-nations-wars-1-17-support.53313/), [WorldGuard](https://dev.bukkit.org/projects/worldguard), [GriefPrevention](https://www.spigotmc.org/resources/griefprevention.1884/), [CoreProtect](https://www.spigotmc.org/resources/coreprotect.8631/), etc. Please make sure you have another protection and rollback plugin to prevent mass griefing. Honeypot is just meant to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I actually recommend CoreProtect and the paid Lands plugin, as I used them in production servers and they are fantastic! Honeypot is a perfect plugin to compliment them both.
+
+This plugin was also designed for Minecraft 1.17+ and is compiled using Java 17. If you are not running Java 17 on your server, this plugin is not for you.
