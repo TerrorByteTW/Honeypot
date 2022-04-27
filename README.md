@@ -9,7 +9,7 @@ Honeypot plugins were popularized back in the early days of Minecraft servers bu
 
 **View a demo here**
 
-[![Honeypot Demo](https://img.youtube.com/vi/Ff2Ju91CgxA/0.jpg)](https://www.youtube.com/watch?v=Ff2Ju91CgxA)
+[![Honeypot Demo](https://img.youtube.com/vi/M58d5X3NpP0/0.jpg)](https://www.youtube.com/watch?v=M58d5X3NpP0)
 
 ## Goals
 These are the goals for Honeypot. Not all of these have been achieved yet, but I think I'm on the right track.
