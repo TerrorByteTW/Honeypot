@@ -50,7 +50,7 @@ public final class Honeypot extends JavaPlugin {
         "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
         "                  |___|_|");
 
-        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt").getVersion(version -> {
+        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/redstonefreak589/Honeypot/master/version.txt").getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
                 getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "You are on the latest version of Honeypot!");
             } else {
