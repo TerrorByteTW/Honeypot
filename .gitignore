@@ -8,6 +8,9 @@
 # IntelliJ
 out/
 
+# Maven
+apache-maven-3.8.5/
+
 # Compiled class file
 *.class
 
