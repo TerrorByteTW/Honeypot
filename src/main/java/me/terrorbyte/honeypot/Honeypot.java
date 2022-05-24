@@ -6,6 +6,7 @@ import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
 import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
 import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings.OptionSorting;
 import me.terrorbyte.honeypot.commands.CommandManager;
 import me.terrorbyte.honeypot.events.*;
 import org.bukkit.ChatColor;
@@ -33,7 +34,7 @@ public final class Honeypot extends JavaPlugin {
                     GeneralSettings.DEFAULT,
                     LoaderSettings.builder().setAutoUpdate(true).build(),
                     DumperSettings.DEFAULT,
-                    UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version")).build()));
+                    UpdaterSettings.builder().setVersioning(new BasicVersioning("file-version")).setOptionSorting(OptionSorting.SORT_BY_DEFAULTS).build()));
         } catch (IOException e) {
             e.printStackTrace();
             getLogger().severe("Could not create config, disabling! Please alert the plugin author with the full stack trace above");
