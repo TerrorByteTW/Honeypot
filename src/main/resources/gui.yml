@@ -1,0 +1,25 @@
+######################################################################
+#                   C O N F I G   S E T T I N G S                    #
+######################################################################
+
+# File verison (do NOT edit):
+file-version: 1
+
+######################################################################
+#                       G U I   S E T T I N G S                      #
+######################################################################
+
+# If multiple pages are present, which item should represent the "next page" button?
+next-page-item: ARROW
+
+# If multiple pages are present, which item should represent the "current page" button?
+current-page-item: NAME_TAG
+
+# If multiple pages are present, which item should represent the "previous page" button?
+previous-page-item: ARROW
+
+# Should honeypots reflect their actual material in the GUI, or should they be a static icon?
+display-button-as-honeypot: true
+
+# If the above is false, which item should be used to represent honeypots in the GUI?
+honeypot-button: DIAMOND_ORE

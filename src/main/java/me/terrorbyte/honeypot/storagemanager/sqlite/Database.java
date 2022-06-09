@@ -1,6 +1,8 @@
 package me.terrorbyte.honeypot.storagemanager.sqlite;
 
 import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.storagemanager.HoneypotBlockObject;
+
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -8,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public abstract class Database {
 
@@ -152,6 +155,36 @@ public abstract class Database {
                     return rs.getString("action");
                 }
             }
+        } catch (SQLException e){
+            Honeypot.getPlugin().getLogger().severe("Error while executing action SQL statement on block table: " + e);
+        } finally {
+            try {
+                if (ps != null) ps.close();
+                if (c != null) c.close();
+            } catch (SQLException e){
+                Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
+            }
+        }
+
+        return null;
+    }
+
+    public ArrayList<HoneypotBlockObject> getAllHoneypots(){
+        ArrayList<HoneypotBlockObject> blocks = new ArrayList<HoneypotBlockObject>();
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs;
+
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement("SELECT * FROM " + blockTable + ";");
+            rs = ps.executeQuery();
+
+            while(rs.next()){
+                blocks.add(new HoneypotBlockObject(rs.getString("world"), rs.getString("coordinates"), rs.getString("action")));
+            }
+
+            return blocks;
         } catch (SQLException e){
             Honeypot.getPlugin().getLogger().severe("Error while executing action SQL statement on block table: " + e);
         } finally {

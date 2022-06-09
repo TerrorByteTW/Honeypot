@@ -10,7 +10,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerConversationListener extends StringPrompt implements ConversationAbandonedListener {
 
-    public static Block block;
+    public Block block;
+
+    public PlayerConversationListener(Block block){
+        this.block = block;
+    }
 
     @NotNull
     @Override

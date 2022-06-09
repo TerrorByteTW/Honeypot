@@ -6,6 +6,7 @@ import me.terrorbyte.honeypot.storagemanager.sqlite.SQLite;
 import org.bukkit.block.Block;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class HoneypotBlockStorageManager {
 
@@ -55,5 +56,12 @@ public class HoneypotBlockStorageManager {
 
         db = new SQLite(plugin);
         db.deleteAllBlocks();
+    }
+
+    public static ArrayList<HoneypotBlockObject> getAllHoneypots() throws IOException {
+        Database db;
+
+        db = new SQLite(plugin);
+        return db.getAllHoneypots();
     }
 }

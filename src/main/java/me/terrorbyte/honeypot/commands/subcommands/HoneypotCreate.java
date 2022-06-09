@@ -92,8 +92,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
                             } else {
                                 p.sendTitle(ChatColor.AQUA + "Enter action", "Enter your custom action command (WITHOUT THE /) in chat. Type cancel to exit", 10, 60, 10);
                                 ConversationFactory cf = new ConversationFactory(Honeypot.getPlugin());
-                                Conversation conv = cf.withFirstPrompt(new PlayerConversationListener()).withLocalEcho(false).withEscapeSequence("cancel").addConversationAbandonedListener(new PlayerConversationListener()).withTimeout(10).buildConversation(p);
-                                PlayerConversationListener.block = block;
+                                Conversation conv = cf.withFirstPrompt(new PlayerConversationListener(block)).withLocalEcho(false).withEscapeSequence("cancel").addConversationAbandonedListener(new PlayerConversationListener(block)).withTimeout(10).buildConversation(p);
                                 conv.begin();
                             }
                         } else {

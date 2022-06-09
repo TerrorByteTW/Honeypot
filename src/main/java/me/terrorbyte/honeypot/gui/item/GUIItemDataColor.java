@@ -28,22 +28,10 @@ public enum GUIItemDataColor {
         this.value = value;
     }
 
-    /**
-     * Returns the durability value that the named color represents.
-     *
-     * @return The durability value as a 'short'.
-     */
     public short getValue() {
         return value;
     }
 
-    /**
-     * Returns an {@link ItemDataColor} as found by its damage value or
-     * null if there isn't one.
-     *
-     * @param value The corresponding damage value of the color.
-     * @return The {@link ItemDataColor} associated with <code>value</code> or null if there isn't one.
-     */
     public static GUIItemDataColor getByValue(short value) {
         for (GUIItemDataColor color : GUIItemDataColor.values()) {
             if (value == color.value) return color;
