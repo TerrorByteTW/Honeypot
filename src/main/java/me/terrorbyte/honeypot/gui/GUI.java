@@ -14,7 +14,7 @@ import me.terrorbyte.honeypot.gui.item.GUIItemBuilder;
 import me.terrorbyte.honeypot.gui.menu.GUIMenuListener;
 import me.terrorbyte.honeypot.gui.menu.GUIOpenMenu;
 
-public class GUIManager{
+public class GUI{
 	
 	private final JavaPlugin plugin;
 
@@ -65,7 +65,7 @@ public class GUIManager{
         }
     };
 
-	public GUIManager(JavaPlugin plugin) {
+	public GUI(JavaPlugin plugin) {
         this.plugin = plugin;
 
         plugin.getServer().getPluginManager().registerEvents(

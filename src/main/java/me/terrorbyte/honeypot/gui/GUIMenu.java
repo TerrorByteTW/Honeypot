@@ -18,7 +18,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public class GUIMenu implements InventoryHolder{
 	private final JavaPlugin owner;
-    private final GUIManager guiManager;
+    private final GUI guiManager;
 
     private String name;
     private String tag;
@@ -35,7 +35,7 @@ public class GUIMenu implements InventoryHolder{
     private Consumer<GUIMenu> onClose;
     private Consumer<GUIMenu> onPageChange;
 
-	GUIMenu(JavaPlugin owner, GUIManager guiManager, String name, int rowsPerPage, String tag) {
+	GUIMenu(JavaPlugin owner, GUI guiManager, String name, int rowsPerPage, String tag) {
         this.owner = owner;
         this.guiManager = guiManager;
         this.name = ChatColor.translateAlternateColorCodes('&', name);

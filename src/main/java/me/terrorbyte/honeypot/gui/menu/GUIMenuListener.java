@@ -6,7 +6,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.terrorbyte.honeypot.gui.GUIManager;
+import me.terrorbyte.honeypot.gui.GUI;
 import me.terrorbyte.honeypot.gui.GUIMenu;
 import me.terrorbyte.honeypot.gui.button.GUIButton;
 import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonBuilder;
@@ -14,9 +14,9 @@ import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonType;
 
 public class GUIMenuListener implements Listener {
 	private final JavaPlugin owner;
-    private final GUIManager guiManager;
+    private final GUI guiManager;
 
-	public GUIMenuListener(JavaPlugin owner, GUIManager guiManager) {
+	public GUIMenuListener(JavaPlugin owner, GUI guiManager) {
         this.owner = owner;
         this.guiManager = guiManager;
     }
