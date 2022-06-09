@@ -31,11 +31,13 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		GUIMenu guiMenu = gui.create("Honeypots", 3);
 		
 		for (HoneypotBlockObject honeypotBlock : HoneypotBlockStorageManager.getAllHoneypots()) {
-			
+			GUIItemBuilder item;
+
+
 			if (Honeypot.guiConfig.getBoolean("display-button-as-honeypot")) {
-				GUIItemBuilder item = new GUIItemBuilder(Material.ARROW);
+				item = new GUIItemBuilder(Material.ARROW);
 			} else {
-				GUIItemBuilder item = new GUIItemBuilder(Material.ARROW);
+				item = new GUIItemBuilder(Material.ARROW);
 			}
 
 			GUIButton button = new GUIButton(
