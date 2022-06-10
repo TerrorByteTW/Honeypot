@@ -20,6 +20,8 @@ These are the goals for Honeypot. Not all of these have been achieved yet, but I
 
 So far we've met those goals, but are working on adding more features to the plugin and continuously optimizing as time goes on.
 
+Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
+
 ## Servers using Honeypot 💻
 If your server is using Honeypot, let me know! I'd love to add it to this list.
 
