@@ -2,6 +2,7 @@ package me.terrorbyte.honeypot.commands;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotCreate;
+import me.terrorbyte.honeypot.commands.subcommands.HoneypotGUI;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotLocate;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotReload;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotRemove;
@@ -30,6 +31,7 @@ public class CommandManager implements TabExecutor {
         subcommands.add(new HoneypotRemove());
         subcommands.add(new HoneypotReload());
         subcommands.add(new HoneypotLocate());
+        subcommands.add(new HoneypotGUI());
 
         for (int i = 0; i < getSubcommands().size(); i++) {
             subcommandsNameOnly.add(getSubcommands().get(i).getName());

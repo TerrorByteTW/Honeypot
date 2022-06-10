@@ -9,6 +9,8 @@ import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings.OptionSorting;
 import me.terrorbyte.honeypot.commands.CommandManager;
 import me.terrorbyte.honeypot.events.*;
+import me.terrorbyte.honeypot.gui.GUI;
+
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,6 +22,7 @@ public final class Honeypot extends JavaPlugin {
     public static YamlDocument config;
     public static YamlDocument guiConfig;
     private static Honeypot plugin;
+    public static GUI gui;
 
     public static Honeypot getPlugin() {
         return plugin;
@@ -28,6 +31,7 @@ public final class Honeypot extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+        gui = new GUI(this);
 
         // Create/load configuration files
         getLogger().info("Loading plugin config file...");

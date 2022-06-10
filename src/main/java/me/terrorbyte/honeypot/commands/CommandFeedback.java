@@ -15,7 +15,8 @@ public class CommandFeedback {
                 chatPrefix + " " + ChatColor.WHITE + "/honeypot create [ban | kick | warn | notify | nothing]\n" +
                 chatPrefix + " " + ChatColor.WHITE + "/honeypot remove (all | near) (optional)\n" +
                 chatPrefix + " " + ChatColor.WHITE + "/honeypot reload\n" +
-                chatPrefix + " " + ChatColor.WHITE + "/honeypot locate");
+                chatPrefix + " " + ChatColor.WHITE + "/honeypot locate\n" + 
+                chatPrefix + " " + ChatColor.WHITE + "/honeypot gui");
             }
             
             case "alreadyexists" -> {
@@ -56,7 +57,7 @@ public class CommandFeedback {
             }
             
             case "updateavailable" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "An update is available for this plugin. Download it at " + ChatColor.GOLD + "https://github.com/redstonefreak589/Honeypot " + ChatColor.WHITE + "for the latest features and security updates!"); 
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "An update is available for this plugin. Download it at " + ChatColor.GOLD + "https://github.com/TerrrorByte/Honeypot " + ChatColor.WHITE + "for the latest features and security updates!"); 
             }
 
             case "againstfilter" -> {

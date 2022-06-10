@@ -28,6 +28,9 @@ public class HoneypotReload extends HoneypotSubCommand {
         try {
             Honeypot.config.reload();
             Honeypot.config.save();
+
+            Honeypot.guiConfig.reload();
+            Honeypot.guiConfig.save();
         } catch (IOException e) {
             //Nothing
         }

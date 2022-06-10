@@ -181,7 +181,7 @@ public abstract class Database {
             rs = ps.executeQuery();
 
             while(rs.next()){
-                blocks.add(new HoneypotBlockObject(rs.getString("world"), rs.getString("coordinates"), rs.getString("action")));
+                blocks.add(new HoneypotBlockObject(rs.getString("worldName"), rs.getString("coordinates"), rs.getString("action")));
             }
 
             return blocks;

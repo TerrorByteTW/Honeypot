@@ -29,10 +29,10 @@ public class PlayerJoinListener implements Listener {
         }
 
         if(p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()){
-            new HoneypotUpdateChecker(Honeypot.getPlugin(), "https://raw.githubusercontent.com/redstonefreak589/Honeypot/master/version.txt").getVersion(version -> {
+            new HoneypotUpdateChecker(Honeypot.getPlugin(), "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt").getVersion(version -> {
                 if (!Honeypot.getPlugin().getDescription().getVersion().equals(version)) {
                     TextComponent message = new TextComponent(CommandFeedback.sendCommandFeedback("updateavailable"));
-                    message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/redstonefreak589/Honeypot"));
+                    message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/TerrrorByte/Honeypot"));
                     message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click me to download the latest update!")));
                     p.spigot().sendMessage(message);
                 }

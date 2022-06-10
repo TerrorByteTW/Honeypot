@@ -1,7 +1,14 @@
 package me.terrorbyte.honeypot.storagemanager;
 
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
+
+import me.terrorbyte.honeypot.Honeypot;
 
 public class HoneypotBlockObject {
 
@@ -25,6 +32,23 @@ public class HoneypotBlockObject {
         return coordinates;
     }
 
+    public Location getLocation() {
+        Pattern pattern = Pattern.compile("-?\\d+");
+        Matcher matcher = pattern.matcher(coordinates);
+        ArrayList<String> coords = new ArrayList<String>();
+
+        while(matcher.find()){
+            String coord = matcher.group();
+            coords.add(coord);
+        }
+
+        int x = Integer.parseInt(coords.get(0));
+        int y = Integer.parseInt(coords.get(1));
+        int z = Integer.parseInt(coords.get(2));
+
+        return new Location(Bukkit.getWorld(world), x, y, z);
+    }
+
     public String getAction() {
         return action;
     }
@@ -34,11 +58,18 @@ public class HoneypotBlockObject {
     }
 
     public Block getBlock(){
-        String[] coords = coordinates.split("-?\\d+");
+        Pattern pattern = Pattern.compile("-?\\d+");
+        Matcher matcher = pattern.matcher(coordinates);
+        ArrayList<String> coords = new ArrayList<String>();
 
-        int x = Integer.parseInt(coords[0]);
-        int y = Integer.parseInt(coords[1]);
-        int z = Integer.parseInt(coords[2]);
+        while(matcher.find()){
+            String coord = matcher.group();
+            coords.add(coord);
+        }
+
+        int x = Integer.parseInt(coords.get(0));
+        int y = Integer.parseInt(coords.get(1));
+        int z = Integer.parseInt(coords.get(2));
 
         return Bukkit.getWorld(world).getBlockAt(x, y, z);
     }

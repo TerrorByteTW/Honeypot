@@ -10,6 +10,9 @@ commands:
     description: Creates or deletes a honeypot block
 
 permissions:
+  honeypot.gui:
+    description: Allows a user to use the honeypot gui
+    default: op
   honeypot.commands:
     description: Allows a user to use honeypot commands (necessary for /honeypot create and remove)
     default: op

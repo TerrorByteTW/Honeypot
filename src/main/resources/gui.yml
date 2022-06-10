@@ -22,4 +22,4 @@ previous-page-item: ARROW
 display-button-as-honeypot: true
 
 # If the above is false, which item should be used to represent honeypots in the GUI?
-honeypot-button: DIAMOND_ORE
+default-gui-button: DIAMOND_ORE
