@@ -13,7 +13,7 @@ Honeypot plugins were popularized back in the early days of Minecraft servers bu
 
 ## Goals
 These are the goals for Honeypot. Not all of these have been achieved yet, but I think I'm on the right track.
-* **👀 Privacy focused.** This plugin collects no data or statistics.
+* **👀 Privacy focused.** This plugin collects no data, only basic statistics using bStats. If you want to know more about the stats I collect, I'm happy to share! You can also view them [here](https://bstats.org/plugin/bukkit/Honeypot/15425)
 * **💪 Lightweight.** I wanted this Honeypot plugin to be lightweight. I'm still working on optimizing the code but so far so good.
 * **😄 Easy to update.** The code in this plugin uses really basic Java and Bukkit/Spigot APIs, so it's not too overly complicate to update.
 * **🔨 Easy to build upon.** I made the Honeypot block manager classes super easy to use and add functionality to. I designed the Command Manager to be extensible, enabling me to add commands and subcommands at any time without too many major updates to the code or base classes. It also has the added benefit of making it easier for other developers to fork and add on to. 
