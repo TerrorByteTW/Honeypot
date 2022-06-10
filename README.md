@@ -29,7 +29,7 @@ If your server is using Honeypot, let me know! I'd love to add it to this list.
 This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me. Development is done at the pace in which I have time to do so, but it is currently **in progress** ▶
 
 ## To-do 📝
-* Add a GUI system to the plugin for ease of use (Click to delete, locate, TP, etc.)
+* Add a GUI system to the plugin for ease of use *(Implemented in [Honeypot v2.0!](https://github.com/redstonefreak589/Honeypot/releases/tag/v2.0))*
 * Add block and inventory filters to Honeypot *(Implemented in [Honeypot v1.5!](https://github.com/redstonefreak589/Honeypot/releases/tag/v1.5))*
 * Add custom actions to honeyblocks *(Implemented in [Honeypot v1.6!](https://github.com/redstonefreak589/Honeypot/releases/tag/v1.6))*
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
