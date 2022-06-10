@@ -42,150 +42,16 @@ public class HoneypotGUI extends HoneypotSubCommand{
 			return;
 		}
 
-		GUIMenu mainMenu = Honeypot.gui.create("Honeypot Main Menu", 1);
-		GUIItemBuilder createItem;
-		GUIItemBuilder removeItem;
-		GUIItemBuilder listItem;
-		GUIItemBuilder locateItem;
+		p.openInventory(mainMenu(p, args).getInventory());
 
-		createItem = new GUIItemBuilder(Material.GREEN_CONCRETE);
-		createItem.name("Create a Honeypot");
-
-		removeItem = new GUIItemBuilder(Material.DIAMOND_PICKAXE);
-		removeItem.name("Remove a Honeypot");
-
-		listItem = new GUIItemBuilder(Material.BOOK);
-		listItem.name("List all Honeypots");
-
-		locateItem = new GUIItemBuilder(Material.SPYGLASS);
-		locateItem.name("Locate nearby Honeypots");
-
-		GUIButton createButton = new GUIButton(
-				createItem.build()).withListener((InventoryClickEvent event) -> {
-					try {
-						createHoneypotInventory(p, args);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				});
-
-		GUIButton removeButton = new GUIButton(
-				// TODO: - Add support for near and all removals, as well as singular.
-				removeItem.build()).withListener((InventoryClickEvent event) -> {
-					Block block;
-					if (!(p.hasPermission("honeypot.remove"))) {
-						p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-						return;
-					}
-
-					if (event.getWhoClicked().getTargetBlockExact(5) != null) {
-						block = ((Player) event.getWhoClicked()).getTargetBlockExact(5);
-					} else {
-						event.getWhoClicked().closeInventory();
-						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
-						return;
-					}
-
-					if (block == null) {
-						event.getWhoClicked().closeInventory();
-						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
-						return;
-					}
-
-					event.getWhoClicked().closeInventory();
-					if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
-						HoneypotBlockStorageManager.deleteBlock(block);
-						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
-					} else {
-						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
-					}
-
-				});
-
-		GUIButton listButton = new GUIButton(
-				listItem.build()).withListener((InventoryClickEvent event) -> {
-					try {
-						allBlocksInventory(p, args);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				});
-		GUIButton locateButton = new GUIButton(locateItem.build())
-				.withListener((InventoryClickEvent event) -> {
-					event.getWhoClicked().closeInventory();
-					if (!(p.hasPermission("honeypot.locate"))) {
-						p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-						return;
-					}
-
-					// Set a 5 block search radius
-					final double radius = 5d;
-					final double xCoord = p.getLocation().getX();
-					final double yCoord = p.getLocation().getY();
-					final double zCoord = p.getLocation().getZ();
-					boolean potFound = false;
-
-					// For every x value within 5 blocks
-					for (double x = xCoord - radius; x < xCoord + radius; x++) {
-						// For every y value within 5 blocks
-						for (double y = yCoord - radius; y < yCoord + radius; y++) {
-							// For every z value within 5 blocks
-							for (double z = zCoord - radius; z < zCoord + radius; z++) {
-
-								// Check the block at coords x,y,z to see if it's a Honeypot
-								final Block b = new Location(p.getWorld(), x, y, z).getBlock();
-
-								// If it is a honeypot do this
-								if (HoneypotBlockStorageManager.isHoneypotBlock(b)) {
-									potFound = true;
-
-									// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
-									// it inside the block
-									Slime slime = (Slime) Objects
-											.requireNonNull(Bukkit.getWorld(b.getWorld().getName()))
-											.spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
-									slime.setSize(2);
-									slime.setAI(false);
-									slime.setGlowing(true);
-									slime.setInvulnerable(true);
-									slime.setHealth(4.0);
-									slime.setInvisible(true);
-
-									// After 5 seconds, remove the slime. Setting its health to 0 causes the death
-									// animation, removing it just makes it go away. Poof!
-									new BukkitRunnable() {
-
-										@Override
-										public void run() {
-											slime.remove();
-										}
-									}.runTaskLater(Honeypot.getPlugin(), 20 * 5);
-								}
-							}
-						}
-					}
-					
-					if (potFound) {
-						p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
-					} else {
-						p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
-					}
-				});
-
-
-		mainMenu.setButton(2, createButton);
-		mainMenu.setButton(3, removeButton);
-		mainMenu.setButton(5, listButton);
-		mainMenu.setButton(6, locateButton);
-		p.openInventory(mainMenu.getInventory());
 	}
 
-	@Override
-	public List<String> getSubcommands(Player p, String[] args) {
-		return new ArrayList<>();
-	}
+	private static void allBlocksInventory(Player p, String[] args) throws IOException {
+		if (!(p.hasPermission("honeypot.locate"))) {
+			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+			return;
+		}
 
-	private void allBlocksInventory(Player p, String[] args) throws IOException {
 		GUIMenu allBlocksGUI = Honeypot.gui.create("Honeypots {currentPage}/{maxPage}", 3);
 		
 		for (HoneypotBlockObject honeypotBlock : HoneypotBlockStorageManager.getAllHoneypots()) {
@@ -217,7 +83,7 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		p.openInventory(allBlocksGUI.getInventory());
 	}
 
-	private void createHoneypotInventory(Player p, String[] args) throws IOException {
+	private static void createHoneypotInventory(Player p, String[] args) throws IOException {
 		if (!(p.hasPermission("honeypot.create"))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 			return;
@@ -232,27 +98,27 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		GUIItemBuilder nothingItem;
 		GUIItemBuilder customItem;
 
-		kickItem = new GUIItemBuilder(Material.YELLOW_CONCRETE);
+		kickItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.kick-button")));
 		kickItem.name("Kick");
 		kickItem.lore("Click to create a 'kick' action");
 
-		banItem = new GUIItemBuilder(Material.RED_CONCRETE);
+		banItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.ban-button")));
 		banItem.name("Ban");
 		banItem.lore("Click to create a 'ban' action");
 
-		warnItem = new GUIItemBuilder(Material.GREEN_CONCRETE);
+		warnItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.warn-button")));
 		warnItem.name("Warn");
 		warnItem.lore("Click to create a 'warn' action");
 
-		notifyItem = new GUIItemBuilder(Material.OAK_SIGN);
+		notifyItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.notify-button")));
 		notifyItem.name("Notify");
 		notifyItem.lore("Click to create a 'notify' action");
 
-		nothingItem = new GUIItemBuilder(Material.BARRIER);
+		nothingItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.nothing-button")));
 		nothingItem.name("Nothing");
 		nothingItem.lore("Click to create a 'nothing' action");
 
-		customItem = new GUIItemBuilder(Material.WRITTEN_BOOK);
+		customItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.custom-button")));
 		customItem.name("Custom Item");
 		customItem.lore("Click to create a custom action (If enabled)");
 
@@ -293,6 +159,97 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		createHoneypotGUI.setButton(6, nothingButton);
 		createHoneypotGUI.setButton(7, customButton);
 		p.openInventory(createHoneypotGUI.getInventory());
+
+	}
+	
+	private static void removeHoneypotInventory(Player p, String[] args) throws IOException {
+		if (!(p.hasPermission("honeypot.removecommand"))) {
+			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+			return;
+		}
+
+		GUIMenu removeGUI = Honeypot.gui.create("Remove Honeypots", 1);
+
+		GUIItemBuilder removeAllItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("remove-buttons.remove-all-button")));
+		removeAllItem.name("Remove all Honeypots");
+
+		GUIItemBuilder removeNearItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("remove-buttons.remove-near-button")));
+		removeNearItem.name("Remove nearby Honeypots");
+
+		GUIItemBuilder removeTargetItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("remove-buttons.remove-target-button")));
+		removeTargetItem.name("Remove the Honeypot you're targeting");
+
+		GUIButton removeAllButton = new GUIButton(removeAllItem.build())
+			.withListener((InventoryClickEvent event) -> {
+				event.getWhoClicked().closeInventory();
+				try {
+					HoneypotBlockStorageManager.deleteAllHoneypotBlocks();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+                p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
+			});
+
+		GUIButton removeNearButton = new GUIButton(removeNearItem.build())
+			.withListener((InventoryClickEvent event) -> {
+				event.getWhoClicked().closeInventory();
+				final double radius = Honeypot.config.getDouble("search-range");
+                final double xCoord = p.getLocation().getX();
+                final double yCoord = p.getLocation().getY();
+                final double zCoord = p.getLocation().getZ();
+
+                //For every x value within radius
+                for (double x = xCoord - radius; x < xCoord + radius; x++) {
+                    //For every y value within radius
+                    for (double y = yCoord - radius; y < yCoord + radius; y++) {
+                        //For every z value within radius
+                        for (double z = zCoord - radius; z < zCoord + radius; z++) {
+
+                            //Check the block at coords x,y,z to see if it's a Honeypot
+                            final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+
+                            //If it is a honeypot do this
+                            if (HoneypotBlockStorageManager.isHoneypotBlock(b)) {
+                                HoneypotBlockStorageManager.deleteBlock(b);
+                                
+                            }
+                        }
+                    }
+                }
+
+                p.sendMessage(CommandFeedback.sendCommandFeedback("deletednear"));
+			});
+		
+		GUIButton removeTargetButton = new GUIButton(removeTargetItem.build())
+				.withListener((InventoryClickEvent event) -> {
+					Block block;
+					event.getWhoClicked().closeInventory();
+
+					if (event.getWhoClicked().getTargetBlockExact(5) != null) {
+						block = ((Player) event.getWhoClicked()).getTargetBlockExact(5);
+					} else {
+						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
+						return;
+					}
+
+					if (block == null) {
+						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
+						return;
+					}
+
+					if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
+						HoneypotBlockStorageManager.deleteBlock(block);
+						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
+					} else {
+						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
+					}
+				});
+
+		removeGUI.setButton(3, removeTargetButton);
+		removeGUI.setButton(4, removeNearButton);
+		removeGUI.setButton(5, removeAllButton);
+
+		p.openInventory(removeGUI.getInventory());
 
 	}
 
@@ -369,4 +326,123 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		}
 	}
 	
+	public static GUIMenu mainMenu(Player p, String[] args){
+		GUIMenu mainMenu = Honeypot.gui.create("Honeypot Main Menu", 1);
+		GUIItemBuilder createItem;
+		GUIItemBuilder removeItem;
+		GUIItemBuilder listItem;
+		GUIItemBuilder locateItem;
+
+		createItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.create-button")));
+		createItem.name("Create a Honeypot");
+
+		removeItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.remove-button")));
+		removeItem.name("Remove a Honeypot");
+
+		listItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.list-button")));
+		listItem.name("List all Honeypots");
+
+		locateItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.locate-button")));
+		locateItem.name("Locate nearby Honeypots");
+
+		GUIButton createButton = new GUIButton(
+				createItem.build()).withListener((InventoryClickEvent event) -> {
+					try {
+						createHoneypotInventory(p, args);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				});
+
+		GUIButton removeButton = new GUIButton(
+				removeItem.build()).withListener((InventoryClickEvent event) -> {
+					try {
+						removeHoneypotInventory(p, args);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				});
+
+		GUIButton listButton = new GUIButton(
+				listItem.build()).withListener((InventoryClickEvent event) -> {
+					try {
+						allBlocksInventory(p, args);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				});
+
+		GUIButton locateButton = new GUIButton(locateItem.build())
+				.withListener((InventoryClickEvent event) -> {
+					event.getWhoClicked().closeInventory();
+					if (!(p.hasPermission("honeypot.locate"))) {
+						p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+						return;
+					}
+
+					final double radius = Honeypot.config.getDouble("search-range");
+					final double xCoord = p.getLocation().getX();
+					final double yCoord = p.getLocation().getY();
+					final double zCoord = p.getLocation().getZ();
+					boolean potFound = false;
+
+					// For every x value within radius
+					for (double x = xCoord - radius; x < xCoord + radius; x++) {
+						// For every y value within radius
+						for (double y = yCoord - radius; y < yCoord + radius; y++) {
+							// For every z value within radius
+							for (double z = zCoord - radius; z < zCoord + radius; z++) {
+
+								// Check the block at coords x,y,z to see if it's a Honeypot
+								final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+
+								// If it is a honeypot do this
+								if (HoneypotBlockStorageManager.isHoneypotBlock(b)) {
+									potFound = true;
+
+									// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
+									// it inside the block
+									Slime slime = (Slime) Objects
+											.requireNonNull(Bukkit.getWorld(b.getWorld().getName()))
+											.spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
+									slime.setSize(2);
+									slime.setAI(false);
+									slime.setGlowing(true);
+									slime.setInvulnerable(true);
+									slime.setHealth(4.0);
+									slime.setInvisible(true);
+
+									// After 5 seconds, remove the slime. Setting its health to 0 causes the death
+									// animation, removing it just makes it go away. Poof!
+									new BukkitRunnable() {
+
+										@Override
+										public void run() {
+											slime.remove();
+										}
+									}.runTaskLater(Honeypot.getPlugin(), 20 * 5); //20 ticks in 1 second * 5 seconds equals 100 ticks
+								}
+							}
+						}
+					}
+					
+					if (potFound) {
+						p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
+					} else {
+						p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
+					}
+				});
+
+		mainMenu.setButton(2, createButton);
+		mainMenu.setButton(3, removeButton);
+		mainMenu.setButton(5, listButton);
+		mainMenu.setButton(6, locateButton);
+
+		return mainMenu;
+	}
+
+	@Override
+	public List<String> getSubcommands(Player p, String[] args) {
+		return new ArrayList<>();
+	}
 }

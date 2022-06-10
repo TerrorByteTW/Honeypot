@@ -8,7 +8,7 @@ public class ListenerSetup {
         plugin.getServer().getPluginManager().registerEvents(new PlayerBreakEventListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new ExplosionEventListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new EntityChangeEventListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new PlayerContainerOpenListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerBlockInteractListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PistonMoveListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), plugin);
     }

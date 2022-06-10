@@ -8,21 +8,24 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerContainerOpenListener implements Listener {
+public class PlayerBlockInteractListener implements Listener {
 
     //Player block break event
     @EventHandler(priority = EventPriority.LOW)
     @SuppressWarnings("unchecked")
-    public static void InventoryOpenEvent(InventoryOpenEvent event) {
+    public static void PlayerInteractEvent(PlayerInteractEvent event) {
+
+        if(!(event.getPlayer().getTargetBlockExact(5).getState() instanceof Container)) return;
 
         //We want to filter on inventories upon opening, not just creation (Like in the HoneypotCreate class) because inventories can be both broken AND open :)
         if(Honeypot.config.getBoolean("filters.inventories")) {
@@ -30,7 +33,7 @@ public class PlayerContainerOpenListener implements Listener {
             boolean allowed = false;
 
             for (String blockType : allowedBlocks) {
-                if (Objects.requireNonNull(event.getPlayer().getTargetBlockExact(10)).getType().name().equals(blockType)){
+                if (Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getType().name().equals(blockType)){
                     allowed = true;
                     break;
                 }
@@ -42,7 +45,7 @@ public class PlayerContainerOpenListener implements Listener {
         }
 
         try {
-            if (!Objects.requireNonNull(event.getPlayer().getTargetBlockExact(10)).getType().equals(Material.ENDER_CHEST) && HoneypotBlockStorageManager.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(10)))) {
+            if (!Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getType().equals(Material.ENDER_CHEST) && HoneypotBlockStorageManager.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)))) {
 
                 if (Honeypot.config.getBoolean("enable-container-actions") && !(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                     event.setCancelled(true);
@@ -54,8 +57,9 @@ public class PlayerContainerOpenListener implements Listener {
         }
     }
 
-    private static void openAction(InventoryOpenEvent event){
-        Block block = event.getPlayer().getTargetBlockExact(10);
+    private static void openAction(PlayerInteractEvent event){
+
+        Block block = event.getPlayer().getTargetBlockExact(5);
         String chatPrefix = ConfigColorManager.getChatPrefix();
         Player player = (Player) event.getPlayer();
 

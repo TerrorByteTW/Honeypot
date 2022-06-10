@@ -1,5 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
+import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
@@ -36,16 +37,16 @@ public class HoneypotRemove extends HoneypotSubCommand {
                 }
 
                 case "near" -> {
-                    final double radius = 5d;
+                    final double radius = Honeypot.config.getDouble("search-range");
                     final double xCoord = p.getLocation().getX();
                     final double yCoord = p.getLocation().getY();
                     final double zCoord = p.getLocation().getZ();
 
-                    //For every x value within 5 blocks
+                    //For every x value within radius
                     for (double x = xCoord - radius; x < xCoord + radius; x++) {
-                        //For every y value within 5 blocks
+                        //For every y value within radius
                         for (double y = yCoord - radius; y < yCoord + radius; y++) {
-                            //For every z value within 5 blocks
+                            //For every z value within radius
                             for (double z = zCoord - radius; z < zCoord + radius; z++) {
 
                                 //Check the block at coords x,y,z to see if it's a Honeypot

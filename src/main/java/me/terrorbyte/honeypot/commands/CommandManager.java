@@ -3,6 +3,7 @@ package me.terrorbyte.honeypot.commands;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotCreate;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotGUI;
+import me.terrorbyte.honeypot.commands.subcommands.HoneypotHelp;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotLocate;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotReload;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotRemove;
@@ -32,6 +33,7 @@ public class CommandManager implements TabExecutor {
         subcommands.add(new HoneypotReload());
         subcommands.add(new HoneypotLocate());
         subcommands.add(new HoneypotGUI());
+        subcommands.add(new HoneypotHelp());
 
         for (int i = 0; i < getSubcommands().size(); i++) {
             subcommandsNameOnly.add(getSubcommands().get(i).getName());
@@ -64,7 +66,15 @@ public class CommandManager implements TabExecutor {
                 }
             } else {
                 //If no subcommands are passed, send the usage command feedback.
-                p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+                for (HoneypotSubCommand subcommand : subcommands) {
+                    if (subcommand.getName().equals("gui")) {
+                        try {
+                            subcommand.perform(p, args);
+                        } catch (IOException e) {
+                            Honeypot.getPlugin().getLogger().severe("Error while running command " + args[0] + "! Full stack trace: " + e);
+                        }
+                    }
+                }
             }
 
         } else {
@@ -116,10 +126,10 @@ public class CommandManager implements TabExecutor {
                     I didn't know how this code worked at first, even though I wrote it myself and didn't copy from anywhere on the internet. I took some time to figure it
                     out and am now commenting in the explanation so I don't forget lol.
 
-                    First we need to figure out which command of Honeypot we're using. There are 4: Create, Locate, Reload, and Remote.
+                    First we need to figure out which command of Honeypot we're using. There are 6: Create, Locate, Reload, Remove, GUI, and Help.
                     We are going to iterate through all the Honeypot original subcommands until we figure out which one we're on.
                     Once we figure out which command we're on, we're going to create a NEW subcommands ArrayList.
-                    In that new ArrayList we're going to pull all the 2nd level subcommands from the original subcommand we passed (One of the original four) and copy partial
+                    In that new ArrayList we're going to pull all the 2nd level subcommands from the original subcommand we passed (One of the original six) and copy partial
                     matches into the new subcommands array we created, which then we'll return to the player.
                     */
                     if (args[0].equalsIgnoreCase(subcommand.getName())) {

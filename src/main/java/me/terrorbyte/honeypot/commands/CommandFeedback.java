@@ -11,12 +11,13 @@ public class CommandFeedback {
         
         switch(feedback.toLowerCase()){
             case "usage" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Incorrect usage!\n" +
-                chatPrefix + " " + ChatColor.WHITE + "/honeypot create [ban | kick | warn | notify | nothing]\n" +
-                chatPrefix + " " + ChatColor.WHITE + "/honeypot remove (all | near) (optional)\n" +
-                chatPrefix + " " + ChatColor.WHITE + "/honeypot reload\n" +
-                chatPrefix + " " + ChatColor.WHITE + "/honeypot locate\n" + 
-                chatPrefix + " " + ChatColor.WHITE + "/honeypot gui");
+                feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
+                ChatColor.WHITE + "-----------------------");
             }
             
             case "alreadyexists" -> {

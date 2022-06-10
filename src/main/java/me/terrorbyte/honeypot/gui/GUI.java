@@ -9,11 +9,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonBuilder;
+import me.terrorbyte.honeypot.commands.subcommands.HoneypotGUI;
 import me.terrorbyte.honeypot.gui.button.GUIButton;
 import me.terrorbyte.honeypot.gui.item.GUIItemBuilder;
 import me.terrorbyte.honeypot.gui.menu.GUIMenuListener;
 import me.terrorbyte.honeypot.gui.menu.GUIOpenMenu;
+import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonBuilder;
 
 public class GUI{
 	
