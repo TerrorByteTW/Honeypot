@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -22,7 +21,6 @@ import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.events.PlayerConversationListener;
-import me.terrorbyte.honeypot.gui.GUI;
 import me.terrorbyte.honeypot.gui.GUIMenu;
 import me.terrorbyte.honeypot.gui.button.GUIButton;
 import me.terrorbyte.honeypot.gui.item.GUIItemBuilder;
