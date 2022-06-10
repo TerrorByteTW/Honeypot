@@ -37,6 +37,10 @@
                             <pattern>dev.dejvokep.boostedyaml</pattern>
                             <shadedPattern>me.terrorbyte.honeypot.libs</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>me.terrorbyte.honeypot.libs</shadedPattern>
+                          </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -80,5 +84,11 @@
             <artifactId>boosted-yaml</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>3.0.0</version>
+            <scope>compile</scope>
+          </dependency>
     </dependencies>
 </project>

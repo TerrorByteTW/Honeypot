@@ -11,6 +11,7 @@ import me.terrorbyte.honeypot.commands.CommandManager;
 import me.terrorbyte.honeypot.events.*;
 import me.terrorbyte.honeypot.gui.GUI;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +33,9 @@ public final class Honeypot extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         gui = new GUI(this);
+
+        int pluginId = 15425;
+        Metrics metrics = new Metrics(this, pluginId);
 
         // Create/load configuration files
         getLogger().info("Loading plugin config file...");
