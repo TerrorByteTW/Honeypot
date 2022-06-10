@@ -8,8 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-import me.terrorbyte.honeypot.Honeypot;
-
 public class HoneypotBlockObject {
 
     private final String coordinates;
