@@ -25,6 +25,7 @@ public class PlayerBlockInteractListener implements Listener {
     @SuppressWarnings("unchecked")
     public static void PlayerInteractEvent(PlayerInteractEvent event) {
 
+        if(event.getPlayer().getTargetBlockExact(5) == null) return;
         if(!(event.getPlayer().getTargetBlockExact(5).getState() instanceof Container)) return;
 
         //We want to filter on inventories upon opening, not just creation (Like in the HoneypotCreate class) because inventories can be both broken AND open :)
