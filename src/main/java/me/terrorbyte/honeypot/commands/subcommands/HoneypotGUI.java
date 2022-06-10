@@ -3,15 +3,20 @@ package me.terrorbyte.honeypot.commands.subcommands;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationFactory;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
@@ -43,6 +48,7 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		GUIItemBuilder createItem;
 		GUIItemBuilder removeItem;
 		GUIItemBuilder listItem;
+		GUIItemBuilder locateItem;
 
 		createItem = new GUIItemBuilder(Material.GREEN_CONCRETE);
 		createItem.name("Create a Honeypot");
@@ -52,6 +58,9 @@ public class HoneypotGUI extends HoneypotSubCommand{
 
 		listItem = new GUIItemBuilder(Material.BOOK);
 		listItem.name("List all Honeypots");
+
+		locateItem = new GUIItemBuilder(Material.SPYGLASS);
+		locateItem.name("Locate nearby Honeypots");
 
 		GUIButton createButton = new GUIButton(
 				createItem.build()).withListener((InventoryClickEvent event) -> {
@@ -63,6 +72,7 @@ public class HoneypotGUI extends HoneypotSubCommand{
 				});
 
 		GUIButton removeButton = new GUIButton(
+				// TODO: - Add support for near and all removals, as well as singular.
 				removeItem.build()).withListener((InventoryClickEvent event) -> {
 					Block block;
 					if (!(p.hasPermission("honeypot.remove"))) {
@@ -102,11 +112,73 @@ public class HoneypotGUI extends HoneypotSubCommand{
 						e.printStackTrace();
 					}
 				});
+		GUIButton locateButton = new GUIButton(locateItem.build())
+				.withListener((InventoryClickEvent event) -> {
+					event.getWhoClicked().closeInventory();
+					if (!(p.hasPermission("honeypot.locate"))) {
+						p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+						return;
+					}
+
+					// Set a 5 block search radius
+					final double radius = 5d;
+					final double xCoord = p.getLocation().getX();
+					final double yCoord = p.getLocation().getY();
+					final double zCoord = p.getLocation().getZ();
+					boolean potFound = false;
+
+					// For every x value within 5 blocks
+					for (double x = xCoord - radius; x < xCoord + radius; x++) {
+						// For every y value within 5 blocks
+						for (double y = yCoord - radius; y < yCoord + radius; y++) {
+							// For every z value within 5 blocks
+							for (double z = zCoord - radius; z < zCoord + radius; z++) {
+
+								// Check the block at coords x,y,z to see if it's a Honeypot
+								final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+
+								// If it is a honeypot do this
+								if (HoneypotBlockStorageManager.isHoneypotBlock(b)) {
+									potFound = true;
+
+									// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
+									// it inside the block
+									Slime slime = (Slime) Objects
+											.requireNonNull(Bukkit.getWorld(b.getWorld().getName()))
+											.spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
+									slime.setSize(2);
+									slime.setAI(false);
+									slime.setGlowing(true);
+									slime.setInvulnerable(true);
+									slime.setHealth(4.0);
+									slime.setInvisible(true);
+
+									// After 5 seconds, remove the slime. Setting its health to 0 causes the death
+									// animation, removing it just makes it go away. Poof!
+									new BukkitRunnable() {
+
+										@Override
+										public void run() {
+											slime.remove();
+										}
+									}.runTaskLater(Honeypot.getPlugin(), 20 * 5);
+								}
+							}
+						}
+					}
+					
+					if (potFound) {
+						p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
+					} else {
+						p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
+					}
+				});
 
 
-		mainMenu.setButton(3, createButton);
-		mainMenu.setButton(4, removeButton);
+		mainMenu.setButton(2, createButton);
+		mainMenu.setButton(3, removeButton);
 		mainMenu.setButton(5, listButton);
+		mainMenu.setButton(6, locateButton);
 		p.openInventory(mainMenu.getInventory());
 	}
 
