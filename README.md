@@ -23,7 +23,6 @@ So far we've met those goals, but are working on adding more features to the plu
 Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
 ## To-do 📝
-* Add JavaDocs
 * Lint the entire project for better readability
 * Add a section for contributing
 * Add API Wiki

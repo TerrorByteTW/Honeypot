@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.util.List;
 
-public abstract class HoneypotSubCommand {
+public interface HoneypotSubCommand {
 
     /**
      * Get's the name of the command

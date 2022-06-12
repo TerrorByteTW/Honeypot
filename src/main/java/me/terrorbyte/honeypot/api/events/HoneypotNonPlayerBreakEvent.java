@@ -5,31 +5,33 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class HoneypotNonPlayerBreakEvent extends Event {
+	
 	private static final HandlerList HANDLERS = new HandlerList();
 
+	private final Object object;
 
-	private final Object OBJECT;
-	private final Block BLOCK;
+	private final Block block;
 
-	public HoneypotNonPlayerBreakEvent(Object object, Block block){
-		this.OBJECT = object;
-		this.BLOCK = block;
+	public HoneypotNonPlayerBreakEvent(Object object, Block block) {
+		this.object = object;
+		this.block = block;
 	}
-
-	public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
 
 	@Override
 	public HandlerList getHandlers() {
 		return HANDLERS;
 	}
 
+	@SuppressWarnings("java:S4144")
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
+
 	public Object getObject() {
-		return OBJECT;
+		return object;
 	}
 
 	public Block getBlock() {
-		return BLOCK;
+		return block;
 	}
 }

@@ -13,30 +13,39 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.io.IOException;
-
 public class PlayerJoinListener implements Listener {
 
-    //Player join event
+    /**
+     * Create a private constructor to hide the implicit one
+     */
+    PlayerJoinListener() {
+
+    }
+
+    // Player join event
     @EventHandler
-    public static void PlayerJoinEvent(PlayerJoinEvent event) throws IOException {
+    public static void playerJoinEvent(PlayerJoinEvent event) {
         Player p = event.getPlayer();
 
-        //Convert player names to UUIDs
+        // Convert player names to UUIDs
         int breaks = HoneypotPlayerStorageManager.getCount(p);
-        if (breaks >= 0){
+        if (breaks >= 0) {
             HoneypotPlayerStorageManager.setPlayerCount(p, breaks);
         }
 
-        if(p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()){
-            new HoneypotUpdateChecker(Honeypot.getPlugin(), "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt").getVersion(version -> {
-                if (!Honeypot.getPlugin().getDescription().getVersion().equals(version)) {
-                    TextComponent message = new TextComponent(CommandFeedback.sendCommandFeedback("updateavailable"));
-                    message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://github.com/TerrrorByte/Honeypot"));
-                    message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click me to download the latest update!")));
-                    p.spigot().sendMessage(message);
-                }
-            });
+        if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
+            new HoneypotUpdateChecker(Honeypot.getPlugin(),
+                    "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt").getVersion(version -> {
+                        if (!Honeypot.getPlugin().getDescription().getVersion().equals(version)) {
+                            TextComponent message = new TextComponent(
+                                    CommandFeedback.sendCommandFeedback("updateavailable"));
+                            message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
+                                    "https://github.com/TerrrorByte/Honeypot"));
+                            message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                                    new Text("Click me to download the latest update!")));
+                            p.spigot().sendMessage(message);
+                        }
+                    });
         }
     }
 

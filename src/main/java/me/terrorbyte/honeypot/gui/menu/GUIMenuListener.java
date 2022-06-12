@@ -13,34 +13,38 @@ import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonBuilder;
 import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonType;
 
 public class GUIMenuListener implements Listener {
-	private final JavaPlugin OWNER;
-    private final GUI GUI_MANAGER;
+    private final JavaPlugin owner;
 
-	public GUIMenuListener(JavaPlugin owner, GUI guiManager) {
-        this.OWNER = owner;
-        this.GUI_MANAGER = guiManager;
+    private final GUI guiManager;
+
+    public GUIMenuListener(JavaPlugin owner, GUI guiManager) {
+        this.owner = owner;
+        this.guiManager = guiManager;
     }
 
-	@EventHandler
+    // Supressed warnings here because I don't have the brainpower currently to rework this method to be compliant with cognitive complexity rules
+    @EventHandler
+    @SuppressWarnings("java:S3776")
     public void onInventoryClick(InventoryClickEvent event) {
 
-        if (event.getInventory().getHolder() != null
-            && event.getInventory().getHolder() instanceof GUIMenu) {
+        if (event.getInventory().getHolder() instanceof GUIMenu) {
 
             GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
 
-            if (!clickedGui.getOwner().equals(OWNER)) return;
+            if (!clickedGui.getOwner().equals(owner))
+                return;
 
             if (clickedGui.areDefaultInteractionsBlocked() != null) {
                 event.setCancelled(clickedGui.areDefaultInteractionsBlocked());
-            } else {
-                if (GUI_MANAGER.areDefaultInteractionsBlocked())
+            }
+            else {
+                if (guiManager.areDefaultInteractionsBlocked())
                     event.setCancelled(true);
             }
 
             if (event.getSlot() > clickedGui.getPageSize()) {
                 int offset = event.getSlot() - clickedGui.getPageSize();
-                GUIPageButtonBuilder paginationButtonBuilder = GUI_MANAGER.getDefaultPaginationButtonBuilder();
+                GUIPageButtonBuilder paginationButtonBuilder = guiManager.getDefaultPaginationButtonBuilder();
 
                 if (clickedGui.getPaginationButtonBuilder() != null) {
                     paginationButtonBuilder = clickedGui.getPaginationButtonBuilder();
@@ -48,13 +52,15 @@ public class GUIMenuListener implements Listener {
 
                 GUIPageButtonType buttonType = GUIPageButtonType.forSlot(offset);
                 GUIButton paginationButton = paginationButtonBuilder.buildPaginationButton(buttonType, clickedGui);
-                if (paginationButton != null) paginationButton.getListener().onClick(event);
+                if (paginationButton != null)
+                    paginationButton.getListener().onClick(event);
                 return;
             }
-            
+
             if (clickedGui.isStickiedSlot(event.getSlot())) {
                 GUIButton button = clickedGui.getButton(0, event.getSlot());
-                if (button != null && button.getListener() != null) button.getListener().onClick(event);
+                if (button != null && button.getListener() != null)
+                    button.getListener().onClick(event);
                 return;
             }
 
@@ -70,11 +76,11 @@ public class GUIMenuListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
 
-        if (event.getInventory().getHolder() != null
-                && event.getInventory().getHolder() instanceof GUIMenu) {
+        if (event.getInventory().getHolder() instanceof GUIMenu) {
 
             GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
-            if (!clickedGui.getOwner().equals(OWNER)) return;
+            if (!clickedGui.getOwner().equals(owner))
+                return;
 
             if (clickedGui.getOnClose() != null)
                 clickedGui.getOnClose().accept(clickedGui);
@@ -82,6 +88,5 @@ public class GUIMenuListener implements Listener {
         }
 
     }
-
 
 }

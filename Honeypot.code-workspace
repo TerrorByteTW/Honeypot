@@ -6,6 +6,6 @@
 	],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "automatic",
-		"java.jdt.ls.java.home": "/usr/lib/jvm/zulu17-ca-amd64"
+		"java.format.settings.url": "https://raw.githubusercontent.com/spring-projects/spring-batch/main/spring-eclipse-code-conventions.xml"
 	}
 }

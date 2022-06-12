@@ -13,62 +13,64 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HoneypotRemove extends HoneypotSubCommand {
+public class HoneypotRemove implements HoneypotSubCommand {
     @Override
     public String getName() {
         return "remove";
     }
 
     @Override
+    @SuppressWarnings("java:S3776")
     public void perform(Player p, String[] args) throws IOException {
 
-        if(!p.hasPermission("honeypot.remove") && !p.hasPermission("honeypot.removecommand")) {
+        if (!p.hasPermission("honeypot.remove") && !p.hasPermission("honeypot.removecommand")) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
         Block block = p.getTargetBlockExact(5);
 
-        if(args.length >= 2){
-            switch(args[1].toLowerCase()) {
-                case "all" -> {
-                    HoneypotBlockStorageManager.deleteAllHoneypotBlocks();
-                    p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
-                }
+        if (args.length >= 2) {
+            switch (args[1].toLowerCase()) {
+            case "all" -> {
+                HoneypotBlockStorageManager.deleteAllHoneypotBlocks();
+                p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
+            }
 
-                case "near" -> {
-                    final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
-                    final double xCoord = p.getLocation().getX();
-                    final double yCoord = p.getLocation().getY();
-                    final double zCoord = p.getLocation().getZ();
+            case "near" -> {
+                final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
+                final double xCoord = p.getLocation().getX();
+                final double yCoord = p.getLocation().getY();
+                final double zCoord = p.getLocation().getZ();
 
-                    //For every x value within radius
-                    for (double x = xCoord - radius; x < xCoord + radius; x++) {
-                        //For every y value within radius
-                        for (double y = yCoord - radius; y < yCoord + radius; y++) {
-                            //For every z value within radius
-                            for (double z = zCoord - radius; z < zCoord + radius; z++) {
+                // For every x value within radius
+                for (double x = xCoord - radius; x < xCoord + radius; x++) {
+                    // For every y value within radius
+                    for (double y = yCoord - radius; y < yCoord + radius; y++) {
+                        // For every z value within radius
+                        for (double z = zCoord - radius; z < zCoord + radius; z++) {
 
-                                //Check the block at coords x,y,z to see if it's a Honeypot
-                                final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+                            // Check the block at coords x,y,z to see if it's a Honeypot
+                            final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
-                                //If it is a honeypot do this
-                                if (HoneypotBlockStorageManager.isHoneypotBlock(b)) {
-                                    HoneypotBlockStorageManager.deleteBlock(b);
-                                
-                                }
+                            // If it is a honeypot do this
+                            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
+                                HoneypotBlockStorageManager.deleteBlock(b);
+
                             }
                         }
                     }
-
-                    p.sendMessage(CommandFeedback.sendCommandFeedback("deletednear"));
                 }
 
-                default -> {
-                    potRemovalCheck(block, p);
-                }
+                p.sendMessage(CommandFeedback.sendCommandFeedback("deletednear"));
             }
-        } else {
+
+            default -> {
+                potRemovalCheck(block, p);
+            }
+            }
+        }
+        else {
             potRemovalCheck(block, p);
         }
     }
@@ -77,8 +79,8 @@ public class HoneypotRemove extends HoneypotSubCommand {
     public List<String> getSubcommands(Player p, String[] args) {
         List<String> subcommands = new ArrayList<>();
 
-        if(args.length == 2){
-            //Return all action types for the /honeypot create command
+        if (args.length == 2) {
+            // Return all action types for the /honeypot create command
             subcommands.add("all");
             subcommands.add("near");
         }
@@ -86,12 +88,13 @@ public class HoneypotRemove extends HoneypotSubCommand {
         return subcommands;
     }
 
-    private void potRemovalCheck(Block block, Player p){
+    private void potRemovalCheck(Block block, Player p) {
         assert block != null;
-        if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
+        if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(block))) {
             HoneypotBlockStorageManager.deleteBlock(block);
             p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
-        } else {
+        }
+        else {
             p.sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
         }
     }

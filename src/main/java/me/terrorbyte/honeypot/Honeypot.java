@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Honeypot extends JavaPlugin {
 
     private static Honeypot plugin;
-    public static GUI gui;
+    private static GUI gui;
 
     /**
      * Returns the plugin variable for use in other classes to get things such as the logger
@@ -23,7 +23,7 @@ public final class Honeypot extends JavaPlugin {
     }
 
     @Override
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "java:S2696"})
     public void onEnable() {
         plugin = this;
         gui = new GUI(this);
@@ -34,9 +34,9 @@ public final class Honeypot extends JavaPlugin {
 
         // Create/load configuration files
         HoneypotConfigManager.setupConfig(this);
-        
-        //Set up listeners and command executor
-        ListenerSetup.SetupListeners(this);
+
+        // Set up listeners and command executor
+        ListenerSetup.setupListeners(this);
         getCommand("honeypot").setExecutor(new CommandManager());
 
         // Output the "splash screen"
@@ -48,17 +48,26 @@ public final class Honeypot extends JavaPlugin {
         "                  |___|_|");
 
         // Check for any updates
-        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt").getVersion(version -> {
-            if (this.getDescription().getVersion().equals(version)) {
-                getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "You are on the latest version of Honeypot!");
-            } else {
-                getServer().getConsoleSender().sendMessage(ChatColor.RED + "There is a new update available: " + version + ". Please download for the latest features and security updates!");
-            }
-        });
+        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt")
+                .getVersion(latest -> {
+
+                    if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(this.getDescription().getVersion().replace(".", ""))) {
+                        getServer().getLogger().info(ChatColor.RED + "There is a new update available: "
+                                + latest + ". Please download for the latest features and security updates!");
+                    } else {
+
+                        getServer().getLogger()
+                                .info(ChatColor.GREEN + "You are on the latest version of Honeypot!");
+                    }
+                });
     }
 
     @Override
     public void onDisable() {
         getLogger().info("Successfully shutdown Honeypot. Bye for now!");
+    }
+
+    public static GUI getGUI(){
+        return gui;
     }
 }

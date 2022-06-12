@@ -5,18 +5,28 @@ import org.bukkit.ChatColor;
 import me.terrorbyte.honeypot.ConfigColorManager;
 
 public class CommandFeedback {
-    
+
     /**
-     * A helper class which helps to reduce boilerplate player.sendMessage code by providing the strings to send instead of having to copy and paste them.
+     * Create private constructor to hide implicit one
+     */
+    private CommandFeedback() {
+
+    }
+
+    /**
+     * A helper class which helps to reduce boilerplate player.sendMessage code by providing the strings to send instead
+     * of having to copy and paste them.
      * @param feedback The string to send back
-     * @param success An optional Boolean which is used for the success feedback. If none is passed, success just replies "Success!"
+     * @param success An optional Boolean which is used for the success feedback. If none is passed, success just
+     * replies "Success!"
      * @return The Feedback string
      */
+    @SuppressWarnings("java:S1192")
     public static String sendCommandFeedback(String feedback, Boolean... success) {
         String feedbackMessage;
         String chatPrefix = ConfigColorManager.getChatPrefix();
         
-        switch(feedback.toLowerCase()){
+        switch (feedback.toLowerCase()) {
             case "usage" -> {
                 feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
                 "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
@@ -28,19 +38,22 @@ public class CommandFeedback {
             }
             
             case "alreadyexists" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This is already a honeypot block. If you wish to change the action, please remove and recreate it.");
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "This is already a honeypot block. If you wish to change the action, please remove and recreate it.");
             }
-            
+
             case "success" -> {
                 if (success[0].equals(true)) {
                     feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Successfully created honeypot!");
-        
-                } else if (success[0].equals(false)) {
+
+                }
+                else if (success[0].equals(false)) {
                     feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Successfully removed honeypot!");
-        
-                } else {
+
+                }
+                else {
                     feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Success!");
-        
+
                 }
             }
 
@@ -51,7 +64,7 @@ public class CommandFeedback {
             case "nopermission" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.RED + "You don't have permission to use this command");
             }
-            
+
             case "reload" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Reloading config file");
             }
@@ -63,13 +76,17 @@ public class CommandFeedback {
             case "nopotfound" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "No honeypot blocks found within range");
             }
-            
+
             case "updateavailable" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "An update is available for this plugin. Download it at " + ChatColor.GOLD + "https://github.com/TerrrorByte/Honeypot " + ChatColor.WHITE + "for the latest features and security updates!"); 
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "An update is available for this plugin. Download it at " + ChatColor.GOLD
+                        + "https://github.com/TerrrorByte/Honeypot " + ChatColor.WHITE
+                        + "for the latest features and security updates!");
             }
 
             case "againstfilter" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This block is not in the filter, so you can't do that!");
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "This block is not in the filter, so you can't do that!");
             }
 
             case "inputcancelled" -> {
@@ -77,11 +94,13 @@ public class CommandFeedback {
             }
 
             case "customactionsdisabled" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Custom actions are disabled. Enable them in the config");
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "Custom actions are disabled. Enable them in the config");
             }
 
             case "notlookingatblock" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "You need to be looking at a block to perform this command");
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "You need to be looking at a block to perform this command");
             }
 
             case "deletedall" -> {
@@ -89,15 +108,17 @@ public class CommandFeedback {
             }
 
             case "deletednear" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Deleted all honeypot blocks within a 5 block radius");
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "Deleted all honeypot blocks within a 5 block radius");
             }
 
             default -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED + "Unknown error, please contact server admin");
+                feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
+                        + "Unknown error, please contact server admin");
             }
+            }
+
+            return feedbackMessage;
         }
 
-        return feedbackMessage;
     }
-
-}

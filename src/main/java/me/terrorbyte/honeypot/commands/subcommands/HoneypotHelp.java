@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 
-public class HoneypotHelp extends HoneypotSubCommand{
+public class HoneypotHelp implements HoneypotSubCommand {
 
 	@Override
 	public String getName() {
@@ -19,12 +19,12 @@ public class HoneypotHelp extends HoneypotSubCommand{
 	@Override
 	public void perform(Player p, String[] args) throws IOException {
 		p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
-		
+
 	}
 
 	@Override
 	public List<String> getSubcommands(Player p, String[] args) {
 		return new ArrayList<>();
 	}
-	
+
 }

@@ -2,8 +2,8 @@ package me.terrorbyte.honeypot.gui.button;
 
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-public interface GUIButtonListener{
+public interface GUIButtonListener {
 
-	void onClick (InventoryClickEvent event);
-	
+	void onClick(InventoryClickEvent event);
+
 }

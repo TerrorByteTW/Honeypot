@@ -10,30 +10,36 @@ import org.jetbrains.annotations.Nullable;
 
 public class PlayerConversationListener extends StringPrompt implements ConversationAbandonedListener {
 
-    public Block block;
+    private Block block;
 
-    public PlayerConversationListener(Block block){
+    public PlayerConversationListener(Block block) {
         this.block = block;
     }
 
     @NotNull
     @Override
-    public String getPromptText(@NotNull ConversationContext conversationContext) {
-        return ConfigColorManager.getChatPrefix() + " Enter action command without the / here. This command will run as the server, so be careful!";
+    public String getPromptText(@NotNull
+    ConversationContext conversationContext) {
+        return ConfigColorManager.getChatPrefix()
+                + " Enter action command without the / here. This command will run as the server, so be careful!";
     }
 
     @Nullable
     @Override
-    public Prompt acceptInput(@NotNull ConversationContext conversationContext, @Nullable String s) {
+    public Prompt acceptInput(@NotNull
+    ConversationContext conversationContext, @Nullable
+    String s) {
         HoneypotBlockStorageManager.createBlock(block, s);
         conversationContext.getForWhom().sendRawMessage(CommandFeedback.sendCommandFeedback("success", true));
         return END_OF_CONVERSATION;
     }
 
     @Override
-    public void conversationAbandoned(@NotNull ConversationAbandonedEvent conversationAbandonedEvent) {
-        if (!conversationAbandonedEvent.gracefulExit()){
-            conversationAbandonedEvent.getContext().getForWhom().sendRawMessage(CommandFeedback.sendCommandFeedback("inputcancelled"));
+    public void conversationAbandoned(@NotNull
+    ConversationAbandonedEvent conversationAbandonedEvent) {
+        if (!conversationAbandonedEvent.gracefulExit()) {
+            conversationAbandonedEvent.getContext().getForWhom()
+                    .sendRawMessage(CommandFeedback.sendCommandFeedback("inputcancelled"));
         }
     }
 }

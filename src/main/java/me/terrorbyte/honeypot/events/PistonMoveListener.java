@@ -15,12 +15,19 @@ import java.util.List;
 
 public class PistonMoveListener implements Listener {
 
-    //Player block break event
+    /**
+     * Create private constructor to hide the implicit one
+     */
+    PistonMoveListener() {
+
+    }
+
+    // Player block break event
     @EventHandler(priority = EventPriority.LOW)
-    public static void PistonPushEvent(BlockPistonExtendEvent event) {
+    public static void pistonPushEvent(BlockPistonExtendEvent event) {
         List<Block> blocks = event.getBlocks();
-        for (Block b : blocks){
-            if(HoneypotBlockStorageManager.isHoneypotBlock(b)){
+        for (Block b : blocks) {
+            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());
@@ -33,10 +40,10 @@ public class PistonMoveListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public static void PistonPullEvent(BlockPistonRetractEvent event){
+    public static void pistonPullEvent(BlockPistonRetractEvent event) {
         List<Block> blocks = event.getBlocks();
-        for (Block b : blocks){
-            if(HoneypotBlockStorageManager.isHoneypotBlock(b)){
+        for (Block b : blocks) {
+            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());

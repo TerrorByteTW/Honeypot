@@ -3,32 +3,46 @@ package me.terrorbyte.honeypot.storagemanager;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.storagemanager.sqlite.Database;
 import me.terrorbyte.honeypot.storagemanager.sqlite.SQLite;
+
 import org.bukkit.block.Block;
 
-import java.io.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class HoneypotBlockStorageManager {
 
-    //Create an array list for all honeypotBlocks to reside in while plugin is functioning
+    /**
+     * Create a private constructor to hide the implicit one
+     * 
+     * SonarLint rule java:S1118
+     */
+    private HoneypotBlockStorageManager() {
+
+    }
+
+    // Create an array list for all honeypotBlocks to reside in while plugin is functioning
     private static final Honeypot plugin = Honeypot.getPlugin();
 
     /**
-     * Create a honeypot block by creating a HoneypotBlock object and storing it to the array, then saving it to the file for safe keeping
+     * Create a honeypot {@link Block} by creating a HoneypotBlock object and storing it to the array, then saving it to the
+     * file for safe keeping
+     * 
      * @param block The Honeypot Block we're creating
      * @param action The action of the Honeypot
      */
-    public static void createBlock(Block block, String action){
+    @SuppressWarnings("java:S1604")
+    public static void createBlock(Block block, String action) {
         Database db;
         db = new SQLite(plugin);
         db.createHoneypotBlock(block, action);
     }
 
     /**
-     * Compare the coordinates of the received block to every block in the JSON list. If it exists, delete it and break to avoid a Java error
-     * @param block The Honeypot Block we're deleting 
+     * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break
+     * to avoid a Java error
+     * 
+     * @param block The Honeypot {@link Block} we're deleting
      */
-    public static void deleteBlock(Block block){
+    public static void deleteBlock(Block block) {
         Database db;
         db = new SQLite(plugin);
         db.removeHoneypotBlock(block);
@@ -36,28 +50,26 @@ public class HoneypotBlockStorageManager {
 
     /**
      * Check if the coordinates of the Honeypot already exist within the list
-     * @param block The Block we're checking
+     * 
+     * @param block The {@link Block} we're checking
      * @return true or false
      */
-     public static Boolean isHoneypotBlock(Block block){
+    public static Boolean isHoneypotBlock(Block block) {
         Database db;
 
         db = new SQLite(plugin);
         db.load();
 
-        if (db.isHoneypotBlock(block)) {
-            return true;
-        } else {
-            return false;
-        }
+        return db.isHoneypotBlock(block);
     }
 
     /**
-     * Return the action for the honeypot block (Meant for ban, kick, etc.)
+     * Return the action for the honeypot {@link Block} (Meant for ban, kick, etc.)
+     * 
      * @param block The Block we're checking
      * @return The Honeypot's action as a string
      */
-    public static String getAction(Block block){
+    public static String getAction(Block block) {
         Database db;
 
         db = new SQLite(plugin);
@@ -68,9 +80,8 @@ public class HoneypotBlockStorageManager {
 
     /**
      * Delete all Honeypots in the entire DB
-     * @throws IOException
      */
-    public static void deleteAllHoneypotBlocks() throws IOException {
+    public static void deleteAllHoneypotBlocks() {
         Database db;
 
         db = new SQLite(plugin);
@@ -78,11 +89,11 @@ public class HoneypotBlockStorageManager {
     }
 
     /**
-     * Get all Honeypots in the DB
+     * Get all {@link HoneypotBlockObject} in the DB
+     * 
      * @return An array list of all HoneypotBlockObjects
-     * @throws IOException
      */
-    public static ArrayList<HoneypotBlockObject> getAllHoneypots() throws IOException {
+    public static List<HoneypotBlockObject> getAllHoneypots() {
         Database db;
 
         db = new SQLite(plugin);

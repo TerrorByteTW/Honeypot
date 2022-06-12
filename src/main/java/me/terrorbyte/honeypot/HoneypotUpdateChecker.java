@@ -13,15 +13,18 @@ public record HoneypotUpdateChecker(Plugin plugin, String link) {
 
     /**
      * Grabs the version number from the link provided
+     * 
      * @param consumer The consumer function
      */
     public void getVersion(final Consumer<String> consumer) {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            try (InputStream inputStream = new URL(this.link).openStream(); Scanner scanner = new Scanner(inputStream)) {
+            try (InputStream inputStream = new URL(this.link).openStream();
+                    Scanner scanner = new Scanner(inputStream)) {
                 if (scanner.hasNext()) {
                     consumer.accept(scanner.next());
                 }
-            } catch (IOException exception) {
+            }
+            catch (IOException exception) {
                 plugin.getLogger().info("Unable to check for updates: " + exception.getMessage());
             }
         });
