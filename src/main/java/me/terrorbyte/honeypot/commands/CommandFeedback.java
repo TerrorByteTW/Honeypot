@@ -1,7 +1,8 @@
 package me.terrorbyte.honeypot.commands;
 
-import me.terrorbyte.honeypot.ConfigColorManager;
 import org.bukkit.ChatColor;
+
+import me.terrorbyte.honeypot.ConfigColorManager;
 
 public class CommandFeedback {
     

@@ -1,6 +1,7 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.events.PlayerConversationListener;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
@@ -40,12 +41,12 @@ public class HoneypotCreate extends HoneypotSubCommand {
             return;
         }
 
-        if(Honeypot.config.getBoolean("filters.blocks") || Honeypot.config.getBoolean("filters.inventories")) {
-            List<String> allowedBlocks = (List<String>) Honeypot.config.getList("allowed-blocks");
-            List<String> allowedInventories = (List<String>) Honeypot.config.getList("allowed-inventories");
+        if(HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks") || HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {
+            List<String> allowedBlocks = (List<String>) HoneypotConfigManager.getPluginConfig().getList("allowed-blocks");
+            List<String> allowedInventories = (List<String>) HoneypotConfigManager.getPluginConfig().getList("allowed-inventories");
             boolean allowed = false;
 
-            if (Honeypot.config.getBoolean("filters.blocks")){
+            if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")){
                 for (String blockType : allowedBlocks) {
                     assert block != null;
                     if (block.getType().name().equals(blockType)){
@@ -55,7 +56,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
                 }
             }
 
-            if (Honeypot.config.getBoolean("filters.inventories")){
+            if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")){
                 for (String blockType : allowedInventories) {
                     if (block.getType().name().equals(blockType)){
                         allowed = true;
@@ -86,7 +87,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
                 switch (args[1].toLowerCase()){
 
                     case "custom" -> {
-                        if (Honeypot.config.getBoolean("enable-custom-actions")){
+                        if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions")){
                             if (!p.hasPermission("honeypot.custom")){
                                 p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
                             } else {
@@ -126,7 +127,7 @@ public class HoneypotCreate extends HoneypotSubCommand {
             subcommands.add("ban");
             subcommands.add("notify");
             subcommands.add("nothing");
-            if (Honeypot.config.getBoolean("enable-custom-actions")) { subcommands.add("custom"); }
+            if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions")) { subcommands.add("custom"); }
         }
 
         return subcommands;

@@ -18,6 +18,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.events.PlayerConversationListener;
@@ -58,12 +59,12 @@ public class HoneypotGUI extends HoneypotSubCommand{
 			GUIItemBuilder item;
 
 
-			if (Honeypot.guiConfig.getBoolean("display-button-as-honeypot")) {
+			if (HoneypotConfigManager.getGuiConfig().getBoolean("display-button-as-honeypot")) {
 				item = new GUIItemBuilder(honeypotBlock.getBlock().getType());
 				item.lore("Click to teleport to Honeypot");
 				item.name("Honeypot: " + honeypotBlock.getCoordinates());
 			} else {
-				item = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("default-gui-button")));
+				item = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("default-gui-button")));
 				item.lore("Click to teleport to Honeypot");
 				item.name("Honeypot: " + honeypotBlock.getCoordinates());
 			}
@@ -98,27 +99,27 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		GUIItemBuilder nothingItem;
 		GUIItemBuilder customItem;
 
-		kickItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.kick-button")));
+		kickItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.kick-button")));
 		kickItem.name("Kick");
 		kickItem.lore("Click to create a 'kick' action");
 
-		banItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.ban-button")));
+		banItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.ban-button")));
 		banItem.name("Ban");
 		banItem.lore("Click to create a 'ban' action");
 
-		warnItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.warn-button")));
+		warnItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.warn-button")));
 		warnItem.name("Warn");
 		warnItem.lore("Click to create a 'warn' action");
 
-		notifyItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.notify-button")));
+		notifyItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.notify-button")));
 		notifyItem.name("Notify");
 		notifyItem.lore("Click to create a 'notify' action");
 
-		nothingItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.nothing-button")));
+		nothingItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.nothing-button")));
 		nothingItem.name("Nothing");
 		nothingItem.lore("Click to create a 'nothing' action");
 
-		customItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("create-buttons.custom-button")));
+		customItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.custom-button")));
 		customItem.name("Custom Item");
 		customItem.lore("Click to create a custom action (If enabled)");
 
@@ -170,13 +171,13 @@ public class HoneypotGUI extends HoneypotSubCommand{
 
 		GUIMenu removeGUI = Honeypot.gui.create("Remove Honeypots", 1);
 
-		GUIItemBuilder removeAllItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("remove-buttons.remove-all-button")));
+		GUIItemBuilder removeAllItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("remove-buttons.remove-all-button")));
 		removeAllItem.name("Remove all Honeypots");
 
-		GUIItemBuilder removeNearItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("remove-buttons.remove-near-button")));
+		GUIItemBuilder removeNearItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("remove-buttons.remove-near-button")));
 		removeNearItem.name("Remove nearby Honeypots");
 
-		GUIItemBuilder removeTargetItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("remove-buttons.remove-target-button")));
+		GUIItemBuilder removeTargetItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("remove-buttons.remove-target-button")));
 		removeTargetItem.name("Remove the Honeypot you're targeting");
 
 		GUIButton removeAllButton = new GUIButton(removeAllItem.build())
@@ -193,7 +194,7 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		GUIButton removeNearButton = new GUIButton(removeNearItem.build())
 			.withListener((InventoryClickEvent event) -> {
 				event.getWhoClicked().closeInventory();
-				final double radius = Honeypot.config.getDouble("search-range");
+				final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
                 final double xCoord = p.getLocation().getX();
                 final double yCoord = p.getLocation().getY();
                 final double zCoord = p.getLocation().getZ();
@@ -271,12 +272,12 @@ public class HoneypotGUI extends HoneypotSubCommand{
 			return;
 		}
 
-		if(Honeypot.config.getBoolean("filters.blocks") || Honeypot.config.getBoolean("filters.inventories")) {
-			List<String> allowedBlocks = (List<String>) Honeypot.config.getList("allowed-blocks");
-			List<String> allowedInventories = (List<String>) Honeypot.config.getList("allowed-inventories");
+		if(HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks") || HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {
+			List<String> allowedBlocks = (List<String>) HoneypotConfigManager.getPluginConfig().getList("allowed-blocks");
+			List<String> allowedInventories = (List<String>) HoneypotConfigManager.getPluginConfig().getList("allowed-inventories");
 			boolean allowed = false;
 
-			if (Honeypot.config.getBoolean("filters.blocks")){
+			if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")){
 				for (String blockType : allowedBlocks) {
 					if (block.getType().name().equals(blockType)){
 						allowed = true;
@@ -285,7 +286,7 @@ public class HoneypotGUI extends HoneypotSubCommand{
 				}
 			}
 
-			if (Honeypot.config.getBoolean("filters.inventories")){
+			if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")){
 				for (String blockType : allowedInventories) {
 					if (block.getType().name().equals(blockType)){
 						allowed = true;
@@ -307,7 +308,7 @@ public class HoneypotGUI extends HoneypotSubCommand{
 			//If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
 		} else {
 			if(action.equalsIgnoreCase("custom")){
-				if (Honeypot.config.getBoolean("enable-custom-actions")){
+				if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions")){
 					if (!event.getWhoClicked().hasPermission("honeypot.custom")){
 						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 					} else {
@@ -333,16 +334,16 @@ public class HoneypotGUI extends HoneypotSubCommand{
 		GUIItemBuilder listItem;
 		GUIItemBuilder locateItem;
 
-		createItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.create-button")));
+		createItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.create-button")));
 		createItem.name("Create a Honeypot");
 
-		removeItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.remove-button")));
+		removeItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.remove-button")));
 		removeItem.name("Remove a Honeypot");
 
-		listItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.list-button")));
+		listItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.list-button")));
 		listItem.name("List all Honeypots");
 
-		locateItem = new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("main-buttons.locate-button")));
+		locateItem = new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.locate-button")));
 		locateItem.name("Locate nearby Honeypots");
 
 		GUIButton createButton = new GUIButton(
@@ -380,7 +381,7 @@ public class HoneypotGUI extends HoneypotSubCommand{
 						return;
 					}
 
-					final double radius = Honeypot.config.getDouble("search-range");
+					final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
 					final double xCoord = p.getLocation().getX();
 					final double yCoord = p.getLocation().getY();
 					final double zCoord = p.getLocation().getZ();

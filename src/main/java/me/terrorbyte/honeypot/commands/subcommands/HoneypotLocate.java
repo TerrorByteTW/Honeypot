@@ -1,6 +1,7 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
@@ -29,7 +30,7 @@ public class HoneypotLocate extends HoneypotSubCommand {
             return;
         }
 
-        final double radius = Honeypot.config.getDouble("search-range");
+        final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
         final double xCoord = p.getLocation().getX();
         final double yCoord = p.getLocation().getY();
         final double zCoord = p.getLocation().getZ();

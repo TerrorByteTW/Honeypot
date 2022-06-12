@@ -1,6 +1,7 @@
 package me.terrorbyte.honeypot.commands;
 
 import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotCreate;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotGUI;
 import me.terrorbyte.honeypot.commands.subcommands.HoneypotHelp;
@@ -81,8 +82,8 @@ public class CommandManager implements TabExecutor {
             if (args.length > 0 && args[0].equals("reload")){
                 Honeypot.getPlugin().getServer().getConsoleSender().sendMessage(CommandFeedback.sendCommandFeedback("reload"));
                 try {
-                    Honeypot.config.reload();
-                    Honeypot.config.save();
+                    HoneypotConfigManager.getPluginConfig().reload();
+                    HoneypotConfigManager.getPluginConfig().save();
                 } catch (IOException e) {
                     Honeypot.getPlugin().getLogger().severe("Could not reload honeypot config! Full stack trace: " + e);
                 }

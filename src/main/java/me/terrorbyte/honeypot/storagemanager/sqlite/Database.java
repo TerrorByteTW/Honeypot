@@ -109,7 +109,7 @@ public abstract class Database {
 
         Connection c = null;
         PreparedStatement ps = null;
-        ResultSet rs;
+        ResultSet rs = null;
 
         try {
             c = getSQLConnection();
@@ -129,6 +129,7 @@ public abstract class Database {
             try {
                 if (ps != null) ps.close();
                 if (c != null) c.close();
+                if (rs != null) rs.close();
             } catch (SQLException e){
                 Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
             }
@@ -143,7 +144,7 @@ public abstract class Database {
 
         Connection c = null;
         PreparedStatement ps = null;
-        ResultSet rs;
+        ResultSet rs = null;
 
         try {
             c = getSQLConnection();
@@ -161,6 +162,7 @@ public abstract class Database {
             try {
                 if (ps != null) ps.close();
                 if (c != null) c.close();
+                if (rs != null) rs.close();
             } catch (SQLException e){
                 Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
             }
@@ -173,7 +175,7 @@ public abstract class Database {
         ArrayList<HoneypotBlockObject> blocks = new ArrayList<HoneypotBlockObject>();
         Connection c = null;
         PreparedStatement ps = null;
-        ResultSet rs;
+        ResultSet rs = null;
 
         try {
             c = getSQLConnection();
@@ -191,6 +193,7 @@ public abstract class Database {
             try {
                 if (ps != null) ps.close();
                 if (c != null) c.close();
+                if (rs != null) rs.close();
             } catch (SQLException e){
                 Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
             }
@@ -251,7 +254,7 @@ public abstract class Database {
 
         Connection c = null;
         PreparedStatement ps = null;
-        ResultSet rs;
+        ResultSet rs = null;
 
         try {
             c = getSQLConnection();
@@ -269,6 +272,7 @@ public abstract class Database {
             try {
                 if (ps != null) ps.close();
                 if (c != null) c.close();
+                if (rs != null) rs.close();
             } catch (SQLException e){
                 Honeypot.getPlugin().getLogger().severe("Failed to close SQLite connection: " + e);
             }

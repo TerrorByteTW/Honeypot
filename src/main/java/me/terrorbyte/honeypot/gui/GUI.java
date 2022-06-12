@@ -8,8 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import me.terrorbyte.honeypot.Honeypot;
-import me.terrorbyte.honeypot.commands.subcommands.HoneypotGUI;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
 import me.terrorbyte.honeypot.gui.button.GUIButton;
 import me.terrorbyte.honeypot.gui.item.GUIItemBuilder;
 import me.terrorbyte.honeypot.gui.menu.GUIMenuListener;
@@ -27,7 +26,7 @@ public class GUI{
 	private GUIPageButtonBuilder defaultPaginationButtonBuilder = (type, inventory) -> {
         switch (type) {
             case PREV_BUTTON:
-                if (inventory.getCurrentPage() > 0) return new GUIButton(new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("previous-page-item")))
+                if (inventory.getCurrentPage() > 0) return new GUIButton(new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("previous-page-item")))
                         .name("&a&l\u2190 Previous Page")
                         .lore(
                                 "&aClick to move back to",
@@ -40,7 +39,7 @@ public class GUI{
                 else return null;
 
             case CURRENT_BUTTON:
-                return new GUIButton(new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("current-page-item")))
+                return new GUIButton(new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("current-page-item")))
                         .name("&7&lPage " + (inventory.getCurrentPage() + 1) + " of " + inventory.getMaxPage())
                         .lore(
                                 "&7You are currently viewing",
@@ -49,7 +48,7 @@ public class GUI{
                 ).withListener(event -> event.setCancelled(true));
 
             case NEXT_BUTTON:
-                if (inventory.getCurrentPage() < inventory.getMaxPage() - 1) return new GUIButton(new GUIItemBuilder(Material.getMaterial(Honeypot.guiConfig.getString("next-page-item")))
+                if (inventory.getCurrentPage() < inventory.getMaxPage() - 1) return new GUIButton(new GUIItemBuilder(Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("next-page-item")))
                         .name("&a&lNext Page \u2192")
                         .lore(
                                 "&aClick to move forward to",

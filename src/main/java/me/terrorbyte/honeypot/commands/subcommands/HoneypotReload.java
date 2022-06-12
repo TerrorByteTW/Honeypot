@@ -1,6 +1,6 @@
 package me.terrorbyte.honeypot.commands.subcommands;
 
-import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import org.bukkit.entity.Player;
@@ -26,11 +26,11 @@ public class HoneypotReload extends HoneypotSubCommand {
 
         p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
         try {
-            Honeypot.config.reload();
-            Honeypot.config.save();
+            HoneypotConfigManager.getPluginConfig().reload();
+            HoneypotConfigManager.getPluginConfig().save();
 
-            Honeypot.guiConfig.reload();
-            Honeypot.guiConfig.save();
+            HoneypotConfigManager.getGuiConfig().reload();
+            HoneypotConfigManager.getGuiConfig().save();
         } catch (IOException e) {
             //Nothing
         }

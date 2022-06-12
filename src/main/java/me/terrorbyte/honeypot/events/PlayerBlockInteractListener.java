@@ -2,6 +2,9 @@ package me.terrorbyte.honeypot.events;
 
 import me.terrorbyte.honeypot.ConfigColorManager;
 import me.terrorbyte.honeypot.Honeypot;
+import me.terrorbyte.honeypot.HoneypotConfigManager;
+import me.terrorbyte.honeypot.api.HoneypotPlayerInteractEvent;
+import me.terrorbyte.honeypot.api.HoneypotPrePlayerInteractEvent;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -29,8 +32,8 @@ public class PlayerBlockInteractListener implements Listener {
         if(!(event.getPlayer().getTargetBlockExact(5).getState() instanceof Container)) return;
 
         //We want to filter on inventories upon opening, not just creation (Like in the HoneypotCreate class) because inventories can be both broken AND open :)
-        if(Honeypot.config.getBoolean("filters.inventories")) {
-            List<String> allowedBlocks = (List<String>) Honeypot.config.getList("allowed-inventories");
+        if(HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {
+            List<String> allowedBlocks = (List<String>) HoneypotConfigManager.getPluginConfig().getList("allowed-inventories");
             boolean allowed = false;
 
             for (String blockType : allowedBlocks) {
@@ -47,11 +50,17 @@ public class PlayerBlockInteractListener implements Listener {
 
         try {
             if (!Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getType().equals(Material.ENDER_CHEST) && HoneypotBlockStorageManager.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)))) {
+                // Fire HoneypotPrePlayerInteractEvent
+                HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(event.getPlayer(), event.getClickedBlock());
+                Bukkit.getPluginManager().callEvent(hppie);
 
-                if (Honeypot.config.getBoolean("enable-container-actions") && !(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
+                if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-container-actions") && !(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                     event.setCancelled(true);
                     openAction(event);
                 }
+
+                HoneypotPlayerInteractEvent hpie = new HoneypotPlayerInteractEvent(event.getPlayer(), event.getClickedBlock());
+                Bukkit.getPluginManager().callEvent(hpie);
             }
         } catch (NullPointerException npe){
             //Do nothing as it's most likely an entity. If this event is triggered, the player will either be targeting a block or entity, and there is no other option for it to be null.
@@ -93,7 +102,7 @@ public class PlayerBlockInteractListener implements Listener {
             }
 
             default -> {
-                if(Honeypot.config.getBoolean("enable-custom-actions")){
+                if(HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions")){
                     String formattedAction = action.replace("%player%", event.getPlayer().getName());
                     formattedAction = formattedAction.replace("%location%", event.getPlayer().getLocation().getX() + " " + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
                     Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), formattedAction);
