@@ -313,6 +313,8 @@ public class HoneypotGUI extends HoneypotSubCommand{
 			HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
 			Bukkit.getPluginManager().callEvent(hpce);
 
+			if (hpce.isCancelled()) return;
+
 			if(action.equalsIgnoreCase("custom")){
 				if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions")){
 					if (!event.getWhoClicked().hasPermission("honeypot.custom")){

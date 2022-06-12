@@ -30,6 +30,8 @@ public class PlayerBreakEventListener implements Listener {
             HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(event.getPlayer(), event.getBlock());
             Bukkit.getPluginManager().callEvent(hppbe);
 
+            if (hppbe.isCancelled()) return;
+
             // Create a boolean for if we should remove the block from the DB or not
             boolean deleteBlock = false;
 

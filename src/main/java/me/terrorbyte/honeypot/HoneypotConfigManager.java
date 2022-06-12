@@ -19,6 +19,13 @@ public class HoneypotConfigManager extends JavaPlugin {
     private static YamlDocument config;
     private static YamlDocument guiConfig;
 
+    /**
+     * Sets up the plugin config and saves it to private variables for use later.
+     * Will shut down the plugin if there are any IOExceptions as these config files 
+     * are non-negotiable in the function of this plugin.
+     * 
+     * @param plugin The Honeypot Plugin object
+     */
     public static void setupConfig(Plugin plugin) {
 
         plugin.getLogger().info("Attempting to load plugin config...");
@@ -62,10 +69,18 @@ public class HoneypotConfigManager extends JavaPlugin {
 
     }
 
+    /**
+     * Returns the plugin config object
+     * @return The YamlDocument object
+     */
     public static YamlDocument getPluginConfig(){
         return config;
     }
 
+    /**
+     * Returns the plugin GUI config object
+     * @return The YamlDocument object
+     */
     public static YamlDocument getGuiConfig(){
         return guiConfig;
     }

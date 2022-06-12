@@ -6,10 +6,19 @@ import java.util.Objects;
 
 public class ConfigColorManager {
 
+    /**
+     * Return the chat prefix object from config
+     * @return The chat prefix, preformatted with color and other modifiers
+     */
     public static String getChatPrefix(){
         return ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(HoneypotConfigManager.getPluginConfig().getString("chat-prefix")));
     }
 
+    /**
+     * Grabs the config message for the main 3 Honeypot block types.
+     * @param messageToRetrieve kick, ban, or warn
+     * @return The corresponding message from config
+     */
     public static String getConfigMessage(String messageToRetrieve){
         String messageReturn = "";
 

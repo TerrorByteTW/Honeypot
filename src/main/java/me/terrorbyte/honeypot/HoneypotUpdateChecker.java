@@ -11,6 +11,10 @@ import java.util.Scanner;
 
 public record HoneypotUpdateChecker(Plugin plugin, String link) {
 
+    /**
+     * Grabs the version number from the link provided
+     * @param consumer The consumer function
+     */
     public void getVersion(final Consumer<String> consumer) {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
             try (InputStream inputStream = new URL(this.link).openStream(); Scanner scanner = new Scanner(inputStream)) {

@@ -2,15 +2,12 @@ package me.terrorbyte.honeypot.api.events;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class HoneypotCreateEvent extends Event implements Cancellable{
+public class HoneypotCreateEvent extends Event{
 
 	private static final HandlerList HANDLERS = new HandlerList();
-
-	private boolean isCancelled;
 
 	private final Player player;
 	private final Block block;
@@ -35,14 +32,5 @@ public class HoneypotCreateEvent extends Event implements Cancellable{
 
 	public Block getBlock() {
 		return block;
-	}
-
-	public boolean isCancelled() {
-		return isCancelled;
-	}
-
-	@Override
-	public void setCancelled(boolean cancel) {
-		this.isCancelled = cancel;
 	}
 }

@@ -93,6 +93,9 @@ public class HoneypotCreate extends HoneypotSubCommand {
                 HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent(p, block);
                 Bukkit.getPluginManager().callEvent(hpce);
 
+                // Don't do anything if the event is cancelled
+                if (hpce.isCancelled()) return;
+
                 switch (args[1].toLowerCase()){
 
                     case "custom" -> {

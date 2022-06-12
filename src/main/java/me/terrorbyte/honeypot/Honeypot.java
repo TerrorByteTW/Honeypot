@@ -13,6 +13,11 @@ public final class Honeypot extends JavaPlugin {
     private static Honeypot plugin;
     public static GUI gui;
 
+    /**
+     * Returns the plugin variable for use in other classes to get things such as the logger
+     *
+     * @return plugin
+     */
     public static Honeypot getPlugin() {
         return plugin;
     }

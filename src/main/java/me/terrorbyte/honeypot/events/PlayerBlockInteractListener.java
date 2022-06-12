@@ -54,6 +54,8 @@ public class PlayerBlockInteractListener implements Listener {
                 HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(event.getPlayer(), event.getClickedBlock());
                 Bukkit.getPluginManager().callEvent(hppie);
 
+                if (hppie.isCancelled()) return;
+
                 if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-container-actions") && !(event.getPlayer().hasPermission("honeypot.exempt") || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                     event.setCancelled(true);
                     openAction(event);
