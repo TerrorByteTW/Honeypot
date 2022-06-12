@@ -20,6 +20,7 @@ public final class Honeypot extends JavaPlugin {
     @Override
     @SuppressWarnings("unused")
     public void onEnable() {
+        plugin = this;
         gui = new GUI(this);
 
         // Setup bStats
