@@ -10,9 +10,9 @@ import org.bukkit.block.Block;
 
 public class HoneypotBlockObject {
 
-    private final String coordinates;
-    private final String world;
-    private final String action;
+    private final String COORDINATES;
+    private final String WORLD;
+    private final String ACTION;
 
     /**
      * Create a HoneypotBlockObject
@@ -20,9 +20,9 @@ public class HoneypotBlockObject {
      * @param action The action of the Honeypot
      */
     public HoneypotBlockObject(Block block, String action) {
-        this.coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
-        this.world = block.getWorld().getName();
-        this.action = action;
+        this.COORDINATES = block.getX() + ", " + block.getY() + ", " + block.getZ();
+        this.WORLD = block.getWorld().getName();
+        this.ACTION = action;
     }
 
     /**
@@ -32,9 +32,9 @@ public class HoneypotBlockObject {
      * @param action The action of the Honeypot
      */
     public HoneypotBlockObject(String worldName, String coordinates, String action) {
-        this.coordinates = coordinates;
-        this.world = worldName;
-        this.action = action;
+        this.COORDINATES = coordinates;
+        this.WORLD = worldName;
+        this.ACTION = action;
     }
 
     /**
@@ -42,7 +42,7 @@ public class HoneypotBlockObject {
      * @return Coordinates
      */
     public String getCoordinates() {
-        return coordinates;
+        return COORDINATES;
     }
 
     /**
@@ -51,7 +51,7 @@ public class HoneypotBlockObject {
      */
     public Location getLocation() {
         Pattern pattern = Pattern.compile("-?\\d+");
-        Matcher matcher = pattern.matcher(coordinates);
+        Matcher matcher = pattern.matcher(COORDINATES);
         ArrayList<String> coords = new ArrayList<String>();
 
         while(matcher.find()){
@@ -63,7 +63,7 @@ public class HoneypotBlockObject {
         int y = Integer.parseInt(coords.get(1));
         int z = Integer.parseInt(coords.get(2));
 
-        return new Location(Bukkit.getWorld(world), x, y, z);
+        return new Location(Bukkit.getWorld(WORLD), x, y, z);
     }
 
     /**
@@ -71,7 +71,7 @@ public class HoneypotBlockObject {
      * @return action
      */
     public String getAction() {
-        return action;
+        return ACTION;
     }
 
     /**
@@ -79,7 +79,7 @@ public class HoneypotBlockObject {
      * @return world
      */
     public String getWorld(){
-        return world;
+        return WORLD;
     }
 
     /**
@@ -88,7 +88,7 @@ public class HoneypotBlockObject {
      */
     public Block getBlock(){
         Pattern pattern = Pattern.compile("-?\\d+");
-        Matcher matcher = pattern.matcher(coordinates);
+        Matcher matcher = pattern.matcher(COORDINATES);
         ArrayList<String> coords = new ArrayList<String>();
 
         while(matcher.find()){
@@ -100,7 +100,7 @@ public class HoneypotBlockObject {
         int y = Integer.parseInt(coords.get(1));
         int z = Integer.parseInt(coords.get(2));
 
-        return Bukkit.getWorld(world).getBlockAt(x, y, z);
+        return Bukkit.getWorld(WORLD).getBlockAt(x, y, z);
     }
 
 }

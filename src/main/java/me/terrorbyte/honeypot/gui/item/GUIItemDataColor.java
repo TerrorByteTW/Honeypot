@@ -22,19 +22,19 @@ public enum GUIItemDataColor {
     /**
      * The durability value of the color.
      */
-    private final short value;
+    private final short VALUE;
 
     GUIItemDataColor(short value) {
-        this.value = value;
+        this.VALUE = value;
     }
 
     public short getValue() {
-        return value;
+        return VALUE;
     }
 
     public static GUIItemDataColor getByValue(short value) {
         for (GUIItemDataColor color : GUIItemDataColor.values()) {
-            if (value == color.value) return color;
+            if (value == color.VALUE) return color;
         }
 
         return null;

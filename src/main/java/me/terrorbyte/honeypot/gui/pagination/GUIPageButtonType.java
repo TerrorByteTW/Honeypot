@@ -7,19 +7,19 @@ public enum GUIPageButtonType {
     NEXT_BUTTON(5),
     UNASSIGNED(0);
 
-    private final int slot;
+    private final int SLOT;
 
     GUIPageButtonType(int slot) {
-        this.slot = slot;
+        this.SLOT = slot;
     }
 
     public int getSlot() {
-        return slot;
+        return SLOT;
     }
 
     public static GUIPageButtonType forSlot(int slot) {
         for (GUIPageButtonType buttonType : GUIPageButtonType.values()) {
-            if (buttonType.slot == slot) return buttonType;
+            if (buttonType.SLOT == slot) return buttonType;
         }
 
         return GUIPageButtonType.UNASSIGNED;

@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public class HoneypotPlayerObject {
 
-    private final UUID uuid;
+    private final UUID UUID;
     private int blocksBroken;
 
     /**
@@ -13,7 +13,7 @@ public class HoneypotPlayerObject {
      * @param blocksBroken How many blocks the player has broken
      */
     public HoneypotPlayerObject(UUID uuid, int blocksBroken) {
-        this.uuid = uuid;
+        this.UUID = uuid;
         this.blocksBroken = blocksBroken;
     }
 
@@ -22,7 +22,7 @@ public class HoneypotPlayerObject {
      * @return Player's UUID
      */
     public UUID getUUID() {
-        return uuid;
+        return UUID;
     }
 
     /**

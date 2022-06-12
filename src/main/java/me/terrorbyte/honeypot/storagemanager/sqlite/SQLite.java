@@ -11,23 +11,32 @@ import java.sql.Statement;
 
 public class SQLite extends Database{
 
+    /**
+     * Create an SQLite object from the instance
+     * @param instance
+     */
     public SQLite(Honeypot instance){
         super(instance);
     }
 
-    public String SQLiteCreatePlayersTable = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
+    // The queries used to load the DB table. Only runs if the table doesn't exist.
+    private final String SQLITE_CREATE_PLAYERS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
             "`playerName` varchar(10) NOT NULL," +
             "`blocksBroken` int(10) NOT NULL," +
             "PRIMARY KEY (`playerName`)" +
         ");";
 
-    public String SQLiteCreateBlocksTable = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
+    private final String SQLITE_CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
             "`coordinates` varchar(10) NOT NULL," +
             "`worldName` varchar(10) NOT NULL," +
             "`action` varchar(10) NOT NULL," +
             "PRIMARY KEY (`coordinates`, `worldName`)" +
             ");";
 
+    /**
+     * Get's teh DB connection, also verifies if JDBC is installed. If it isn't plugin is disabled as it can't function without it
+     * @return Connection if the connection is valid, otherwise returns null
+     */
     public Connection getSQLConnection(){
         File dataFolder = new File(Honeypot.getPlugin().getDataFolder(), "honeypot.db");
         if(!dataFolder.exists()){
@@ -56,13 +65,16 @@ public class SQLite extends Database{
         return null;
     }
 
+    /**
+     * Loads the DB
+     */
     @Override
     public void load() {
         connection = getSQLConnection();
         try {
             Statement s = connection.createStatement();
-            s.executeUpdate(SQLiteCreatePlayersTable);
-            s.executeUpdate(SQLiteCreateBlocksTable);
+            s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
+            s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
             s.close();
         } catch (SQLException e){
             e.printStackTrace();

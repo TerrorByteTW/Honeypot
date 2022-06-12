@@ -17,7 +17,7 @@ import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonBuilder;
 
 public class GUI{
 	
-	private final JavaPlugin plugin;
+	private final JavaPlugin PLUGIN;
 
 	private boolean blockDefaultInteractions = true;
 
@@ -67,7 +67,7 @@ public class GUI{
     };
 
 	public GUI(JavaPlugin plugin) {
-        this.plugin = plugin;
+        this.PLUGIN = plugin;
 
         plugin.getServer().getPluginManager().registerEvents(
             new GUIMenuListener(plugin, this), plugin
@@ -79,7 +79,7 @@ public class GUI{
     }
 
 	public GUIMenu create(String name, int rows, String tag) {
-        return new GUIMenu(plugin, this, name, rows, tag);
+        return new GUIMenu(PLUGIN, this, name, rows, tag);
     }
 
 	public void setBlockDefaultInteractions(boolean blockDefaultInteractions) {
@@ -110,7 +110,7 @@ public class GUI{
 
         List<GUIOpenMenu> foundInventories = new ArrayList<>();
 
-        for (Player player : plugin.getServer().getOnlinePlayers()) {
+        for (Player player : PLUGIN.getServer().getOnlinePlayers()) {
             if (player.getOpenInventory().getTopInventory() != null) {
                 Inventory topInventory = player.getOpenInventory().getTopInventory();
 

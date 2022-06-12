@@ -11,44 +11,44 @@ import org.bukkit.inventory.meta.ItemMeta;
 import net.md_5.bungee.api.ChatColor;
 
 public class GUIItemBuilder {
-	private final ItemStack stack;
+	private final ItemStack STACK;
 
 	public GUIItemBuilder (Material material) {
-        this.stack = new ItemStack(material);
+        this.STACK = new ItemStack(material);
     }
 
 	public GUIItemBuilder (ItemStack stack) {
-        this.stack = stack;
+        this.STACK = stack;
     }
 
 	public GUIItemBuilder type(Material material) {
-        stack.setType(material);
+        STACK.setType(material);
         return this;
     }
 
 	public Material getType() {
-        return stack.getType();
+        return STACK.getType();
     }
 
 	public GUIItemBuilder name(String name) {
-        ItemMeta stackMeta = stack.getItemMeta();
+        ItemMeta stackMeta = STACK.getItemMeta();
         stackMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-        stack.setItemMeta(stackMeta);
+        STACK.setItemMeta(stackMeta);
         return this;
     }
 
 	public String getName() {
-        if (!stack.hasItemMeta() || !stack.getItemMeta().hasDisplayName()) return null;
-        return stack.getItemMeta().getDisplayName();
+        if (!STACK.hasItemMeta() || !STACK.getItemMeta().hasDisplayName()) return null;
+        return STACK.getItemMeta().getDisplayName();
     }
 
 	public GUIItemBuilder amount(int amount) {
-        stack.setAmount(amount);
+        STACK.setAmount(amount);
         return this;
     }
 
 	public int getAmount() {
-        return stack.getAmount();
+        return STACK.getAmount();
     }
 
 	public GUIItemBuilder lore(String... lore) {
@@ -60,38 +60,38 @@ public class GUIItemBuilder {
             lore.set(i, ChatColor.translateAlternateColorCodes('&', lore.get(i)));
         }
 
-        ItemMeta stackMeta = stack.getItemMeta();
+        ItemMeta stackMeta = STACK.getItemMeta();
         stackMeta.setLore(lore);
-        stack.setItemMeta(stackMeta);
+        STACK.setItemMeta(stackMeta);
         return this;
     }
 
 	public List<String> getLore() {
-        if (!stack.hasItemMeta() || !stack.getItemMeta().hasLore()) return null;
-        return stack.getItemMeta().getLore();
+        if (!STACK.hasItemMeta() || !STACK.getItemMeta().hasLore()) return null;
+        return STACK.getItemMeta().getLore();
     }
 
 	public GUIItemBuilder enchant(Enchantment enchantment, int level) {
-        stack.addUnsafeEnchantment(enchantment, level);
+        STACK.addUnsafeEnchantment(enchantment, level);
         return this;
     }
 
 	public GUIItemBuilder unenchant(Enchantment enchantment) {
-        stack.removeEnchantment(enchantment);
+        STACK.removeEnchantment(enchantment);
         return this;
     }
 
 	public GUIItemBuilder flag(ItemFlag ...flag) {
-        ItemMeta meta = stack.getItemMeta();
+        ItemMeta meta = STACK.getItemMeta();
         meta.addItemFlags(flag);
-        stack.setItemMeta(meta);
+        STACK.setItemMeta(meta);
         return this;
     }
 
 	public GUIItemBuilder deflag(ItemFlag ...flag) {
-        ItemMeta meta = stack.getItemMeta();
+        ItemMeta meta = STACK.getItemMeta();
         meta.removeItemFlags(flag);
-        stack.setItemMeta(meta);
+        STACK.setItemMeta(meta);
         return this;
     }
 
@@ -100,7 +100,7 @@ public class GUIItemBuilder {
     }
 
 	public ItemStack get() {
-        return stack;
+        return STACK;
     }
 
 }

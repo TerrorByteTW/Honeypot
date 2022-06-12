@@ -6,6 +6,12 @@ import me.terrorbyte.honeypot.ConfigColorManager;
 
 public class CommandFeedback {
     
+    /**
+     * A helper class which helps to reduce boilerplate player.sendMessage code by providing the strings to send instead of having to copy and paste them.
+     * @param feedback The string to send back
+     * @param success An optional Boolean which is used for the success feedback. If none is passed, success just replies "Success!"
+     * @return The Feedback string
+     */
     public static String sendCommandFeedback(String feedback, Boolean... success) {
         String feedbackMessage;
         String chatPrefix = ConfigColorManager.getChatPrefix();

@@ -2,25 +2,29 @@ package me.terrorbyte.honeypot.api.events;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class HoneypotPrePlayerBreakEvent extends Event implements Cancellable{
+public class HoneypotPrePlayerBreakEvent extends HoneypotCancellableEvent {
 
 	private static final HandlerList HANDLERS = new HandlerList();
 
 	private boolean isCancelled;
 
-	private final Player player;
-	private final Block block;
+	private final Player PLAYER;
+	private final Block BLOCK;
 
+	/**
+	 * Called before action is taken on a player who broke with Honeypot inventory. If cancelled, the Honeypot is ignored
+	 * 
+	 * @param player The Player breaking with the Honeypot
+	 * @param block The Honeypot block
+	 */
 	public HoneypotPrePlayerBreakEvent(Player player, Block block){
-		this.player = player;
-		this.block = block;
+		this.PLAYER = player;
+		this.BLOCK = block;
 	}
 
-	public static HandlerList getHandlerList() {
+	public HandlerList getHandlerList() {
         return HANDLERS;
     }
 
@@ -30,11 +34,11 @@ public class HoneypotPrePlayerBreakEvent extends Event implements Cancellable{
 	}
 
 	public Player getPlayer() {
-		return player;
+		return PLAYER;
 	}
 
 	public Block getBlock() {
-		return block;
+		return BLOCK;
 	}
 
 	public boolean isCancelled() {

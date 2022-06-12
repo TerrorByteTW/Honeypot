@@ -13,12 +13,12 @@ import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonBuilder;
 import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonType;
 
 public class GUIMenuListener implements Listener {
-	private final JavaPlugin owner;
-    private final GUI guiManager;
+	private final JavaPlugin OWNER;
+    private final GUI GUI_MANAGER;
 
 	public GUIMenuListener(JavaPlugin owner, GUI guiManager) {
-        this.owner = owner;
-        this.guiManager = guiManager;
+        this.OWNER = owner;
+        this.GUI_MANAGER = guiManager;
     }
 
 	@EventHandler
@@ -29,18 +29,18 @@ public class GUIMenuListener implements Listener {
 
             GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
 
-            if (!clickedGui.getOwner().equals(owner)) return;
+            if (!clickedGui.getOwner().equals(OWNER)) return;
 
             if (clickedGui.areDefaultInteractionsBlocked() != null) {
                 event.setCancelled(clickedGui.areDefaultInteractionsBlocked());
             } else {
-                if (guiManager.areDefaultInteractionsBlocked())
+                if (GUI_MANAGER.areDefaultInteractionsBlocked())
                     event.setCancelled(true);
             }
 
             if (event.getSlot() > clickedGui.getPageSize()) {
                 int offset = event.getSlot() - clickedGui.getPageSize();
-                GUIPageButtonBuilder paginationButtonBuilder = guiManager.getDefaultPaginationButtonBuilder();
+                GUIPageButtonBuilder paginationButtonBuilder = GUI_MANAGER.getDefaultPaginationButtonBuilder();
 
                 if (clickedGui.getPaginationButtonBuilder() != null) {
                     paginationButtonBuilder = clickedGui.getPaginationButtonBuilder();
@@ -74,7 +74,7 @@ public class GUIMenuListener implements Listener {
                 && event.getInventory().getHolder() instanceof GUIMenu) {
 
             GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
-            if (!clickedGui.getOwner().equals(owner)) return;
+            if (!clickedGui.getOwner().equals(OWNER)) return;
 
             if (clickedGui.getOnClose() != null)
                 clickedGui.getOnClose().accept(clickedGui);

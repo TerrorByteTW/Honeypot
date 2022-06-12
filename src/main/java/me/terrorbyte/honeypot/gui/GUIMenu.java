@@ -17,15 +17,15 @@ import me.terrorbyte.honeypot.gui.pagination.GUIPageButtonType;
 import net.md_5.bungee.api.ChatColor;
 
 public class GUIMenu implements InventoryHolder{
-	private final JavaPlugin owner;
-    private final GUI guiManager;
+	private final JavaPlugin OWNER;
+    private final GUI GUI_MANAGER;
 
     private String name;
     private String tag;
     private int rowsPerPage;
 
-    private final Map<Integer, GUIButton> items;
-    private final HashSet<Integer> stickiedSlots;
+    private final Map<Integer, GUIButton> ITEMS;
+    private final HashSet<Integer> STICKIED_SLOTS;
 
     private int currentPage;
     private Boolean blockDefaultInteractions;
@@ -36,14 +36,14 @@ public class GUIMenu implements InventoryHolder{
     private Consumer<GUIMenu> onPageChange;
 
 	GUIMenu(JavaPlugin owner, GUI guiManager, String name, int rowsPerPage, String tag) {
-        this.owner = owner;
-        this.guiManager = guiManager;
+        this.OWNER = owner;
+        this.GUI_MANAGER = guiManager;
         this.name = ChatColor.translateAlternateColorCodes('&', name);
         this.rowsPerPage = rowsPerPage;
         this.tag = tag;
 
-        this.items = new HashMap<>();
-        this.stickiedSlots = new HashSet<>();
+        this.ITEMS = new HashMap<>();
+        this.STICKIED_SLOTS = new HashSet<>();
 
         this.currentPage = 0;
     }
@@ -73,7 +73,7 @@ public class GUIMenu implements InventoryHolder{
     }
 
 	public JavaPlugin getOwner() {
-        return owner;
+        return OWNER;
     }
 
 	public int getRowsPerPage() {
@@ -122,7 +122,7 @@ public class GUIMenu implements InventoryHolder{
     }
 
 	public void setButton(int slot, GUIButton button) {
-        items.put(slot, button);
+        ITEMS.put(slot, button);
     }
 
 	public void setButton(int page, int slot, GUIButton button) {
@@ -133,7 +133,7 @@ public class GUIMenu implements InventoryHolder{
     }
 
 	public void removeButton(int slot) {
-        items.remove(slot);
+        ITEMS.remove(slot);
     }
 
 	public void removeButton(int page, int slot) {
@@ -147,7 +147,7 @@ public class GUIMenu implements InventoryHolder{
         if (slot < 0 || slot > getHighestFilledSlot())
             return null;
 
-        return items.get(slot);
+        return ITEMS.get(slot);
     }
 
 	public GUIButton getButton(int page, int slot) {
@@ -174,8 +174,8 @@ public class GUIMenu implements InventoryHolder{
 	public int getHighestFilledSlot() {
         int slot = 0;
 
-        for (int nextSlot : items.keySet()) {
-            if (items.get(nextSlot) != null && nextSlot > slot)
+        for (int nextSlot : ITEMS.keySet()) {
+            if (ITEMS.get(nextSlot) != null && nextSlot > slot)
                 slot = nextSlot;
         }
 
@@ -208,27 +208,27 @@ public class GUIMenu implements InventoryHolder{
         if (slot < 0 || slot >= getPageSize())
             return;
 
-        this.stickiedSlots.add(slot);
+        this.STICKIED_SLOTS.add(slot);
     }
 
 	public void unstickSlot(int slot) {
-        this.stickiedSlots.remove(Integer.valueOf(slot));
+        this.STICKIED_SLOTS.remove(Integer.valueOf(slot));
     }
 
 	public void clearStickiedSlots() {
-        this.stickiedSlots.clear();
+        this.STICKIED_SLOTS.clear();
     }
 
 	public boolean isStickiedSlot(int slot) {
         if (slot < 0 || slot >= getPageSize())
             return false;
 
-        return this.stickiedSlots.contains(slot);
+        return this.STICKIED_SLOTS.contains(slot);
     }
 
 	public void clearAllButStickiedSlots() {
         this.currentPage = 0;
-        items.entrySet().removeIf(item -> !isStickiedSlot(item.getKey()));
+        ITEMS.entrySet().removeIf(item -> !isStickiedSlot(item.getKey()));
     }
 
 	public Consumer<GUIMenu> getOnClose() {
@@ -270,7 +270,7 @@ public class GUIMenu implements InventoryHolder{
 
 	@Override
     public Inventory getInventory() {
-        boolean isAutomaticPaginationEnabled = guiManager.isAutomaticPaginationEnabled();
+        boolean isAutomaticPaginationEnabled = GUI_MANAGER.isAutomaticPaginationEnabled();
         if (isAutomaticPaginationEnabled() != null) {
             isAutomaticPaginationEnabled = isAutomaticPaginationEnabled();
         }
@@ -294,19 +294,19 @@ public class GUIMenu implements InventoryHolder{
             // slots.
             if (key > getHighestFilledSlot()) break;
 
-            if (items.containsKey(key)) {
-                inventory.setItem(key - (currentPage * getPageSize()), items.get(key).getIcon());
+            if (ITEMS.containsKey(key)) {
+                inventory.setItem(key - (currentPage * getPageSize()), ITEMS.get(key).getIcon());
             }
         }
 
         // Update the stickied slots.
-        for (int stickiedSlot : stickiedSlots) {
-            inventory.setItem(stickiedSlot, items.get(stickiedSlot).getIcon());
+        for (int stickiedSlot : STICKIED_SLOTS) {
+            inventory.setItem(stickiedSlot, ITEMS.get(stickiedSlot).getIcon());
         }
 
         // Render the pagination items.
         if (needsPagination) {
-            GUIPageButtonBuilder paginationButtonBuilder = guiManager.getDefaultPaginationButtonBuilder();
+            GUIPageButtonBuilder paginationButtonBuilder = GUI_MANAGER.getDefaultPaginationButtonBuilder();
             if (getPaginationButtonBuilder() != null) {
                 paginationButtonBuilder = getPaginationButtonBuilder();
             }

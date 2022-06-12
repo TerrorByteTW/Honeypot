@@ -5,19 +5,19 @@ import org.bukkit.entity.Player;
 import me.terrorbyte.honeypot.gui.GUIMenu;
 
 public class GUIOpenMenu {
-	private final GUIMenu gui;
-    private final Player player;
+	private final GUIMenu GUI;
+    private final Player PLAYER;
 
     public GUIOpenMenu(GUIMenu gui, Player player) {
-        this.gui = gui;
-        this.player = player;
+        this.GUI = gui;
+        this.PLAYER = player;
     }
 
     public GUIMenu getGUI() {
-        return this.gui;
+        return this.GUI;
     }
 
     public Player getPlayer() {
-        return this.player;
+        return this.PLAYER;
     }
 }

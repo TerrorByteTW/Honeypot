@@ -8,12 +8,12 @@ public class HoneypotNonPlayerBreakEvent extends Event {
 	private static final HandlerList HANDLERS = new HandlerList();
 
 
-	private final Object object;
-	private final Block block;
+	private final Object OBJECT;
+	private final Block BLOCK;
 
 	public HoneypotNonPlayerBreakEvent(Object object, Block block){
-		this.object = object;
-		this.block = block;
+		this.OBJECT = object;
+		this.BLOCK = block;
 	}
 
 	public static HandlerList getHandlerList() {
@@ -26,10 +26,10 @@ public class HoneypotNonPlayerBreakEvent extends Event {
 	}
 
 	public Object getObject() {
-		return object;
+		return OBJECT;
 	}
 
 	public Block getBlock() {
-		return block;
+		return BLOCK;
 	}
 }

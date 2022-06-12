@@ -17,9 +17,13 @@ public abstract class Database {
     Honeypot plugin;
     Connection connection;
 
-    private final String playerTable = "honeypot_players";
-    private final String blockTable = "honeypot_blocks";
+    private final String PLAYER_TABLE = "honeypot_players";
+    private final String BLOCK_TABLE = "honeypot_blocks";
 
+    /**
+     * Create a Database object
+     * @param instance The instance of the Honeypot plugin
+     */
     public Database(Honeypot instance){
         plugin = instance;
     }
@@ -28,10 +32,13 @@ public abstract class Database {
 
     public abstract void load();
 
+    /**
+     * Initialize the Database
+     */
     public void initialize(){
         connection = getSQLConnection();
         try{
-            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + blockTable);
+            PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + BLOCK_TABLE);
             ResultSet rs = ps.executeQuery();
             close(ps, rs);
 
@@ -40,6 +47,11 @@ public abstract class Database {
         }
     }
 
+    /**
+     * Close the DB connection
+     * @param ps The PreparedStatement
+     * @param rs The ResultSet
+     */
     public void close(PreparedStatement ps, ResultSet rs){
         try{
             if(ps != null) ps.close();
@@ -50,6 +62,12 @@ public abstract class Database {
         }
     }
 
+    /**
+     * Create a HoneypotBlock using SQLite.
+     * Connects to the DB and inserts the block into it.
+     * @param block The Block to add to the DB
+     * @param action The action
+     */
     public void createHoneypotBlock(Block block, String action){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
         String worldName = block.getWorld().getName();
@@ -59,7 +77,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("INSERT INTO " + blockTable + " (coordinates, action, worldName) VALUES (?, ?, ?);");
+            ps = c.prepareStatement("INSERT INTO " + BLOCK_TABLE + " (coordinates, action, worldName) VALUES (?, ?, ?);");
             ps.setString(1, coordinates);
             ps.setString(2, action);
             ps.setString(3, worldName);
@@ -77,6 +95,11 @@ public abstract class Database {
         }
     }
 
+    /**
+     * Removes a Honeypot block from the DB. 
+     * Connects to the DB and runs a DELETE FROM query
+     * @param block The block to remove
+     */
     public void removeHoneypotBlock(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
         String worldName = block.getWorld().getName();
@@ -86,7 +109,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("DELETE FROM " + blockTable + " WHERE coordinates = ? AND worldName = ?;");
+            ps = c.prepareStatement("DELETE FROM " + BLOCK_TABLE + " WHERE coordinates = ? AND worldName = ?;");
             ps.setString(1, coordinates);
             ps.setString(2, worldName);
             ps.executeUpdate();
@@ -103,6 +126,11 @@ public abstract class Database {
         }
     }
 
+    /**
+     * Checks if the DB contains the Block passed 
+     * @param block The Block to check
+     * @return True if it conains the block, false if it doesn't
+     */
     public boolean isHoneypotBlock(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
         String worldName = block.getWorld().getName();
@@ -113,7 +141,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("SELECT * FROM " + blockTable + " WHERE coordinates = ? AND worldName = ?;");
+            ps = c.prepareStatement("SELECT * FROM " + BLOCK_TABLE + " WHERE coordinates = ? AND worldName = ?;");
             ps.setString(1, coordinates);
             ps.setString(2, worldName);
             rs = ps.executeQuery();
@@ -138,6 +166,11 @@ public abstract class Database {
         return false;
     }
 
+    /**
+     * Gets the action of the Honeypot block passes
+     * @param block The Honeypot block to check
+     * @return The action in String form
+     */
     public String getAction(Block block){
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
         String worldName = block.getWorld().getName();
@@ -148,7 +181,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("SELECT * FROM " + blockTable + " WHERE coordinates = '" + coordinates + "' AND worldName = '" + worldName + "';");
+            ps = c.prepareStatement("SELECT * FROM " + BLOCK_TABLE + " WHERE coordinates = '" + coordinates + "' AND worldName = '" + worldName + "';");
             rs = ps.executeQuery();
 
             while(rs.next()){
@@ -171,6 +204,10 @@ public abstract class Database {
         return null;
     }
 
+    /**
+     * Get all the Honeypot blocks in the DB
+     * @return A list of HoneypotBlockObjects from the DB
+     */
     public ArrayList<HoneypotBlockObject> getAllHoneypots(){
         ArrayList<HoneypotBlockObject> blocks = new ArrayList<HoneypotBlockObject>();
         Connection c = null;
@@ -179,7 +216,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("SELECT * FROM " + blockTable + ";");
+            ps = c.prepareStatement("SELECT * FROM " + BLOCK_TABLE + ";");
             rs = ps.executeQuery();
 
             while(rs.next()){
@@ -202,6 +239,11 @@ public abstract class Database {
         return null;
     }
 
+    /**
+     * Creates a Honeypot Player
+     * @param player The Player to create
+     * @param blocksBroken The number of Blocks the player has broken
+     */
     public void createHoneypotPlayer(Player player, int blocksBroken){
 
         Connection c = null;
@@ -209,7 +251,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("INSERT INTO " + playerTable + " (playerName, blocksBroken) VALUES (?, ?);");
+            ps = c.prepareStatement("INSERT INTO " + PLAYER_TABLE + " (playerName, blocksBroken) VALUES (?, ?);");
             ps.setString(1, player.getUniqueId().toString());
             ps.setInt(2, blocksBroken);
             ps.executeUpdate();
@@ -226,6 +268,11 @@ public abstract class Database {
         }
     }
 
+    /**
+     * Sets the player count
+     * @param playerName The Player object of the Playe to set
+     * @param blocksBroken The number of Blocks broken
+     */
     public void setPlayerCount(Player playerName, int blocksBroken){
 
         Connection c = null;
@@ -233,7 +280,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("REPLACE INTO " + playerTable + " (playerName, blocksBroken) VALUES (?, ?);");
+            ps = c.prepareStatement("REPLACE INTO " + PLAYER_TABLE + " (playerName, blocksBroken) VALUES (?, ?);");
             ps.setString(1, playerName.getUniqueId().toString());
             ps.setInt(2, blocksBroken);
             ps.executeUpdate();
@@ -250,6 +297,11 @@ public abstract class Database {
         }
     }
 
+    /**
+     * Get's the current number of block the player has broken
+     * @param playerName The Player to check
+     * @return An int representing how many blocks the player has broken
+     */
     public int getCount(Player playerName){
 
         Connection c = null;
@@ -258,7 +310,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("SELECT * FROM " + playerTable + " WHERE playerName = '" + playerName.getUniqueId() + "';");
+            ps = c.prepareStatement("SELECT * FROM " + PLAYER_TABLE + " WHERE playerName = '" + playerName.getUniqueId() + "';");
             rs = ps.executeQuery();
 
             while(rs.next()){
@@ -281,13 +333,16 @@ public abstract class Database {
         return -1;
     }
 
+    /**
+     * Delete's all blocks in the DB
+     */
     public void deleteAllBlocks(){
         Connection c = null;
         PreparedStatement ps = null;
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("DELETE FROM " + blockTable + ";");
+            ps = c.prepareStatement("DELETE FROM " + BLOCK_TABLE + ";");
             ps.executeUpdate();
 
         } catch (SQLException e){
@@ -302,13 +357,16 @@ public abstract class Database {
         }
     }
     
+    /**
+     * Delete's all players from the DB
+     */
     public void deleteAllPlayers(){
         Connection c = null;
         PreparedStatement ps = null;
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("DELETE FROM " + playerTable + ";");
+            ps = c.prepareStatement("DELETE FROM " + PLAYER_TABLE + ";");
             ps.executeUpdate();
 
         } catch (SQLException e){
