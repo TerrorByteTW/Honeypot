@@ -22,12 +22,6 @@ So far we've met those goals, but are working on adding more features to the plu
 
 Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
-## Servers using Honeypot 💻
-If your server is using Honeypot, let me know! I'd love to add it to this list.
-
-## What's the current state of development? ▶
-This is a hobby project; Nonetheless, I'm hoping this plugin gets some use out of it and will continue to be developed for some time by me. Development is done at the pace in which I have time to do so, but it is currently **in progress** ▶
-
 ## To-do 📝
 * Add JavaDocs
 * Lint the entire project for better readability
