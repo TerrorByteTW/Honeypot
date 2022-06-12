@@ -2,10 +2,14 @@ package me.terrorbyte.honeypot.commands.subcommands;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.HoneypotConfigManager;
+import me.terrorbyte.honeypot.api.events.HoneypotCreateEvent;
+import me.terrorbyte.honeypot.api.events.HoneypotPreCreateEvent;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.events.PlayerConversationListener;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.conversations.Conversation;
@@ -84,6 +88,11 @@ public class HoneypotCreate extends HoneypotSubCommand {
                     args[1].equalsIgnoreCase("nothing") ||
                     args[1].equalsIgnoreCase("custom"))) 
             {
+
+                //Fire HoneypotPreNonPlayerBreakEvent
+                HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent(p, block);
+                Bukkit.getPluginManager().callEvent(hpce);
+
                 switch (args[1].toLowerCase()){
 
                     case "custom" -> {
@@ -106,6 +115,10 @@ public class HoneypotCreate extends HoneypotSubCommand {
                         p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                     }
                 }
+
+                //Fire HoneypotPreNonPlayerBreakEvent
+                HoneypotCreateEvent hce = new HoneypotCreateEvent(p, block);
+                Bukkit.getPluginManager().callEvent(hce);
 
             } else {
                 p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));

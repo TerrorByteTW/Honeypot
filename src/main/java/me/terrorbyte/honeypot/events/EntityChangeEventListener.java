@@ -1,7 +1,7 @@
 package me.terrorbyte.honeypot.events;
 
 import me.terrorbyte.honeypot.HoneypotConfigManager;
-import me.terrorbyte.honeypot.api.HoneypotNonPlayerBreakEvent;
+import me.terrorbyte.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import org.bukkit.Bukkit;

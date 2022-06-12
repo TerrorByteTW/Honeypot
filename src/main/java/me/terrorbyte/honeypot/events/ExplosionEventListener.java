@@ -1,7 +1,7 @@
 package me.terrorbyte.honeypot.events;
 
 import me.terrorbyte.honeypot.HoneypotConfigManager;
-import me.terrorbyte.honeypot.api.HoneypotNonPlayerBreakEvent;
+import me.terrorbyte.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import org.bukkit.Bukkit;
@@ -27,7 +27,7 @@ public class ExplosionEventListener implements Listener {
         //For every block, check if it was a Honeypot. If it was, check if explosions are allowed. If so, just delete the Honeypot. If not, cancel the explosion
         for (Block block : destroyedBlocks) {
             if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
-                
+
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), block);
                 Bukkit.getPluginManager().callEvent(hnpbe);

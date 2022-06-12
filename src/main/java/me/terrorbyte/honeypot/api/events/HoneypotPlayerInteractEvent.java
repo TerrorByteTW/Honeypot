@@ -1,4 +1,4 @@
-package me.terrorbyte.honeypot.api;
+package me.terrorbyte.honeypot.api.events;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;

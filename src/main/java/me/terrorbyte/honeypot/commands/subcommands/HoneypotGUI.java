@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.HoneypotConfigManager;
+import me.terrorbyte.honeypot.api.events.HoneypotPreCreateEvent;
 import me.terrorbyte.honeypot.commands.CommandFeedback;
 import me.terrorbyte.honeypot.commands.HoneypotSubCommand;
 import me.terrorbyte.honeypot.events.PlayerConversationListener;
@@ -307,6 +308,11 @@ public class HoneypotGUI extends HoneypotSubCommand{
 			
 			//If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
 		} else {
+			
+			//Fire HoneypotPreCreateEvent
+			HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
+			Bukkit.getPluginManager().callEvent(hpce);
+
 			if(action.equalsIgnoreCase("custom")){
 				if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions")){
 					if (!event.getWhoClicked().hasPermission("honeypot.custom")){
@@ -324,6 +330,10 @@ public class HoneypotGUI extends HoneypotSubCommand{
 				HoneypotBlockStorageManager.createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
 				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
+
+			//Fire HoneypotCreateEvent
+			HoneypotPreCreateEvent hce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
+			Bukkit.getPluginManager().callEvent(hce);
 		}
 	}
 	

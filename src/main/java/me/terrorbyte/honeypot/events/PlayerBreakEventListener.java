@@ -15,8 +15,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import me.terrorbyte.honeypot.ConfigColorManager;
 import me.terrorbyte.honeypot.Honeypot;
 import me.terrorbyte.honeypot.HoneypotConfigManager;
-import me.terrorbyte.honeypot.api.HoneypotPlayerBreakEvent;
-import me.terrorbyte.honeypot.api.HoneypotPrePlayerBreakEvent;
+import me.terrorbyte.honeypot.api.events.HoneypotPlayerBreakEvent;
+import me.terrorbyte.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 import me.terrorbyte.honeypot.storagemanager.HoneypotBlockStorageManager;
 import me.terrorbyte.honeypot.storagemanager.HoneypotPlayerStorageManager;
 
