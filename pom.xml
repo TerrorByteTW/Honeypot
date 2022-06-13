@@ -42,9 +42,9 @@
          
     <distributionManagement> 
         <repository>
-            <id>org.reprogle</id>
-            <name>honeypot</name> 
-            <url>https://github.com/TerrrorByte/Honeypot</url>
+            <id>github</id>
+            <name>GitHub TerrrorByte Apache Maven Packages</name> 
+            <url>https://maven.pkg.github.com/TerrrorByte/Honeypot</url>
         </repository>
     </distributionManagement>
 
