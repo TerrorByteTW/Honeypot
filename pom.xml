@@ -39,6 +39,14 @@
         <developerConnection>scm:git:ssh://github.com:TerrrorByte/Honeypot.git</developerConnection>
         <url>http://github.com/TerrrorByte/Honeypot/tree/master</url>
     </scm>
+         
+    <distributionManagement> 
+        <repository>
+            <id>org.reprogle</id>
+            <name>honeypot</name> 
+            <url>https://github.com/TerrrorByte/Honeypot</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <java.version>17</java.version>
