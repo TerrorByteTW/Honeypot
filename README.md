@@ -1,8 +1,5 @@
 # Honeypot Anti-Grief Solution 🍯🚫 
 
-## Developers
-If you're looking for the Developer API, please view the Wiki
-
 ## What is Honeypot?
 Honeypot Anti-Grief Solution is a Minecraft Spigot server plugin which is designed to catch bad actors and punish them in the act. The goal is to catch them before damage is done, especially if staff doesn't realize it's happening or are unable to intervene. Its job is to minimize damage and make less of a mess for staff to clean up later on. 
 
@@ -24,6 +21,9 @@ These are the goals for Honeypot. Not all of these have been achieved yet, but I
 So far we've met those goals, but are working on adding more features to the plugin and continuously optimizing as time goes on.
 
 Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
+
+## Developers
+If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
 
 ## To-do 📝
 * Lint the entire project for better readability
