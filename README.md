@@ -26,9 +26,6 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
 
 ## To-do 📝
-* Lint the entire project for better readability
-* Add a section for contributing
-* Add API Wiki
 * Add a GUI system to the plugin for ease of use *(Implemented in [Honeypot v2.0!](https://github.com/redstonefreak589/Honeypot/releases/tag/v2.0))*
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
 
