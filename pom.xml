@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.terrorbyte</groupId>
+    <groupId>org.reprogle</groupId>
     <artifactId>honeypot-parent</artifactId>
     <version>2.0.2</version>
     <packaging>pom</packaging>
@@ -15,6 +15,30 @@
     </modules>
 
     <name>Honeypot</name>
+    <description>Plugin for Spigot MC servers to deter griefers and take action autonomously</description>
+    <url>https://github.com/TerrrorByte/Honeypot</url>
+
+    <licenses>
+        <license>
+            <name>Mozilla Public License 2.0</name>
+            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Nate Reprogle</name>
+            <email>nate@reprogle.org</email>
+            <organization>org.reprogle</organization>
+            <organizationUrl>https://github.com/TerrrorByte</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/TerrrorByte/Honeypot.git</connection>
+        <developerConnection>scm:git:ssh://github.com:TerrrorByte/Honeypot.git</developerConnection>
+        <url>http://github.com/TerrrorByte/Honeypot/tree/master</url>
+    </scm>
 
     <properties>
         <java.version>1.8</java.version>

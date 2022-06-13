@@ -2,7 +2,7 @@ name: Honeypot
 version: '${project.version}'
 author: TerrorByte
 description: Creates honeypot blocks designed to prevent griefing on your server
-main: me.terrorbyte.honeypot.Honeypot
+main: org.reprogle.honeypot.Honeypot
 api-version: 1.17
 load: POSTWORLD
 commands:

@@ -5,19 +5,42 @@
     
 
     <parent>
-        <groupId>me.terrorbyte</groupId>
+        <groupId>org.reprogle</groupId>
         <artifactId>honeypot-parent</artifactId>
         <version>2.0.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     
     <artifactId>honeypot-core</artifactId>
     <name>honeypot-core</name>
     <description>A plugin to deter griefers from griefing your server</description>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
     <url>https://github.com/TerrrorByte/Honeypot</url>
+
+    <licenses>
+        <license>
+            <name>Mozilla Public License 2.0</name>
+            <url>https://www.mozilla.org/en-US/MPL/2.0/</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Nate Reprogle</name>
+            <email>nate@reprogle.org</email>
+            <organization>org.reprogle</organization>
+            <organizationUrl>https://github.com/TerrrorByte</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/TerrrorByte/Honeypot.git</connection>
+        <developerConnection>scm:git:ssh://github.com:TerrrorByte/Honeypot.git</developerConnection>
+        <url>http://github.com/TerrrorByte/Honeypot/tree/master</url>
+    </scm>
 
     <build>
         <defaultGoal>clean package</defaultGoal>
@@ -31,11 +54,11 @@
                     <relocations>
                         <relocation>
                             <pattern>dev.dejvokep.boostedyaml</pattern>
-                            <shadedPattern>me.terrorbyte.honeypot.libs</shadedPattern>
+                            <shadedPattern>org.reprogle.honeypot.libs</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>me.terrorbyte.honeypot.libs</shadedPattern>
+                            <shadedPattern>org.reprogle.honeypot.libs</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
