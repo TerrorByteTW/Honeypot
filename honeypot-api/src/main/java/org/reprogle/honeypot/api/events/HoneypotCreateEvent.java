@@ -13,12 +13,31 @@ import org.bukkit.event.HandlerList;
  */
 public class HoneypotCreateEvent extends Event {
 
+	/**
+	 * The handlers list of the event.
+	 * 
+	 * @see HandlerList
+	 */
 	private static final HandlerList HANDLERS = new HandlerList();
 
+	/**
+	 * The {@link Player} who fires the event
+	 */
 	private final Player player;
 
+	/**
+	 * The {@link Block} involved the event
+	 */
 	private final Block block;
 
+	/**
+	 * Creates a Honeypot Event. This shouldn't be used by other plugins. Instead, listen for the event instead.
+	 * @param player The {@link Player} who fired the event
+	 * @param block The {@link Block} involved in the event
+	 * 
+	 * @see #getPlayer()
+	 * @see #getBlock()
+	 */
 	public HoneypotCreateEvent(Player player, Block block) {
 		this.player = player;
 		this.block = block;
@@ -34,10 +53,20 @@ public class HoneypotCreateEvent extends Event {
 		return HANDLERS;
 	}
 
+	/**
+	 * Get the player object of the player who fired the event
+	 * @return {@link Player}
+	 * @see #getBlock() #getBlock()
+	 */
 	public Player getPlayer() {
 		return player;
 	}
 
+	/**
+	 * Get the block object of the block who fired the event
+	 * @return {@link Block}
+	 * @see #getPlayer() #getPlayer()
+	 */
 	public Block getBlock() {
 		return block;
 	}
