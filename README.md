@@ -1,5 +1,5 @@
 # Honeypot Anti-Grief Solution 🍯🚫 
-[![Release](https://jitpack.io/v/TerrrorByte/Honeypot.svg)](https://jitpack.io/#TerrrorByte/Honeypot) [![Java CI with Maven](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml)
+[![Release](https://jitpack.io/v/TerrrorByte/Honeypot.svg)](https://jitpack.io/#TerrrorByte/Honeypot) [![Java CI with Maven](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=TerrrorByte_Honeypot&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=TerrrorByte_Honeypot)
 
 ## What is Honeypot?
 Honeypot Anti-Grief Solution is a Minecraft Spigot server plugin which is designed to catch bad actors and punish them in the act. The goal is to catch them before damage is done, especially if staff doesn't realize it's happening or are unable to intervene. Its job is to minimize damage and make less of a mess for staff to clean up later on. 
@@ -27,6 +27,9 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
 
 ## To-do 📝
+* Add unit tests with MockBukkit to make development quicker and testing easier
+* Add support for other plugins (Such as grief pretection and WorldEdit/Guard)
+* Add support for multi-task Honeypots (Configurable via config, allows you to perform multiple actions on one pot)
 * Add a GUI system to the plugin for ease of use *(Implemented in [Honeypot v2.0!](https://github.com/redstonefreak589/Honeypot/releases/tag/v2.0))*
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
 
