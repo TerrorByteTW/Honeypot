@@ -47,6 +47,8 @@ public class SQLite extends Database {
                 boolean success = dataFolder.createNewFile();
                 if (success) {
                     Honeypot.getPlugin().getLogger().info("Created data folder");
+                } else {
+                    Honeypot.getPlugin().getLogger().severe("Could not create data folder!");
                 }
             }
             catch (IOException e) {

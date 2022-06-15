@@ -69,6 +69,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+               <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+                <executions>
+                  <execution>
+                    <id>prepare-agent</id>
+                    <goals>
+                      <goal>prepare-agent</goal>
+                    </goals>
+                  </execution>
+                  <execution>
+                    <id>report</id>
+                    <goals>
+                      <goal>report</goal>
+                    </goals>
+                    <configuration>
+                      <formats>
+                        <format>XML</format>
+                      </formats>
+                    </configuration>
+                  </execution>
+                </executions>
+              </plugin>
         </plugins>
         <resources>
             <resource>
@@ -79,6 +103,26 @@
     </build>
 
     <dependencies>
+        <!-- Testing Dependencies (Declare these first as MockBukkit needs to override Spigot) -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v1.19</artifactId>
+            <version>2.38.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.15.1</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Hard dependencies -->
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
@@ -101,20 +145,6 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>3.0.0</version>
             <scope>compile</scope>
-        </dependency>
-
-        <!-- Testing Dependencies -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v1.19</artifactId>
-            <version>2.38.0</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

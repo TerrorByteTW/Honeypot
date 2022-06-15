@@ -32,6 +32,8 @@ public class HoneypotBlockStorageManager {
     public static void createBlock(Block block, String action) {
         Database db;
         db = new SQLite(plugin);
+        db.load();
+        
         db.createHoneypotBlock(block, action);
     }
 
@@ -44,6 +46,8 @@ public class HoneypotBlockStorageManager {
     public static void deleteBlock(Block block) {
         Database db;
         db = new SQLite(plugin);
+        db.load();
+        
         db.removeHoneypotBlock(block);
     }
 
@@ -84,6 +88,8 @@ public class HoneypotBlockStorageManager {
         Database db;
 
         db = new SQLite(plugin);
+        db.load();
+
         db.deleteAllBlocks();
     }
 
@@ -96,6 +102,8 @@ public class HoneypotBlockStorageManager {
         Database db;
 
         db = new SQLite(plugin);
+        db.load();
+
         return db.getAllHoneypots();
     }
 }
