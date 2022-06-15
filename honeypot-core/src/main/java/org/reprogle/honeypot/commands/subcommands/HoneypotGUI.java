@@ -436,7 +436,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 								public void run() {
 									slime.remove();
 								}
-							}.runTaskLater(Honeypot.getPlugin(), 20 * 5); // 20 ticks in 1 second * 5 seconds equals 100
+							}.runTaskLater(Honeypot.getPlugin(), 20L * 5); // 20 ticks in 1 second * 5 seconds equals 100
 																			// ticks
 						}
 					}

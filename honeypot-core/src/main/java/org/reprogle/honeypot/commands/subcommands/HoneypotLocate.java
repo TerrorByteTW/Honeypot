@@ -69,7 +69,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
                             public void run() {
                                 slime.remove();
                             }
-                        }.runTaskLater(Honeypot.getPlugin(), 20 * 5);
+                        }.runTaskLater(Honeypot.getPlugin(), 20L * 5);
                     }
                 }
             }

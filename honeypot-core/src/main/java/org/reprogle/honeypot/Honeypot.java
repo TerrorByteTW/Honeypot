@@ -1,8 +1,12 @@
 package org.reprogle.honeypot;
 
+import java.io.File;
+
 import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 import org.reprogle.honeypot.commands.CommandManager;
 import org.reprogle.honeypot.events.*;
 import org.reprogle.honeypot.gui.GUI;
@@ -11,6 +15,24 @@ public final class Honeypot extends JavaPlugin {
 
     private static Honeypot plugin;
     private static GUI gui;
+    private final boolean testing;
+
+    /**
+     * Constructor for MockBukkit
+     */
+    public Honeypot()
+    {
+        testing = false;
+    }
+
+    /**
+     * Constructor for MockBukkit
+     */
+    protected Honeypot(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file)
+    {
+        super(loader, description, dataFolder, file);
+        testing = true;
+    }
 
     /**
      * Returns the plugin variable for use in other classes to get things such as the logger
@@ -27,9 +49,11 @@ public final class Honeypot extends JavaPlugin {
         plugin = this;
         gui = new GUI(this);
 
-        // Setup bStats
-        int pluginId = 15425;
-        Metrics metrics = new Metrics(this, pluginId);
+        if (Boolean.FALSE.equals(testing)) {
+            // Setup bStats
+            int pluginId = 15425;
+            Metrics metrics = new Metrics(this, pluginId);
+        }
 
         // Create/load configuration files
         HoneypotConfigManager.setupConfig(this);
