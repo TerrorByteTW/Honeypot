@@ -34,7 +34,6 @@ public class TestGuiCreation {
 	public void testGuiMenuCreate() {
 		GUIMenu mainMenu = Honeypot.getGUI().create("Honeypot Main Menu", 1);
 		Assertions.assertNotNull(mainMenu);
-		
 	}
 
 }

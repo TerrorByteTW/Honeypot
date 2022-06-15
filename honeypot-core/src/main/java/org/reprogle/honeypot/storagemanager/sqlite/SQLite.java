@@ -86,7 +86,7 @@ public class SQLite extends Database {
             s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
         }
         catch (SQLException e) {
-            e.printStackTrace();
+            Honeypot.getPlugin().getLogger().severe("SQLException occured while attempting to create tables if they don't exist: " + e);
         }
 
         initialize();

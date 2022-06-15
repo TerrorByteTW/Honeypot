@@ -43,7 +43,7 @@ public class HoneypotConfigManager extends JavaPlugin {
         catch (IOException e) {
             e.printStackTrace();
             plugin.getLogger().severe(
-                    "Could not create/load plugin config, disabling! Please alert the plugin author with the full stack trace above");
+                    "Could not create/load plugin config, disabling! Please alert the plugin author with the following info: " + e);
             plugin.getPluginLoader().disablePlugin(plugin);
         }
 
@@ -59,11 +59,9 @@ public class HoneypotConfigManager extends JavaPlugin {
             plugin.getLogger().info("GUI config successfully loaded/created!");
         }
         catch (IOException e) {
-            e.printStackTrace();
             plugin.getLogger().severe(
-                    "Could not create/load GUI config, disabling! Please alert the plugin author with the full stack trace above");
+                    "Could not create/load GUI config, disabling! Please alert the plugin author with following info: " + e);
             plugin.getPluginLoader().disablePlugin(plugin);
-            e.printStackTrace();
         }
 
     }
