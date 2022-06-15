@@ -2,9 +2,7 @@ package org.reprogle.honeypot.gui;
 
 import org.bukkit.block.Block;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 
@@ -26,12 +24,6 @@ public class TestGuiButtonCreation {
 	@AfterAll
 	public static void tearDown() {
 		MockBukkit.unmock();
-	}
-
-	@Test
-	public void testAllBlocksGUI() {
-		GUIMenu allBlocksGUI = Honeypot.getGUI().create("Honeypots {currentPage}/{maxPage}", 3);
-		Assertions.assertNotNull(allBlocksGUI);
 	}
 
 	/**
