@@ -28,7 +28,7 @@ public class CommandFeedback {
         switch (feedback.toLowerCase()) {
             case "usage" -> {
                 feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
+                "     " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
                 "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
                 "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
                 "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
@@ -115,9 +115,8 @@ public class CommandFeedback {
                 feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
                         + "Unknown error, please contact server admin");
             }
-            }
-
-            return feedbackMessage;
         }
-
+            return feedbackMessage;
     }
+
+}

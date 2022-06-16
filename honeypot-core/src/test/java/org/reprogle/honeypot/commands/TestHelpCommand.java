@@ -2,7 +2,10 @@ package org.reprogle.honeypot.commands;
 
 import org.bukkit.ChatColor;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.reprogle.honeypot.ConfigColorManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.TestUtils;
 
@@ -27,17 +30,31 @@ public class TestHelpCommand {
 		MockBukkit.unmock();
 	}
 	
+	@Test
     public void helpDialogIsCorrect() {
-        String expectedMessage =
-		"\n \n \n \n \n \n-----------------------\n \n" + ChatColor.AQUA + "[Honeypot]" + ChatColor.RESET + " " + ChatColor.WHITE + "Need Help?\n" +
-		"     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
-		"     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
-		"     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
-		"     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
-		"     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
-		ChatColor.WHITE + "-----------------------";
-        PlayerMock player = server.addPlayer();
-        player.performCommand("honeypot help");
-        TestUtils.assertMessage(player, expectedMessage);
-    }
+		String chatPrefix = ConfigColorManager.getChatPrefix();
+        String expectedMessage = "\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
+                "     " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
+                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
+                ChatColor.WHITE + "-----------------------";
+
+		// Check to make sure players without permissions don't have access
+		PlayerMock player = TestUtils.addPlayerWithoutPermissions(server);
+		player.performCommand("honeypot help");
+		Assertions.assertNotEquals(expectedMessage, player.nextMessage());
+
+		// Check players with permissions have access
+        PlayerMock playerWithPermissions = TestUtils.addPlayerWithPermissions(plugin, server, "honeypot.commands");
+        playerWithPermissions.performCommand("honeypot help");
+		TestUtils.assertMessage(playerWithPermissions, expectedMessage);
+
+		// Check that Operators have access
+		PlayerMock playerWithOp = TestUtils.addOP(server);
+		playerWithOp.performCommand("honeypot help");
+		TestUtils.assertMessage(playerWithOp, expectedMessage);
+
+	}
 }

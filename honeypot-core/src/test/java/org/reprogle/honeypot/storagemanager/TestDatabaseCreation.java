@@ -1,7 +1,5 @@
 package org.reprogle.honeypot.storagemanager;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.sql.Connection;
 import java.util.List;
 
@@ -40,6 +38,7 @@ public class TestDatabaseCreation {
 	public void testSQL() {
 		Database db;
 		db = new SQLite(plugin);
+
 		Assertions.assertNotNull(db);
 	}
 
@@ -47,8 +46,9 @@ public class TestDatabaseCreation {
 	public void testConnection() {
 		Database db;
 		db = new SQLite(plugin);
-		Connection connection = db.getSQLConnection();
+		db.load();
 
+		Connection connection = db.getSQLConnection();
 		Assertions.assertNotNull(connection);
 
 	}

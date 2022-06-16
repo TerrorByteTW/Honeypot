@@ -22,8 +22,7 @@ public class HoneypotBlockStorageManager {
     private static final Honeypot plugin = Honeypot.getPlugin();
 
     /**
-     * Create a honeypot {@link Block} by creating a HoneypotBlock object and storing it to the array, then saving it to the
-     * file for safe keeping
+     * Create a honeypot {@link Block} by creating a HoneypotBlock object and storing it to DB.
      * 
      * @param block The Honeypot Block we're creating
      * @param action The action of the Honeypot

@@ -8,13 +8,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
+import be.seeseemelk.mockbukkit.ServerMock;
 
 public class TestConfigAccess {
 
+	public static Honeypot plugin;
+	public static ServerMock server;
+
 	@BeforeAll
 	public static void setUp() {
-		MockBukkit.mock();
-		MockBukkit.load(Honeypot.class);
+		server = MockBukkit.mock();
+		plugin = MockBukkit.load(Honeypot.class);
 	}
 
 	@AfterAll
@@ -25,6 +29,7 @@ public class TestConfigAccess {
 	// Verify Configs are successfully created
 	@Test
 	public void testConfig() throws IOException {
+		Assertions.assertDoesNotThrow(() -> HoneypotConfigManager.setupConfig(plugin));
 		Assertions.assertNotNull(HoneypotConfigManager.getPluginConfig());
 		Assertions.assertNotNull(HoneypotConfigManager.getGuiConfig());
 	}

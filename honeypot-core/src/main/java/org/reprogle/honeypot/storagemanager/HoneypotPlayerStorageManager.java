@@ -28,6 +28,8 @@ public class HoneypotPlayerStorageManager {
     public static void addPlayer(Player player, int blocksBroken) {
         Database db;
         db = new SQLite(plugin);
+        db.load();
+
         db.createHoneypotPlayer(player, blocksBroken);
     }
 
@@ -41,6 +43,8 @@ public class HoneypotPlayerStorageManager {
     public static void setPlayerCount(Player playerName, int blocksBroken) {
         Database db;
         db = new SQLite(plugin);
+        db.load();
+
         db.setPlayerCount(playerName, blocksBroken);
     }
 
@@ -53,6 +57,8 @@ public class HoneypotPlayerStorageManager {
     public static int getCount(Player playerName) {
         Database db;
         db = new SQLite(plugin);
+        db.load();
+
         return db.getCount(playerName);
     }
 
@@ -61,8 +67,9 @@ public class HoneypotPlayerStorageManager {
      */
     public static void deleteAllHoneypotPlayers() {
         Database db;
-
         db = new SQLite(plugin);
+        db.load();
+
         db.deleteAllPlayers();
     }
 

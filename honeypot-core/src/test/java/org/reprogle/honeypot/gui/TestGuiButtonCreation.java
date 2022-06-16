@@ -1,8 +1,5 @@
 package org.reprogle.honeypot.gui;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,14 +12,12 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import be.seeseemelk.mockbukkit.Coordinate;
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.WorldMock;
 import be.seeseemelk.mockbukkit.block.BlockMock;
-import be.seeseemelk.mockbukkit.inventory.meta.ItemMetaMock;
 
 public class TestGuiButtonCreation {
 

@@ -35,6 +35,19 @@ public class TestUtils {
         return player;
     }
 
+    public static PlayerMock addPlayerWithPermissions(Honeypot plugin, ServerMock server, String... permissions) {
+        PlayerMock player = server.addPlayer();
+        for (String permission : permissions) {
+            player.addAttachment(plugin, permission, true);
+        }
+
+        return player;
+    }
+
+    public static PlayerMock addPlayerWithoutPermissions(ServerMock server) {
+        return server.addPlayer();
+    }
+
 	public static void assertMessage(@NotNull ConsoleCommandSenderMock consoleCommandSender, @NotNull String expectedMessage) {
         assert consoleCommandSender.nextMessage().equals(expectedMessage);
     }
