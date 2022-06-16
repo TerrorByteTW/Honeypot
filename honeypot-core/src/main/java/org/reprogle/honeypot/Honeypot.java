@@ -15,19 +15,20 @@ public final class Honeypot extends JavaPlugin {
 
     private static Honeypot plugin;
     private static GUI gui;
-    private final boolean testing;
+    private static boolean testing = false;
 
     /**
      * Constructor for MockBukkit
      */
     public Honeypot()
     {
-        testing = false;
+        
     }
 
     /**
      * Constructor for MockBukkit
      */
+    @SuppressWarnings("java:S3010")
     protected Honeypot(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file)
     {
         super(loader, description, dataFolder, file);
@@ -92,5 +93,9 @@ public final class Honeypot extends JavaPlugin {
 
     public static GUI getGUI(){
         return gui;
+    }
+
+    public static boolean getTesting() {
+        return testing;
     }
 }

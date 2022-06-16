@@ -1,4 +1,4 @@
-package org.reprogle.honeypot;
+package org.reprogle.honeypot.config;
 
 import java.io.IOException;
 
@@ -6,6 +6,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.HoneypotConfigManager;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;

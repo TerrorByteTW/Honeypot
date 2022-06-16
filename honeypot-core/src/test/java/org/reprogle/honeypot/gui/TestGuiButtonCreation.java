@@ -4,12 +4,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.gui.button.GUIButton;
+import org.reprogle.honeypot.gui.button.GUIButtonListener;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 
@@ -51,6 +53,38 @@ public class TestGuiButtonCreation {
 		// Ensure the button is actually created and the material is the material we passed in to it earlier
 		Assertions.assertNotNull(button);
 		Assertions.assertEquals(Material.DIAMOND_ORE, button.getIcon().getType());
+	}
+
+	// I am not sure how to test setting the listener since GUIButtonListener uses a package constructor
+	@Test
+	public void testGetListener() {
+		GUIItemBuilder item;
+		item = new GUIItemBuilder(Material.DIAMOND_ORE);
+
+		GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {});
+
+		Assertions.assertNotNull(button.getListener());
+	}
+
+	@Test
+	public void getIcon() {
+		GUIItemBuilder item;
+		item = new GUIItemBuilder(Material.DIAMOND_ORE);
+
+		GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {});
+
+		Assertions.assertEquals(Material.DIAMOND_ORE, button.getIcon().getType());
+	}
+
+	@Test
+	public void setIcon() {
+		GUIItemBuilder item;
+		item = new GUIItemBuilder(Material.DIAMOND_ORE);
+
+		GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {});
+		button.setIcon(new ItemStack(Material.DIAMOND_BLOCK));
+
+		Assertions.assertEquals(Material.DIAMOND_BLOCK, button.getIcon().getType());
 	}
 
 	public GUIButton createDummyButton(HoneypotBlockObject block) {

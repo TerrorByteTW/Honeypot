@@ -1,5 +1,8 @@
 package org.reprogle.honeypot.commands;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.bukkit.ChatColor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -8,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.reprogle.honeypot.ConfigColorManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.TestUtils;
+import org.reprogle.honeypot.commands.subcommands.HoneypotHelp;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -56,5 +60,17 @@ public class TestHelpCommand {
 		playerWithOp.performCommand("honeypot help");
 		TestUtils.assertMessage(playerWithOp, expectedMessage);
 
+	}
+
+	// Should return an empty ArrayList
+	@Test
+	public void testGetSubcommands() {
+		PlayerMock playerWithOp = TestUtils.addOP(server);
+		Assertions.assertEquals(new ArrayList<>(), new HoneypotHelp().getSubcommands(playerWithOp, new String[]{"test"}));
+	}
+
+	@Test
+	public void testGetName() {
+		Assertions.assertEquals("help", new HoneypotHelp().getName());
 	}
 }
