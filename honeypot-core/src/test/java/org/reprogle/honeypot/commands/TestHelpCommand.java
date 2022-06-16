@@ -1,7 +1,6 @@
 package org.reprogle.honeypot.commands;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.bukkit.ChatColor;
 import org.junit.jupiter.api.AfterAll;

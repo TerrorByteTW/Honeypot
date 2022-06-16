@@ -1,7 +1,6 @@
 package org.reprogle.honeypot;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -85,6 +84,7 @@ public class TestUtils {
         }
     }
 
+    @SuppressWarnings("deprecation")
 	public static void fireJoinEvent(@NotNull ServerMock server, @NotNull PlayerMock player) {
         server.getPluginManager().callEvent(new PlayerJoinEvent(player, "Someone joined"));
         server.getScheduler().performTicks(2L);

@@ -11,7 +11,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.gui.button.GUIButton;
-import org.reprogle.honeypot.gui.button.GUIButtonListener;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 
