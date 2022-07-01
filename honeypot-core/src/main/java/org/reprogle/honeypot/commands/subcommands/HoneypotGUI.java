@@ -129,7 +129,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		customItem = new GUIItemBuilder(
 				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.custom-button")));
 		customItem.name("Custom Item");
-		customItem.lore("Click to create a custom action (If enabled)");
+		customItem.lore("Click to create a custom Honeypot");
 
 		GUIButton kickButton = new GUIButton(kickItem.build()).withListener((InventoryClickEvent event) -> {
 			createHoneypotFromGUI(event, "kick");
@@ -323,25 +323,10 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				return;
 
 			if (action.equalsIgnoreCase("custom")) {
-				if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions"))) {
-					if (!event.getWhoClicked().hasPermission("honeypot.custom")) {
-						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-					}
-					else {
-						((Player) event.getWhoClicked()).sendTitle(ChatColor.AQUA + "Enter action",
-								"Enter your custom action command (WITHOUT THE /) in chat. Type cancel to exit", 10, 60,
-								10);
-						ConversationFactory cf = new ConversationFactory(Honeypot.getPlugin());
-						Conversation conv = cf.withFirstPrompt(new PlayerConversationListener(block))
-								.withLocalEcho(false).withEscapeSequence("cancel")
-								.addConversationAbandonedListener(new PlayerConversationListener(block)).withTimeout(10)
-								.buildConversation((Player) event.getWhoClicked());
-						conv.begin();
-					}
-				}
-				else {
-					event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("customactionsdisabled"));
-				}
+				// Need to rewrite this section before release. What I'll do is loop through all Honeypot types in the config and then display them to the user
+				// Step 1. Create new inventory to display to user
+				// Step 2. Fill Inventory with Config options
+				// Step 3. Create Honeypot upon clicking
 			}
 			else {
 				HoneypotBlockStorageManager.createBlock(event.getWhoClicked().getTargetBlockExact(5), action);

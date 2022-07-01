@@ -5,6 +5,7 @@ description: Creates honeypot blocks designed to prevent griefing on your server
 main: org.reprogle.honeypot.Honeypot
 api-version: 1.17
 load: POSTWORLD
+depend: [Vault]
 commands:
   honeypot:
     description: Creates or deletes a honeypot block
@@ -40,9 +41,6 @@ permissions:
   honeypot.update:
     description: Notifies player on join if a Honeypot plugin update is available
     default: op
-  honeypot.custom:
-    description: Allows user to create a honeypot with a custom action
-    default: op
   honeypot.*:
     description: Allows all honeypot permissions
     default: op
@@ -56,4 +54,3 @@ permissions:
       honeypot.reload: true
       honeypot.locate: true
       honeypot.update: true
-      honeypot.custom: true

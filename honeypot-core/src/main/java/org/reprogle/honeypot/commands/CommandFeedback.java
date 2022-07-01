@@ -92,14 +92,14 @@ public class CommandFeedback {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypot creation cancelled");
             }
 
-            case "customactionsdisabled" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
-                        + "Custom actions are disabled. Enable them in the config");
-            }
-
             case "notlookingatblock" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
                         + "You need to be looking at a block to perform this command");
+            }
+
+            case "noexist" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "Could not find that Honeypot type in the config");
             }
 
             case "deletedall" -> {

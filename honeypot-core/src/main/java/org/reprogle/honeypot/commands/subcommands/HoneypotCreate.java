@@ -98,25 +98,10 @@ public class HoneypotCreate implements HoneypotSubCommand {
                     return;
 
                 if (args[1].equalsIgnoreCase("custom")) {
-                    if (Boolean.TRUE
-                            .equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions"))) {
-                        if (!p.hasPermission("honeypot.custom")) {
-                            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-                        }
-                        else {
-                            p.sendTitle(ChatColor.AQUA + "Enter action",
-                                    "Enter your custom action command (WITHOUT THE /) in chat. Type cancel to exit", 10,
-                                    60, 10);
-                            ConversationFactory cf = new ConversationFactory(Honeypot.getPlugin());
-                            Conversation conv = cf.withFirstPrompt(new PlayerConversationListener(block))
-                                    .withLocalEcho(false).withEscapeSequence("cancel")
-                                    .addConversationAbandonedListener(new PlayerConversationListener(block))
-                                    .withTimeout(10).buildConversation(p);
-                            conv.begin();
-                        }
-                    }
-                    else {
-                        p.sendMessage(CommandFeedback.sendCommandFeedback("customactionsdisabled"));
+                    if (!args[2].isEmpty()) {
+                        HoneypotBlockStorageManager.createBlock(block, args[2]);
+                    } else {
+                        CommandFeedback.sendCommandFeedback("noexist");
                     }
                 }
                 else {
