@@ -64,7 +64,7 @@ public final class Honeypot extends JavaPlugin {
         getCommand("honeypot").setExecutor(new CommandManager());
 
         // Output the "splash screen"
-        getServer().getConsoleSender().sendMessage(ChatColor.GOLD +
+        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" +
         " _____                         _\n" +
         "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
         "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
@@ -76,12 +76,10 @@ public final class Honeypot extends JavaPlugin {
                 .getVersion(latest -> {
 
                     if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(this.getDescription().getVersion().replace(".", ""))) {
-                        getServer().getLogger().info(ChatColor.RED + "There is a new update available: "
+                        getServer().getConsoleSender().sendMessage(ConfigColorManager.getChatPrefix() + ChatColor.RED + " There is a new update available: "
                                 + latest + ". Please download for the latest features and security updates!");
                     } else {
-
-                        getServer().getLogger()
-                                .info(ChatColor.GREEN + "You are on the latest version of Honeypot!");
+                        getServer().getConsoleSender().sendMessage(ConfigColorManager.getChatPrefix() + ChatColor.GREEN + " You are on the latest version of Honeypot!");
                     }
                 });
     }

@@ -35,8 +35,8 @@ public class PlayerJoinListener implements Listener {
 
         if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
             new HoneypotUpdateChecker(Honeypot.getPlugin(),
-                    "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt").getVersion(version -> {
-                        if (!Honeypot.getPlugin().getDescription().getVersion().equals(version) || Boolean.TRUE.equals(Honeypot.getTesting())) {
+                    "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt").getVersion(latest -> {
+                        if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(Honeypot.getPlugin().getDescription().getVersion().replace(".", "")) || Boolean.TRUE.equals(Honeypot.getTesting())) {
                             TextComponent message = new TextComponent(
                                     CommandFeedback.sendCommandFeedback("updateavailable"));
                             message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,

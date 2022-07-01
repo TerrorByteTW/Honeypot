@@ -138,7 +138,7 @@ public class CommandManager implements TabExecutor {
      * Returns a list of all subcommands for tab completion
      * @return List of all subcommands
      */
-    public ArrayList<HoneypotSubCommand> getSubcommands() {
+    public List<HoneypotSubCommand> getSubcommands() {
         return subcommands;
     }
 
