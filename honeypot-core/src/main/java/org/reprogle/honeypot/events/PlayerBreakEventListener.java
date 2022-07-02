@@ -158,40 +158,59 @@ public class PlayerBreakEventListener implements Listener {
                                 }
 
                                 for (String command : commands) {
-                                    String formattedCommand = command.replace("%player%", event.getPlayer().getName());
-                                    formattedCommand = formattedCommand.replace("%pLocation%",
-                                        event.getPlayer().getLocation().getX() + " "
-                                                + event.getPlayer().getLocation().getY() + " "
-                                                + event.getPlayer().getLocation().getZ());
-                                    formattedCommand = formattedCommand.replace("%bLocation%",
-                                        event.getBlock().getLocation().getX() + " "
-                                                + event.getBlock().getLocation().getY() + " "
-                                                + event.getBlock().getLocation().getZ());
-                                    Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), formattedCommand);
+                                    Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), formatCommand(command, event));
                                 }
 
                                 if(!messages.isEmpty()) {
                                     for (String message : messages) {
-                                        String formattedMessage = message.replace("%player%", event.getPlayer().getName());
-                                        formattedMessage = formattedMessage.replace("%pLocation%",
-                                                event.getPlayer().getLocation().getX() + " "
-                                                        + event.getPlayer().getLocation().getY() + " "
-                                                        + event.getPlayer().getLocation().getZ());
-                                        formattedMessage = formattedMessage.replace("%bLocation%",
-                                                event.getBlock().getLocation().getX() + " "
-                                                        + event.getBlock().getLocation().getY() + " "
-                                                        + event.getBlock().getLocation().getZ());
-                                        event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', formattedMessage));
+                                        event.getPlayer().sendMessage(formatMessage(message, event));
                                     }
                                 }
                             }
 
                             case "permission" -> {
+                                List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
+                                List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
+                                List<String> messages = config.getStringList(action + ".messages");
+                                if(permissionsAdd.isEmpty() && permissionsRemove.isEmpty()) {
+                                    Honeypot.getPlugin().getLogger().warning("[Honeypot] Permissions lists are empty for Honeypot type " + action + "! Please verify config");
+                                    return;   
+                                }
+
+                                for (String permission : permissionsAdd) {
+                                    Honeypot.getPermissions().playerAdd(null, event.getPlayer(), permission);
+                                }
+
+                                for (String permission : permissionsRemove) {
+                                    Honeypot.getPermissions().playerRemove(null, event.getPlayer(), permission);
+                                }
+
+                                if(!messages.isEmpty()) {
+                                    for (String message : messages) {
+                                        event.getPlayer().sendMessage(formatMessage(message, event));
+                                    }
+                                }
 
                             }
 
                             case "broadcast" -> {
+                                List<String> broadcasts = config.getStringList(action + ".broadcasts");
+                                List<String> messages = config.getStringList(action + ".messages");
 
+                                if(broadcasts.isEmpty()) {
+                                    Honeypot.getPlugin().getLogger().warning("[Honeypot] Broadcasts list is empty for Honeypot type " + action + "! Please verify config");
+                                    return;   
+                                }
+
+                                for (String broadcast : broadcasts) {
+                                    Honeypot.getPlugin().getServer().broadcastMessage(formatMessage(broadcast, event));
+                                }
+
+                                if(!messages.isEmpty()) {
+                                    for (String message : messages) {
+                                        event.getPlayer().sendMessage(formatMessage(message, event));
+                                    }
+                                }
                             }
 
                             default -> {
@@ -199,10 +218,6 @@ public class PlayerBreakEventListener implements Listener {
                             }
                         }
                     }
-                        // String formattedAction = action.replace("%player%", event.getPlayer().getName());
-                        // formattedAction = formattedAction.replace("%location%", event.getPlayer().getLocation().getX() + " "
-                        //         + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
-                        // Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), formattedAction);
                 }
             }
 
@@ -247,5 +262,25 @@ public class PlayerBreakEventListener implements Listener {
             // Just count it
             HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer(), blocksBroken);
         }
+    }
+
+    private static String formatMessage(String message, BlockBreakEvent event) {
+        String formattedString = message.replace("%player%", event.getPlayer().getName());
+        formattedString = formattedString.replace("%pLocation%", event.getPlayer().getLocation().getX() + " "
+                + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
+        formattedString = formattedString.replace("%bLocation%", event.getBlock().getLocation().getX() + " "
+                + event.getBlock().getLocation().getY() + " " + event.getBlock().getLocation().getZ());
+
+        return ChatColor.translateAlternateColorCodes('&', formattedString);
+    }
+
+    private static String formatCommand(String command, BlockBreakEvent event) {
+        String formattedCommand = command.replace("%player%", event.getPlayer().getName());
+        formattedCommand = formattedCommand.replace("%pLocation%", event.getPlayer().getLocation().getX() + " "
+                + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
+        formattedCommand = formattedCommand.replace("%bLocation%", event.getBlock().getLocation().getX() + " "
+                + event.getBlock().getLocation().getY() + " " + event.getBlock().getLocation().getZ());
+
+        return formattedCommand;
     }
 }

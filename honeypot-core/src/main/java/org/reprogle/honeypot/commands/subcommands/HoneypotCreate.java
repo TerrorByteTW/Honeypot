@@ -1,22 +1,18 @@
 package org.reprogle.honeypot.commands.subcommands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
-import org.bukkit.conversations.Conversation;
-import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.events.PlayerConversationListener;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class HoneypotCreate implements HoneypotSubCommand {
 
@@ -100,6 +96,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
                 if (args[1].equalsIgnoreCase("custom")) {
                     if (!args[2].isEmpty()) {
                         HoneypotBlockStorageManager.createBlock(block, args[2]);
+                        p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                     } else {
                         CommandFeedback.sendCommandFeedback("noexist");
                     }
@@ -135,8 +132,12 @@ public class HoneypotCreate implements HoneypotSubCommand {
             subcommands.add("ban");
             subcommands.add("notify");
             subcommands.add("nothing");
-            if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions"))) {
-                subcommands.add("custom");
+            subcommands.add("custom");
+        // If the argument length is 3, return all the root keys for the subcommands
+        } else if (args.length == 3 && args[1].equalsIgnoreCase("custom")){
+            Set<Object> keys = HoneypotConfigManager.getHoneypotsConfig().getKeys();
+            for (Object key : keys) {
+                subcommands.add(key.toString());
             }
         }
 

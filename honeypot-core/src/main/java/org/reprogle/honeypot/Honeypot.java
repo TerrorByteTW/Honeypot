@@ -22,7 +22,7 @@ public final class Honeypot extends JavaPlugin {
 
     private static boolean testing = false;
 
-    private Permission perms = null;
+    private static Permission perms = null;
 
     /**
      * Constructor for MockBukkit
@@ -55,7 +55,7 @@ public final class Honeypot extends JavaPlugin {
         plugin = this;
         gui = new GUI(this);
 
-        if (!setupPermissions()) {
+        if (!setupPermissions() && !testing) {
             getLogger().severe(
                     ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to no Vault dependency found!");
             getServer().getPluginManager().disablePlugin(this);
@@ -104,6 +104,7 @@ public final class Honeypot extends JavaPlugin {
         getLogger().info("Successfully shutdown Honeypot. Bye for now!");
     }
 
+    @SuppressWarnings("java:S2696")
     private boolean setupPermissions() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
@@ -113,7 +114,7 @@ public final class Honeypot extends JavaPlugin {
         return perms != null;
     }
 
-    public Permission getPermissions() {
+    public static Permission getPermissions() {
         return perms;
     }
 

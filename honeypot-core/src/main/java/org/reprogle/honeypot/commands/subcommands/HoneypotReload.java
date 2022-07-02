@@ -31,6 +31,9 @@ public class HoneypotReload implements HoneypotSubCommand {
 
             HoneypotConfigManager.getGuiConfig().reload();
             HoneypotConfigManager.getGuiConfig().save();
+
+            HoneypotConfigManager.getHoneypotsConfig().reload();
+            HoneypotConfigManager.getHoneypotsConfig().save();
         }
         catch (IOException e) {
             // Nothing
