@@ -27,9 +27,9 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
 
 ## To-do 📝
-* Add unit tests with MockBukkit to make development quicker and testing easier
+* Add unit tests with MockBukkit to make development quicker and testing easier *(In progress)*
 * Add support for other plugins (Such as grief pretection and WorldEdit/Guard)
-* Add support for multi-task Honeypots (Configurable via config, allows you to perform multiple actions on one pot)
+* Add support for multi-task Honeypots (Configurable via config, allows you to perform multiple actions on one pot) *(Implemented in [Honeypot v2.1.0!](https://github.com/redstonefreak589/Honeypot/releases/tag/v2.1.0))*
 * Add a GUI system to the plugin for ease of use *(Implemented in [Honeypot v2.0!](https://github.com/redstonefreak589/Honeypot/releases/tag/v2.0))*
 * Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Researching)*
 
