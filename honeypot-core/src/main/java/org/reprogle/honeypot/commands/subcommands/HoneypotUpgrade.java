@@ -4,16 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
-
-import dev.dejvokep.boostedyaml.route.Route;
-import dev.dejvokep.boostedyaml.route.RouteFactory;
 
 public class HoneypotUpgrade implements HoneypotSubCommand{
 
