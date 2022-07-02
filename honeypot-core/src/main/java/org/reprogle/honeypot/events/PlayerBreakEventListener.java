@@ -95,7 +95,7 @@ public class PlayerBreakEventListener implements Listener {
         }
     }
 
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
     private static void breakAction(BlockBreakEvent event) {
         // Get the block broken and the chat prefix for prettiness
         Block block = event.getBlock();
@@ -153,7 +153,7 @@ public class PlayerBreakEventListener implements Listener {
                                 List<String> commands = config.getStringList(action + ".commands");
                                 List<String> messages = config.getStringList(action + ".messages");
                                 if(commands.isEmpty()) {
-                                    Honeypot.getPlugin().getLogger().warning("[Honeypot] Commands list is empty for Honeypot type " + action + "! Please verify config");
+                                    Honeypot.getPlugin().getLogger().warning("Commands list is empty for Honeypot type " + action + "! Please verify config");
                                     return;   
                                 }
 
@@ -173,7 +173,7 @@ public class PlayerBreakEventListener implements Listener {
                                 List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
                                 List<String> messages = config.getStringList(action + ".messages");
                                 if(permissionsAdd.isEmpty() && permissionsRemove.isEmpty()) {
-                                    Honeypot.getPlugin().getLogger().warning("[Honeypot] Permissions lists are empty for Honeypot type " + action + "! Please verify config");
+                                    Honeypot.getPlugin().getLogger().warning("Permissions lists are empty for Honeypot type " + action + "! Please verify config");
                                     return;   
                                 }
 
@@ -198,7 +198,7 @@ public class PlayerBreakEventListener implements Listener {
                                 List<String> messages = config.getStringList(action + ".messages");
 
                                 if(broadcasts.isEmpty()) {
-                                    Honeypot.getPlugin().getLogger().warning("[Honeypot] Broadcasts list is empty for Honeypot type " + action + "! Please verify config");
+                                    Honeypot.getPlugin().getLogger().warning("Broadcasts list is empty for Honeypot type " + action + "! Please verify config");
                                     return;   
                                 }
 
@@ -214,7 +214,7 @@ public class PlayerBreakEventListener implements Listener {
                             }
 
                             default -> {
-                                Honeypot.getPlugin().getLogger().severe("[Honeypot] Honeypot " + action + " tried to run as a type that doesn't exist! Please verify config");
+                                Honeypot.getPlugin().getLogger().severe("Honeypot " + action + " tried to run as a type that doesn't exist! Please verify config");
                             }
                         }
                     }

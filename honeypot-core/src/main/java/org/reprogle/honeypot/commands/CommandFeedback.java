@@ -28,11 +28,11 @@ public class CommandFeedback {
         switch (feedback.toLowerCase()) {
             case "usage" -> {
                 feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
-                "     " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
+                "  " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing | custom]\n" +
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
                 ChatColor.WHITE + "-----------------------");
             }
             
@@ -109,6 +109,10 @@ public class CommandFeedback {
             case "deletednear" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
                         + "Deleted all honeypot blocks within a 5 block radius");
+            }
+
+            case "upgrade" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.RED + "WARNING! " + ChatColor.WHITE + "This command can severely break your Honeypots if run it more than once. Only run if you know what you're doing. Run " + ChatColor.RED + "/honeypot upgrade confirm" + ChatColor.WHITE + " to upgrade");
             }
 
             default -> {

@@ -37,12 +37,12 @@ public class TestHelpCommand {
     public void helpDialogIsCorrect() {
 		String chatPrefix = ConfigColorManager.getChatPrefix();
         String expectedMessage = "\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
-                "     " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
-                ChatColor.WHITE + "-----------------------";
+			"  " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing | custom]\n" +
+			"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
+			"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
+			"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
+			"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
+			ChatColor.WHITE + "-----------------------";
 
 		// Check to make sure players without permissions don't have access
 		PlayerMock player = TestUtils.addPlayerWithoutPermissions(server);

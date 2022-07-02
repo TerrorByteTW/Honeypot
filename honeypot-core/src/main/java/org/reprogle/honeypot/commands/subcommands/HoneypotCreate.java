@@ -85,7 +85,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
                     || args[1].equalsIgnoreCase("warn") || args[1].equalsIgnoreCase("notify")
                     || args[1].equalsIgnoreCase("nothing") || args[1].equalsIgnoreCase("custom"))) {
 
-                // Fire HoneypotPreNonPlayerBreakEvent
+                // Fire HoneypotPreCreateEvent
                 HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent(p, block);
                 Bukkit.getPluginManager().callEvent(hpce);
 
@@ -94,11 +94,11 @@ public class HoneypotCreate implements HoneypotSubCommand {
                     return;
 
                 if (args[1].equalsIgnoreCase("custom")) {
-                    if (!args[2].isEmpty()) {
+                    if (!args[2].isEmpty() && HoneypotConfigManager.getHoneypotsConfig().contains(args[2])) {
                         HoneypotBlockStorageManager.createBlock(block, args[2]);
                         p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                     } else {
-                        CommandFeedback.sendCommandFeedback("noexist");
+                        p.sendMessage(CommandFeedback.sendCommandFeedback("noexist"));
                     }
                 }
                 else {
@@ -106,7 +106,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
                     p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                 }
 
-                // Fire HoneypotPreNonPlayerBreakEvent
+                // Fire HoneypotCreateEvent
                 HoneypotCreateEvent hce = new HoneypotCreateEvent(p, block);
                 Bukkit.getPluginManager().callEvent(hce);
 

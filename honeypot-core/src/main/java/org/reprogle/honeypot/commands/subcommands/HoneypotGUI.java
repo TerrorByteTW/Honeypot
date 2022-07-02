@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -44,6 +45,37 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		p.openInventory(mainMenu(p, args).getInventory());
 
+	}
+
+	@SuppressWarnings({"java:S1192", "java:S1121"})
+	private static void customHoneypotsInventory(Player p){ 
+		GUIMenu customHoneypotsGUI = Honeypot.getGUI().create("Custom Honeypot", 3);
+		List<String> types = new ArrayList<>();
+
+		Set<Object> keys = HoneypotConfigManager.getHoneypotsConfig().getKeys();
+        for (Object key : keys) {
+            types.add(key.toString());
+        }
+
+		for (Object key : keys) {
+			String type = HoneypotConfigManager.getHoneypotsConfig().getString(key.toString() + ".type");
+			GUIItemBuilder item;
+
+			switch (type) {
+				case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
+				case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
+				case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
+				default -> item = new GUIItemBuilder(Material.BOOK);
+			}
+
+			item.name(key.toString());
+			item.lore("Click to create a Honeypot of this type");
+			GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "custom", key.toString()));
+
+			customHoneypotsGUI.addButton(button);
+		}
+
+		p.openInventory(customHoneypotsGUI.getInventory());
 	}
 
 	@SuppressWarnings("java:S1192")
@@ -128,29 +160,17 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		customItem.name("Custom Item");
 		customItem.lore("Click to create a custom Honeypot");
 
-		GUIButton kickButton = new GUIButton(kickItem.build()).withListener((InventoryClickEvent event) -> {
-			createHoneypotFromGUI(event, "kick");
-		});
+		GUIButton kickButton = new GUIButton(kickItem.build()).withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "kick"));
 
-		GUIButton banButton = new GUIButton(banItem.build()).withListener((InventoryClickEvent event) -> {
-			createHoneypotFromGUI(event, "ban");
-		});
+		GUIButton banButton = new GUIButton(banItem.build()).withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "ban"));
 
-		GUIButton warnButton = new GUIButton(warnItem.build()).withListener((InventoryClickEvent event) -> {
-			createHoneypotFromGUI(event, "warn");
-		});
+		GUIButton warnButton = new GUIButton(warnItem.build()).withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "warn"));
 
-		GUIButton notifyButton = new GUIButton(notifyItem.build()).withListener((InventoryClickEvent event) -> {
-			createHoneypotFromGUI(event, "notify");
-		});
+		GUIButton notifyButton = new GUIButton(notifyItem.build()).withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "notify"));
 
-		GUIButton nothingButton = new GUIButton(nothingItem.build()).withListener((InventoryClickEvent event) -> {
-			createHoneypotFromGUI(event, "nothing");
-		});
+		GUIButton nothingButton = new GUIButton(nothingItem.build()).withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "nothing"));
 
-		GUIButton customButton = new GUIButton(customItem.build()).withListener((InventoryClickEvent event) -> {
-			createHoneypotFromGUI(event, "custom");
-		});
+		GUIButton customButton = new GUIButton(customItem.build()).withListener((InventoryClickEvent event) -> customHoneypotsInventory(p));
 
 		createHoneypotGUI.setButton(1, kickButton);
 		createHoneypotGUI.setButton(2, banButton);
@@ -158,6 +178,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		createHoneypotGUI.setButton(5, notifyButton);
 		createHoneypotGUI.setButton(6, nothingButton);
 		createHoneypotGUI.setButton(7, customButton);
+
 		p.openInventory(createHoneypotGUI.getInventory());
 
 	}
@@ -236,7 +257,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						return;
 					}
 
-					if (HoneypotBlockStorageManager.isHoneypotBlock(block)) {
+					if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(block))) {
 						HoneypotBlockStorageManager.deleteBlock(block);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
 					}
@@ -254,7 +275,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 	}
 
 	@SuppressWarnings({"unchecked", "java:S3776"})
-	private static void createHoneypotFromGUI(InventoryClickEvent event, String action) {
+	private static void createHoneypotFromGUI(InventoryClickEvent event, String action, String... customAction) {
 		Block block;
 
 		// Get block the player is looking at
@@ -263,11 +284,6 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		}
 		else {
 			event.getWhoClicked().closeInventory();
-			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
-			return;
-		}
-
-		if (block == null) {
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 			return;
 		}
@@ -320,10 +336,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				return;
 
 			if (action.equalsIgnoreCase("custom")) {
-				// Need to rewrite this section before release. What I'll do is loop through all Honeypot types in the config and then display them to the user
-				// Step 1. Create new inventory to display to user
-				// Step 2. Fill Inventory with Config options
-				// Step 3. Create Honeypot upon clicking
+				HoneypotBlockStorageManager.createBlock(block, customAction[0]);
+				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
 			else {
 				HoneypotBlockStorageManager.createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
@@ -360,17 +374,11 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.locate-button")));
 		locateItem.name("Locate nearby Honeypots");
 
-		GUIButton createButton = new GUIButton(createItem.build()).withListener((InventoryClickEvent event) -> {
-			createHoneypotInventory(p);
-		});
+		GUIButton createButton = new GUIButton(createItem.build()).withListener((InventoryClickEvent event) -> createHoneypotInventory(p));
 
-		GUIButton removeButton = new GUIButton(removeItem.build()).withListener((InventoryClickEvent event) -> {
-			removeHoneypotInventory(p);
-		});
+		GUIButton removeButton = new GUIButton(removeItem.build()).withListener((InventoryClickEvent event) -> removeHoneypotInventory(p));
 
-		GUIButton listButton = new GUIButton(listItem.build()).withListener((InventoryClickEvent event) -> {
-			allBlocksInventory(p);
-		});
+		GUIButton listButton = new GUIButton(listItem.build()).withListener((InventoryClickEvent event) -> allBlocksInventory(p));
 
 		GUIButton locateButton = new GUIButton(locateItem.build()).withListener((InventoryClickEvent event) -> {
 			event.getWhoClicked().closeInventory();

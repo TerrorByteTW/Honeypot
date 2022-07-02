@@ -76,10 +76,12 @@ public final class Honeypot extends JavaPlugin {
         getCommand("honeypot").setExecutor(new CommandManager());
 
         // Output the "splash screen"
-        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + " _____                         _\n"
-                + "|  |  |___ ___ ___ _ _ ___ ___| |_\n" + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED
-                + " TerrorByte\n" + ChatColor.GOLD + "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED
-                + this.getDescription().getVersion() + "\n" + ChatColor.GOLD + "                  |___|_|");
+        getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + 
+            " _____                         _\n"
+          + "|  |  |___ ___ ___ _ _ ___ ___| |_\n" 
+          + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD + 
+            "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD + 
+            "                  |___|_|");
 
         // Check for any updates
         new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt")

@@ -16,6 +16,7 @@ import org.reprogle.honeypot.commands.subcommands.HoneypotHelp;
 import org.reprogle.honeypot.commands.subcommands.HoneypotLocate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotReload;
 import org.reprogle.honeypot.commands.subcommands.HoneypotRemove;
+import org.reprogle.honeypot.commands.subcommands.HoneypotUpgrade;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class CommandManager implements TabExecutor {
         subcommands.add(new HoneypotLocate());
         subcommands.add(new HoneypotGUI());
         subcommands.add(new HoneypotHelp());
+        subcommands.add(new HoneypotUpgrade());
 
         for (int i = 0; i < getSubcommands().size(); i++) {
             subcommandsNameOnly.add(getSubcommands().get(i).getName());
@@ -65,6 +67,8 @@ public class CommandManager implements TabExecutor {
     Command command, @NotNull
     String label, @NotNull
     String[] args) {
+
+        if(!label.equalsIgnoreCase("honeypot")) return false;
 
         // Check if the command sender is a player
         if (sender instanceof Player p) {
@@ -112,11 +116,18 @@ public class CommandManager implements TabExecutor {
         }
         else {
             if (args.length > 0 && args[0].equals("reload")) {
-                Honeypot.getPlugin().getServer().getConsoleSender()
-                        .sendMessage(CommandFeedback.sendCommandFeedback("reload"));
                 try {
                     HoneypotConfigManager.getPluginConfig().reload();
                     HoneypotConfigManager.getPluginConfig().save();
+
+                    HoneypotConfigManager.getGuiConfig().reload();
+                    HoneypotConfigManager.getGuiConfig().save();
+
+                    HoneypotConfigManager.getHoneypotsConfig().reload();
+                    HoneypotConfigManager.getHoneypotsConfig().save();
+
+                    Honeypot.getPlugin().getServer().getConsoleSender()
+                        .sendMessage(CommandFeedback.sendCommandFeedback("reload"));
                     return true;
                 }
                 catch (IOException e) {

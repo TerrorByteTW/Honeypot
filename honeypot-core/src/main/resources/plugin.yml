@@ -41,6 +41,9 @@ permissions:
   honeypot.update:
     description: Notifies player on join if a Honeypot plugin update is available
     default: op
+  honeypot.upgrade:
+    description: Upgrades old Honeypots to new ones
+    default: op
   honeypot.*:
     description: Allows all honeypot permissions
     default: op
@@ -54,3 +57,4 @@ permissions:
       honeypot.reload: true
       honeypot.locate: true
       honeypot.update: true
+      honeypot.upgrade: true
