@@ -24,13 +24,17 @@ public class HoneypotReload implements HoneypotSubCommand {
             return;
         }
 
-        p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
         try {
             HoneypotConfigManager.getPluginConfig().reload();
             HoneypotConfigManager.getPluginConfig().save();
 
             HoneypotConfigManager.getGuiConfig().reload();
             HoneypotConfigManager.getGuiConfig().save();
+
+            HoneypotConfigManager.getHoneypotsConfig().reload();
+            HoneypotConfigManager.getHoneypotsConfig().save();
+
+            p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
         }
         catch (IOException e) {
             // Nothing

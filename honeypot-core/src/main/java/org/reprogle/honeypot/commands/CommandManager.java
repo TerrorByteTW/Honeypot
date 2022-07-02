@@ -16,6 +16,7 @@ import org.reprogle.honeypot.commands.subcommands.HoneypotHelp;
 import org.reprogle.honeypot.commands.subcommands.HoneypotLocate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotReload;
 import org.reprogle.honeypot.commands.subcommands.HoneypotRemove;
+import org.reprogle.honeypot.commands.subcommands.HoneypotUpgrade;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class CommandManager implements TabExecutor {
         subcommands.add(new HoneypotLocate());
         subcommands.add(new HoneypotGUI());
         subcommands.add(new HoneypotHelp());
+        subcommands.add(new HoneypotUpgrade());
 
         for (int i = 0; i < getSubcommands().size(); i++) {
             subcommandsNameOnly.add(getSubcommands().get(i).getName());
@@ -65,6 +67,8 @@ public class CommandManager implements TabExecutor {
     Command command, @NotNull
     String label, @NotNull
     String[] args) {
+
+        if(!label.equalsIgnoreCase("honeypot")) return false;
 
         // Check if the command sender is a player
         if (sender instanceof Player p) {
@@ -112,11 +116,18 @@ public class CommandManager implements TabExecutor {
         }
         else {
             if (args.length > 0 && args[0].equals("reload")) {
-                Honeypot.getPlugin().getServer().getConsoleSender()
-                        .sendMessage(CommandFeedback.sendCommandFeedback("reload"));
                 try {
                     HoneypotConfigManager.getPluginConfig().reload();
                     HoneypotConfigManager.getPluginConfig().save();
+
+                    HoneypotConfigManager.getGuiConfig().reload();
+                    HoneypotConfigManager.getGuiConfig().save();
+
+                    HoneypotConfigManager.getHoneypotsConfig().reload();
+                    HoneypotConfigManager.getHoneypotsConfig().save();
+
+                    Honeypot.getPlugin().getServer().getConsoleSender()
+                        .sendMessage(CommandFeedback.sendCommandFeedback("reload"));
                     return true;
                 }
                 catch (IOException e) {
@@ -180,20 +191,10 @@ public class CommandManager implements TabExecutor {
             else if (args.length >= 2) {
                 // If the argument is the 2nd one or more, return the subcommands for that subcommand
                 for (HoneypotSubCommand subcommand : subcommands) {
-                    /*
-                     * I didn't know how this code worked at first, even though I wrote it myself and didn't copy from
-                     * anywhere on the internet. I took some time to figure it out and am now commenting in the
-                     * explanation so I don't forget lol.
-                     * 
-                     * First we need to figure out which command of Honeypot we're using. There are 6: Create, Locate,
-                     * Reload, Remove, GUI, and Help. We are going to iterate through all the Honeypot original
-                     * subcommands until we figure out which one we're on. Once we figure out which command we're on,
-                     * we're going to create a NEW subcommands ArrayList. In that new ArrayList we're going to pull all
-                     * the 2nd level subcommands from the original subcommand we passed (One of the original six) and
-                     * copy partial matches into the new subcommands array we created, which then we'll return to the
-                     * player.
-                     */
+                    // Check if the first argument equals the command in the current interation
                     if (args[0].equalsIgnoreCase(subcommand.getName())) {
+                        // Create a new array and copy partial matches of the current argument. getSubcommands can actually handle more than one subcommand per
+                        // root command, meaning if the argument length is 3 or 4 or 5, it can handle those accordingly. See HoneypotCreate.java for this in action
                         ArrayList<String> subcommandsTabComplete = new ArrayList<>();
 
                         StringUtil.copyPartialMatches(args[args.length - 1], subcommand.getSubcommands(p, args),

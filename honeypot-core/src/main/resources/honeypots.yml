@@ -1,0 +1,40 @@
+##########################################################
+# The plugin allows you to run commands, broadcast chat  #
+# messages, or add/remove permissions. Some fields are   #
+# optional, please review the Honeypot wiki for more     #
+# You can have multiple messages, permissions, and       #
+# commands in the fields below. Try it out!              #
+#                                                        #
+# All Honeypot types support sending the player messages #
+##########################################################
+# Placeholders for messages include:                     #
+# %player% - The player who broke the Honeypot           #
+# %pLocation% - The location of the Player               #
+# %bLocation% - The location of the Honeypot             #
+# For more information, please visit the Honeypot wiki   #
+##########################################################
+
+demo-command:
+  type: command
+  commands: 
+    - "eco take %player% 1000"
+    - "minecraft:clear %player%"
+  messages:
+    - "Bad player! You've been fined &4$1000&r for breaking Honeypots"
+
+demo-permission:
+  type: permission
+  permissions-add:
+    - my.special.permission
+  permissions-remove: 
+    - essentials.kit
+    - essentials.back
+  messages: []
+
+demo-broadcast:
+  type: broadcast
+  broadcasts:
+    - "%player% was caught breaking a Honeypot at %bLocation%! Everyone boo them"
+    - "You can have more than one message in the broadcast field"
+  messages:
+    - "Shame on you, %player%, the whole server knows now."

@@ -28,11 +28,11 @@ public class CommandFeedback {
         switch (feedback.toLowerCase()) {
             case "usage" -> {
                 feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
-                "     " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing]\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
-                "     " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
+                "  " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing | custom]\n" +
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
                 ChatColor.WHITE + "-----------------------");
             }
             
@@ -92,14 +92,14 @@ public class CommandFeedback {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypot creation cancelled");
             }
 
-            case "customactionsdisabled" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
-                        + "Custom actions are disabled. Enable them in the config");
-            }
-
             case "notlookingatblock" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
                         + "You need to be looking at a block to perform this command");
+            }
+
+            case "noexist" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
+                        + "Could not find that Honeypot type in the config");
             }
 
             case "deletedall" -> {
@@ -109,6 +109,10 @@ public class CommandFeedback {
             case "deletednear" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
                         + "Deleted all honeypot blocks within a 5 block radius");
+            }
+
+            case "upgrade" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.RED + "WARNING! " + ChatColor.WHITE + "This command can severely break your Honeypots if run it more than once. Only run if you know what you're doing. Run " + ChatColor.RED + "/honeypot upgrade confirm" + ChatColor.WHITE + " to upgrade");
             }
 
             default -> {

@@ -21,7 +21,7 @@ public class PlayerConversationListener extends StringPrompt implements Conversa
     public String getPromptText(@NotNull
     ConversationContext conversationContext) {
         return ConfigColorManager.getChatPrefix()
-                + " Enter action command without the / here. This command will run as the server, so be careful!";
+                + " Enter Honeypot type here.";
     }
 
     @Nullable

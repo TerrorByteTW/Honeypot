@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 3
+file-version: 4
 
 # The database-type option has been removed for now. The only options were JSON and SQLite.
 # JSON support has been removed because I did not like how it was implemented, and it was very difficult to build on to. The default and only option is SQLite, however I plan
@@ -28,9 +28,6 @@ allow-enderman: false
 
 # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
 enable-container-actions: true
-
-# Allow custom actions. Defaults to false because this could allow for potentially malicious command execution
-enable-custom-actions: false
 
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
 search-range: 5

@@ -20,6 +20,8 @@ public class HoneypotConfigManager extends JavaPlugin {
 
     private static YamlDocument guiConfig;
 
+    private static YamlDocument honeypotsConfig;
+
     /**
      * Sets up the plugin config and saves it to private variables for use later. Will shut down the plugin if there are
      * any IOExceptions as these config files are non-negotiable in the function of this plugin.
@@ -64,6 +66,22 @@ public class HoneypotConfigManager extends JavaPlugin {
             plugin.getPluginLoader().disablePlugin(plugin);
         }
 
+        plugin.getLogger().info("Attempting to load Honeypots config...");
+        try {
+            honeypotsConfig = YamlDocument.create(new File(plugin.getDataFolder(), "honeypots.yml"), plugin.getResource("honeypots.yml"),
+                    GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(false).build(),
+                    DumperSettings.DEFAULT, UpdaterSettings.DEFAULT);
+
+            guiConfig.update();
+            guiConfig.save();
+            plugin.getLogger().info("Honeypots config successfully loaded/created!");
+        }
+        catch (IOException e) {
+            plugin.getLogger().severe(
+                    "Could not create/load Honeypot config, disabling! Please alert the plugin author with following info: " + e);
+            plugin.getPluginLoader().disablePlugin(plugin);
+        }
+
     }
 
     /**
@@ -82,6 +100,15 @@ public class HoneypotConfigManager extends JavaPlugin {
      */
     public static YamlDocument getGuiConfig() {
         return guiConfig;
+    }
+
+    /**
+     * Returns the plugin Honeypots config object
+     * 
+     * @return The YamlDocument object
+     */
+    public static YamlDocument getHoneypotsConfig() {
+        return honeypotsConfig;
     }
 
 }
