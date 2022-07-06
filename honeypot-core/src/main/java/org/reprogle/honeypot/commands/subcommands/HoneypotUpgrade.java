@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.Player;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 public class HoneypotUpgrade implements HoneypotSubCommand{
 
@@ -26,7 +26,7 @@ public class HoneypotUpgrade implements HoneypotSubCommand{
         }
 
 		if(args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
-			List<HoneypotBlockObject> oldBlocks = HoneypotBlockStorageManager.getAllHoneypots();
+			List<HoneypotBlockObject> oldBlocks = Honeypot.getHBM().getAllHoneypots();
 			int customBlock = 0;
 
 			for (HoneypotBlockObject block : oldBlocks) {
@@ -47,8 +47,8 @@ public class HoneypotUpgrade implements HoneypotSubCommand{
 
 					++customBlock;
 
-					HoneypotBlockStorageManager.deleteBlock(block.getBlock());
-					HoneypotBlockStorageManager.createBlock(block.getBlock(), route);
+					Honeypot.getHBM().deleteBlock(block.getBlock());
+					Honeypot.getHBM().createBlock(block.getBlock(), route);
 				}
 			}
 

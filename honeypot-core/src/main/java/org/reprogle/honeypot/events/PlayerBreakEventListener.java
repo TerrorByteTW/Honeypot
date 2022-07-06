@@ -16,8 +16,6 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
-import org.reprogle.honeypot.storagemanager.HoneypotPlayerStorageManager;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 
@@ -40,14 +38,14 @@ public class PlayerBreakEventListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     @SuppressWarnings("java:S3776")
     public static void blockBreakEvent(BlockBreakEvent event) {
-        if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock()))) {
+        if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(event.getBlock()))) {
             // Fire HoneypotPrePlayerBreakEvent
             HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(event.getPlayer(), event.getBlock());
             Bukkit.getPluginManager().callEvent(hppbe);
 
             // Check if the event was cancelled. If it is, delete the block.
             if (hppbe.isCancelled()) {
-                HoneypotBlockStorageManager.deleteBlock(event.getBlock());
+                Honeypot.getHBM().deleteBlock(event.getBlock());
                 return;
             }
 
@@ -90,7 +88,7 @@ public class PlayerBreakEventListener implements Listener {
             // If we flagged the block for deletion, remove it from the DB. Do this after other actions have been
             // completed, otherwise the other actions will fail with NPEs
             if (deleteBlock) {
-                HoneypotBlockStorageManager.deleteBlock(event.getBlock());
+                Honeypot.getHBM().deleteBlock(event.getBlock());
             }
         }
     }
@@ -106,7 +104,7 @@ public class PlayerBreakEventListener implements Listener {
                 || event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
 
             // Grab the action from the block via the storage manager
-            String action = HoneypotBlockStorageManager.getAction(block);
+            String action = Honeypot.getHBM().getAction(block);
 
             // Run certain actions based on the action of the Honeypot Block
             assert action != null;
@@ -241,11 +239,11 @@ public class PlayerBreakEventListener implements Listener {
 
         // Get the config value and the amount of blocks broken
         int breaksBeforeAction = HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken");
-        int blocksBroken = HoneypotPlayerStorageManager.getCount(event.getPlayer());
+        int blocksBroken = Honeypot.getHPM().getCount(event.getPlayer());
 
         // getCount returns -1 if the player doesn't exist in the DB. If that's the case, add the player to the DB
         if (blocksBroken == -1) {
-            HoneypotPlayerStorageManager.addPlayer(event.getPlayer(), 0);
+            Honeypot.getHPM().addPlayer(event.getPlayer(), 0);
             blocksBroken = 0;
         }
 
@@ -255,12 +253,12 @@ public class PlayerBreakEventListener implements Listener {
         // If the blocks broken are larger than the breaks before action or if breaks before action equal equals 1,
         // reset the count and perform the break
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
-            HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer(), 0);
+            Honeypot.getHPM().setPlayerCount(event.getPlayer(), 0);
             breakAction(event);
         }
         else {
             // Just count it
-            HoneypotPlayerStorageManager.setPlayerCount(event.getPlayer(), blocksBroken);
+            Honeypot.getHPM().setPlayerCount(event.getPlayer(), blocksBroken);
         }
     }
 

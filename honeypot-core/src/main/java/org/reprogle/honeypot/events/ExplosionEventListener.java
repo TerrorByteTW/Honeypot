@@ -6,9 +6,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +33,14 @@ public class ExplosionEventListener implements Listener {
         // For every block, check if it was a Honeypot. If it was, check if explosions are allowed.
         // If so, just delete the Honeypot. If not, cancel the explosion
         for (Block block : destroyedBlocks) {
-            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(block))) {
+            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), block);
                 Bukkit.getPluginManager().callEvent(hnpbe);
 
                 if (allowExplosions) {
-                    HoneypotBlockStorageManager.deleteBlock(block);
+                    Honeypot.getHBM().deleteBlock(block);
                 }
                 else {
                     foundHoneypotBlocks.add(block);

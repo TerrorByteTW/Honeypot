@@ -59,9 +59,9 @@ public class TestDatabaseCreation {
 		WorldMock worldMock = server.addSimpleWorld("world");
 		BlockMock block = worldMock.createBlock(new Coordinate(0, 65, 9));	
 		block.setType(Material.DIAMOND_ORE);
-		HoneypotBlockStorageManager.createBlock(block, "kick");
+		Honeypot.getHBM().createBlock(block, "kick");
 
-		List<HoneypotBlockObject> blocks = HoneypotBlockStorageManager.getAllHoneypots();
+		List<HoneypotBlockObject> blocks = Honeypot.getHBM().getAllHoneypots();
 
 		Assertions.assertEquals("kick", blocks.get(0).getAction());
 		Assertions.assertEquals("0, 65, 9", blocks.get(0).getCoordinates());

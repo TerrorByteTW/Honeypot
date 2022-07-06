@@ -11,7 +11,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotUpdateChecker;
 import org.reprogle.honeypot.commands.CommandFeedback;
-import org.reprogle.honeypot.storagemanager.HoneypotPlayerStorageManager;
 
 public class PlayerJoinListener implements Listener {
 
@@ -28,9 +27,9 @@ public class PlayerJoinListener implements Listener {
         Player p = event.getPlayer();
 
         // Convert player names to UUIDs
-        int breaks = HoneypotPlayerStorageManager.getCount(p);
+        int breaks = Honeypot.getHPM().getCount(p);
         if (breaks >= 0) {
-            HoneypotPlayerStorageManager.setPlayerCount(p, breaks);
+            Honeypot.getHPM().setPlayerCount(p, breaks);
         }
 
         if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {

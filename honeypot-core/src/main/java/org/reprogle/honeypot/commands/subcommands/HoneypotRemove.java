@@ -3,10 +3,10 @@ package org.reprogle.honeypot.commands.subcommands;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
         if (args.length >= 2) {
             switch (args[1].toLowerCase()) {
             case "all" -> {
-                HoneypotBlockStorageManager.deleteAllHoneypotBlocks();
+                Honeypot.getHBM().deleteAllHoneypotBlocks();
                 p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
             }
 
@@ -53,8 +53,8 @@ public class HoneypotRemove implements HoneypotSubCommand {
                             final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
                             // If it is a honeypot do this
-                            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
-                                HoneypotBlockStorageManager.deleteBlock(b);
+                            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+                                Honeypot.getHBM().deleteBlock(b);
 
                             }
                         }
@@ -89,8 +89,8 @@ public class HoneypotRemove implements HoneypotSubCommand {
 
     private void potRemovalCheck(Block block, Player p) {
         assert block != null;
-        if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(block))) {
-            HoneypotBlockStorageManager.deleteBlock(block);
+        if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
+            Honeypot.getHBM().deleteBlock(block);
             p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
         }
         else {

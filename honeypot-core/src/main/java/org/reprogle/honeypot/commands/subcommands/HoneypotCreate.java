@@ -3,12 +3,12 @@ package org.reprogle.honeypot.commands.subcommands;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +75,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
         }
 
         // If the blocks meta has a honeypot tag, let them know
-        if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(block))) {
+        if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
             // If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
@@ -95,14 +95,14 @@ public class HoneypotCreate implements HoneypotSubCommand {
 
                 if (args[1].equalsIgnoreCase("custom")) {
                     if (!args[2].isEmpty() && HoneypotConfigManager.getHoneypotsConfig().contains(args[2])) {
-                        HoneypotBlockStorageManager.createBlock(block, args[2]);
+                        Honeypot.getHBM().createBlock(block, args[2]);
                         p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                     } else {
                         p.sendMessage(CommandFeedback.sendCommandFeedback("noexist"));
                     }
                 }
                 else {
-                    HoneypotBlockStorageManager.createBlock(block, args[1]);
+                    Honeypot.getHBM().createBlock(block, args[1]);
                     p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                 }
 

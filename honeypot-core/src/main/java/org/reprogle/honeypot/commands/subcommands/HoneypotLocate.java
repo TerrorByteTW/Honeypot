@@ -9,7 +9,6 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
                     final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
                     // If it is a honeypot do this
-                    if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
+                    if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
                         potFound = true;
 
                         // Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn it inside the

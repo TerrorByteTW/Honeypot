@@ -7,8 +7,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class PistonMoveListener implements Listener {
     public static void pistonPushEvent(BlockPistonExtendEvent event) {
         List<Block> blocks = event.getBlocks();
         for (Block b : blocks) {
-            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
+            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());
@@ -42,7 +42,7 @@ public class PistonMoveListener implements Listener {
     public static void pistonPullEvent(BlockPistonRetractEvent event) {
         List<Block> blocks = event.getBlocks();
         for (Block b : blocks) {
-            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
+            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());

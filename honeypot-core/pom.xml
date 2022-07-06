@@ -49,6 +49,14 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>org.reprogle:honeypot-api</artifact>
+                            <excludes>
+                                <exclude>org/reprogle/honeypot/storagemanager/**</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                     <relocations>
                         <relocation>
                             <pattern>dev.dejvokep.boostedyaml</pattern>
