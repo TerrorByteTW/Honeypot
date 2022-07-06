@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.reprogle</groupId>
         <artifactId>honeypot-parent</artifactId>
-        <version>2.1.0</version>
+        <version>2.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>honeypot-api</artifactId>
-            <version>2.1.0</version>
+            <version>2.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
