@@ -11,7 +11,11 @@ public class HoneypotPlayerManager {
      * @param player The Player object
      * @param blocksBroken The amount of Blocks broken
      */
-    public void addPlayer(Player player, int blocksBroken) {}
+    public void addPlayer(Player player, int blocksBroken) {
+        /*
+         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
+         */
+    }
 
     /**
      * Set the number of blocks broken by the player by calling the SQLite setPlayerCount function. In the future this
@@ -20,7 +24,11 @@ public class HoneypotPlayerManager {
      * @param playerName The Player object
      * @param blocksBroken The amount of blocks broken by the player
      */
-    public void setPlayerCount(Player playerName, int blocksBroken) {}
+    public void setPlayerCount(Player playerName, int blocksBroken) {
+        /*
+         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
+         */
+    }
 
     /**
      * Return the action for the honeypot block (Meant for ban, kick, etc.)
@@ -33,6 +41,10 @@ public class HoneypotPlayerManager {
     /**
      * Delete's all players in the DB
      */
-    public void deleteAllHoneypotPlayers() {}
+    public void deleteAllHoneypotPlayers() {
+        /*
+         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
+         */
+    }
 
 }

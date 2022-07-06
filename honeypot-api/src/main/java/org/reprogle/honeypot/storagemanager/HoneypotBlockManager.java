@@ -13,7 +13,11 @@ public class HoneypotBlockManager {
      * @param action The action of the Honeypot
      */
     @SuppressWarnings("java:S1604")
-    public void createBlock(Block block, String action) {}
+    public void createBlock(Block block, String action) {
+        /*
+         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
+         */
+    }
 
     /**
      * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break
@@ -21,7 +25,11 @@ public class HoneypotBlockManager {
      * 
      * @param block The Honeypot {@link Block} we're deleting
      */
-    public void deleteBlock(Block block) {}
+    public void deleteBlock(Block block) {
+        /*
+         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
+         */
+    }
 
     /**
      * Check if the coordinates of the Honeypot already exist within the list
@@ -42,7 +50,11 @@ public class HoneypotBlockManager {
     /**
      * Delete all Honeypots in the entire DB
      */
-    public void deleteAllHoneypotBlocks() {}
+    public void deleteAllHoneypotBlocks() {
+        /*
+         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
+         */
+    }
 
     /**
      * Get all {@link HoneypotBlockObject} in the DB
