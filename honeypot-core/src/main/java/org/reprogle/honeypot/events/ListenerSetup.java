@@ -22,6 +22,7 @@ public class ListenerSetup {
         plugin.getServer().getPluginManager().registerEvents(new PlayerBlockInteractListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PistonMoveListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new BlockPhysicsEventListener(), plugin);
     }
 
 }

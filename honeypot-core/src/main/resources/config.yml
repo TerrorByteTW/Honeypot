@@ -32,6 +32,10 @@ enable-container-actions: true
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
 search-range: 5
 
+# Enable BlockPhysicsEvent checks. These are called thousands of times a second on busy servers, if you are getting lag you can try disabling this.
+# Note that disabling this may cause ghost Honeypots
+enable-blockphysicsevent: true
+
 ######################################################################
 #                      C H A T   S E T T I N G S                     #
 ######################################################################
