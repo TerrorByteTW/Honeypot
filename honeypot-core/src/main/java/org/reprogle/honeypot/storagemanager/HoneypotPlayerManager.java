@@ -7,18 +7,6 @@ import org.reprogle.honeypot.storagemanager.sqlite.SQLite;
 
 public class HoneypotPlayerManager {
 
-    private Honeypot plugin;
-
-    /**
-     * Create a private constructor to hide the implicit one
-     * 
-     * SonarLint rule java:S1118
-     */
-
-    public HoneypotPlayerManager(Honeypot plugin) {
-        this.plugin = plugin;
-    }
-
     /**
      * Create a honeypot block by calling the SQLite DB. In the future this will be a switch case statement to handle
      * multiple DB types
@@ -28,7 +16,7 @@ public class HoneypotPlayerManager {
      */
     public void addPlayer(Player player, int blocksBroken) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.createHoneypotPlayer(player, blocksBroken);
@@ -43,7 +31,7 @@ public class HoneypotPlayerManager {
      */
     public void setPlayerCount(Player playerName, int blocksBroken) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.setPlayerCount(playerName, blocksBroken);
@@ -57,7 +45,7 @@ public class HoneypotPlayerManager {
      */
     public int getCount(Player playerName) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getCount(playerName);
@@ -68,7 +56,7 @@ public class HoneypotPlayerManager {
      */
     public void deleteAllHoneypotPlayers() {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.deleteAllPlayers();

@@ -8,18 +8,6 @@ import org.reprogle.honeypot.storagemanager.sqlite.SQLite;
 import java.util.List;
 
 public class HoneypotBlockManager {
-
-    private Honeypot plugin;
-
-    /**
-     * Create a private constructor to hide the implicit one
-     * 
-     * SonarLint rule java:S1118
-     */
-    public HoneypotBlockManager(Honeypot plugin) {
-        this.plugin = plugin;
-    }
-
     /**
      * Create a honeypot {@link Block} by creating a HoneypotBlock object and storing it to DB.
      * 
@@ -29,7 +17,7 @@ public class HoneypotBlockManager {
     @SuppressWarnings("java:S1604")
     public void createBlock(Block block, String action) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
         
         db.createHoneypotBlock(block, action);
@@ -43,7 +31,7 @@ public class HoneypotBlockManager {
      */
     public void deleteBlock(Block block) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
         
         db.removeHoneypotBlock(block);
@@ -58,7 +46,7 @@ public class HoneypotBlockManager {
     public boolean isHoneypotBlock(Block block) {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.isHoneypotBlock(block);
@@ -73,7 +61,7 @@ public class HoneypotBlockManager {
     public String getAction(Block block) {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getAction(block);
@@ -85,7 +73,7 @@ public class HoneypotBlockManager {
     public void deleteAllHoneypotBlocks() {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.deleteAllBlocks();
@@ -99,7 +87,7 @@ public class HoneypotBlockManager {
     public List<HoneypotBlockObject> getAllHoneypots() {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getAllHoneypots();

@@ -2,16 +2,7 @@ package org.reprogle.honeypot.storagemanager;
 
 import org.bukkit.entity.Player;
 
-public abstract class HoneypotPlayerManager {
-
-    /**
-     * Create a private constructor to hide the implicit one
-     * 
-     * SonarLint rule java:S1118
-     */
-    private HoneypotPlayerManager() {
-
-    }
+public class HoneypotPlayerManager {
 
     /**
      * Create a honeypot block by calling the SQLite DB. In the future this will be a switch case statement to handle
@@ -20,7 +11,7 @@ public abstract class HoneypotPlayerManager {
      * @param player The Player object
      * @param blocksBroken The amount of Blocks broken
      */
-    public abstract void addPlayer(Player player, int blocksBroken);
+    public void addPlayer(Player player, int blocksBroken) {}
 
     /**
      * Set the number of blocks broken by the player by calling the SQLite setPlayerCount function. In the future this
@@ -29,7 +20,7 @@ public abstract class HoneypotPlayerManager {
      * @param playerName The Player object
      * @param blocksBroken The amount of blocks broken by the player
      */
-    public abstract void setPlayerCount(Player playerName, int blocksBroken);
+    public void setPlayerCount(Player playerName, int blocksBroken) {}
 
     /**
      * Return the action for the honeypot block (Meant for ban, kick, etc.)
@@ -37,11 +28,11 @@ public abstract class HoneypotPlayerManager {
      * @param playerName the Player name
      * @return The amount of Honeypot blocks the player has broken
      */
-    public abstract int getCount(Player playerName);
+    public int getCount(Player playerName) { return getCount(playerName); }
 
     /**
      * Delete's all players in the DB
      */
-    public abstract void deleteAllHoneypotPlayers();
+    public void deleteAllHoneypotPlayers() {}
 
 }

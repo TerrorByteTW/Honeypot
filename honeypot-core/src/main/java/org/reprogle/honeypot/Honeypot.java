@@ -63,8 +63,8 @@ public final class Honeypot extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         gui = new GUI(this);
-        hbm = new HoneypotBlockManager(this);
-        hpm = new HoneypotPlayerManager(this);
+        hbm = new HoneypotBlockManager();
+        hpm = new HoneypotPlayerManager();
 
         if (!setupPermissions() && !testing) {
             getLogger().severe(
