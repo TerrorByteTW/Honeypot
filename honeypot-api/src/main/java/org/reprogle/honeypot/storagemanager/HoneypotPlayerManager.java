@@ -36,7 +36,9 @@ public class HoneypotPlayerManager {
      * @param playerName the Player name
      * @return The amount of Honeypot blocks the player has broken
      */
-    public int getCount(Player playerName) { return getCount(playerName); }
+    public int getCount(Player playerName) {
+        return getCount(playerName);
+    }
 
     /**
      * Delete's all players in the DB

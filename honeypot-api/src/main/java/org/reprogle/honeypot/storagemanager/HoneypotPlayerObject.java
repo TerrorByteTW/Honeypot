@@ -2,7 +2,7 @@ package org.reprogle.honeypot.storagemanager;
 
 import java.util.UUID;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "java:S116"})
 public abstract class HoneypotPlayerObject {
 
     private final UUID UUID;
@@ -15,7 +15,7 @@ public abstract class HoneypotPlayerObject {
      * @param uuid The UUID of the player
      * @param blocksBroken How many blocks the player has broken
      */
-    public HoneypotPlayerObject(UUID uuid, int blocksBroken) {
+    protected HoneypotPlayerObject(UUID uuid, int blocksBroken) {
         this.UUID = uuid;
         this.blocksBroken = blocksBroken;
     }

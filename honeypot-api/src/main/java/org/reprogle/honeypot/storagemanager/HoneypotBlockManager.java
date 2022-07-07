@@ -20,8 +20,8 @@ public class HoneypotBlockManager {
     }
 
     /**
-     * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break
-     * to avoid a Java error
+     * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break to avoid a
+     * Java error
      * 
      * @param block The Honeypot {@link Block} we're deleting
      */
@@ -37,7 +37,9 @@ public class HoneypotBlockManager {
      * @param block The {@link Block} we're checking
      * @return true or false
      */
-    public boolean isHoneypotBlock(Block block) { return isHoneypotBlock(block); }
+    public boolean isHoneypotBlock(Block block) {
+        return isHoneypotBlock(block);
+    }
 
     /**
      * Return the action for the honeypot {@link Block} (Meant for ban, kick, etc.)
@@ -45,10 +47,12 @@ public class HoneypotBlockManager {
      * @param block The Block we're checking
      * @return The Honeypot's action as a string
      */
-    public String getAction(Block block) { return getAction(block); }
+    public String getAction(Block block) {
+        return getAction(block);
+    }
 
     /**
-     * Delete all Honeypots in the entire DB
+     * Delete all Honeypots in the entire DB. Do not use unless you know what you're doing
      */
     public void deleteAllHoneypotBlocks() {
         /*
@@ -61,5 +65,7 @@ public class HoneypotBlockManager {
      * 
      * @return An array list of all HoneypotBlockObjects
      */
-    public List<HoneypotBlockObject> getAllHoneypots() { return getAllHoneypots(); }
+    public List<HoneypotBlockObject> getAllHoneypots() {
+        return getAllHoneypots();
+    }
 }

@@ -117,3 +117,8 @@ buildNumber.properties
 
 # Common working directory
 run/
+
+# Gradle
+buildSrc/
+gradle/
+.gradle/

@@ -18,7 +18,7 @@ public abstract class HoneypotBlockObject {
      * @param block The Block object of the Honeypot
      * @param action The action of the Honeypot
      */
-    public HoneypotBlockObject(Block block, String action) {
+    protected HoneypotBlockObject(Block block, String action) {
         this.coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
         this.world = block.getWorld().getName();
         this.action = action;
@@ -31,7 +31,7 @@ public abstract class HoneypotBlockObject {
      * @param coordinates The coordinates of the block
      * @param action The action of the Honeypot
      */
-    public HoneypotBlockObject(String worldName, String coordinates, String action) {
+    protected HoneypotBlockObject(String worldName, String coordinates, String action) {
         this.coordinates = coordinates;
         this.world = worldName;
         this.action = action;
