@@ -19,7 +19,7 @@ import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 
-public class PlayerBreakEventListener implements Listener {
+public class BlockBreakEventListener implements Listener {
 
     private static final String REMOVE_PERMISSION = "honeypot.remove";
 
@@ -30,7 +30,7 @@ public class PlayerBreakEventListener implements Listener {
     /**
      * Create a private constructor to hide the implicit one
      */
-    PlayerBreakEventListener() {
+    BlockBreakEventListener() {
 
     }
 

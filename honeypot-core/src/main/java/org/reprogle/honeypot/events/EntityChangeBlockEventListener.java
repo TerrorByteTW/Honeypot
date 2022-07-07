@@ -10,12 +10,12 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 
-public class EntityChangeEventListener implements Listener {
+public class EntityChangeBlockEventListener implements Listener {
 
     /**
      * Create package constructor to hide implicit one
      */
-    EntityChangeEventListener() {
+    EntityChangeBlockEventListener() {
 
     }
 

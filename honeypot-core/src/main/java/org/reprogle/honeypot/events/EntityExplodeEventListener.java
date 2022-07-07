@@ -13,12 +13,12 @@ import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExplosionEventListener implements Listener {
+public class EntityExplodeEventListener implements Listener {
 
     /**
      * Create package constructor to hide implicit one
      */
-    ExplosionEventListener(){
+    EntityExplodeEventListener(){
 
     }
 

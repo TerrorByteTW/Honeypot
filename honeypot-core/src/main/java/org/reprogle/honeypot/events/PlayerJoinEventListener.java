@@ -6,23 +6,24 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotUpdateChecker;
 import org.reprogle.honeypot.commands.CommandFeedback;
 
-public class PlayerJoinListener implements Listener {
+public class PlayerJoinEventListener implements Listener {
 
     /**
      * Create a private constructor to hide the implicit one
      */
-    PlayerJoinListener() {
+    PlayerJoinEventListener() {
 
     }
 
     // Player join event
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public static void playerJoinEvent(PlayerJoinEvent event) {
         Player p = event.getPlayer();
 

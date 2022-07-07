@@ -115,6 +115,14 @@ public class CommandFeedback {
                 feedbackMessage = (chatPrefix + " " + ChatColor.RED + "WARNING! " + ChatColor.WHITE + "This command can severely break your Honeypots if run it more than once. Only run if you know what you're doing. Run " + ChatColor.RED + "/honeypot upgrade confirm" + ChatColor.WHITE + " to upgrade");
             }
 
+            case "alreadyupgraded" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.RED + "You have already ran the upgrade command! " + ChatColor.WHITE + "You should NOT use this command again. Please reach out to the plugin author if you need to do another upgrade, they can provide instructions on how to do so");
+            }
+
+            case "nophysics" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Physics are disabled, so you cannot create a Honeypot on this block!");
+            }
+
             default -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
                         + "Unknown error, please contact server admin");

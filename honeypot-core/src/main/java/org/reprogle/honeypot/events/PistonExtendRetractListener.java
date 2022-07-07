@@ -12,12 +12,12 @@ import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 
 import java.util.List;
 
-public class PistonMoveListener implements Listener {
+public class PistonExtendRetractListener implements Listener {
 
     /**
      * Create private constructor to hide the implicit one
      */
-    PistonMoveListener() {
+    PistonExtendRetractListener() {
 
     }
 

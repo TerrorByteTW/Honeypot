@@ -11,7 +11,8 @@ import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 
-public class HoneypotUpgrade implements HoneypotSubCommand{
+@SuppressWarnings("java:S1192")
+public class HoneypotUpgrade implements HoneypotSubCommand {
 
 	@Override
 	public String getName() {
@@ -21,17 +22,24 @@ public class HoneypotUpgrade implements HoneypotSubCommand{
 	@Override
 	public void perform(Player p, String[] args) throws IOException {
 		if (!(p.hasPermission("honeypot.upgrade"))) {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-            return;
-        }
+			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+			return;
+		}
 
-		if(args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
+		if (HoneypotConfigManager.getHoneypotsConfig().contains("upgraded")
+				&& Boolean.TRUE.equals(HoneypotConfigManager.getHoneypotsConfig().getBoolean("upgraded"))) {
+			p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyupgraded"));
+			return;
+		}
+
+		if (args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
 			List<HoneypotBlockObject> oldBlocks = Honeypot.getHBM().getAllHoneypots();
 			int customBlock = 0;
 
 			for (HoneypotBlockObject block : oldBlocks) {
 				String action = block.getAction();
-				if(!"ban".equals(action) && !"warn".equals(action) && !"kick".equals(action) && !"notify".equals(action) && !"nothing".equals(action)) {
+				if (!"ban".equals(action) && !"warn".equals(action) && !"kick".equals(action)
+						&& !"notify".equals(action) && !"nothing".equals(action)) {
 					List<String> commands = new ArrayList<>();
 					commands.add(action);
 
@@ -39,9 +47,9 @@ public class HoneypotUpgrade implements HoneypotSubCommand{
 
 					HoneypotConfigManager.getHoneypotsConfig().createSection(route);
 
-					HoneypotConfigManager.getHoneypotsConfig().createSection(route + ".type");	
+					HoneypotConfigManager.getHoneypotsConfig().createSection(route + ".type");
 					HoneypotConfigManager.getHoneypotsConfig().set(route + ".type", "command");
-					
+
 					HoneypotConfigManager.getHoneypotsConfig().createSection(route + ".commands");
 					HoneypotConfigManager.getHoneypotsConfig().set(route + ".commands", commands);
 
@@ -52,6 +60,9 @@ public class HoneypotUpgrade implements HoneypotSubCommand{
 				}
 			}
 
+			// Mark custom actions as having already been upgraded to prevent an accidental double-upgrade (Which will break things)
+			HoneypotConfigManager.getHoneypotsConfig().createSection("upgraded").set("upgraded", true);
+
 			HoneypotConfigManager.getHoneypotsConfig().save();
 			p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
 
@@ -60,9 +71,11 @@ public class HoneypotUpgrade implements HoneypotSubCommand{
 		}
 	}
 
+	// Even though this command has subcommands, I do not want to return any
+	// to avoid the player confirming an upgrade before they read the warning
 	@Override
 	public List<String> getSubcommands(Player p, String[] args) {
 		return new ArrayList<>();
 	}
-	
+
 }

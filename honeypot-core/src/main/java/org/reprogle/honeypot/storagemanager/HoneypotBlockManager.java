@@ -19,13 +19,13 @@ public class HoneypotBlockManager {
         Database db;
         db = new SQLite(Honeypot.getPlugin());
         db.load();
-        
+
         db.createHoneypotBlock(block, action);
     }
 
     /**
-     * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break
-     * to avoid a Java error
+     * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break to avoid a
+     * Java error
      * 
      * @param block The Honeypot {@link Block} we're deleting
      */
@@ -33,7 +33,7 @@ public class HoneypotBlockManager {
         Database db;
         db = new SQLite(Honeypot.getPlugin());
         db.load();
-        
+
         db.removeHoneypotBlock(block);
     }
 

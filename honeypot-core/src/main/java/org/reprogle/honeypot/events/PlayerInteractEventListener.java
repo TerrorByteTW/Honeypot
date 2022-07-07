@@ -21,12 +21,12 @@ import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerBlockInteractListener implements Listener {
+public class PlayerInteractEventListener implements Listener {
 
     /**
      * Create a private constructor to hide the implicit one
      */
-    PlayerBlockInteractListener() {
+    PlayerInteractEventListener() {
 
     }
 
