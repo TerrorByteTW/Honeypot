@@ -4,6 +4,13 @@ import org.bukkit.block.Block;
 
 import java.util.List;
 
+/**
+ * A class for managing Honeypot blocks. 
+ * Adds functions for creating, removing, verifying, getting the action, listing all blocks, and even clearing out the DB. 
+ * @see HoneypotPlayerObject
+ * @see HoneypotPlayerManager
+ * @see HoneypotBlockObject
+ */
 public class HoneypotBlockManager {
 
     /**

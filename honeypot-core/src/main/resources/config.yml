@@ -33,8 +33,9 @@ enable-container-actions: true
 search-range: 5
 
 # Enable BlockPhysicsEvent checks. These are called thousands of times a second on busy servers, if you are getting lag you can try disabling this.
+# The reason Honeypot uses these is so it can check for Honeypots broken by physics (Falling sand, Torches being removed by )
 # Note that disabling this may cause ghost Honeypots
-enable-blockphysicsevent: true
+enable-blockphysicsevent: false
 
 ######################################################################
 #                      C H A T   S E T T I N G S                     #

@@ -2,6 +2,13 @@ package org.reprogle.honeypot.storagemanager;
 
 import java.util.UUID;
 
+/**
+ * A class representing a Honeypot Player object. 
+ * Includes methods for getting all values of a Honeypot player object, which can be returned via the {@link HoneypotPlayerManager} class
+ * @see HoneypotPlayerManager
+ * @see HoneypotBlockManager
+ * @see HoneypotBlockObject
+ */
 @SuppressWarnings({"unused", "java:S116"})
 public abstract class HoneypotPlayerObject {
 

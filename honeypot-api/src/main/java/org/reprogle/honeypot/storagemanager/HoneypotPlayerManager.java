@@ -2,6 +2,13 @@ package org.reprogle.honeypot.storagemanager;
 
 import org.bukkit.entity.Player;
 
+/**
+ * A class for managing Honeypot players. 
+ * Adds functions for creating, setting counts, getting counts, and even clearing out the DB. 
+ * @see HoneypotPlayerObject
+ * @see HoneypotBlockManager
+ * @see HoneypotBlockObject
+ */
 public class HoneypotPlayerManager {
 
     /**

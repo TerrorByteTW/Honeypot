@@ -3,6 +3,13 @@ package org.reprogle.honeypot.storagemanager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
+/**
+ * A class representing a Honeypot Block object. 
+ * Includes methods for getting all values of a Honeypot block object, which can be returned via the {@link HoneypotBlockManager} class
+ * @see HoneypotPlayerObject
+ * @see HoneypotPlayerManager
+ * @see HoneypotBlockManager
+ */
 @SuppressWarnings("unused")
 public abstract class HoneypotBlockObject {
 
