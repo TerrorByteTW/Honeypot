@@ -18,6 +18,7 @@ public record HoneypotUpdateChecker(Plugin plugin, String link) {
      */
     public void getVersion(final Consumer<String> consumer) {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            Honeypot.getHoneypotLogger().log("Checking for updates");
             try (InputStream inputStream = new URL(this.link).openStream();
                     Scanner scanner = new Scanner(inputStream)) {
                 if (scanner.hasNext()) {
@@ -26,6 +27,7 @@ public record HoneypotUpdateChecker(Plugin plugin, String link) {
             }
             catch (IOException exception) {
                 plugin.getLogger().info("Unable to check for updates: " + exception.getMessage());
+                Honeypot.getHoneypotLogger().log("Unable to check for updates" + exception.getMessage());
             }
         });
     }

@@ -20,25 +20,50 @@ public class HoneypotNonPlayerBreakEvent extends Event {
 
 	private final Block block;
 
+	/**
+	 * Constructor for event
+	 * @param object The object doing the breaking
+	 * @param block The block being broken
+	 */
 	public HoneypotNonPlayerBreakEvent(Object object, Block block) {
 		this.object = object;
 		this.block = block;
 	}
 
+	/**
+	 * Boilerplate function for Bukkit
+	 * 
+	 * @return HandlerList
+	 */
 	@Override
 	public HandlerList getHandlers() {
 		return HANDLERS;
 	}
 
+	/**
+	 * Boilerplate function for Bukkit
+	 * 
+	 * @return HandlerList
+	 */
 	@SuppressWarnings("java:S4144")
 	public static HandlerList getHandlerList() {
 		return HANDLERS;
 	}
 
+	/**
+	 * Get the object that triggered the event
+	 * 
+	 * @return Object
+	 */
 	public Object getObject() {
 		return object;
 	}
 
+	/**
+	 * Get the block that was broken
+	 * 
+	 * @return {@link Block}
+	 */
 	public Block getBlock() {
 		return block;
 	}

@@ -7,17 +7,17 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import java.util.List;
 
-public class PistonMoveListener implements Listener {
+public class PistonExtendRetractListener implements Listener {
 
     /**
      * Create private constructor to hide the implicit one
      */
-    PistonMoveListener() {
+    PistonExtendRetractListener() {
 
     }
 
@@ -26,7 +26,8 @@ public class PistonMoveListener implements Listener {
     public static void pistonPushEvent(BlockPistonExtendEvent event) {
         List<Block> blocks = event.getBlocks();
         for (Block b : blocks) {
-            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
+            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+                Honeypot.getHoneypotLogger().log("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ());
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());
@@ -42,7 +43,8 @@ public class PistonMoveListener implements Listener {
     public static void pistonPullEvent(BlockPistonRetractEvent event) {
         List<Block> blocks = event.getBlocks();
         for (Block b : blocks) {
-            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
+            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+                Honeypot.getHoneypotLogger().log("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ());
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());

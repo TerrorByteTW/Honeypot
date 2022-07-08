@@ -16,12 +16,15 @@ public class ListenerSetup {
      * @param plugin The Honeypot plugin instance
      */
     public static void setupListeners(Plugin plugin) {
-        plugin.getServer().getPluginManager().registerEvents(new PlayerBreakEventListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new ExplosionEventListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new EntityChangeEventListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new PlayerBlockInteractListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new PistonMoveListener(), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new BlockBreakEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new BlockFromToEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new BlockBurnEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new EntityChangeBlockEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new EntityExplodeEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PistonExtendRetractListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new StructureGrowEventListener(), plugin);
     }
 
 }

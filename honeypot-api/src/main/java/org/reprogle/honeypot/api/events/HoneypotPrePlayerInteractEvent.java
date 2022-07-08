@@ -34,28 +34,55 @@ public class HoneypotPrePlayerInteractEvent extends Event implements Cancellable
 		this.block = block;
 	}
 
+	/**
+	 * Boilerplate function for Bukkit
+	 * 
+	 * @return HandlerList
+	 */	
 	@Override
 	public HandlerList getHandlers() {
 		return HANDLERS;
 	}
 
+	/**
+	 * Boilerplate function for Bukkit
+	 * 
+	 * @return HandlerList
+	 */
 	@SuppressWarnings("java:S4144")
 	public static HandlerList getHandlerList() {
 		return HANDLERS;
 	}
 
+	/**
+	 * Get the player that broke the block
+	 * @return {@link Player}
+	 */
 	public Player getPlayer() {
 		return player;
 	}
 
+	/**
+	 * Get the block that was involved in the event
+	 * @return {@link Block}
+	 */
 	public Block getBlock() {
 		return block;
 	}
 
+	/**
+	 * Check if the event is cancelled
+	 * @return True if cancelled, false if not
+	 */
 	public boolean isCancelled() {
 		return isCancelled;
 	}
 
+	/**
+	 * Set the event as cancelled or not
+	 * 
+	 * @param cancel Boolean value notating if the event is cancelled or not 
+	 */
 	@Override
 	public void setCancelled(boolean cancel) {
 		this.isCancelled = cancel;

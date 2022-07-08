@@ -6,16 +6,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
-public class EntityChangeEventListener implements Listener {
+public class EntityChangeBlockEventListener implements Listener {
 
     /**
      * Create package constructor to hide implicit one
      */
-    EntityChangeEventListener() {
+    EntityChangeBlockEventListener() {
 
     }
 
@@ -26,7 +26,8 @@ public class EntityChangeEventListener implements Listener {
         // If the entity grabbing the block is an enderman, if they are allowed to, delete the
         // Honeypot, otherwise cancel it
         if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
-            if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock()))) {
+            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(event.getBlock()))) {
+                Honeypot.getHoneypotLogger().log("PistonExtendEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ());
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(),
@@ -34,7 +35,7 @@ public class EntityChangeEventListener implements Listener {
                 Bukkit.getPluginManager().callEvent(hnpbe);
 
                 if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-enderman"))) {
-                    HoneypotBlockStorageManager.deleteBlock(event.getBlock());
+                    Honeypot.getHBM().deleteBlock(event.getBlock());
                 }
                 else {
                     event.setCancelled(true);
@@ -42,7 +43,7 @@ public class EntityChangeEventListener implements Listener {
             }
         }
         else if (event.getEntity().getType().equals(EntityType.SILVERFISH)
-                && Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(event.getBlock()))) {
+                && Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(event.getBlock()))) {
 
             // Fire HoneypotNonPlayerBreakEvent
             HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), event.getBlock());

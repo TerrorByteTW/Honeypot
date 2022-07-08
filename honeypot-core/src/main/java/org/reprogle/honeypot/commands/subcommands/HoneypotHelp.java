@@ -18,7 +18,7 @@ public class HoneypotHelp implements HoneypotSubCommand {
 	@Override
 	public void perform(Player p, String[] args) throws IOException {
 		p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
-
+		
 	}
 
 	@Override

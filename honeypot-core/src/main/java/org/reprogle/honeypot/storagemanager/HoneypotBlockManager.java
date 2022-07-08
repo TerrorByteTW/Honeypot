@@ -7,20 +7,7 @@ import org.reprogle.honeypot.storagemanager.sqlite.SQLite;
 
 import java.util.List;
 
-public class HoneypotBlockStorageManager {
-
-    /**
-     * Create a private constructor to hide the implicit one
-     * 
-     * SonarLint rule java:S1118
-     */
-    private HoneypotBlockStorageManager() {
-
-    }
-
-    // Create an array list for all honeypotBlocks to reside in while plugin is functioning
-    private static final Honeypot plugin = Honeypot.getPlugin();
-
+public class HoneypotBlockManager {
     /**
      * Create a honeypot {@link Block} by creating a HoneypotBlock object and storing it to DB.
      * 
@@ -28,26 +15,28 @@ public class HoneypotBlockStorageManager {
      * @param action The action of the Honeypot
      */
     @SuppressWarnings("java:S1604")
-    public static void createBlock(Block block, String action) {
+    public void createBlock(Block block, String action) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
-        
+
         db.createHoneypotBlock(block, action);
+        Honeypot.getHoneypotLogger().log("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
     }
 
     /**
-     * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break
-     * to avoid a Java error
+     * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break to avoid a
+     * Java error
      * 
      * @param block The Honeypot {@link Block} we're deleting
      */
-    public static void deleteBlock(Block block) {
+    public void deleteBlock(Block block) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
-        
+
         db.removeHoneypotBlock(block);
+        Honeypot.getHoneypotLogger().log("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
     }
 
     /**
@@ -56,10 +45,10 @@ public class HoneypotBlockStorageManager {
      * @param block The {@link Block} we're checking
      * @return true or false
      */
-    public static Boolean isHoneypotBlock(Block block) {
+    public boolean isHoneypotBlock(Block block) {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.isHoneypotBlock(block);
@@ -71,10 +60,10 @@ public class HoneypotBlockStorageManager {
      * @param block The Block we're checking
      * @return The Honeypot's action as a string
      */
-    public static String getAction(Block block) {
+    public String getAction(Block block) {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getAction(block);
@@ -83,13 +72,14 @@ public class HoneypotBlockStorageManager {
     /**
      * Delete all Honeypots in the entire DB
      */
-    public static void deleteAllHoneypotBlocks() {
+    public void deleteAllHoneypotBlocks() {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.deleteAllBlocks();
+        Honeypot.getHoneypotLogger().log("Deleted all Honeypot blocks!");
     }
 
     /**
@@ -97,10 +87,10 @@ public class HoneypotBlockStorageManager {
      * 
      * @return An array list of all HoneypotBlockObjects
      */
-    public static List<HoneypotBlockObject> getAllHoneypots() {
+    public List<HoneypotBlockObject> getAllHoneypots() {
         Database db;
 
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getAllHoneypots();

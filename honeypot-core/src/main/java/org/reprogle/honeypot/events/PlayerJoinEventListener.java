@@ -6,31 +6,31 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotUpdateChecker;
 import org.reprogle.honeypot.commands.CommandFeedback;
-import org.reprogle.honeypot.storagemanager.HoneypotPlayerStorageManager;
 
-public class PlayerJoinListener implements Listener {
+public class PlayerJoinEventListener implements Listener {
 
     /**
      * Create a private constructor to hide the implicit one
      */
-    PlayerJoinListener() {
+    PlayerJoinEventListener() {
 
     }
 
     // Player join event
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public static void playerJoinEvent(PlayerJoinEvent event) {
         Player p = event.getPlayer();
 
         // Convert player names to UUIDs
-        int breaks = HoneypotPlayerStorageManager.getCount(p);
+        int breaks = Honeypot.getHPM().getCount(p);
         if (breaks >= 0) {
-            HoneypotPlayerStorageManager.setPlayerCount(p, breaks);
+            Honeypot.getHPM().setPlayerCount(p, breaks);
         }
 
         if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {

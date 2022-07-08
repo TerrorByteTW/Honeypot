@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 4
+file-version: 8
 
 # The database-type option has been removed for now. The only options were JSON and SQLite.
 # JSON support has been removed because I did not like how it was implemented, and it was very difficult to build on to. The default and only option is SQLite, however I plan
@@ -31,6 +31,16 @@ enable-container-actions: true
 
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
 search-range: 5
+
+# enabled: Check for ghost pots periodically.
+# check-interval: How often to check for ghost pots, in MINUTES. 20 minutes = 1 Minecraft day.
+# Server restarts are required to update these values, as these settings are grabbed on plugin load and are not re-evaluated
+ghost-honeypot-checker:
+  enable: true
+  check-interval: 20
+
+# Enable more detailed logging, stored in a logs.txt file in the Honeypot folder
+enable-logging: true
 
 ######################################################################
 #                      C H A T   S E T T I N G S                     #

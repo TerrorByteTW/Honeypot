@@ -5,18 +5,7 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.storagemanager.sqlite.SQLite;
 
-public class HoneypotPlayerStorageManager {
-
-    /**
-     * Create a private constructor to hide the implicit one
-     * 
-     * SonarLint rule java:S1118
-     */
-    private HoneypotPlayerStorageManager() {
-
-    }
-
-    private static Honeypot plugin;
+public class HoneypotPlayerManager {
 
     /**
      * Create a honeypot block by calling the SQLite DB. In the future this will be a switch case statement to handle
@@ -25,12 +14,13 @@ public class HoneypotPlayerStorageManager {
      * @param player The Player object
      * @param blocksBroken The amount of Blocks broken
      */
-    public static void addPlayer(Player player, int blocksBroken) {
+    public void addPlayer(Player player, int blocksBroken) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.createHoneypotPlayer(player, blocksBroken);
+        Honeypot.getHoneypotLogger().log("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
     }
 
     /**
@@ -40,12 +30,13 @@ public class HoneypotPlayerStorageManager {
      * @param playerName The Player object
      * @param blocksBroken The amount of blocks broken by the player
      */
-    public static void setPlayerCount(Player playerName, int blocksBroken) {
+    public void setPlayerCount(Player player, int blocksBroken) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
-        db.setPlayerCount(playerName, blocksBroken);
+        db.setPlayerCount(player, blocksBroken);
+        Honeypot.getHoneypotLogger().log("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken);
     }
 
     /**
@@ -54,9 +45,9 @@ public class HoneypotPlayerStorageManager {
      * @param playerName the Player name
      * @return The amount of Honeypot blocks the player has broken
      */
-    public static int getCount(Player playerName) {
+    public int getCount(Player playerName) {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getCount(playerName);
@@ -65,12 +56,13 @@ public class HoneypotPlayerStorageManager {
     /**
      * Delete's all players in the DB
      */
-    public static void deleteAllHoneypotPlayers() {
+    public void deleteAllHoneypotPlayers() {
         Database db;
-        db = new SQLite(plugin);
+        db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.deleteAllPlayers();
+        Honeypot.getHoneypotLogger().log("Deleted all Honeypot players from DB");
     }
 
 }

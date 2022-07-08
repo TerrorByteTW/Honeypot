@@ -30,20 +30,38 @@ public class HoneypotPlayerBreakEvent extends Event {
 		this.block = block;
 	}
 
+	/**
+	 * Boilerplate function for Bukkit
+	 * 
+	 * @return HandlerList
+	 */	
 	@Override
 	public HandlerList getHandlers() {
 		return HANDLERS;
 	}
 
+	/**
+	 * Boilerplate function for Bukkit
+	 * 
+	 * @return HandlerList
+	 */
 	@SuppressWarnings("java:S4144")
 	public static HandlerList getHandlerList() {
 		return HANDLERS;
 	}
 
+	/**
+	 * Get the player that broke the block
+	 * @return {@link Player}
+	 */
 	public Player getPlayer() {
 		return player;
 	}
 
+	/**
+	 * Get the block that was involved in the event
+	 * @return {@link Block}
+	 */
 	public Block getBlock() {
 		return block;
 	}

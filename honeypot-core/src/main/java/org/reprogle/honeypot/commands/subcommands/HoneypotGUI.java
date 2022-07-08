@@ -24,7 +24,6 @@ import org.reprogle.honeypot.gui.GUIMenu;
 import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockStorageManager;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -87,7 +86,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIMenu allBlocksGUI = Honeypot.getGUI().create("Honeypots {currentPage}/{maxPage}", 3);
 
-		for (HoneypotBlockObject honeypotBlock : HoneypotBlockStorageManager.getAllHoneypots()) {
+		for (HoneypotBlockObject honeypotBlock : Honeypot.getHBM().getAllHoneypots()) {
 			GUIItemBuilder item;
 
 			if (Boolean.TRUE.equals(HoneypotConfigManager.getGuiConfig().getBoolean("display-button-as-honeypot"))) {
@@ -206,7 +205,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIButton removeAllButton = new GUIButton(removeAllItem.build()).withListener((InventoryClickEvent event) -> {
 			event.getWhoClicked().closeInventory();
-			HoneypotBlockStorageManager.deleteAllHoneypotBlocks();
+			Honeypot.getHBM().deleteAllHoneypotBlocks();
 			p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
 		});
 
@@ -228,8 +227,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 						// If it is a honeypot do this
-						if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
-							HoneypotBlockStorageManager.deleteBlock(b);
+						if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+							Honeypot.getHBM().deleteBlock(b);
 
 						}
 					}
@@ -257,8 +256,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						return;
 					}
 
-					if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(block))) {
-						HoneypotBlockStorageManager.deleteBlock(block);
+					if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
+						Honeypot.getHBM().deleteBlock(block);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
 					}
 					else {
@@ -321,7 +320,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		}
 
 		event.getWhoClicked().closeInventory();
-		if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(block))) {
+		if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
 			// If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
@@ -336,11 +335,11 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				return;
 
 			if (action.equalsIgnoreCase("custom")) {
-				HoneypotBlockStorageManager.createBlock(block, customAction[0]);
+				Honeypot.getHBM().createBlock(block, customAction[0]);
 				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
 			else {
-				HoneypotBlockStorageManager.createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
+				Honeypot.getHBM().createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
 				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
 
@@ -404,7 +403,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 						// If it is a honeypot do this
-						if (Boolean.TRUE.equals(HoneypotBlockStorageManager.isHoneypotBlock(b))) {
+						if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
 							potFound = true;
 
 							// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
