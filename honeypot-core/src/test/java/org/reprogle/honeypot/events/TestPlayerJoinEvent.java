@@ -36,6 +36,7 @@ public class TestPlayerJoinEvent {
 
 		PlayerMock playerWithOp = TestUtils.addOP(server);
 		PlayerMock playerWithPermissions = TestUtils.addPlayerWithPermissions(plugin, server, "honeypot.update");
+		PlayerMock playerWithWildcard = TestUtils.addPlayerWithPermissions(plugin, server, "honeypot.*");
 		PlayerMock player = TestUtils.addPlayerWithoutPermissions(server);
 
 		/* 
@@ -51,6 +52,10 @@ public class TestPlayerJoinEvent {
 		TestUtils.fireJoinEvent(server, playerWithPermissions);
 		latch.await(2, TimeUnit.SECONDS);
 		Assertions.assertNotNull(playerWithPermissions.nextComponentMessage());
+
+		TestUtils.fireJoinEvent(server, playerWithWildcard);
+		latch.await(2, TimeUnit.SECONDS);
+		Assertions.assertNotNull(playerWithWildcard.nextComponentMessage());
 
 		TestUtils.fireJoinEvent(server, player);
 		latch.await(2, TimeUnit.SECONDS);
