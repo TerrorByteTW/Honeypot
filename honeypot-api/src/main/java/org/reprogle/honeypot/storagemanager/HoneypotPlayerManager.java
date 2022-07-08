@@ -38,7 +38,7 @@ public class HoneypotPlayerManager {
     }
 
     /**
-     * Return the action for the honeypot block (Meant for ban, kick, etc.)
+     * Return the amount of blocks the player has broken. If it returns -1, then the player doesn't exist in the DB yet (They haven't broken any Honeypots)
      * 
      * @param playerName the Player name
      * @return The amount of Honeypot blocks the player has broken

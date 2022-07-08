@@ -50,6 +50,7 @@ public class HoneypotBlockManager {
 
     /**
      * Return the action for the honeypot {@link Block} (Meant for ban, kick, etc.)
+     * If a string is returned that is not a default action, it's custom.
      * 
      * @param block The Block we're checking
      * @return The Honeypot's action as a string
