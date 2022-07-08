@@ -20,6 +20,7 @@ public class HoneypotPlayerManager {
         db.load();
 
         db.createHoneypotPlayer(player, blocksBroken);
+        Honeypot.getHoneypotLogger().log("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
     }
 
     /**
@@ -29,12 +30,13 @@ public class HoneypotPlayerManager {
      * @param playerName The Player object
      * @param blocksBroken The amount of blocks broken by the player
      */
-    public void setPlayerCount(Player playerName, int blocksBroken) {
+    public void setPlayerCount(Player player, int blocksBroken) {
         Database db;
         db = new SQLite(Honeypot.getPlugin());
         db.load();
 
-        db.setPlayerCount(playerName, blocksBroken);
+        db.setPlayerCount(player, blocksBroken);
+        Honeypot.getHoneypotLogger().log("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken);
     }
 
     /**
@@ -60,6 +62,7 @@ public class HoneypotPlayerManager {
         db.load();
 
         db.deleteAllPlayers();
+        Honeypot.getHoneypotLogger().log("Deleted all Honeypot players from DB");
     }
 
 }

@@ -34,6 +34,7 @@ public class EntityExplodeEventListener implements Listener {
         // If so, just delete the Honeypot. If not, cancel the explosion
         for (Block block : destroyedBlocks) {
             if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
+                Honeypot.getHoneypotLogger().log("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ());
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), block);

@@ -66,7 +66,7 @@ public class HoneypotConfigManager extends JavaPlugin {
             plugin.getPluginLoader().disablePlugin(plugin);
         }
 
-        plugin.getLogger().info("Attempting to load Honeypots config...");
+        plugin.getLogger().info("Attempting to load Honeypots config...");    
         try {
             honeypotsConfig = YamlDocument.create(new File(plugin.getDataFolder(), "honeypots.yml"), plugin.getResource("honeypots.yml"),
                     GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(false).build(),

@@ -24,6 +24,7 @@ public class BlockFromToEventListener implements Listener{
     public static void blockFromToEvent(BlockFromToEvent event) {
       Block toBlock = event.getToBlock();
       if (Honeypot.getHBM().isHoneypotBlock(toBlock)) {
+        Honeypot.getHoneypotLogger().log("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", " + toBlock.getY() + ", " + toBlock.getZ());
         event.setCancelled(true);
       }
     }

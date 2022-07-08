@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 5
+file-version: 8
 
 # The database-type option has been removed for now. The only options were JSON and SQLite.
 # JSON support has been removed because I did not like how it was implemented, and it was very difficult to build on to. The default and only option is SQLite, however I plan
@@ -32,14 +32,15 @@ enable-container-actions: true
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
 search-range: 5
 
-# Enables the internal BlockPhysicsEvent listener. 
-# BlockPhysicsEvents can potentially be called thousands of times a second on busy servers, which can cause immense lag
-# The reason Honeypot uses these is so it can check for Honeypots broken by physics (Falling sand, Torches being removed by the block they're on breaking, etc)
-# This is disabled by default. This also means that, to prevent ghost blocks, if this is disabled Honeypots can't be created on physics-enabled blocks
-# Note that enabling this may cause ghost blocks because BlockPhysicsEvent only fire for the "root" block to prevent lag
-#
-# If you don't know if you need this on or not, leave it off. Reloading the config will not enable physics checks, a server restart will be required.
-allow-physics-checks: false
+# enabled: Check for ghost pots periodically.
+# check-interval: How often to check for ghost pots, in MINUTES. 20 minutes = 1 Minecraft day.
+# Server restarts are required to update these values, as these settings are grabbed on plugin load and are not re-evaluated
+ghost-honeypot-checker:
+  enable: true
+  check-interval: 20
+
+# Enable more detailed logging, stored in a logs.txt file in the Honeypot folder
+enable-logging: true
 
 ######################################################################
 #                      C H A T   S E T T I N G S                     #

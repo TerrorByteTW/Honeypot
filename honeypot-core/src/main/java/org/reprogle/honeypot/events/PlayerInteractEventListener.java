@@ -103,6 +103,8 @@ public class PlayerInteractEventListener implements Listener {
         String action = Honeypot.getHBM().getAction(block);
 
         assert action != null;
+        Honeypot.getHoneypotLogger().log("PlayerInteractEvent being called for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
+        
         switch (action) {
             case "kick" -> player.kickPlayer(chatPrefix + " " + ConfigColorManager.getConfigMessage("kick"));
 

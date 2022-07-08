@@ -21,6 +21,7 @@ public class HoneypotBlockManager {
         db.load();
 
         db.createHoneypotBlock(block, action);
+        Honeypot.getHoneypotLogger().log("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
     }
 
     /**
@@ -35,6 +36,7 @@ public class HoneypotBlockManager {
         db.load();
 
         db.removeHoneypotBlock(block);
+        Honeypot.getHoneypotLogger().log("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
     }
 
     /**
@@ -77,6 +79,7 @@ public class HoneypotBlockManager {
         db.load();
 
         db.deleteAllBlocks();
+        Honeypot.getHoneypotLogger().log("Deleted all Honeypot blocks!");
     }
 
     /**

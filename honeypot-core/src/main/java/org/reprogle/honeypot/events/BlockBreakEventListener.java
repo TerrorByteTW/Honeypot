@@ -6,6 +6,7 @@ import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -93,8 +94,34 @@ public class BlockBreakEventListener implements Listener {
         }
     }
 
+    // This is a separate event from the one above. We want to know if any Honeypots were broken due to breaking a "root" block, such as torches breaking due to
+    // the block they're on being broken
+    @EventHandler(priority = EventPriority.LOW)
+    public static void checkBlockBreakSideEffects(BlockBreakEvent event) {
+        Block block = event.getBlock();
+
+        Block[] adjacentBlocks = new Block[] {
+            block.getRelative(BlockFace.UP),
+            block.getRelative(BlockFace.DOWN),
+            block.getRelative(BlockFace.NORTH),
+            block.getRelative(BlockFace.SOUTH),
+            block.getRelative(BlockFace.EAST),
+            block.getRelative(BlockFace.WEST)
+        };
+
+        for (Block adjacentBlock : adjacentBlocks) {
+            if (Honeypot.getHBM().isHoneypotBlock(adjacentBlock)) {
+                blockBreakEvent(new BlockBreakEvent(adjacentBlock, event.getPlayer()));
+                Honeypot.getHBM().deleteBlock(adjacentBlock);
+                Honeypot.getPlugin().getLogger().warning("A Honeypot has been removed due to the block it's attached to being broken. It was located at " + adjacentBlock.getX() + ", " + adjacentBlock.getY() + ", " + adjacentBlock.getZ() + ". "  + event.getPlayer().getName() + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
+                Honeypot.getHoneypotLogger().log("A Honeypot has been removed due to the block it's attached to being broken. It was located at " + adjacentBlock.getX() + ", " + adjacentBlock.getY() + ", " + adjacentBlock.getZ() + ". "  + event.getPlayer().getName() + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
+            }
+        }
+    }
+
     @SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
     private static void breakAction(BlockBreakEvent event) {
+        
         // Get the block broken and the chat prefix for prettiness
         Block block = event.getBlock();
         String chatPrefix = ConfigColorManager.getChatPrefix();
@@ -108,6 +135,7 @@ public class BlockBreakEventListener implements Listener {
 
             // Run certain actions based on the action of the Honeypot Block
             assert action != null;
+            Honeypot.getHoneypotLogger().log("BlockBreakEvent being called for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
             switch (action) {
                 case "kick" -> event.getPlayer().kickPlayer(chatPrefix + " " + ConfigColorManager.getConfigMessage("kick"));
 
@@ -141,8 +169,7 @@ public class BlockBreakEventListener implements Listener {
                 }
 
                 default -> {
-                    // Default path is likely due to custom actions. Check if custom actions are enabled, then run whatever
-                    // the action was as the server
+                    // Default path is likely due to custom actions. Run whatever the action was
                     YamlDocument config = HoneypotConfigManager.getHoneypotsConfig();
                     if(config.contains(action)){
                         String type = config.getString(action + ".type");
@@ -212,21 +239,21 @@ public class BlockBreakEventListener implements Listener {
                             }
 
                             default -> {
-                                Honeypot.getPlugin().getLogger().severe("Honeypot " + action + " tried to run as a type that doesn't exist! Please verify config");
+                                Honeypot.getPlugin().getLogger().warning("Honeypot " + action + " tried to run as a type that doesn't exist! Please verify config");
                             }
                         }
                     }
                 }
             }
 
-            // At this point we know the player has one of those permissions above. Now we need to figure out which
+        // At this point we know the player has one of those permissions above. Now we need to figure out which
         }
         else if (event.getPlayer().hasPermission(REMOVE_PERMISSION)
                 || event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()) {
             event.getPlayer().sendMessage(chatPrefix + " " + ChatColor.WHITE
                     + "Just an FYI this was a honeypot. Since you broke it we've removed it");
 
-            // If it got to here, then they are exempt but can't break blocks anyway.
+        // If it got to here, then they are exempt but can't break blocks anyway.
         }
         else {
             event.setCancelled(true);
@@ -250,7 +277,7 @@ public class BlockBreakEventListener implements Listener {
         // Increment the blocks broken counter
         blocksBroken += 1;
 
-        // If the blocks broken are larger than the breaks before action or if breaks before action equal equals 1,
+        // If the blocks broken are larger than or equals 'breaks before action' or if breaks before action equal equals 1,
         // reset the count and perform the break
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
             Honeypot.getHPM().setPlayerCount(event.getPlayer(), 0);

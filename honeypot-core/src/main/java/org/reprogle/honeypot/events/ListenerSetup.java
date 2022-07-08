@@ -1,7 +1,6 @@
 package org.reprogle.honeypot.events;
 
 import org.bukkit.plugin.Plugin;
-import org.reprogle.honeypot.HoneypotConfigManager;
 
 public class ListenerSetup {
 
@@ -26,12 +25,6 @@ public class ListenerSetup {
         plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new StructureGrowEventListener(), plugin);
-
-        // We only want to enable this event if enabled in config
-        // In order to enable this event after the config has been changed, a server restart is required
-        if(Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-physics-checks"))) {
-            plugin.getServer().getPluginManager().registerEvents(new BlockPhysicsEventListener(), plugin);
-        }
     }
 
 }

@@ -13,6 +13,8 @@ import org.reprogle.honeypot.events.*;
 import org.reprogle.honeypot.gui.GUI;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
+import org.reprogle.honeypot.utils.GhostHoneypotFixer;
+import org.reprogle.honeypot.utils.HoneypotLogger;
 
 import net.milkbowl.vault.permission.Permission;
 
@@ -29,6 +31,8 @@ public final class Honeypot extends JavaPlugin {
     private static boolean testing = false;
 
     private static Permission perms = null;
+
+    private static HoneypotLogger logger;
 
     /**
      * Constructor for MockBukkit
@@ -63,6 +67,7 @@ public final class Honeypot extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         gui = new GUI(this);
+        logger = new HoneypotLogger();
         hbm = new HoneypotBlockManager();
         hpm = new HoneypotPlayerManager();
 
@@ -82,9 +87,15 @@ public final class Honeypot extends JavaPlugin {
         // Create/load configuration files
         HoneypotConfigManager.setupConfig(this);
 
+        if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
+            getLogger().info("Starting the ghost checker task! If you need to disable this, update the config and restart the server");
+            GhostHoneypotFixer.startTask();
+        }
+
         // Set up listeners and command executor
         ListenerSetup.setupListeners(this);
         getCommand("honeypot").setExecutor(new CommandManager());
+        logger.log("Loaded plugin");
 
         // Output the "splash screen"
         getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + 
@@ -117,6 +128,9 @@ public final class Honeypot extends JavaPlugin {
      */
     @Override
     public void onDisable() {
+        GhostHoneypotFixer.cancelTask();
+        logger.log("Shut down plugin");
+        getLogger().info("Stopping the ghost checker task");
         getLogger().info("Successfully shutdown Honeypot. Bye for now!");
     }
 
@@ -176,5 +190,13 @@ public final class Honeypot extends JavaPlugin {
      */
     public static HoneypotPlayerManager getHPM() {
         return hpm;
+    }
+
+    /**
+     * Gets the Honeypot logger
+     * @return {@link HoneypotLogger}
+     */
+    public static HoneypotLogger getHoneypotLogger() {
+        return logger;
     }
 }
