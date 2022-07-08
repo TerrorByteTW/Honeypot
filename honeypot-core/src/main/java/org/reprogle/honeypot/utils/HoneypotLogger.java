@@ -34,7 +34,7 @@ public class HoneypotLogger {
 			LocalDateTime now = LocalDateTime.now();
             bw.append("[" + dtf.format(now) + "] " + message + "\n");
         } catch (IOException e) {
-            e.printStackTrace();
+            Honeypot.getPlugin().getLogger().warning("An error occured while attempting to log to the logs.txt file! " + e);
         }
 	}
 
