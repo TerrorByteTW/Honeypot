@@ -15,7 +15,7 @@ import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.utils.HoneypotLogger;
-import org.reprogle.honeypot.utils.WorldGuardHook;
+import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.milkbowl.vault.permission.Permission;
 
@@ -80,7 +80,7 @@ public final class Honeypot extends JavaPlugin {
         } 
 
         if (Honeypot.getPlugin().getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-            WorldGuardHook.setupWorldGuard();
+            WorldGuardUtil.setupWorldGuard();
         }
         
         if (Boolean.FALSE.equals(testing)) {

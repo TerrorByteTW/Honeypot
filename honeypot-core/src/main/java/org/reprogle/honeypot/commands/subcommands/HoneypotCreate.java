@@ -9,6 +9,9 @@ import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.utils.WorldGuardUtil;
+
+import com.sk89q.worldguard.WorldGuard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,12 @@ public class HoneypotCreate implements HoneypotSubCommand {
     @SuppressWarnings({"unchecked", "java:S3776", "java:S1192"})
     public void perform(Player p, String[] args) {
         Block block;
+
+        //Check if in a WorldGuard region and the flag is set to deny. If it is, don't bother continuing
+        if(WorldGuardUtil.isEnabled() && !WorldGuardUtil.isAllowed(p)) {
+            p.sendMessage(CommandFeedback.sendCommandFeedback("worldguard"));
+            return;
+        }
 
         // If player doesn't have the create permission, don't let them do this
         if (!(p.hasPermission("honeypot.create"))) {

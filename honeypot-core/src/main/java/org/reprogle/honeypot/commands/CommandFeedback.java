@@ -123,6 +123,10 @@ public class CommandFeedback {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Physics are disabled, so you cannot create a Honeypot on this block!");
             }
 
+            case "worldguard" -> {
+                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypots are disabled in this region.");
+            }
+
             default -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
                         + "Unknown error, please contact server admin");

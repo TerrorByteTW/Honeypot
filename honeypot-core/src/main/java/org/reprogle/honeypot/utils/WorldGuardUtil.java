@@ -15,13 +15,13 @@ import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 
-public class WorldGuardHook {
+public class WorldGuardUtil {
 	private static StateFlag honeypotFlag;
 	private static HoneypotLogger logger = Honeypot.getHoneypotLogger();
 	private static boolean enabled = true;
 
 	//Create private constructor to hide implicit one
-	private WorldGuardHook() {
+	private WorldGuardUtil() {
 
 	}
 

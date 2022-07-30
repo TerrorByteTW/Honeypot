@@ -24,6 +24,7 @@ import org.reprogle.honeypot.gui.GUIMenu;
 import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -276,6 +277,12 @@ public class HoneypotGUI implements HoneypotSubCommand {
 	@SuppressWarnings({"unchecked", "java:S3776"})
 	private static void createHoneypotFromGUI(InventoryClickEvent event, String action, String... customAction) {
 		Block block;
+
+		//Check if in a WorldGuard region and the flag is set to deny. If it is, don't bother continuing
+        if(WorldGuardUtil.isEnabled() && !WorldGuardUtil.isAllowed((Player) event.getWhoClicked())) {
+            event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("worldguard"));
+            return;
+        }
 
 		// Get block the player is looking at
 		if (event.getWhoClicked().getTargetBlockExact(5) != null) {
