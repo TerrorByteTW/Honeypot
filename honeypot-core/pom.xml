@@ -143,6 +143,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Soft dependencies -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Hard dependencies -->
         <dependency>
             <groupId>${project.parent.groupId}</groupId>

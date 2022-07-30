@@ -15,6 +15,7 @@ import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.utils.HoneypotLogger;
+import org.reprogle.honeypot.utils.WorldGuardHook;
 
 import net.milkbowl.vault.permission.Permission;
 
@@ -76,8 +77,12 @@ public final class Honeypot extends JavaPlugin {
                     ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to no Vault dependency found!");
             getServer().getPluginManager().disablePlugin(this);
             return;
-        }
+        } 
 
+        if (Honeypot.getPlugin().getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            WorldGuardHook.setupWorldGuard();
+        }
+        
         if (Boolean.FALSE.equals(testing)) {
             // Setup bStats
             int pluginId = 15425;
@@ -128,9 +133,9 @@ public final class Honeypot extends JavaPlugin {
      */
     @Override
     public void onDisable() {
+        getLogger().info("Stopping the ghost checker task");
         GhostHoneypotFixer.cancelTask();
         logger.log("Shut down plugin");
-        getLogger().info("Stopping the ghost checker task");
         getLogger().info("Successfully shutdown Honeypot. Bye for now!");
     }
 
