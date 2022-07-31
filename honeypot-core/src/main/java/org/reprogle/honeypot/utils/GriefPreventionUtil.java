@@ -12,7 +12,7 @@ public class GriefPreventionUtil {
 	 * Check if the player has permission
 	 * @param player The player placing the block
 	 * @param location The location of the block being placed (It may be different than the players location)
-	 * @return
+	 * @return True if allowed, false if not
 	 */
 	public boolean isAllowed(Player player, Location location) {
 		return GriefPrevention.instance.dataStore.getClaimAt(location, true, null).checkPermission(player, ClaimPermission.Build, null) == null;
