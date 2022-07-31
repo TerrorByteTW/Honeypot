@@ -36,18 +36,18 @@ public class ConfigColorManager {
         String messageReturn = "";
 
         switch (messageToRetrieve) {
-        case "kick" -> messageReturn = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(
-                HoneypotConfigManager.getPluginConfig().getString("kick-reason"), "Kick reason is null"));
+            case "kick" -> messageReturn = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(
+                    HoneypotConfigManager.getPluginConfig().getString("kick-reason"), "Kick reason is null"));
 
-        case "ban" -> messageReturn = ChatColor.translateAlternateColorCodes('&', Objects
-                .requireNonNull(HoneypotConfigManager.getPluginConfig().getString("ban-reason"), "Ban reason is null"));
+            case "ban" -> messageReturn = ChatColor.translateAlternateColorCodes('&', Objects
+                    .requireNonNull(HoneypotConfigManager.getPluginConfig().getString("ban-reason"), "Ban reason is null"));
 
-        case "warn" -> messageReturn = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(
-                HoneypotConfigManager.getPluginConfig().getString("warn-message"), "Warn message is null"));
+            case "warn" -> messageReturn = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(
+                    HoneypotConfigManager.getPluginConfig().getString("warn-message"), "Warn message is null"));
 
-        default -> {
-            // Do nothing
-        }
+            default -> {
+                // Do nothing
+            }
         }
 
         return messageReturn;

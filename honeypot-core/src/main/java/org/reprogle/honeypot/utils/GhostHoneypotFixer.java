@@ -18,6 +18,10 @@ public class GhostHoneypotFixer {
 	}
 
 	public static BukkitTask task;
+
+	/**
+	 * Start a task to check for ghost honeypots every defined interval
+	 */
 	public static void startTask() {
 		// Store the task, just in case we need it in the future. For now, it's unused so we're silencing unused warnings
 		task = Bukkit.getScheduler().runTaskTimer(Honeypot.getPlugin(), new Runnable() {
@@ -44,6 +48,9 @@ public class GhostHoneypotFixer {
 		}, 0L, 20L * 60 * HoneypotConfigManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
 	}
 
+	/**
+	 * Cancel the ghost honeypot task
+	 */
 	public static void cancelTask() {
 		task.cancel();
 	}

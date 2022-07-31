@@ -1,0 +1,3 @@
+[submodule "Honeypot-API"]
+	path = Honeypot-API
+	url = https://github.com/TerrrorByte/Honeypot-API

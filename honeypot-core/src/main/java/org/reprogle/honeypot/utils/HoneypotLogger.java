@@ -14,6 +14,9 @@ public class HoneypotLogger {
 
 	private File logFile;
 
+	/**
+	 * Initialize the Honeypot logger and create it if it doesn't exist
+	 */
 	public HoneypotLogger() {
 		try {
 			logFile = new File(Honeypot.getPlugin().getDataFolder(), "logs.txt");
@@ -27,6 +30,10 @@ public class HoneypotLogger {
 		}
 	}
 
+	/**
+	 * Log a message to the log file. Automatically prepends date and time
+	 * @param message The message to log
+	 */
 	public void log(String message) {
 		if(Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging"))) return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))){
