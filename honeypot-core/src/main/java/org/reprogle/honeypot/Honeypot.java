@@ -35,6 +35,8 @@ public final class Honeypot extends JavaPlugin {
 
     private static HoneypotLogger logger;
 
+    private static WorldGuardUtil wgu = null;
+
     /**
      * Constructor for MockBukkit
      */
@@ -72,25 +74,22 @@ public final class Honeypot extends JavaPlugin {
         hbm = new HoneypotBlockManager();
         hpm = new HoneypotPlayerManager();
 
+        // Create/load configuration files
+        HoneypotConfigManager.setupConfig(this);
+
         if (!setupPermissions() && !testing) {
             getLogger().severe(
-                    ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to no Vault dependency found!");
+                    ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to Vault not being installed");
+            logger.log("Disabling due to Vault not being installed. Please download here: https://www.spigotmc.org/resources/vault.34315/");
             getServer().getPluginManager().disablePlugin(this);
             return;
         } 
-
-        if (Honeypot.getPlugin().getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-            WorldGuardUtil.setupWorldGuard();
-        }
         
         if (Boolean.FALSE.equals(testing)) {
             // Setup bStats
             int pluginId = 15425;
             Metrics metrics = new Metrics(this, pluginId);
         }
-
-        // Create/load configuration files
-        HoneypotConfigManager.setupConfig(this);
 
         if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
             getLogger().info("Starting the ghost checker task! If you need to disable this, update the config and restart the server");
@@ -126,6 +125,15 @@ public final class Honeypot extends JavaPlugin {
                                 + " You are on the latest version of Honeypot!");
                     }
                 });
+    }
+
+    @Override
+    @SuppressWarnings("java:S2696")
+    public void onLoad() {
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            wgu = new WorldGuardUtil();
+            wgu.setupWorldGuard();
+        }
     }
 
     /**
@@ -203,5 +211,12 @@ public final class Honeypot extends JavaPlugin {
      */
     public static HoneypotLogger getHoneypotLogger() {
         return logger;
+    }
+
+    /**
+     * Retrieve the WorldGuard Util helper
+     */
+    public static WorldGuardUtil getWorldGuardUtil() {
+        return wgu;
     }
 }

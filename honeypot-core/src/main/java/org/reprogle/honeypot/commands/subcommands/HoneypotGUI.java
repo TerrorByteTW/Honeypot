@@ -277,9 +277,10 @@ public class HoneypotGUI implements HoneypotSubCommand {
 	@SuppressWarnings({"unchecked", "java:S3776"})
 	private static void createHoneypotFromGUI(InventoryClickEvent event, String action, String... customAction) {
 		Block block;
+		WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
 
 		//Check if in a WorldGuard region and the flag is set to deny. If it is, don't bother continuing
-        if(WorldGuardUtil.isEnabled() && !WorldGuardUtil.isAllowed((Player) event.getWhoClicked())) {
+        if(wgu.isEnabled() && !wgu.isAllowed((Player) event.getWhoClicked())) {
             event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("worldguard"));
             return;
         }

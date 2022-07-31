@@ -73,3 +73,11 @@ allowed-inventories:
 # This is to prevent honeypots from being created but not removed upon breaking
 allowed-blocks:
   - DIAMOND_ORE
+
+######################################################################
+#                   3 R D  P A R T Y  S E T T I N G S                #
+######################################################################
+
+# Enabling this will allow pre-existing Honeypots to function if a WorldGuard region is defined around them
+# Disabling will remove Honeypot blocks if a WorldGuard region is defined around them *only when activated*
+# There are currently no config options for 3rd party integrations, but there will be soon!

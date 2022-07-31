@@ -11,7 +11,7 @@ import java.util.List;
  * @see HoneypotPlayerManager
  * @see HoneypotBlockObject
  */
-public class HoneypotBlockManager {
+public abstract class HoneypotBlockManager {
 
     /**
      * Create a honeypot {@link Block} by creating a HoneypotBlock object and storing it to DB.
@@ -20,11 +20,7 @@ public class HoneypotBlockManager {
      * @param action The action of the Honeypot
      */
     @SuppressWarnings("java:S1604")
-    public void createBlock(Block block, String action) {
-        /*
-         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
-         */
-    }
+    public abstract void createBlock(Block block, String action);
 
     /**
      * Compare the coordinates of the received {@link Block} to the DB. If it exists, delete it and break to avoid a
@@ -32,11 +28,8 @@ public class HoneypotBlockManager {
      * 
      * @param block The Honeypot {@link Block} we're deleting
      */
-    public void deleteBlock(Block block) {
-        /*
-         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
-         */
-    }
+    public abstract void deleteBlock(Block block);
+    
 
     /**
      * Check if the coordinates of the Honeypot already exist within the list
@@ -44,9 +37,7 @@ public class HoneypotBlockManager {
      * @param block The {@link Block} we're checking
      * @return true or false
      */
-    public boolean isHoneypotBlock(Block block) {
-        return isHoneypotBlock(block);
-    }
+    public abstract boolean isHoneypotBlock(Block block);
 
     /**
      * Return the action for the honeypot {@link Block} (Meant for ban, kick, etc.)
@@ -55,25 +46,17 @@ public class HoneypotBlockManager {
      * @param block The Block we're checking
      * @return The Honeypot's action as a string
      */
-    public String getAction(Block block) {
-        return getAction(block);
-    }
+    public abstract String getAction(Block block);
 
     /**
      * Delete all Honeypots in the entire DB. Do not use unless you know what you're doing
      */
-    public void deleteAllHoneypotBlocks() {
-        /*
-         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
-         */
-    }
+    public abstract void deleteAllHoneypotBlocks();
 
     /**
      * Get all {@link HoneypotBlockObject} in the DB
      * 
      * @return An array list of all HoneypotBlockObjects
      */
-    public List<HoneypotBlockObject> getAllHoneypots() {
-        return getAllHoneypots();
-    }
+    public abstract List<HoneypotBlockObject> getAllHoneypots();
 }

@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
  * @see HoneypotBlockManager
  * @see HoneypotBlockObject
  */
-public class HoneypotPlayerManager {
+public abstract class HoneypotPlayerManager {
 
     /**
      * Create a honeypot block by calling the SQLite DB. In the future this will be a switch case statement to handle
@@ -18,11 +18,7 @@ public class HoneypotPlayerManager {
      * @param player The Player object
      * @param blocksBroken The amount of Blocks broken
      */
-    public void addPlayer(Player player, int blocksBroken) {
-        /*
-         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
-         */
-    }
+    public abstract void addPlayer(Player player, int blocksBroken);
 
     /**
      * Set the number of blocks broken by the player by calling the SQLite setPlayerCount function. In the future this
@@ -31,11 +27,7 @@ public class HoneypotPlayerManager {
      * @param playerName The Player object
      * @param blocksBroken The amount of blocks broken by the player
      */
-    public void setPlayerCount(Player playerName, int blocksBroken) {
-        /*
-         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
-         */
-    }
+    public abstract void setPlayerCount(Player playerName, int blocksBroken);
 
     /**
      * Return the amount of blocks the player has broken. If it returns -1, then the player doesn't exist in the DB yet (They haven't broken any Honeypots)
@@ -43,17 +35,11 @@ public class HoneypotPlayerManager {
      * @param playerName the Player name
      * @return The amount of Honeypot blocks the player has broken
      */
-    public int getCount(Player playerName) {
-        return getCount(playerName);
-    }
+    public abstract int getCount(Player playerName);
 
     /**
      * Delete's all players in the DB
      */
-    public void deleteAllHoneypotPlayers() {
-        /*
-         * Function intentionally left blank as it's just a placeholder to develop against Honeypot
-         */
-    }
+    public abstract void deleteAllHoneypotPlayers();
 
 }
