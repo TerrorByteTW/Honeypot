@@ -71,6 +71,7 @@ public final class Honeypot extends JavaPlugin {
     @Override
     @SuppressWarnings({ "unused", "java:S2696" })
     public void onEnable() {
+        // Variables and stuff
         plugin = this;
         gui = new GUI(this);
         logger = new HoneypotLogger();
@@ -80,6 +81,7 @@ public final class Honeypot extends JavaPlugin {
         // Create/load configuration files
         HoneypotConfigManager.setupConfig(this);
 
+        // Setup Vault (This is a requirement!)
         if (!setupPermissions() && !testing) {
             getLogger().severe(
                     ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to Vault not being installed");
@@ -88,16 +90,18 @@ public final class Honeypot extends JavaPlugin {
             return;
         } 
 
+        // Register GriefPrevention (This could technically be a static function but it's not due to the abstraction API)
         if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
             gpu = new GriefPreventionUtil();
         }
         
+        //Set up bStats
         if (Boolean.FALSE.equals(testing)) {
-            // Setup bStats
             int pluginId = 15425;
             Metrics metrics = new Metrics(this, pluginId);
         }
 
+        // Start the GhostHoneypotFixer
         if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
             getLogger().info("Starting the ghost checker task! If you need to disable this, update the config and restart the server");
             GhostHoneypotFixer.startTask();
@@ -108,7 +112,7 @@ public final class Honeypot extends JavaPlugin {
         getCommand("honeypot").setExecutor(new CommandManager());
         logger.log("Loaded plugin");
 
-        // Output the "splash screen"
+        // Output the "splash" message
         getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + 
             " _____                         _\n"
           + "|  |  |___ ___ ___ _ _ ___ ___| |_\n" 
@@ -134,6 +138,9 @@ public final class Honeypot extends JavaPlugin {
                 });
     }
 
+    /**
+     * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard registers flags.
+     */
     @Override
     @SuppressWarnings("java:S2696")
     public void onLoad() {
