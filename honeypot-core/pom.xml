@@ -51,7 +51,7 @@
                 <configuration>
                     <filters>
                         <filter>
-                            <artifact>org.reprogle:Honeypot-API</artifact>
+                            <artifact>org.reprogle:honeypot-api</artifact>
                             <excludes>
                                 <exclude>org/reprogle/honeypot/storagemanager/**</exclude>
                                 <exclude>org/reprogle/honeypot/utils/**</exclude>
@@ -147,7 +147,7 @@
         <!-- Hard dependencies -->
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>Honeypot-API</artifactId>
+            <artifactId>honeypot-api</artifactId>
             <version>2.2.5</version>
         </dependency>
         <dependency>

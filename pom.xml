@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>Honeypot-API</module>
+        <module>honeypot-api</module>
         <module>honeypot-core</module>
     </modules>
 
