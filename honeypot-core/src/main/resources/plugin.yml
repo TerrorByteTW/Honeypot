@@ -6,6 +6,7 @@ main: org.reprogle.honeypot.Honeypot
 api-version: 1.17
 load: POSTWORLD
 depend: [Vault]
+softdepend: [WorldGuard, GriefPrevention]
 commands:
   honeypot:
     description: Creates or deletes a honeypot block

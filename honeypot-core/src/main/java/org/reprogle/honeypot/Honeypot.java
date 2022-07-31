@@ -14,7 +14,9 @@ import org.reprogle.honeypot.gui.GUI;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
+import org.reprogle.honeypot.utils.GriefPreventionUtil;
 import org.reprogle.honeypot.utils.HoneypotLogger;
+import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.milkbowl.vault.permission.Permission;
 
@@ -33,6 +35,10 @@ public final class Honeypot extends JavaPlugin {
     private static Permission perms = null;
 
     private static HoneypotLogger logger;
+
+    private static WorldGuardUtil wgu = null;
+
+    private static GriefPreventionUtil gpu = null;
 
     /**
      * Constructor for MockBukkit
@@ -65,28 +71,37 @@ public final class Honeypot extends JavaPlugin {
     @Override
     @SuppressWarnings({ "unused", "java:S2696" })
     public void onEnable() {
+        // Variables and stuff
         plugin = this;
         gui = new GUI(this);
         logger = new HoneypotLogger();
         hbm = new HoneypotBlockManager();
         hpm = new HoneypotPlayerManager();
 
+        // Create/load configuration files
+        HoneypotConfigManager.setupConfig(this);
+
+        // Setup Vault (This is a requirement!)
         if (!setupPermissions() && !testing) {
             getLogger().severe(
-                    ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to no Vault dependency found!");
+                    ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to Vault not being installed");
+            logger.log("Disabling due to Vault not being installed. Please download here: https://www.spigotmc.org/resources/vault.34315/");
             getServer().getPluginManager().disablePlugin(this);
             return;
-        }
+        } 
 
+        // Register GriefPrevention (This could technically be a static function but it's not due to the abstraction API)
+        if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
+            gpu = new GriefPreventionUtil();
+        }
+        
+        //Set up bStats
         if (Boolean.FALSE.equals(testing)) {
-            // Setup bStats
             int pluginId = 15425;
             Metrics metrics = new Metrics(this, pluginId);
         }
 
-        // Create/load configuration files
-        HoneypotConfigManager.setupConfig(this);
-
+        // Start the GhostHoneypotFixer
         if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
             getLogger().info("Starting the ghost checker task! If you need to disable this, update the config and restart the server");
             GhostHoneypotFixer.startTask();
@@ -97,7 +112,7 @@ public final class Honeypot extends JavaPlugin {
         getCommand("honeypot").setExecutor(new CommandManager());
         logger.log("Loaded plugin");
 
-        // Output the "splash screen"
+        // Output the "splash" message
         getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + 
             " _____                         _\n"
           + "|  |  |___ ___ ___ _ _ ___ ___| |_\n" 
@@ -124,13 +139,25 @@ public final class Honeypot extends JavaPlugin {
     }
 
     /**
+     * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard registers flags.
+     */
+    @Override
+    @SuppressWarnings("java:S2696")
+    public void onLoad() {
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            wgu = new WorldGuardUtil();
+            wgu.setupWorldGuard();
+        }
+    }
+
+    /**
      * Disable method called by Bukkit
      */
     @Override
     public void onDisable() {
+        getLogger().info("Stopping the ghost checker task");
         GhostHoneypotFixer.cancelTask();
         logger.log("Shut down plugin");
-        getLogger().info("Stopping the ghost checker task");
         getLogger().info("Successfully shutdown Honeypot. Bye for now!");
     }
 
@@ -198,5 +225,19 @@ public final class Honeypot extends JavaPlugin {
      */
     public static HoneypotLogger getHoneypotLogger() {
         return logger;
+    }
+
+    /**
+     * Retrieve the WorldGuard Util helper
+     */
+    public static WorldGuardUtil getWorldGuardUtil() {
+        return wgu;
+    }
+
+    /**
+     * Retrieve the GriefPrevention Util helper
+     */
+    public static GriefPreventionUtil getGriefPreventionUtil() {
+        return gpu;
     }
 }

@@ -24,6 +24,8 @@ import org.reprogle.honeypot.gui.GUIMenu;
 import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.utils.GriefPreventionUtil;
+import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.md_5.bungee.api.ChatColor;
 
@@ -276,6 +278,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 	@SuppressWarnings({"unchecked", "java:S3776"})
 	private static void createHoneypotFromGUI(InventoryClickEvent event, String action, String... customAction) {
 		Block block;
+		WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
+		GriefPreventionUtil gpu = Honeypot.getGriefPreventionUtil();
 
 		// Get block the player is looking at
 		if (event.getWhoClicked().getTargetBlockExact(5) != null) {
@@ -286,6 +290,20 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 			return;
 		}
+
+		//Check if in a WorldGuard region and the flag is set to deny. If it is, don't bother continuing
+		if(wgu != null && !wgu.isAllowed((Player) event.getWhoClicked(), block.getLocation())) {
+			event.getWhoClicked().closeInventory();
+			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("worldguard"));
+			return;
+		}
+
+		//Check if in a GriefPrevention region.
+        if (gpu != null && !gpu.isAllowed((Player) event.getWhoClicked(), block.getLocation())) {
+            event.getWhoClicked().closeInventory();
+			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("griefprevention"));
+            return;
+        }
 
 		if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")
 				|| HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {

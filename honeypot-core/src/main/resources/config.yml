@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 8
+file-version: 9
 
 # The database-type option has been removed for now. The only options were JSON and SQLite.
 # JSON support has been removed because I did not like how it was implemented, and it was very difficult to build on to. The default and only option is SQLite, however I plan
@@ -73,3 +73,11 @@ allowed-inventories:
 # This is to prevent honeypots from being created but not removed upon breaking
 allowed-blocks:
   - DIAMOND_ORE
+
+######################################################################
+#                   3 R D  P A R T Y  S E T T I N G S                #
+######################################################################
+
+# Enabling this will allow Honeypots to be created within GriefPrevention claims
+# Disabling this will not allow Honeypots to be created in GriefPrevention claims, even if the player has permission to build there
+respect-griefprevention: false

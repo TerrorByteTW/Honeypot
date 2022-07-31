@@ -27,7 +27,8 @@ public class EntityChangeBlockEventListener implements Listener {
         // Honeypot, otherwise cancel it
         if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
             if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(event.getBlock()))) {
-                Honeypot.getHoneypotLogger().log("PistonExtendEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ());
+
+                Honeypot.getHoneypotLogger().log("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ());
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(),

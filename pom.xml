@@ -4,11 +4,11 @@
 
     <groupId>org.reprogle</groupId>
     <artifactId>honeypot-parent</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.5</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>honeypot-api</module>
+        <module>Honeypot-API</module>
         <module>honeypot-core</module>
     </modules>
 
@@ -103,6 +103,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>sk89q-repo</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -110,6 +114,20 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.19-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Soft Depends -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.1.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.TechFortress</groupId>
+            <artifactId>GriefPrevention</artifactId>
+            <version>16.18</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
