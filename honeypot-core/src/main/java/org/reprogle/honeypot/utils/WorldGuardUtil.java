@@ -1,8 +1,9 @@
 package org.reprogle.honeypot.utils;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import com.sk89q.worldedit.util.Location;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -14,9 +15,11 @@ import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 
+/**
+ * A small utility class for helping connect with WorldGuard
+ */
 public class WorldGuardUtil {
 	private StateFlag honeypotFlag;
-	private boolean enabled = true;
 
 	/**
      * Sets up the hook for WorldGuard
@@ -40,7 +43,6 @@ public class WorldGuardUtil {
 			}
 		}
 
-		enabled = false;
 		honeypotFlag = null;
         return honeypotFlag;
     }
@@ -54,30 +56,18 @@ public class WorldGuardUtil {
     }
 
 	/**
-	 * Checks if WorldGuard support is enabled
-	 * @return True if enabled, false if not
-	 */
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	/**
 	 * Check if the allow-honeypots flag is on
 	 * 
 	 * @param player The player initiating the action
+	 * @param location The location of the block being placed (It may be different than the player location)
 	 * @return True if the action is allowed, false if the action isn't allowed OR if WorldGuard support isn't enabled.
 	 * @see #isEnabled() {@link #isEnabled()}
 	 */
-	public boolean isAllowed(Player player) {
+	public boolean isAllowed(Player player, Location location) {
 		LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
-		Location loc = localPlayer.getLocation();
 		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
 		RegionQuery query = container.createQuery();
-		ApplicableRegionSet set = query.getApplicableRegions(loc);
-
-		if (!isEnabled()) {
-			return false;
-		}
+		ApplicableRegionSet set = query.getApplicableRegions(BukkitAdapter.adapt(location));
 
 		return set.testState(localPlayer, honeypotFlag);
 	}

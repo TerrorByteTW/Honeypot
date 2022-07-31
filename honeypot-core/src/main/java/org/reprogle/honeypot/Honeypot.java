@@ -14,6 +14,7 @@ import org.reprogle.honeypot.gui.GUI;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
+import org.reprogle.honeypot.utils.GriefPreventionUtil;
 import org.reprogle.honeypot.utils.HoneypotLogger;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
@@ -36,6 +37,8 @@ public final class Honeypot extends JavaPlugin {
     private static HoneypotLogger logger;
 
     private static WorldGuardUtil wgu = null;
+
+    private static GriefPreventionUtil gpu = null;
 
     /**
      * Constructor for MockBukkit
@@ -84,6 +87,10 @@ public final class Honeypot extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         } 
+
+        if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
+            gpu = new GriefPreventionUtil();
+        }
         
         if (Boolean.FALSE.equals(testing)) {
             // Setup bStats
@@ -218,5 +225,12 @@ public final class Honeypot extends JavaPlugin {
      */
     public static WorldGuardUtil getWorldGuardUtil() {
         return wgu;
+    }
+
+    /**
+     * Retrieve the GriefPrevention Util helper
+     */
+    public static GriefPreventionUtil getGriefPreventionUtil() {
+        return gpu;
     }
 }
