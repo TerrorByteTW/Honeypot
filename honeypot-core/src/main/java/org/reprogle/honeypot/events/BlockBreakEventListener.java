@@ -99,6 +99,7 @@ public class BlockBreakEventListener implements Listener {
     // "root" block, such as torches breaking due to
     // the block they're on being broken
     @EventHandler(priority = EventPriority.LOW)
+    @SuppressWarnings("java:S1192")
     public static void checkBlockBreakSideEffects(BlockBreakEvent event) {
         Block block = event.getBlock();
 
@@ -114,7 +115,7 @@ public class BlockBreakEventListener implements Listener {
 
         // Check all the blocks on the *side* first
         for (Block adjacentBlock : adjacentBlocks) {
-            if (!PhysicsUtil.physicsSide.contains(adjacentBlock.getType())) continue;
+            if (!PhysicsUtil.getSidePhysics().contains(adjacentBlock.getType())) continue;
 
             if (Honeypot.getHBM().isHoneypotBlock(adjacentBlock)) {
                 blockBreakEvent(new BlockBreakEvent(adjacentBlock, event.getPlayer()));
@@ -133,21 +134,19 @@ public class BlockBreakEventListener implements Listener {
         }
 
         // Now check the block on the top (This is important because there are less blocks that can be anchored on the sides of blocks than on the top of blocks)
-        if (PhysicsUtil.physicsUp.contains(blockUp.getType())) {
-            if (Honeypot.getHBM().isHoneypotBlock(blockUp)) {
-                blockBreakEvent(new BlockBreakEvent(blockUp, event.getPlayer()));
-                Honeypot.getHBM().deleteBlock(blockUp);
-                Honeypot.getPlugin().getLogger().warning(
-                        "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
-                                + blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
-                                + ". " + event.getPlayer().getName()
-                                + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
-                Honeypot.getHoneypotLogger().log(
-                        "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
-                                + blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
-                                + ". " + event.getPlayer().getName()
-                                + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
-            }
+        if (PhysicsUtil.getUpPhysics().contains(blockUp.getType()) && Honeypot.getHBM().isHoneypotBlock(blockUp)) {
+            blockBreakEvent(new BlockBreakEvent(blockUp, event.getPlayer()));
+            Honeypot.getHBM().deleteBlock(blockUp);
+            Honeypot.getPlugin().getLogger().warning(
+                    "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
+                            + blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
+                            + ". " + event.getPlayer().getName()
+                            + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
+            Honeypot.getHoneypotLogger().log(
+                    "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
+                            + blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
+                            + ". " + event.getPlayer().getName()
+                            + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
         }
     }
 

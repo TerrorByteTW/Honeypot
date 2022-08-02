@@ -6,8 +6,13 @@ import java.util.List;
 import org.bukkit.Material;
 
 public class PhysicsUtil {
+
+    // Hide implicit constructor
+    PhysicsUtil() {
+
+    }
     
-    public static final List<Material> physicsUp = Arrays.asList (
+    private static final List<Material> physicsUp = Arrays.asList (
         Material.ACACIA_BUTTON,
         Material.ACACIA_DOOR,
         Material.ACACIA_PRESSURE_PLATE,
@@ -210,7 +215,7 @@ public class PhysicsUtil {
         Material.YELLOW_CARPET
     );
 
-    public static final List<Material> physicsSide = Arrays.asList (
+    private static final List<Material> physicsSide = Arrays.asList (
         Material.ACACIA_BUTTON,
         Material.ACACIA_SIGN,
         Material.ACACIA_SIGN,
@@ -272,5 +277,13 @@ public class PhysicsUtil {
         Material.WHITE_BANNER,
         Material.YELLOW_BANNER
     );
+
+    public static List<Material> getSidePhysics() {
+        return physicsSide;
+    }
+
+    public static List<Material> getUpPhysics() {
+        return physicsUp;
+    }
     
 }
