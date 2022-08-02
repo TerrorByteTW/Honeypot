@@ -101,6 +101,10 @@ public class BlockBreakEventListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     @SuppressWarnings("java:S1192")
     public static void checkBlockBreakSideEffects(BlockBreakEvent event) {
+        if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))
+                    && !(event.getPlayer().hasPermission(REMOVE_PERMISSION)
+                            || event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) return;
+
         Block block = event.getBlock();
 
         Block[] adjacentBlocks = new Block[] { 
