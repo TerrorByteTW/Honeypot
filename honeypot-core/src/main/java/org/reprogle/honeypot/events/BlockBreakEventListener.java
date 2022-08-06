@@ -23,7 +23,7 @@ import dev.dejvokep.boostedyaml.YamlDocument;
 
 public class BlockBreakEventListener implements Listener {
 
-    private static final String REMOVE_PERMISSION = "honeypot.remove";
+    private static final String REMOVE_PERMISSION = "honeypot.break";
 
     private static final String WILDCARD_PERMISSION = "honeypot.*";
 

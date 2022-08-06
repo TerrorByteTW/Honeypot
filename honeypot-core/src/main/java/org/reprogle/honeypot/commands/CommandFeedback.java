@@ -36,10 +36,7 @@ public class CommandFeedback {
                 ChatColor.WHITE + "-----------------------");
             }
             
-            case "alreadyexists" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
-                        + "This is already a honeypot block. If you wish to change the action, please remove and recreate it.");
-            }
+            case "alreadyexists" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This is already a honeypot block. If you wish to change the action, please remove and recreate it.");
 
             case "success" -> {
                 if (success[0].equals(true)) {
@@ -56,25 +53,15 @@ public class CommandFeedback {
                 }
             }
 
-            case "notapot" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.RED + "This is not a honeypot block");
-            }
+            case "notapot" -> feedbackMessage = (chatPrefix + " " + ChatColor.RED + "This is not a honeypot block");
 
-            case "nopermission" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.RED + "You don't have permission to use this command");
-            }
+            case "nopermission" -> feedbackMessage = (chatPrefix + " " + ChatColor.RED + "You don't have permission to use this command");
 
-            case "reload" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Reloading config file");
-            }
+            case "reload" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Reloading config file");
 
-            case "foundpot" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Highlighting honeypot blocks within range");
-            }
+            case "foundpot" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Highlighting honeypot blocks within range");
 
-            case "nopotfound" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "No honeypot blocks found within range");
-            }
+            case "nopotfound" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "No honeypot blocks found within range");
 
             case "updateavailable" -> {
                 feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
@@ -83,60 +70,31 @@ public class CommandFeedback {
                         + "for the latest features and security updates!");
             }
 
-            case "againstfilter" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
-                        + "This block is not in the filter, so you can't do that!");
-            }
+            case "againstfilter" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This block is not in the filter, so you can't do that!");
 
-            case "inputcancelled" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypot creation cancelled");
-            }
+            case "inputcancelled" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypot creation cancelled");
 
-            case "notlookingatblock" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
-                        + "You need to be looking at a block to perform this command");
-            }
+            case "notlookingatblock" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "You need to be looking at a block to perform this command");
 
-            case "noexist" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
-                        + "Could not find that Honeypot type in the config");
-            }
+            case "noexist" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Could not find that Honeypot type in the config");
 
-            case "deletedall" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Deleted all honeypot blocks");
-            }
+            case "deletedall" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Deleted all honeypot blocks");
 
-            case "deletednear" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE
-                        + "Deleted all honeypot blocks within a 5 block radius");
-            }
+            case "deletednear" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Deleted all honeypot blocks within a 5 block radius");
 
-            case "upgrade" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.RED + "WARNING! " + ChatColor.WHITE + "This command can severely break your Honeypots if run it more than once. Only run if you know what you're doing. Run " + ChatColor.RED + "/honeypot upgrade confirm" + ChatColor.WHITE + " to upgrade");
-            }
+            case "upgrade" -> feedbackMessage = (chatPrefix + " " + ChatColor.RED + "WARNING! " + ChatColor.WHITE + "After importing, you must not rename the converted actions! Doing so will cause your Honeypots to cease functioning. Run " + ChatColor.RED + "/honeypot upgrade confirm" + ChatColor.WHITE + " to upgrade");
 
-            case "alreadyupgraded" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.RED + "You have already ran the upgrade command! " + ChatColor.WHITE + "You should NOT use this command again. Please reach out to the plugin author if you need to do another upgrade, they can provide instructions on how to do so");
-            }
+            case "alreadyupgraded" -> feedbackMessage = (chatPrefix + " " + ChatColor.RED + "You have already ran the upgrade command! " + ChatColor.WHITE + "You should NOT use this command again. Please reach out to the plugin author if you need to do another upgrade, they can provide instructions on how to do so");
 
-            case "nophysics" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Physics are disabled, so you cannot create a Honeypot on this block!");
-            }
+            case "nophysics" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Physics are disabled, so you cannot create a Honeypot on this block!");
 
-            case "worldguard" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypots are disabled in this region.");
-            }
+            case "worldguard" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "Honeypots are disabled in this region.");
 
-            case "griefprevention" -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This area is protected by GriefPrevention, and you don't have permission to build.");
-            }
+            case "griefprevention" -> feedbackMessage = (chatPrefix + " " + ChatColor.WHITE + "This area is protected by GriefPrevention, and you don't have permission to build.");
 
-            default -> {
-                feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
-                        + "Unknown error, please contact server admin");
-            }
+            default -> feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED + "Unknown error, please contact server admin");
         }
-            return feedbackMessage;
+        return feedbackMessage;
     }
 
 }

@@ -21,12 +21,10 @@ public class HoneypotLogger {
 		try {
 			logFile = new File(Honeypot.getPlugin().getDataFolder(), "logs.txt");
 			if (logFile.createNewFile()) {
-				Honeypot.getPlugin().getLogger().info("File created: " + logFile.getName());
-			} else {
-				Honeypot.getPlugin().getLogger().info("File already exists.");
+				Honeypot.getPlugin().getLogger().info("Logs file created: " + logFile.getName());
 			}
 		} catch (IOException e) {
-			Honeypot.getPlugin().getLogger().severe("An error occurred.");
+			Honeypot.getPlugin().getLogger().severe("Could not create the logs.txt file for logging!");
 		}
 	}
 

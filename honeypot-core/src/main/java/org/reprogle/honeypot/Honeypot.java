@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import org.reprogle.honeypot.commands.CommandManager;
 import org.reprogle.honeypot.events.*;
 import org.reprogle.honeypot.gui.GUI;
+import org.reprogle.honeypot.storagemanager.CacheManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
@@ -157,6 +158,7 @@ public final class Honeypot extends JavaPlugin {
     public void onDisable() {
         getLogger().info("Stopping the ghost checker task");
         GhostHoneypotFixer.cancelTask();
+        CacheManager.clearCache();
         logger.log("Shut down plugin");
         getLogger().info("Successfully shutdown Honeypot. Bye for now!");
     }
