@@ -122,7 +122,7 @@ public class HoneypotBlockObject {
         HoneypotBlockObject honeypot = (HoneypotBlockObject) o;
 
         // Don't really care about the action since action doesn't determine a Honeypot
-        return honeypot.coordinates == this.coordinates && honeypot.world == this.world;
+        return honeypot.coordinates.equalsIgnoreCase(this.coordinates) && honeypot.world.equals(this.world);
     }
 
     @Override

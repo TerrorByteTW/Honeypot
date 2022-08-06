@@ -38,7 +38,7 @@ public class HoneypotBlockManager {
 
         db.removeHoneypotBlock(block);
         CacheManager.removeFromCache(new HoneypotBlockObject(block, null));
-        
+
         Honeypot.getHoneypotLogger().log("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
     }
 
