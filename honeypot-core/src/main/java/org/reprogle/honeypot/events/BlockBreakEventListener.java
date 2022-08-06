@@ -38,7 +38,7 @@ public class BlockBreakEventListener implements Listener {
 
     // Player block break event
     @EventHandler(priority = EventPriority.LOW)
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings( {"java:S3776", "java:S1192"} )
     public static void blockBreakEvent(BlockBreakEvent event) {
         if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(event.getBlock()))) {
             // Fire HoneypotPrePlayerBreakEvent

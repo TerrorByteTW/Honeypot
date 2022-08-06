@@ -9,7 +9,7 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 
-@SuppressWarnings({ "java:S1604", "unused" })
+@SuppressWarnings({ "java:S1604"})
 public class GhostHoneypotFixer {
 
 	// Create package constructor to hide implicit one
@@ -17,7 +17,7 @@ public class GhostHoneypotFixer {
 
 	}
 
-	public static BukkitTask task;
+	private static BukkitTask task;
 
 	/**
 	 * Start a task to check for ghost honeypots every defined interval
