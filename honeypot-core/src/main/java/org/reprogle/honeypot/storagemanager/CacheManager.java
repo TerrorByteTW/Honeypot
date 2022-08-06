@@ -3,7 +3,6 @@ package org.reprogle.honeypot.storagemanager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
 
 /**
@@ -67,12 +66,10 @@ public class CacheManager {
     public static HoneypotBlockObject isInCache(HoneypotBlockObject block) {
         for (HoneypotBlockObject b : cache) {
             if (block.equals(b)) {
-                Honeypot.getPlugin().getLogger().info("Verified a pot from Cache");
                 return b;
             }
         }
 
-        Honeypot.getPlugin().getLogger().info("Verified a pot from DB");
         return null;
     }
 
