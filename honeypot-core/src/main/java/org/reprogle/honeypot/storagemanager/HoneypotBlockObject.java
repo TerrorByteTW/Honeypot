@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
+import com.google.common.base.Objects;
+
 public class HoneypotBlockObject {
 
     private final String coordinates;
@@ -110,6 +112,22 @@ public class HoneypotBlockObject {
         int z = Integer.parseInt(coords.get(2));
 
         return Bukkit.getWorld(world).getBlockAt(x, y, z);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HoneypotBlockObject)) return false;
+        if (o == this) return true;
+
+        HoneypotBlockObject honeypot = (HoneypotBlockObject) o;
+
+        // Don't really care about the action since action doesn't determine a Honeypot
+        return honeypot.coordinates == this.coordinates && honeypot.world == this.world;
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hashCode(coordinates, world, action);
     }
 
 }

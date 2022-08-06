@@ -22,7 +22,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
     @SuppressWarnings("java:S3776")
     public void perform(Player p, String[] args) throws IOException {
 
-        if (!p.hasPermission("honeypot.remove") && !p.hasPermission("honeypot.removecommand")) {
+        if (!p.hasPermission("honeypot.break") && !p.hasPermission("honeypot.remove")) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
             return;
         }

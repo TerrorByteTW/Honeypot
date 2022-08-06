@@ -186,7 +186,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	@SuppressWarnings({"java:S3776", "java:S1192"})
 	private static void removeHoneypotInventory(Player p) {
-		if (!(p.hasPermission("honeypot.removecommand"))) {
+		if (!(p.hasPermission("honeypot.remove"))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 			return;
 		}
