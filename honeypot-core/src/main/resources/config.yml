@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 11
+file-version: 12
 
 # How many Honeypots to store in cache at any given time. The maximum size is 50, and anything larger than that is ignored.
 # Setting this to <=0 will disable caching
@@ -53,6 +53,10 @@ enable-logging: true
 
 # Select your language. Currently only en_US is supported, with translations coming soon!
 language: en_US
+
+# If you're providing your own language file, set this to true. If you've incorrectly translated it, though, expect errors in console!
+# If you don't know what this is, leave it set to false
+bypass-language-check: false
 
 ######################################################################
 #                     F I L T E R   S E T T I N G S                  #
