@@ -52,6 +52,7 @@ enable-logging: true
 ######################################################################
 
 # Select your language. Currently only en_US is supported, with translations coming soon!
+# Want to create your own translation? Visit here: https://github.com/TerrrorByte/Honeypot/wiki/Translating-Honeypot
 language: en_US
 
 # If you're providing your own language file, set this to true. If you've incorrectly translated it, though, expect errors in console!
