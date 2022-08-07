@@ -27,10 +27,10 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
 
 ## To-do 📝
-* Add caching to prevent dozens of DB lookups every second *(Researching how to implement)*
+* Add language translations *(Always in progress, currently supporting en_US and es_MX!)*
+* Add history command to allow staff to look up if/when the last time a player interacted with a Honeypot was *(Researching)*
 * Add unit tests with MockBukkit to make development quicker and testing easier *(In progress)*
 * Add support for other plugins (Such as grief pretection and WorldEdit/Guard) *(Partially implemented as of [Honeypot 2.2.5](https://github.com/TerrrorByte/Honeypot/releases/tag/2.2.5))*
-* Add a strike system to Honeypot (Different actions depending on how many blocks a player has broken, instead of just action after a certain number) *(Currently blocked, but may be implemented in the future)*
 
 ## Credits 🎬
 TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed! Big thanks to dejvokep for their [BoostedYAML](https://www.spigotmc.org/threads/%E2%9A%A1-boostedyaml-standalone-yaml-library-with-updater-and-comment-support-much-more-5min-setup-%E2%9A%A1.545585/) library!
