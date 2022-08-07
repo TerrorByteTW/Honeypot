@@ -10,7 +10,7 @@ success:
   default: "¡Éxito!!"
 not-a-honeypot: "&cEsto no es un bloque Honeypot"
 no-permission: "&cNo tienes permiso para usar este comando"
-reload: "Recargando archivo de configuración"
+reload: "Recargando archivos de configuración. Si ha cambiado el idioma, reinicie el servidor para que el cambio surta efecto."
 found-pots: "Resaltar bloques de honeypot dentro del rango"
 no-pots-found: "No se encontraron bloques de honeypot dentro del rango"
 update-available: "Hay una actualización disponible para este complemento. ¡Descárguelo en &6https://github.com/TerrrorByte/Honeypot&r para obtener las últimas funciones y actualizaciones de seguridad!"

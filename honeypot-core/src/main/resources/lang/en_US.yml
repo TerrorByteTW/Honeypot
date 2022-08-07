@@ -10,7 +10,7 @@ success:
   default: "Success!"
 not-a-honeypot: "&cThis is not a Honeypot block"
 no-permission: "&cYou don't have permission to use this command"
-reload: "Reloading config file"
+reload: "Reloading config files. If you've changed the language, please restart the server for that change to take effect."
 found-pots: "Highlighting honeypot blocks within range"
 no-pots-found: "No honeypot blocks found within range"
 update-available: "An update is available for this plugin. Download it at &6https://github.com/TerrrorByte/Honeypot&r for the latest features and security updates!"
