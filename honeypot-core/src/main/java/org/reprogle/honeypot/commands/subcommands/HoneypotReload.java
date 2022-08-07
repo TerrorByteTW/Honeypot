@@ -34,6 +34,9 @@ public class HoneypotReload implements HoneypotSubCommand {
             HoneypotConfigManager.getHoneypotsConfig().reload();
             HoneypotConfigManager.getHoneypotsConfig().save();
 
+            HoneypotConfigManager.getLanguageFile().reload();
+            HoneypotConfigManager.getLanguageFile().save();
+
             p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
         }
         catch (IOException e) {
