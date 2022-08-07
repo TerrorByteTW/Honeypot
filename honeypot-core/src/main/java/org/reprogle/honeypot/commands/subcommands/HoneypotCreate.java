@@ -57,6 +57,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
             return;
         }
 
+        // Check if the filter is enabled, and if so, if it's allowed
         if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")
                 || HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {
             List<String> allowedBlocks = (List<String>) HoneypotConfigManager.getPluginConfig()
@@ -90,11 +91,11 @@ public class HoneypotCreate implements HoneypotSubCommand {
             }
         }
 
-        // If the blocks meta has a honeypot tag, let them know
+        // If the block already exists in the DB
         if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
-            // If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
+            // If the block doesn't exist
         }
         else {
             if (args.length >= 2 && (args[1].equalsIgnoreCase("kick") || args[1].equalsIgnoreCase("ban")

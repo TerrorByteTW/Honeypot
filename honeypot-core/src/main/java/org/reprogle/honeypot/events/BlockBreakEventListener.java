@@ -12,11 +12,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.reprogle.honeypot.ConfigColorManager;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
+import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.utils.PhysicsUtil;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
@@ -159,7 +159,7 @@ public class BlockBreakEventListener implements Listener {
 
         // Get the block broken and the chat prefix for prettiness
         Block block = event.getBlock();
-        String chatPrefix = ConfigColorManager.getChatPrefix();
+        String chatPrefix = CommandFeedback.getChatPrefix();
 
         // If the player isn't exempt, doesn't have permissions, and isn't Op
         if (!(event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().hasPermission(REMOVE_PERMISSION)
@@ -173,17 +173,17 @@ public class BlockBreakEventListener implements Listener {
             Honeypot.getHoneypotLogger().log("BlockBreakEvent being called for player: " + event.getPlayer().getName()
                     + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
             switch (action) {
-                case "kick" -> event.getPlayer().kickPlayer(chatPrefix + " " + ConfigColorManager.getConfigMessage("kick"));
+                case "kick" -> event.getPlayer().kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
 
                 case "ban" -> {
-                    String banReason = chatPrefix + " " + ConfigColorManager.getConfigMessage("ban");
+                    String banReason = CommandFeedback.sendCommandFeedback("ban");
 
                     Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), banReason, null, chatPrefix);
                     event.getPlayer().kickPlayer(banReason);
                 }
 
                 case "warn" -> event.getPlayer()
-                        .sendMessage(chatPrefix + " " + ConfigColorManager.getConfigMessage("warn"));
+                        .sendMessage(CommandFeedback.sendCommandFeedback("warn"));
 
                 case "notify" -> {
                     // Notify all staff members with permission or Op that someone tried to break a honeypot block
@@ -291,15 +291,13 @@ public class BlockBreakEventListener implements Listener {
         }
         else if (event.getPlayer().hasPermission(REMOVE_PERMISSION)
                 || event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()) {
-            event.getPlayer().sendMessage(chatPrefix + " " + ChatColor.WHITE
-                    + "Just an FYI this was a honeypot. Since you broke it we've removed it");
+            event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("staffbroke"));
 
         // If it got to here, then they are exempt but can't break blocks anyway.
         }
         else {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(chatPrefix + " " + ChatColor.RED
-                    + "You are exempt from break actions, but do not have permissions to remove honeypot blocks. Sorry!");
+            event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("exemptnobreak"));
         }
     }
 
