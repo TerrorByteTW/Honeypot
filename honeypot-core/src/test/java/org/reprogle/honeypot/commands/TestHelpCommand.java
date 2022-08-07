@@ -7,7 +7,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.reprogle.honeypot.ConfigColorManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.TestUtils;
 import org.reprogle.honeypot.commands.subcommands.HoneypotHelp;
@@ -35,7 +34,7 @@ public class TestHelpCommand {
 	
 	@Test
     public void helpDialogIsCorrect() {
-		String chatPrefix = ConfigColorManager.getChatPrefix();
+		String chatPrefix = CommandFeedback.getChatPrefix();
         String expectedMessage = "\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE + "Need Help?\n" +
 			"  " + "/honeypot " + ChatColor.GRAY + "create [ban | kick | warn | notify | nothing | custom]\n" +
 			"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +

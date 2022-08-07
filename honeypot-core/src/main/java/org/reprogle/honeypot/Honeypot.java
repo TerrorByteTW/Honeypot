@@ -8,6 +8,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.java.JavaPluginLoader;
+import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.CommandManager;
 import org.reprogle.honeypot.events.*;
 import org.reprogle.honeypot.gui.GUI;
@@ -85,7 +86,7 @@ public final class Honeypot extends JavaPlugin {
         // Setup Vault (This is a requirement!)
         if (!setupPermissions() && !testing) {
             getLogger().severe(
-                    ConfigColorManager.getChatPrefix() + ChatColor.RED + " Disabled due to Vault not being installed");
+                    CommandFeedback.getChatPrefix() + ChatColor.RED + " Disabled due to Vault not being installed");
             logger.log("Disabling due to Vault not being installed. Please download here: https://www.spigotmc.org/resources/vault.34315/");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -128,12 +129,12 @@ public final class Honeypot extends JavaPlugin {
                     if (Integer.parseInt(latest.replace(".", "")) > Integer
                             .parseInt(this.getDescription().getVersion().replace(".", ""))) {
                         getServer().getConsoleSender()
-                                .sendMessage(ConfigColorManager.getChatPrefix() + ChatColor.RED
+                                .sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
                                         + " There is a new update available: " + latest
                                         + ". Please download for the latest features and security updates!");
                     }
                     else {
-                        getServer().getConsoleSender().sendMessage(ConfigColorManager.getChatPrefix() + ChatColor.GREEN
+                        getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + ChatColor.GREEN
                                 + " You are on the latest version of Honeypot!");
                     }
                 });
