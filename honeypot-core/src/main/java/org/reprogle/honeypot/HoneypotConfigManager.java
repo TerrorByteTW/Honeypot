@@ -82,7 +82,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 
         String language = config.getString("language");
 
-        if (!(language.equals("en_US") || language.equals("es_MX"))) {
+        if (!(language.equals("en_US") || language.equals("es_MX")) && Boolean.FALSE.equals(config.getBoolean("bypass-language-check"))) {
             plugin.getLogger().warning("Language is currently set to " + language + ". This language is currently not supported, defaulting to en_US.");
             language = "en_US";
         }
