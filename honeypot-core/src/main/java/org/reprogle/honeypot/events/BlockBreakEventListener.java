@@ -165,6 +165,8 @@ public class BlockBreakEventListener implements Listener {
         if (!(event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().hasPermission(REMOVE_PERMISSION)
                 || event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
 
+            // TODO - Log block breaks in the history (Need to create a class for handling this)
+
             // Grab the action from the block via the storage manager
             String action = Honeypot.getHBM().getAction(block);
 

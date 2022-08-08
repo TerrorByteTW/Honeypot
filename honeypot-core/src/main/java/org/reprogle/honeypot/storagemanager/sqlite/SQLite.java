@@ -22,18 +22,27 @@ public class SQLite extends Database {
 
     // The queries used to load the DB table. Only runs if the table doesn't exist.
     private static final String SQLITE_CREATE_PLAYERS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
-            "`playerName` varchar(10) NOT NULL," +
-            "`blocksBroken` int(10) NOT NULL," +
+            "`playerName` VARCHAR NOT NULL," +
+            "`blocksBroken` INT NOT NULL," +
             "PRIMARY KEY (`playerName`)" +
         ");";
 
     private static final String SQLITE_CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
-            "`coordinates` varchar(10) NOT NULL," +
-            "`worldName` varchar(10) NOT NULL," +
-            "`action` varchar(10) NOT NULL," +
+            "`coordinates` VARCHAR NOT NULL," +
+            "`worldName` VARCHAR NOT NULL," +
+            "`action` VARCHAR NOT NULL," +
             "PRIMARY KEY (`coordinates`, `worldName`)" +
-            ");";
-
+        ");";
+            
+    //SQLite has this cool feature where if no primary key is provided, the primary key defaults to the rowid. Nifty!
+    private static final String SQLITE_CREATE_HISTORY_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_history (" +
+            "`datetime` VARCHAR NOT NULL," +
+            "`playerName` varchar NOT NULL," +
+            "`playerUUID` VARCHAR NOT NULL," +
+            "`coordinates` VARCHAR NOT NULL,"+
+            "`world` VARCHAR NOT NULL,"+
+            "`action` VARCHAR NOT NULL" +
+        ");";
     /**
      * Get's the DB connection, also verifies if JDBC is installed. If it isn't plugin is disabled as it can't function
      * without it
@@ -86,6 +95,7 @@ public class SQLite extends Database {
         try (Statement s = connection.createStatement()) {
             s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
             s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
+            s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
         }
         catch (SQLException e) {
             Honeypot.getPlugin().getLogger().severe("SQLException occured while attempting to create tables if they don't exist: " + e);

@@ -23,9 +23,12 @@ public abstract class Database {
 
     private static final String BLOCK_TABLE = "honeypot_blocks";
 
+    private static final String HISTORY_TABLE = "honeypot_history";
+
     private static final String SELECT = "SELECT * FROM ";
     private static final String FAIL_TO_CLOSE = "Failed to close SQLite connection: ";
     private static final String DELETE = "DELETE FROM ";
+    private static final String INSERT_INTO = "INSERT INTO ";
 
     /**
      * Create a Database object
@@ -73,6 +76,12 @@ public abstract class Database {
         }
     }
 
+    /*****************************
+     *                           *
+     *       BLOCK METHODS       *
+     *                           *
+     *****************************/
+
     /**
      * Create a HoneypotBlock using SQLite. Connects to the DB and inserts the block into it.
      * 
@@ -89,7 +98,7 @@ public abstract class Database {
         try {
             c = getSQLConnection();
             ps = c.prepareStatement(
-                    "INSERT INTO " + BLOCK_TABLE + " (coordinates, action, worldName) VALUES (?, ?, ?);");
+                    INSERT_INTO + BLOCK_TABLE + " (coordinates, action, worldName) VALUES (?, ?, ?);");
             ps.setString(1, coordinates);
             ps.setString(2, action);
             ps.setString(3, worldName);
@@ -285,6 +294,12 @@ public abstract class Database {
         return Collections.emptyList();
     }
 
+    /*****************************
+     *                           *
+     *       PLAYER METHODS      *
+     *                           *
+     *****************************/
+
     /**
      * Creates a Honeypot Player
      * 
@@ -299,7 +314,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement("INSERT INTO " + PLAYER_TABLE + " (playerName, blocksBroken) VALUES (?, ?);");
+            ps = c.prepareStatement(INSERT_INTO + PLAYER_TABLE + " (playerName, blocksBroken) VALUES (?, ?);");
             ps.setString(1, player.getUniqueId().toString());
             ps.setInt(2, blocksBroken);
             ps.executeUpdate();
@@ -402,6 +417,12 @@ public abstract class Database {
         return -1;
     }
 
+    /*****************************
+     *                           *
+     *       DROP METHODS        *
+     *                           *
+     *****************************/
+
     /**
      * Delete's all blocks in the DB
      */
@@ -459,5 +480,44 @@ public abstract class Database {
             }
         }
     }
+
+    /*****************************
+     *                           *
+     *      HISTORY METHODS      *
+     *                           *
+     *****************************/
+
+    public void addPlayerHistory(Player p, HoneypotBlockObject block) {
+        Connection c = null;
+        PreparedStatement ps = null;
+
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement(INSERT_INTO + HISTORY_TABLE + " (datetime, playerName, playerUUID, coordinates, world, action) VALUES (DATETIME('now'), ?, ?, ?, ?, ?);");
+            ps.setString(1, p.getName());
+            ps.setString(2, p.getUniqueId().toString());
+            ps.setString(3, block.getCoordinates());
+            ps.setString(4, block.getWorld());
+            ps.setString(5, block.getAction());
+            ps.executeUpdate();
+
+        }
+        catch (SQLException e) {
+            Honeypot.getPlugin().getLogger().severe("Error while executing create SQL statement on history table: " + e);
+        }
+        finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (c != null)
+                    c.close();
+            }
+            catch (SQLException e) {
+                Honeypot.getPlugin().getLogger().severe(FAIL_TO_CLOSE + e);
+            }
+        }
+    }
+
+    // TODO - Add methods to retrieve history and purge it, as well as deleting n number of items, etc.
 
 }

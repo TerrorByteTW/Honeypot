@@ -13,6 +13,7 @@ import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.subcommands.HoneypotCreate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotGUI;
 import org.reprogle.honeypot.commands.subcommands.HoneypotHelp;
+import org.reprogle.honeypot.commands.subcommands.HoneypotInfo;
 import org.reprogle.honeypot.commands.subcommands.HoneypotLocate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotReload;
 import org.reprogle.honeypot.commands.subcommands.HoneypotRemove;
@@ -40,6 +41,7 @@ public class CommandManager implements TabExecutor {
         subcommands.add(new HoneypotGUI());
         subcommands.add(new HoneypotHelp());
         subcommands.add(new HoneypotUpgrade());
+        subcommands.add(new HoneypotInfo());
 
         for (int i = 0; i < getSubcommands().size(); i++) {
             subcommandsNameOnly.add(getSubcommands().get(i).getName());
