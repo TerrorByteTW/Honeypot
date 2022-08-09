@@ -46,7 +46,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
                     final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
                     // If it is a honeypot do this
-                    if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+                    if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
                         potFound = true;
 
                         // Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn it inside the

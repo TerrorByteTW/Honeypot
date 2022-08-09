@@ -21,7 +21,7 @@ public class StructureGrowEventListener implements Listener {
 		for (int i = 0; i < event.getBlocks().size(); i++) {
 			BlockState block = event.getBlocks().get(i);
 
-			if (Honeypot.getHBM().isHoneypotBlock(block.getBlock())) {
+			if (Honeypot.getBlockManager().isHoneypotBlock(block.getBlock())) {
 				Honeypot.getHoneypotLogger().log("StuctureGrowEvent being cancelled for Honeypot located at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
 				event.setCancelled(true);
 			}

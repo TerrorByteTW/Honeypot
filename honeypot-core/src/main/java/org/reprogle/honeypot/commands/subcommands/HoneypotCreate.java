@@ -92,7 +92,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
         }
 
         // If the block already exists in the DB
-        if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
+        if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(block))) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
             // If the block doesn't exist
@@ -112,14 +112,14 @@ public class HoneypotCreate implements HoneypotSubCommand {
 
                 if (args[1].equalsIgnoreCase("custom")) {
                     if (!args[2].isEmpty() && HoneypotConfigManager.getHoneypotsConfig().contains(args[2])) {
-                        Honeypot.getHBM().createBlock(block, args[2]);
+                        Honeypot.getBlockManager().createBlock(block, args[2]);
                         p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                     } else {
                         p.sendMessage(CommandFeedback.sendCommandFeedback("noexist"));
                     }
                 }
                 else {
-                    Honeypot.getHBM().createBlock(block, args[1]);
+                    Honeypot.getBlockManager().createBlock(block, args[1]);
                     p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
                 }
 

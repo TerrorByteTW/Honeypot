@@ -33,7 +33,7 @@ public class HoneypotUpgrade implements HoneypotSubCommand {
 		}
 
 		if (args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
-			List<HoneypotBlockObject> oldBlocks = Honeypot.getHBM().getAllHoneypots();
+			List<HoneypotBlockObject> oldBlocks = Honeypot.getBlockManager().getAllHoneypots();
 			int customBlock = 0;
 
 			for (HoneypotBlockObject block : oldBlocks) {
@@ -55,8 +55,8 @@ public class HoneypotUpgrade implements HoneypotSubCommand {
 
 					++customBlock;
 
-					Honeypot.getHBM().deleteBlock(block.getBlock());
-					Honeypot.getHBM().createBlock(block.getBlock(), route);
+					Honeypot.getBlockManager().deleteBlock(block.getBlock());
+					Honeypot.getBlockManager().createBlock(block.getBlock(), route);
 				}
 			}
 

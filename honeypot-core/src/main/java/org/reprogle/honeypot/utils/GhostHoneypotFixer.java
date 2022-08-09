@@ -31,12 +31,12 @@ public class GhostHoneypotFixer {
 				Honeypot.getPlugin().getLogger().info("Running ghost Honeypot checks...");
 				Honeypot.getHoneypotLogger().log("Running ghost Honeypot checks...");
 				int removedPots = 0;
-				List<HoneypotBlockObject> pots = Honeypot.getHBM().getAllHoneypots();	
+				List<HoneypotBlockObject> pots = Honeypot.getBlockManager().getAllHoneypots();	
 				for (HoneypotBlockObject pot : pots) {
 					if (pot.getBlock().getType().equals(Material.AIR)) {
 						Honeypot.getPlugin().getLogger().info("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
 						Honeypot.getHoneypotLogger().log("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
-						Honeypot.getHBM().deleteBlock(pot.getBlock());
+						Honeypot.getBlockManager().deleteBlock(pot.getBlock());
 						removedPots++;
 					}
 				}

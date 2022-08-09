@@ -4,7 +4,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
-import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistory;
+import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryObject;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -559,7 +559,7 @@ public abstract class Database {
      * @param p The Player to retrieve
      * @return An ArrayList of HoneypotPlayerHistory objects for the player
      */
-    public List<HoneypotPlayerHistory> retrieveHistory(Player p) {
+    public List<HoneypotPlayerHistoryObject> retrieveHistory(Player p) {
         Connection c = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -569,9 +569,9 @@ public abstract class Database {
             ps.setString(1, p.getUniqueId().toString());
             rs = ps.executeQuery();
 
-            List<HoneypotPlayerHistory> history = new ArrayList<>();
+            List<HoneypotPlayerHistoryObject> history = new ArrayList<>();
             while (rs.next()) {
-                history.add(new HoneypotPlayerHistory(rs.getString("datetime"), rs.getString("playerName"), rs.getString("playerUUID"), rs.getString("coordinates"), rs.getString("world"), rs.getString("action")));
+                history.add(new HoneypotPlayerHistoryObject(rs.getString("datetime"), rs.getString("playerName"), rs.getString("playerUUID"), rs.getString("coordinates"), rs.getString("world"), rs.getString("action")));
             }
 
             return history;

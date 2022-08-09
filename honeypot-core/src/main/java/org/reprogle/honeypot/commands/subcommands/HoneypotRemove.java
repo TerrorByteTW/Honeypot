@@ -32,7 +32,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
         if (args.length >= 2) {
             switch (args[1].toLowerCase()) {
             case "all" -> {
-                Honeypot.getHBM().deleteAllHoneypotBlocks();
+                Honeypot.getBlockManager().deleteAllHoneypotBlocks();
                 p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
             }
 
@@ -53,8 +53,8 @@ public class HoneypotRemove implements HoneypotSubCommand {
                             final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
                             // If it is a honeypot do this
-                            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
-                                Honeypot.getHBM().deleteBlock(b);
+                            if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
+                                Honeypot.getBlockManager().deleteBlock(b);
 
                             }
                         }
@@ -89,8 +89,8 @@ public class HoneypotRemove implements HoneypotSubCommand {
 
     private void potRemovalCheck(Block block, Player p) {
         assert block != null;
-        if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
-            Honeypot.getHBM().deleteBlock(block);
+        if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(block))) {
+            Honeypot.getBlockManager().deleteBlock(block);
             p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
         }
         else {

@@ -3,7 +3,7 @@ package org.reprogle.honeypot.storagemanager;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-public class HoneypotPlayerHistory {
+public class HoneypotPlayerHistoryObject {
     private String dateTime;
     private String player;
     private String UUID;
@@ -16,7 +16,7 @@ public class HoneypotPlayerHistory {
      * @param world
      * @param action
      */
-    public HoneypotPlayerHistory(String dateTime, String player, String UUID, String coordinates, String world, String action) {
+    public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, String coordinates, String world, String action) {
         this.dateTime = dateTime;
         this.player = player;
         this.UUID = UUID;
@@ -28,7 +28,7 @@ public class HoneypotPlayerHistory {
      * @param player
      * @param hbo
      */
-    public HoneypotPlayerHistory(String dateTime, String player, String UUID, HoneypotBlockObject hbo) {
+    public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, HoneypotBlockObject hbo) {
         this.dateTime = dateTime;
         this.player = player;
         this.UUID = UUID;
@@ -41,7 +41,7 @@ public class HoneypotPlayerHistory {
      * @param block
      * @param action
      */
-    public HoneypotPlayerHistory(String dateTime, String player, String UUID, Block block, String action) {
+    public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, Block block, String action) {
         this.dateTime = dateTime;
         this.player = player;
         this.UUID = UUID;
@@ -54,7 +54,7 @@ public class HoneypotPlayerHistory {
      * @param block
      * @param action
      */
-    public HoneypotPlayerHistory(String dateTime, Player player, Block block, String action) {
+    public HoneypotPlayerHistoryObject(String dateTime, Player player, Block block, String action) {
         this.dateTime = dateTime;
         this.player = player.getName();
         this.UUID = player.getUniqueId().toString();
@@ -66,7 +66,7 @@ public class HoneypotPlayerHistory {
      * @param player
      * @param hbo
      */
-    public HoneypotPlayerHistory(String dateTime, Player player, HoneypotBlockObject hbo) {
+    public HoneypotPlayerHistoryObject(String dateTime, Player player, HoneypotBlockObject hbo) {
         this.dateTime = dateTime;
         this.player = player.getName();
         this.UUID = player.getUniqueId().toString();

@@ -88,7 +88,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIMenu allBlocksGUI = Honeypot.getGUI().create("Honeypots {currentPage}/{maxPage}", 3);
 
-		for (HoneypotBlockObject honeypotBlock : Honeypot.getHBM().getAllHoneypots()) {
+		for (HoneypotBlockObject honeypotBlock : Honeypot.getBlockManager().getAllHoneypots()) {
 			GUIItemBuilder item;
 
 			if (Boolean.TRUE.equals(HoneypotConfigManager.getGuiConfig().getBoolean("display-button-as-honeypot"))) {
@@ -207,7 +207,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIButton removeAllButton = new GUIButton(removeAllItem.build()).withListener((InventoryClickEvent event) -> {
 			event.getWhoClicked().closeInventory();
-			Honeypot.getHBM().deleteAllHoneypotBlocks();
+			Honeypot.getBlockManager().deleteAllHoneypotBlocks();
 			p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
 		});
 
@@ -229,8 +229,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 						// If it is a honeypot do this
-						if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
-							Honeypot.getHBM().deleteBlock(b);
+						if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
+							Honeypot.getBlockManager().deleteBlock(b);
 
 						}
 					}
@@ -258,8 +258,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						return;
 					}
 
-					if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
-						Honeypot.getHBM().deleteBlock(block);
+					if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(block))) {
+						Honeypot.getBlockManager().deleteBlock(block);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
 					}
 					else {
@@ -338,7 +338,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		}
 
 		event.getWhoClicked().closeInventory();
-		if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
+		if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(block))) {
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
 			// If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
@@ -353,11 +353,11 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				return;
 
 			if (action.equalsIgnoreCase("custom")) {
-				Honeypot.getHBM().createBlock(block, customAction[0]);
+				Honeypot.getBlockManager().createBlock(block, customAction[0]);
 				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
 			else {
-				Honeypot.getHBM().createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
+				Honeypot.getBlockManager().createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
 				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
 
@@ -421,7 +421,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 						// If it is a honeypot do this
-						if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+						if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
 							potFound = true;
 
 							// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn

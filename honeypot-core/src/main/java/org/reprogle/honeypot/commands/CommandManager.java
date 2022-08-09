@@ -140,16 +140,16 @@ public class CommandManager implements TabExecutor {
             }
             else {
                 ConsoleCommandSender console = Honeypot.getPlugin().getServer().getConsoleSender();
-                console.sendMessage(ChatColor.GOLD + "\n" 
+                console.sendMessage(ChatColor.GOLD + "\n"
                     + " _____                         _\n"
                     + "|  |  |___ ___ ___ _ _ ___ ___| |_\n" 
                     + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD 
                     + "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + Honeypot.getPlugin().getDescription().getVersion() + "\n" + ChatColor.GOLD
                     + "                  |___|_|"
                 );
-                console.sendMessage(CommandFeedback.getChatPrefix() + "Honeypot running on Spigot version " + Bukkit.getVersion());
+                console.sendMessage(CommandFeedback.getChatPrefix() + " Honeypot running on Spigot version " + Bukkit.getVersion());
                 if (!Honeypot.versionCheck()) {
-                    console.sendMessage(CommandFeedback.getChatPrefix() + "This version of Honeypot is not guaranteed to work on this version of Spigot. Some newer blocks (If any) may exhibit unusual behavior!");
+                    console.sendMessage(CommandFeedback.getChatPrefix() + " This version of Honeypot is not guaranteed to work on this version of Spigot. Some newer blocks (If any) may exhibit unusual behavior!");
                 }
             }
         }
