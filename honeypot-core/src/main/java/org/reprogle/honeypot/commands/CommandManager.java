@@ -1,8 +1,10 @@
 package org.reprogle.honeypot.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
@@ -137,10 +139,18 @@ public class CommandManager implements TabExecutor {
                 }
             }
             else {
-                // If the sender is not a player (Probably the console) and did not use the reload command, send this
-                // message
-                Honeypot.getPlugin().getServer().getConsoleSender()
-                        .sendMessage(ChatColor.DARK_RED + "You must run this command as an in-game player!");
+                ConsoleCommandSender console = Honeypot.getPlugin().getServer().getConsoleSender();
+                console.sendMessage(ChatColor.GOLD + "\n" 
+                    + " _____                         _\n"
+                    + "|  |  |___ ___ ___ _ _ ___ ___| |_\n" 
+                    + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD 
+                    + "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + Honeypot.getPlugin().getDescription().getVersion() + "\n" + ChatColor.GOLD
+                    + "                  |___|_|"
+                );
+                console.sendMessage(CommandFeedback.getChatPrefix() + "Honeypot running on Spigot version " + Bukkit.getVersion());
+                if (!Honeypot.versionCheck()) {
+                    console.sendMessage(CommandFeedback.getChatPrefix() + "This version of Honeypot is not guaranteed to work on this version of Spigot. Some newer blocks (If any) may exhibit unusual behavior!");
+                }
             }
         }
 

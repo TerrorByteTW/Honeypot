@@ -4,6 +4,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -211,6 +212,7 @@ public abstract class Database {
      * @param block The Honeypot block to check
      * @return The action in String form
      */
+    @SuppressWarnings("java:S1192")
     public String getAction(Block block) {
         String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
         String worldName = block.getWorld().getName();
@@ -481,12 +483,46 @@ public abstract class Database {
         }
     }
 
+    /**
+     * Delete all player history
+     */
+    public void deleteAllHistory() {
+        Connection c = null;
+        PreparedStatement ps = null;
+
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement(DELETE + HISTORY_TABLE + ";");
+            ps.executeUpdate();
+
+        }
+        catch (SQLException e) {
+            Honeypot.getPlugin().getLogger().severe("Error while executing create SQL statement on player table: " + e);
+        }
+        finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (c != null)
+                    c.close();
+            }
+            catch (SQLException e) {
+                Honeypot.getPlugin().getLogger().severe(FAIL_TO_CLOSE + e);
+            }
+        }
+    }
+
     /*****************************
      *                           *
      *      HISTORY METHODS      *
      *                           *
      *****************************/
 
+     /**
+      * Add a player to the history database
+      * @param p The player to add
+      * @param block The HoneypotBlock to add 
+      */
     public void addPlayerHistory(Player p, HoneypotBlockObject block) {
         Connection c = null;
         PreparedStatement ps = null;
@@ -518,6 +554,80 @@ public abstract class Database {
         }
     }
 
-    // TODO - Add methods to retrieve history and purge it, as well as deleting n number of items, etc.
+    /**
+     * Retrieve all history for a player
+     * @param p The Player to retrieve
+     * @return An ArrayList of HoneypotPlayerHistory objects for the player
+     */
+    public List<HoneypotPlayerHistory> retrieveHistory(Player p) {
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement(SELECT + HISTORY_TABLE + " WHERE playerUUID = ?;");
+            ps.setString(1, p.getUniqueId().toString());
+            rs = ps.executeQuery();
 
+            List<HoneypotPlayerHistory> history = new ArrayList<>();
+            while (rs.next()) {
+                history.add(new HoneypotPlayerHistory(rs.getString("datetime"), rs.getString("playerName"), rs.getString("playerUUID"), rs.getString("coordinates"), rs.getString("world"), rs.getString("action")));
+            }
+
+            return history;
+
+        } catch(SQLException e) {
+            Honeypot.getPlugin().getLogger().severe("Error while executing create SQL statement on history table: " + e);
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (c != null)
+                    c.close();
+            }
+            catch (SQLException e) {
+                Honeypot.getPlugin().getLogger().severe(FAIL_TO_CLOSE + e);
+            }
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * Delete a player's most recent history. An optional 'n' value is listed to allow for deleting a certain number of rows
+     * @param p The player to delete history for
+     * @param n An optional int, representing the number of most recent items to delete. An array may be supplied here, but only index 0 will be used
+     */
+    public void deletePlayerHistory(Player p, int... n) {
+        Connection c = null;
+        PreparedStatement ps = null;
+
+        try {
+            c = getSQLConnection();
+            if (n != null) {
+                ps = c.prepareStatement(DELETE + HISTORY_TABLE + " WHERE playerUUID = ? DESC LIMIT ?;");
+                ps.setInt(2, n[0]);
+            } else {
+                ps = c.prepareStatement(DELETE + HISTORY_TABLE + " WHERE playerUUID = ?;");
+            }
+
+            ps.setString(1, p.getUniqueId().toString());
+            ps.executeUpdate();
+
+        }
+        catch (SQLException e) {
+            Honeypot.getPlugin().getLogger().severe("Error while remove executing SQL statement on block table: " + e);
+        }
+        finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (c != null)
+                    c.close();
+            }
+            catch (SQLException e) {
+                Honeypot.getPlugin().getLogger().severe(FAIL_TO_CLOSE + e);
+            }
+        }
+    }
 }

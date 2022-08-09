@@ -51,7 +51,7 @@ enable-logging: true
 #                      C H A T   S E T T I N G S                     #
 ######################################################################
 
-# Select your language. Currently only en_US is supported, with translations coming soon!
+# Select your language. Current supported languages are: [en_US, es_MX]
 # Want to create your own translation? Visit here: https://github.com/TerrrorByte/Honeypot/wiki/Translating-Honeypot
 language: en_US
 
