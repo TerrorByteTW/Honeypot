@@ -8,6 +8,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
@@ -48,7 +49,11 @@ public class EntityExplodeEventListener implements Listener {
 
                 if (source instanceof Player) {
                     Honeypot.getPlayerHistoryManager().addPlayerHistory((Player) source, Honeypot.getBlockManager().getHoneypotBlock(block));
-                    Honeypot.getHoneypotLogger().log("EntityExplodeEvent was caused by a player! It has been logged in the history. Player was: " + ((Player) source).getName());
+                    Honeypot.getHoneypotLogger().log("EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: " + ((Player) source).getName());
+                    
+                    // Call a BlockBreakEvent for that player, as they attempted to break the block in the first place.
+                    BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, (Player) source);
+                    Bukkit.getPluginManager().callEvent(blockBreakEvent);
                 }
 
                 // Fire HoneypotNonPlayerBreakEvent

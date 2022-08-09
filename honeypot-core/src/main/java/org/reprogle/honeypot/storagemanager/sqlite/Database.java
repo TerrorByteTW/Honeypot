@@ -571,7 +571,8 @@ public abstract class Database {
 
             List<HoneypotPlayerHistoryObject> history = new ArrayList<>();
             while (rs.next()) {
-                history.add(new HoneypotPlayerHistoryObject(rs.getString("datetime"), rs.getString("playerName"), rs.getString("playerUUID"), rs.getString("coordinates"), rs.getString("world"), rs.getString("action")));
+                HoneypotBlockObject hbo = new HoneypotBlockObject(rs.getString("world"), rs.getString("coordinates"), rs.getString("action"));
+                history.add(new HoneypotPlayerHistoryObject(rs.getString("datetime"), rs.getString("playerName"), rs.getString("playerUUID"), hbo));
             }
 
             return history;
