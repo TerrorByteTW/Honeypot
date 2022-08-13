@@ -30,6 +30,7 @@ public abstract class Database {
     private static final String FAIL_TO_CLOSE = "Failed to close SQLite connection: ";
     private static final String DELETE = "DELETE FROM ";
     private static final String INSERT_INTO = "INSERT INTO ";
+    private static final String WHERE = " WHERE coordinates = ? AND worldName = ?;";
 
     /**
      * Create a Database object
@@ -136,7 +137,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement(DELETE + BLOCK_TABLE + " WHERE coordinates = ? AND worldName = ?;");
+            ps = c.prepareStatement(DELETE + BLOCK_TABLE + WHERE);
             ps.setString(1, coordinates);
             ps.setString(2, worldName);
             ps.executeUpdate();
@@ -175,7 +176,7 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement(SELECT + BLOCK_TABLE + " WHERE coordinates = ? AND worldName = ?;");
+            ps = c.prepareStatement(SELECT + BLOCK_TABLE + WHERE);
             ps.setString(1, coordinates);
             ps.setString(2, worldName);
             rs = ps.executeQuery();
@@ -223,8 +224,9 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement(SELECT + BLOCK_TABLE + " WHERE coordinates = '" + coordinates
-                    + "' AND worldName = '" + worldName + "';");
+            ps = c.prepareStatement(SELECT + BLOCK_TABLE + WHERE);
+            ps.setString(1, coordinates);
+            ps.setString(2, worldName);
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -388,8 +390,8 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            ps = c.prepareStatement(
-                    SELECT + PLAYER_TABLE + " WHERE playerName = '" + playerName.getUniqueId() + "';");
+            ps = c.prepareStatement(SELECT + PLAYER_TABLE + " WHERE playerName = ?;");
+            ps.setString(1, playerName.getUniqueId().toString());
             rs = ps.executeQuery();
 
             while (rs.next()) {
