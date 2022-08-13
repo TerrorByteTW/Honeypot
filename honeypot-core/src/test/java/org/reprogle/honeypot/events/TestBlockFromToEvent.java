@@ -41,7 +41,7 @@ public class TestBlockFromToEvent {
 
 		BlockMock torch = world.createBlock(new Coordinate(0, 65, 0));
 		torch.setType(Material.TORCH);
-		Honeypot.getHBM().createBlock(torch, "nothing");
+		Honeypot.getBlockManager().createBlock(torch, "nothing");
 
 		BlockMock water = world.createBlock(new Coordinate(0, 65, 1));
 		water.setType(Material.WATER);
@@ -49,7 +49,7 @@ public class TestBlockFromToEvent {
 		server.getPluginManager().callEvent(new BlockFromToEvent(water, torch));
 		server.getScheduler().performTicks(20L);
 
-		Assertions.assertTrue(Honeypot.getHBM().isHoneypotBlock(torch));
+		Assertions.assertTrue(Honeypot.getBlockManager().isHoneypotBlock(torch));
 
 	}
 	

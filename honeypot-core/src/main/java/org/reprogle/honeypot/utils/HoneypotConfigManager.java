@@ -1,4 +1,4 @@
-package org.reprogle.honeypot;
+package org.reprogle.honeypot.utils;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
@@ -45,7 +45,6 @@ public class HoneypotConfigManager extends JavaPlugin {
             config.save();
         }
         catch (IOException e) {
-            e.printStackTrace();
             plugin.getLogger().severe(
                     "Could not create/load plugin config, disabling! Please alert the plugin author with the following info: " + e);
             plugin.getPluginLoader().disablePlugin(plugin);

@@ -3,7 +3,7 @@ package org.reprogle.honeypot.storagemanager;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.reprogle.honeypot.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 /**
  * A rudimentary caching utility to lessen dependency on databases used by Honeypot

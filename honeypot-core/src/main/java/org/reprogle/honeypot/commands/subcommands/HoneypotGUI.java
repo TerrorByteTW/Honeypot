@@ -14,9 +14,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
@@ -25,6 +26,7 @@ import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.md_5.bungee.api.ChatColor;
@@ -66,7 +68,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
 				case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
 				case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
-				default -> item = new GUIItemBuilder(Material.BOOK);
+				default -> item = new GUIItemBuilder(Material.PAPER);
 			}
 
 			item.name(key.toString());
@@ -88,7 +90,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIMenu allBlocksGUI = Honeypot.getGUI().create("Honeypots {currentPage}/{maxPage}", 3);
 
-		for (HoneypotBlockObject honeypotBlock : Honeypot.getHBM().getAllHoneypots()) {
+		for (HoneypotBlockObject honeypotBlock : Honeypot.getBlockManager().getAllHoneypots()) {
 			GUIItemBuilder item;
 
 			if (Boolean.TRUE.equals(HoneypotConfigManager.getGuiConfig().getBoolean("display-button-as-honeypot"))) {
@@ -114,6 +116,37 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		}
 
 		p.openInventory(allBlocksGUI.getInventory());
+	}
+
+	private static void historyQueryInventory(Player p) {
+		if (!(p.hasPermission("honeypot.history"))) {
+			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+			return;
+		}
+
+		GUIMenu historyQueryGUI = Honeypot.getGUI().create("Query Player History", 3);
+
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			GUIItemBuilder item;
+
+			ItemStack skullItem = new ItemStack(Material.PLAYER_HEAD);
+			SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();
+			skullMeta.setOwningPlayer(player);
+			skullItem.setItemMeta(skullMeta);
+
+			item = new GUIItemBuilder(skullItem);
+			item.name(player.getName());
+
+			GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {
+				event.getWhoClicked().closeInventory();
+				Bukkit.dispatchCommand(event.getWhoClicked(), "honeypot history query " + item.getName());
+			});
+
+			historyQueryGUI.addButton(button);
+
+		}
+
+		p.openInventory(historyQueryGUI.getInventory());
 	}
 
 	private static void createHoneypotInventory(Player p) {
@@ -207,7 +240,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIButton removeAllButton = new GUIButton(removeAllItem.build()).withListener((InventoryClickEvent event) -> {
 			event.getWhoClicked().closeInventory();
-			Honeypot.getHBM().deleteAllHoneypotBlocks();
+			Honeypot.getBlockManager().deleteAllHoneypotBlocks();
 			p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
 		});
 
@@ -229,8 +262,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 						// If it is a honeypot do this
-						if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
-							Honeypot.getHBM().deleteBlock(b);
+						if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
+							Honeypot.getBlockManager().deleteBlock(b);
 
 						}
 					}
@@ -258,8 +291,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						return;
 					}
 
-					if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
-						Honeypot.getHBM().deleteBlock(block);
+					if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(block))) {
+						Honeypot.getBlockManager().deleteBlock(block);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
 					}
 					else {
@@ -338,7 +371,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		}
 
 		event.getWhoClicked().closeInventory();
-		if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
+		if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(block))) {
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
 			// If it does not have a honeypot tag or the honeypot tag does not equal 1, create one
@@ -353,11 +386,11 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				return;
 
 			if (action.equalsIgnoreCase("custom")) {
-				Honeypot.getHBM().createBlock(block, customAction[0]);
+				Honeypot.getBlockManager().createBlock(block, customAction[0]);
 				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
 			else {
-				Honeypot.getHBM().createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
+				Honeypot.getBlockManager().createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
 				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 			}
 
@@ -374,6 +407,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		GUIItemBuilder removeItem;
 		GUIItemBuilder listItem;
 		GUIItemBuilder locateItem;
+		GUIItemBuilder historyItem;
 
 		createItem = new GUIItemBuilder(
 				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.create-button")));
@@ -390,6 +424,10 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		locateItem = new GUIItemBuilder(
 				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.locate-button")));
 		locateItem.name("Locate nearby Honeypots");
+
+		historyItem = new GUIItemBuilder(
+			Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.history-button")));
+		historyItem.name("Query player history");
 
 		GUIButton createButton = new GUIButton(createItem.build()).withListener((InventoryClickEvent event) -> createHoneypotInventory(p));
 
@@ -421,7 +459,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 						final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 						// If it is a honeypot do this
-						if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+						if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
 							potFound = true;
 
 							// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
@@ -458,10 +496,13 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			}
 		});
 
+		GUIButton historyButton = new GUIButton(historyItem.build()).withListener((InventoryClickEvent event) -> historyQueryInventory(p));
+
 		mainMenu.setButton(2, createButton);
 		mainMenu.setButton(3, removeButton);
-		mainMenu.setButton(5, listButton);
-		mainMenu.setButton(6, locateButton);
+		mainMenu.setButton(4, listButton);
+		mainMenu.setButton(5, locateButton);
+		mainMenu.setButton(6, historyButton);
 
 		return mainMenu;
 	}

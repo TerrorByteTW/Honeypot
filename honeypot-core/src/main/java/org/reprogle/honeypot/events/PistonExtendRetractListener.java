@@ -26,7 +26,7 @@ public class PistonExtendRetractListener implements Listener {
     public static void pistonPushEvent(BlockPistonExtendEvent event) {
         List<Block> blocks = event.getBlocks();
         for (Block b : blocks) {
-            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+            if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
                 Honeypot.getHoneypotLogger().log("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ());
 
                 // Fire HoneypotNonPlayerBreakEvent
@@ -43,7 +43,7 @@ public class PistonExtendRetractListener implements Listener {
     public static void pistonPullEvent(BlockPistonRetractEvent event) {
         List<Block> blocks = event.getBlocks();
         for (Block b : blocks) {
-            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
+            if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
                 Honeypot.getHoneypotLogger().log("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ());
 
                 // Fire HoneypotNonPlayerBreakEvent

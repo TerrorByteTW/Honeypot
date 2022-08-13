@@ -1,22 +1,26 @@
 package org.reprogle.honeypot.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.subcommands.HoneypotCreate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotGUI;
 import org.reprogle.honeypot.commands.subcommands.HoneypotHelp;
+import org.reprogle.honeypot.commands.subcommands.HoneypotHistory;
+import org.reprogle.honeypot.commands.subcommands.HoneypotInfo;
 import org.reprogle.honeypot.commands.subcommands.HoneypotLocate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotReload;
 import org.reprogle.honeypot.commands.subcommands.HoneypotRemove;
 import org.reprogle.honeypot.commands.subcommands.HoneypotUpgrade;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,6 +44,8 @@ public class CommandManager implements TabExecutor {
         subcommands.add(new HoneypotGUI());
         subcommands.add(new HoneypotHelp());
         subcommands.add(new HoneypotUpgrade());
+        subcommands.add(new HoneypotInfo());
+        subcommands.add(new HoneypotHistory());
 
         for (int i = 0; i < getSubcommands().size(); i++) {
             subcommandsNameOnly.add(getSubcommands().get(i).getName());
@@ -67,8 +73,6 @@ public class CommandManager implements TabExecutor {
     Command command, @NotNull
     String label, @NotNull
     String[] args) {
-
-        if(!label.equalsIgnoreCase("honeypot")) return false;
 
         // Check if the command sender is a player
         if (sender instanceof Player p) {
@@ -135,10 +139,18 @@ public class CommandManager implements TabExecutor {
                 }
             }
             else {
-                // If the sender is not a player (Probably the console) and did not use the reload command, send this
-                // message
-                Honeypot.getPlugin().getServer().getConsoleSender()
-                        .sendMessage(ChatColor.DARK_RED + "You must run this command as an in-game player!");
+                ConsoleCommandSender console = Honeypot.getPlugin().getServer().getConsoleSender();
+                console.sendMessage(ChatColor.GOLD + "\n"
+                    + " _____                         _\n"
+                    + "|  |  |___ ___ ___ _ _ ___ ___| |_\n" 
+                    + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD 
+                    + "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + Honeypot.getPlugin().getDescription().getVersion() + "\n" + ChatColor.GOLD
+                    + "                  |___|_|"
+                );
+                console.sendMessage(CommandFeedback.getChatPrefix() + " Honeypot running on Spigot version " + Bukkit.getVersion());
+                if (!Honeypot.versionCheck()) {
+                    console.sendMessage(CommandFeedback.getChatPrefix() + " This version of Honeypot is not guaranteed to work on this version of Spigot. Some newer blocks (If any) may exhibit unusual behavior!");
+                }
             }
         }
 

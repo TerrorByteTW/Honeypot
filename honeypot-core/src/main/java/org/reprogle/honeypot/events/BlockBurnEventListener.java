@@ -22,7 +22,7 @@ public class BlockBurnEventListener implements Listener {
 	public static void onBlockBurnEvent(BlockBurnEvent event) {
 		Block block = event.getBlock();
 
-		if (Honeypot.getHBM().isHoneypotBlock(block)) {
+		if (Honeypot.getBlockManager().isHoneypotBlock(block)) {
 			Honeypot.getHoneypotLogger().log("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ());
 			event.setCancelled(true);
 

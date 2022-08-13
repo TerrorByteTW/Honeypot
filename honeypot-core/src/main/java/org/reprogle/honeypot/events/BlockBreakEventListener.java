@@ -12,11 +12,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.PhysicsUtil;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
@@ -40,14 +40,14 @@ public class BlockBreakEventListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     @SuppressWarnings( {"java:S3776", "java:S1192"} )
     public static void blockBreakEvent(BlockBreakEvent event) {
-        if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(event.getBlock()))) {
+        if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(event.getBlock()))) {
             // Fire HoneypotPrePlayerBreakEvent
             HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(event.getPlayer(), event.getBlock());
             Bukkit.getPluginManager().callEvent(hppbe);
 
             // Check if the event was cancelled. If it is, delete the block.
             if (hppbe.isCancelled()) {
-                Honeypot.getHBM().deleteBlock(event.getBlock());
+                Honeypot.getBlockManager().deleteBlock(event.getBlock());
                 return;
             }
 
@@ -90,7 +90,7 @@ public class BlockBreakEventListener implements Listener {
             // If we flagged the block for deletion, remove it from the DB. Do this after other actions have been
             // completed, otherwise the other actions will fail with NPEs
             if (deleteBlock) {
-                Honeypot.getHBM().deleteBlock(event.getBlock());
+                Honeypot.getBlockManager().deleteBlock(event.getBlock());
             }
         }
     }
@@ -121,9 +121,9 @@ public class BlockBreakEventListener implements Listener {
         for (Block adjacentBlock : adjacentBlocks) {
             if (!PhysicsUtil.getSidePhysics().contains(adjacentBlock.getType())) continue;
 
-            if (Honeypot.getHBM().isHoneypotBlock(adjacentBlock)) {
+            if (Honeypot.getBlockManager().isHoneypotBlock(adjacentBlock)) {
                 blockBreakEvent(new BlockBreakEvent(adjacentBlock, event.getPlayer()));
-                Honeypot.getHBM().deleteBlock(adjacentBlock);
+                Honeypot.getBlockManager().deleteBlock(adjacentBlock);
                 Honeypot.getPlugin().getLogger().warning(
                         "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
                                 + adjacentBlock.getX() + ", " + adjacentBlock.getY() + ", " + adjacentBlock.getZ()
@@ -138,9 +138,9 @@ public class BlockBreakEventListener implements Listener {
         }
 
         // Now check the block on the top (This is important because there are less blocks that can be anchored on the sides of blocks than on the top of blocks)
-        if (PhysicsUtil.getUpPhysics().contains(blockUp.getType()) && Honeypot.getHBM().isHoneypotBlock(blockUp)) {
+        if (PhysicsUtil.getUpPhysics().contains(blockUp.getType()) && Honeypot.getBlockManager().isHoneypotBlock(blockUp)) {
             blockBreakEvent(new BlockBreakEvent(blockUp, event.getPlayer()));
-            Honeypot.getHBM().deleteBlock(blockUp);
+            Honeypot.getBlockManager().deleteBlock(blockUp);
             Honeypot.getPlugin().getLogger().warning(
                     "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
                             + blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
@@ -165,8 +165,11 @@ public class BlockBreakEventListener implements Listener {
         if (!(event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().hasPermission(REMOVE_PERMISSION)
                 || event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
 
+            // Log the event in the history table
+            Honeypot.getPlayerHistoryManager().addPlayerHistory(event.getPlayer(), Honeypot.getBlockManager().getHoneypotBlock(event.getBlock()));
+
             // Grab the action from the block via the storage manager
-            String action = Honeypot.getHBM().getAction(block);
+            String action = Honeypot.getBlockManager().getAction(block);
 
             // Run certain actions based on the action of the Honeypot Block
             assert action != null;
@@ -305,11 +308,11 @@ public class BlockBreakEventListener implements Listener {
 
         // Get the config value and the amount of blocks broken
         int breaksBeforeAction = HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken");
-        int blocksBroken = Honeypot.getHPM().getCount(event.getPlayer());
+        int blocksBroken = Honeypot.getPlayerManager().getCount(event.getPlayer());
 
         // getCount returns -1 if the player doesn't exist in the DB. If that's the case, add the player to the DB
         if (blocksBroken == -1) {
-            Honeypot.getHPM().addPlayer(event.getPlayer(), 0);
+            Honeypot.getPlayerManager().addPlayer(event.getPlayer(), 0);
             blocksBroken = 0;
         }
 
@@ -320,12 +323,12 @@ public class BlockBreakEventListener implements Listener {
         // 1,
         // reset the count and perform the break
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
-            Honeypot.getHPM().setPlayerCount(event.getPlayer(), 0);
+            Honeypot.getPlayerManager().setPlayerCount(event.getPlayer(), 0);
             breakAction(event);
         }
         else {
             // Just count it
-            Honeypot.getHPM().setPlayerCount(event.getPlayer(), blocksBroken);
+            Honeypot.getPlayerManager().setPlayerCount(event.getPlayer(), blocksBroken);
         }
     }
 

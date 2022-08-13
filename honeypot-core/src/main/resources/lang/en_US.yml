@@ -1,5 +1,5 @@
-language-version: 1
-prefix: "&b[Honeypot]&r"
+language-version: 2
+prefix: "&6[Honeypot]&r"
 kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
 ban-reason: "You have been banned for breaking honeypot blocks"
 warn-message: "Please don't grief builds!"
@@ -27,3 +27,7 @@ griefprevention: "This area is protected by GriefPrevention, and you don't have 
 unknown-error: "Unknown error. Please contact server admin"
 staff-broke: "Just an FYI this was a honeypot. Since you broke it we've removed it"
 exempt-no-break: "You are exempt from break actions, but do not have permissions to remove honeypot blocks. Sorry!"
+searching: "Searching, please wait..."
+truncating: "Trimming results per config settings..."
+not-online: "&cThis player is not online!"
+no-history: "No history found for this player!"

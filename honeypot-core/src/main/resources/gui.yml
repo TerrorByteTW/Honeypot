@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 4
+file-version: 5
 
 ######################################################################
 #                       G U I   S E T T I N G S                      #
@@ -30,6 +30,7 @@ main-buttons:
   remove-button: DIAMOND_PICKAXE
   list-button: BOOK
   locate-button: SPYGLASS
+  history-button: CLOCK
 
 # The buttons to display in the remove inventory
 remove-buttons:

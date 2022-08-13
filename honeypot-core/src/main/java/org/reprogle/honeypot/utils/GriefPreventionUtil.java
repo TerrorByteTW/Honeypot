@@ -2,7 +2,6 @@ package org.reprogle.honeypot.utils;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.HoneypotConfigManager;
 
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;

@@ -51,13 +51,16 @@ enable-logging: true
 #                      C H A T   S E T T I N G S                     #
 ######################################################################
 
-# Select your language. Currently only en_US is supported, with translations coming soon!
+# Select your language. Current supported languages are: [en_US, es_MX]
 # Want to create your own translation? Visit here: https://github.com/TerrrorByte/Honeypot/wiki/Translating-Honeypot
 language: en_US
 
 # If you're providing your own language file, set this to true. If you've incorrectly translated it, though, expect errors in console!
 # If you don't know what this is, leave it set to false
 bypass-language-check: false
+
+# The amount of history entries to return from the '/honeypot history query' command
+history-length: 5
 
 ######################################################################
 #                     F I L T E R   S E T T I N G S                  #

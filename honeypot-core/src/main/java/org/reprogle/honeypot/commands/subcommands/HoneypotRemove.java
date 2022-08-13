@@ -4,9 +4,9 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
         if (args.length >= 2) {
             switch (args[1].toLowerCase()) {
             case "all" -> {
-                Honeypot.getHBM().deleteAllHoneypotBlocks();
+                Honeypot.getBlockManager().deleteAllHoneypotBlocks();
                 p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
             }
 
@@ -53,8 +53,8 @@ public class HoneypotRemove implements HoneypotSubCommand {
                             final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
                             // If it is a honeypot do this
-                            if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(b))) {
-                                Honeypot.getHBM().deleteBlock(b);
+                            if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
+                                Honeypot.getBlockManager().deleteBlock(b);
 
                             }
                         }
@@ -64,9 +64,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
                 p.sendMessage(CommandFeedback.sendCommandFeedback("deletednear"));
             }
 
-            default -> {
-                potRemovalCheck(block, p);
-            }
+            default -> potRemovalCheck(block, p);
             }
         }
         else {
@@ -89,8 +87,8 @@ public class HoneypotRemove implements HoneypotSubCommand {
 
     private void potRemovalCheck(Block block, Player p) {
         assert block != null;
-        if (Boolean.TRUE.equals(Honeypot.getHBM().isHoneypotBlock(block))) {
-            Honeypot.getHBM().deleteBlock(block);
+        if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(block))) {
+            Honeypot.getBlockManager().deleteBlock(block);
             p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
         }
         else {

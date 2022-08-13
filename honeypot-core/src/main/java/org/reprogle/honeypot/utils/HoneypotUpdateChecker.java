@@ -1,8 +1,9 @@
-package org.reprogle.honeypot;
+package org.reprogle.honeypot.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Consumer;
+import org.reprogle.honeypot.Honeypot;
 
 import java.io.IOException;
 import java.io.InputStream;

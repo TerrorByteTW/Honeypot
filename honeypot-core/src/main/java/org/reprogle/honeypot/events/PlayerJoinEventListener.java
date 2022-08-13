@@ -10,8 +10,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotUpdateChecker;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.utils.HoneypotUpdateChecker;
 
 public class PlayerJoinEventListener implements Listener {
 
@@ -28,9 +28,9 @@ public class PlayerJoinEventListener implements Listener {
         Player p = event.getPlayer();
 
         // Convert player names to UUIDs
-        int breaks = Honeypot.getHPM().getCount(p);
+        int breaks = Honeypot.getPlayerManager().getCount(p);
         if (breaks >= 0) {
-            Honeypot.getHPM().setPlayerCount(p, breaks);
+            Honeypot.getPlayerManager().setPlayerCount(p, breaks);
         }
 
         if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {

@@ -3,6 +3,7 @@ package org.reprogle.honeypot;
 import java.io.File;
 
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -14,10 +15,13 @@ import org.reprogle.honeypot.events.*;
 import org.reprogle.honeypot.gui.GUI;
 import org.reprogle.honeypot.storagemanager.CacheManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.HoneypotLogger;
+import org.reprogle.honeypot.utils.HoneypotUpdateChecker;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.milkbowl.vault.permission.Permission;
@@ -28,15 +32,17 @@ public final class Honeypot extends JavaPlugin {
 
     private static GUI gui;
 
-    private static HoneypotBlockManager hbm;
+    private static HoneypotBlockManager blockManager;
 
-    private static HoneypotPlayerManager hpm;
+    private static HoneypotPlayerManager playerManager;
+
+    private static HoneypotPlayerHistoryManager playerHistoryManager;
+
+    private static HoneypotLogger logger;
 
     private static boolean testing = false;
 
     private static Permission perms = null;
-
-    private static HoneypotLogger logger;
 
     private static WorldGuardUtil wgu = null;
 
@@ -59,16 +65,19 @@ public final class Honeypot extends JavaPlugin {
     }
 
     /**
-     * Returns the plugin variable for use in other classes to get things such as the logger
-     *
-     * @return plugin
+     * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard registers flags.
      */
-    public static Honeypot getPlugin() {
-        return plugin;
+    @Override
+    @SuppressWarnings("java:S2696")
+    public void onLoad() {
+        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            wgu = new WorldGuardUtil();
+            wgu.setupWorldGuard();
+        }
     }
 
     /**
-     * Enable method called by Bukkit
+     * Enable method called by Bukkit. This is a little messy due to all the setup it has to do
      */
     @Override
     @SuppressWarnings({ "unused", "java:S2696" })
@@ -77,8 +86,10 @@ public final class Honeypot extends JavaPlugin {
         plugin = this;
         gui = new GUI(this);
         logger = new HoneypotLogger();
-        hbm = new HoneypotBlockManager();
-        hpm = new HoneypotPlayerManager();
+        blockManager = new HoneypotBlockManager();
+        playerManager = new HoneypotPlayerManager();
+        playerHistoryManager = new HoneypotPlayerHistoryManager();
+
 
         // Create/load configuration files
         HoneypotConfigManager.setupConfig(this);
@@ -122,14 +133,18 @@ public final class Honeypot extends JavaPlugin {
             "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD + 
             "                  |___|_|");
 
+        // Output the version check message
+        if(!versionCheck()) {
+            getServer().getLogger().warning("Honeypot is not guaranteed to support this version of Spigot. We won't prevent you from using it, but some newer blocks (If any) may exhibit unusual behavior!");
+        }
+
         // Check for any updates
         new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt")
                 .getVersion(latest -> {
 
-                    if (Integer.parseInt(latest.replace(".", "")) > Integer
-                            .parseInt(this.getDescription().getVersion().replace(".", ""))) {
-                        getServer().getConsoleSender()
-                                .sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
+                    if (Integer.parseInt(latest.replace(".", "")) > 
+                        Integer.parseInt(this.getDescription().getVersion().replace(".", ""))) {
+                        getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
                                         + " There is a new update available: " + latest
                                         + ". Please download for the latest features and security updates!");
                     }
@@ -138,18 +153,6 @@ public final class Honeypot extends JavaPlugin {
                                 + " You are on the latest version of Honeypot!");
                     }
                 });
-    }
-
-    /**
-     * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard registers flags.
-     */
-    @Override
-    @SuppressWarnings("java:S2696")
-    public void onLoad() {
-        if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-            wgu = new WorldGuardUtil();
-            wgu.setupWorldGuard();
-        }
     }
 
     /**
@@ -175,6 +178,36 @@ public final class Honeypot extends JavaPlugin {
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
         perms = rsp.getProvider();
         return perms != null;
+    }
+
+    /**
+     * Check the version of Spigot we're running on. Current supported version is 1.17 - 1.19.2
+     * @return True if the version is supported, false if not
+     */
+    public static boolean versionCheck() {
+        String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+        int majorVer = Integer.parseInt(split[0]);
+        int minorVer = Integer.parseInt(split[1]);
+        int revisionVer = split.length > 2 ? Integer.parseInt(split[2]) : 0;
+
+        // Return true if between 1.17 & 1.19.2
+        return (majorVer == 1 && minorVer >= 17) && (majorVer == 1 && minorVer <= 19 && revisionVer <= 2);
+    }
+
+    /*
+     * All the functions below are getter functinos
+     * 
+     * These simply return objects to prevent static keyword abuse
+     */
+
+
+    /**
+     * Returns the plugin variable for use in other classes to get things such as the logger
+     *
+     * @return plugin
+     */
+    public static Honeypot getPlugin() {
+        return plugin;
     }
 
     /**
@@ -209,8 +242,8 @@ public final class Honeypot extends JavaPlugin {
      * 
      * @return {@link HoneypotBlockManager}
      */
-    public static HoneypotBlockManager getHBM() {
-        return hbm;
+    public static HoneypotBlockManager getBlockManager() {
+        return blockManager;
     }
 
     /**
@@ -218,8 +251,16 @@ public final class Honeypot extends JavaPlugin {
      * 
      * @return {@link HoneypotPlayerManager}
      */
-    public static HoneypotPlayerManager getHPM() {
-        return hpm;
+    public static HoneypotPlayerManager getPlayerManager() {
+        return playerManager;
+    }
+
+    /**
+     * Ges the HoneypotHistoryManager object
+     * @return {@link HoneypotPlayerHistoryManager}
+     */
+    public static HoneypotPlayerHistoryManager getPlayerHistoryManager() {
+        return playerHistoryManager;
     }
 
     /**

@@ -12,11 +12,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.util.List;
 import java.util.Objects;
@@ -65,7 +65,7 @@ public class PlayerInteractEventListener implements Listener {
 
         try {
             if (!Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getType().equals(Material.ENDER_CHEST)
-                    && Boolean.TRUE.equals(Honeypot.getHBM()
+                    && Boolean.TRUE.equals(Honeypot.getBlockManager()
                             .isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5))))) {
                 // Fire HoneypotPrePlayerInteractEvent
                 HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(event.getPlayer(),
@@ -99,7 +99,7 @@ public class PlayerInteractEventListener implements Listener {
         Player player = event.getPlayer();
 
         assert block != null;
-        String action = Honeypot.getHBM().getAction(block);
+        String action = Honeypot.getBlockManager().getAction(block);
 
         assert action != null;
         Honeypot.getHoneypotLogger().log("PlayerInteractEvent being called for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);

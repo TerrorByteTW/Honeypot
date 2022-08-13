@@ -66,12 +66,31 @@ public class HoneypotBlockManager {
     }
 
     /**
+     * Get the Honeypot Block object from Cache or the DB
+     * @param block The Block to retrieve as a Honeypot Block Object
+     * @return The Honeypot Block Object if it exists, null if it doesn't
+     */
+    public HoneypotBlockObject getHoneypotBlock(Block block) {
+
+        if(Boolean.TRUE.equals(isHoneypotBlock(block)))  
+            return new HoneypotBlockObject(block, getAction(block));
+        
+        return null;
+    }
+
+    /**
      * Return the action for the honeypot {@link Block}
      * 
      * @param block The Block we're checking
      * @return The Honeypot's action as a string
      */
     public String getAction(Block block) {
+        // Check if block exists in cache. If it doesn't this will be null
+        HoneypotBlockObject potential = CacheManager.isInCache(new HoneypotBlockObject(block, null));
+
+        if (potential != null) 
+            return potential.getAction();
+
         Database db;
 
         db = new SQLite(Honeypot.getPlugin());

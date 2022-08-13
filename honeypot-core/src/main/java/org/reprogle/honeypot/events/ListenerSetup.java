@@ -25,6 +25,7 @@ public class ListenerSetup {
         plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), plugin);
         plugin.getServer().getPluginManager().registerEvents(new StructureGrowEventListener(), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new PlayerCommandPreprocessEventListener(), plugin);
     }
 
 }
