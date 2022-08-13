@@ -1,5 +1,5 @@
 language-version: 2
-prefix: "&b[Honeypot]&r"
+prefix: "&6[Honeypot]&r"
 kick-reason: "Pateado por romper bloques de honeypot. ¡No te apenes!"
 ban-reason: "Has sido baneado por romper bloques de honeypot"
 warn-message: "¡Por favor, no se acumule el dolor!"

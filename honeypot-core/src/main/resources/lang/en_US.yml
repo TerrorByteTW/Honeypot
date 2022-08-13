@@ -1,5 +1,5 @@
 language-version: 2
-prefix: "&b[Honeypot]&r"
+prefix: "&6[Honeypot]&r"
 kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
 ban-reason: "You have been banned for breaking honeypot blocks"
 warn-message: "Please don't grief builds!"
