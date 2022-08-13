@@ -50,11 +50,11 @@ public class CommandFeedback {
             case "alreadyexists" -> feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("already-exists")));
 
             case "success" -> {
-                if (success[0].equals(true)) {
+                if (success.length > 0 && success[0].equals(true)) {
                     feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.created")));
 
                 }
-                else if (success[0].equals(false)) {
+                else if (success.length > 0 && success[0].equals(false)) {
                     feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.removed")));
 
                 }
@@ -97,6 +97,14 @@ public class CommandFeedback {
             case "staffbroke" -> feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("staff-broke")));
 
             case "exemptnobreak" -> feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("exempt-no-break")));
+
+            case "searching" -> feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("searching")));
+
+            case "truncating" -> feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("truncating")));
+
+            case "notonline" -> feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-online")));
+
+            case "nohistory" -> feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-history")));
 
             default -> feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED + ChatColor.translateAlternateColorCodes('&', languageFile.getString("unknown-error")));
         }

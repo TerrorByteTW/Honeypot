@@ -4,9 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.HoneypotConfigManager;
+import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryObject;
 
+@SuppressWarnings({"java:S1192", "java:S3776"})
 public class HoneypotHistory implements HoneypotSubCommand{
 
     @Override
@@ -16,7 +23,63 @@ public class HoneypotHistory implements HoneypotSubCommand{
 
     @Override
     public void perform(Player p, String[] args) throws IOException {
-        // TODO Auto-generated method stub
+        if (!p.hasPermission("honeypot.history")) {
+            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+            return;
+        }
+
+        if (args.length >= 3 && args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query")) {
+            Player argPlayer = Bukkit.getPlayer(args[2]);
+
+            if (argPlayer == null || !Bukkit.getPlayer(args[2]).isOnline()) {
+                p.sendMessage(CommandFeedback.sendCommandFeedback("notonline"));
+                return;
+            }
+
+            if (args[1].equalsIgnoreCase("query")) {
+                p.sendMessage(CommandFeedback.sendCommandFeedback("searching"));
+
+                List<HoneypotPlayerHistoryObject> history = Honeypot.getPlayerHistoryManager().getPlayerHistory(argPlayer);
+                int length = HoneypotConfigManager.getPluginConfig().getInt("history-length");
+
+                if (history.size() > length) { 
+                    p.sendMessage(CommandFeedback.sendCommandFeedback("truncating"));
+                }
+
+                if (history.isEmpty()) {
+                    p.sendMessage(CommandFeedback.sendCommandFeedback("nohistory"));
+                    return;
+                }
+
+                int limit = 0;
+
+                if (history.size() > length) {
+                    limit = length;
+                } else {
+                    limit = history.size();
+                }
+
+                for (int i = 0; i < limit; i++) {
+                    p.sendMessage(ChatColor.GOLD + "---[ " + ChatColor.WHITE + history.get(i).getDateTime() + ChatColor.GOLD + " ]---");
+                    p.sendMessage("Player: " + ChatColor.GOLD + history.get(i).getPlayer() + ChatColor.WHITE + " @ " + ChatColor.WHITE + ChatColor.GOLD + history.get(i).getHoneypot().getWorld() + " " + history.get(i).getHoneypot().getCoordinates());
+                    p.sendMessage("Action: " + ChatColor.GOLD + history.get(i).getHoneypot().getAction());
+                    p.sendMessage(ChatColor.GOLD + "-------------------------\n");
+                }
+                
+            } else if (args[1].equalsIgnoreCase("delete")) {
+                if (args.length >= 4) {
+                    Honeypot.getPlayerHistoryManager().deletePlayerHistory(argPlayer, Integer.parseInt(args[3]));
+                } else {
+                    Honeypot.getPlayerHistoryManager().deletePlayerHistory(argPlayer);
+                }
+                p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
+            }
+        } else if (args[1].equalsIgnoreCase("purge")) {
+            Honeypot.getPlayerHistoryManager().deleteAllHistory();
+            p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
+        } else {
+            p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+        }
         
     }
 
@@ -24,9 +87,21 @@ public class HoneypotHistory implements HoneypotSubCommand{
     public List<String> getSubcommands(Player p, String[] args) {
         List<String> subcommands = new ArrayList<>();
 
+        // Base arguments
         if (args.length == 2) {
             subcommands.add("delete");
             subcommands.add("query");
+            subcommands.add("purge");
+        // If the args length is 3 and they passed a valid sub-subcommand (yikes), do this
+        } else if (args.length == 3 && (args[1].equalsIgnoreCase("query") || args[1].equalsIgnoreCase("delete"))) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                subcommands.add(player.getName());
+            }
+        // If the args length is 4 and they typed delete, just give them a list of numbers
+        } else if (args.length == 4 && args[1].equalsIgnoreCase("delete")) {
+            for (int i = 1; i < 10; i++) {
+                subcommands.add(Integer.toString(i));
+            }
         }
 
         return subcommands;

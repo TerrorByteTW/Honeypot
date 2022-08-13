@@ -606,6 +606,7 @@ public abstract class Database {
         try {
             c = getSQLConnection();
             if (n != null) {
+                //TODO - SQLite is throwing errors here because it doesn't like the Desc keyword
                 ps = c.prepareStatement(DELETE + HISTORY_TABLE + " WHERE playerUUID = ? DESC LIMIT ?;");
                 ps.setInt(2, n[0]);
             } else {

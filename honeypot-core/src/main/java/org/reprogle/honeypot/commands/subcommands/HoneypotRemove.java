@@ -64,9 +64,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
                 p.sendMessage(CommandFeedback.sendCommandFeedback("deletednear"));
             }
 
-            default -> {
-                potRemovalCheck(block, p);
-            }
+            default -> potRemovalCheck(block, p);
             }
         }
         else {

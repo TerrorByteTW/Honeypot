@@ -59,6 +59,9 @@ language: en_US
 # If you don't know what this is, leave it set to false
 bypass-language-check: false
 
+# The amount of history entries to return from the '/honeypot history query' command
+history-length: 5
+
 ######################################################################
 #                     F I L T E R   S E T T I N G S                  #
 ######################################################################

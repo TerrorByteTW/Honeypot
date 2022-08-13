@@ -1,4 +1,4 @@
-language-version: 1
+language-version: 2
 prefix: "&b[Honeypot]&r"
 kick-reason: "Pateado por romper bloques de honeypot. ¡No te apenes!"
 ban-reason: "Has sido baneado por romper bloques de honeypot"
@@ -27,3 +27,7 @@ griefprevention: "Esta área está protegida por GriefPrevention y no tienes per
 unknown-error: "Error desconocido. Póngase en contacto con el administrador del servidor"
 staff-broke: "Solo un FYI esto fue un honeypot. Desde que lo rompiste lo hemos quitado"
 exempt-no-break: "Está exento de acciones de interrupción, pero no tiene permisos para eliminar bloques de trampas. ¡Lo siento!"
+searching: "Buscando, espere por favor..."
+truncating: "Recorte de resultados por ajustes de configuración..."
+not-online: "&cEste jugador no está en línea!"
+no-history: "No se ha encontrado historia para este jugador!"
