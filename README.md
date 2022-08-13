@@ -1,4 +1,4 @@
-# Honeypot Anti-Grief Solution 🍯🚫 
+# Honeypot Griefing Auto-Moderator 🍯🚫 
 [![Release](https://jitpack.io/v/TerrrorByte/Honeypot.svg)](https://jitpack.io/#TerrrorByte/Honeypot) [![Java CI with Maven](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=TerrrorByte_Honeypot&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=TerrrorByte_Honeypot)
 
 ## What is Honeypot?
