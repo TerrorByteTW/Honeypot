@@ -11,8 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;

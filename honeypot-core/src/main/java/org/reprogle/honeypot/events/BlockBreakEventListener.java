@@ -12,11 +12,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.PhysicsUtil;
 
 import dev.dejvokep.boostedyaml.YamlDocument;

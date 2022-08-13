@@ -1,4 +1,4 @@
-package org.reprogle.honeypot;
+package org.reprogle.honeypot.utils;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;

@@ -11,7 +11,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.subcommands.HoneypotCreate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotGUI;
 import org.reprogle.honeypot.commands.subcommands.HoneypotHelp;
@@ -21,6 +20,7 @@ import org.reprogle.honeypot.commands.subcommands.HoneypotLocate;
 import org.reprogle.honeypot.commands.subcommands.HoneypotReload;
 import org.reprogle.honeypot.commands.subcommands.HoneypotRemove;
 import org.reprogle.honeypot.commands.subcommands.HoneypotUpgrade;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.io.IOException;
 import java.util.ArrayList;

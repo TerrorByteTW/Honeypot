@@ -18,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
@@ -27,6 +26,7 @@ import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.md_5.bungee.api.ChatColor;

@@ -19,7 +19,9 @@ import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.HoneypotLogger;
+import org.reprogle.honeypot.utils.HoneypotUpdateChecker;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.milkbowl.vault.permission.Permission;

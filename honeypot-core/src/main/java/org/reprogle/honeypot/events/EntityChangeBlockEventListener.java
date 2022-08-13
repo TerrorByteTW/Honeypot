@@ -7,8 +7,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 public class EntityChangeBlockEventListener implements Listener {
 

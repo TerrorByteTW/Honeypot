@@ -10,8 +10,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotUpdateChecker;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.utils.HoneypotUpdateChecker;
 
 public class PlayerJoinEventListener implements Listener {
 

@@ -3,7 +3,7 @@ package org.reprogle.honeypot.commands;
 import java.util.Objects;
 
 import org.bukkit.ChatColor;
-import org.reprogle.honeypot.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import dev.dejvokep.boostedyaml.YamlDocument;
 

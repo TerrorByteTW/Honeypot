@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 @SuppressWarnings("java:S1192")
 public class HoneypotUpgrade implements HoneypotSubCommand {

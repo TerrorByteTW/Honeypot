@@ -12,11 +12,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.util.List;
 import java.util.Objects;

@@ -6,9 +6,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.util.ArrayList;
 import java.util.List;

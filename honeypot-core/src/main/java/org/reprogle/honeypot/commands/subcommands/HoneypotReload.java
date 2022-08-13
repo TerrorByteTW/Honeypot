@@ -1,9 +1,9 @@
 package org.reprogle.honeypot.commands.subcommands;
 
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -6,7 +6,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitTask;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 
 @SuppressWarnings({ "java:S1604"})

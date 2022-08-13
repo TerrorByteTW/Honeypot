@@ -7,12 +7,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reprogle.honeypot.HoneypotConfigManager;
 import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
 import org.reprogle.honeypot.gui.menu.GUIMenuListener;
 import org.reprogle.honeypot.gui.menu.GUIOpenMenu;
 import org.reprogle.honeypot.gui.pagination.GUIPageButtonBuilder;
+import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 public class GUI {
 
