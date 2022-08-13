@@ -74,8 +74,6 @@ public class CommandManager implements TabExecutor {
     String label, @NotNull
     String[] args) {
 
-        if(!label.equalsIgnoreCase("honeypot")) return false;
-
         // Check if the command sender is a player
         if (sender instanceof Player p) {
 

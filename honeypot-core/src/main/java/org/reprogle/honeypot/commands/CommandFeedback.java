@@ -37,7 +37,8 @@ public class CommandFeedback {
                 "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
                 "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
                 "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" + 
-                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n \n" + 
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n" + 
+                "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "history [query | delete | purge] \n \n" +
                 ChatColor.WHITE + "-----------------------");
             }
 

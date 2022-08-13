@@ -14,6 +14,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.HoneypotConfigManager;
@@ -66,7 +68,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
 				case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
 				case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
-				default -> item = new GUIItemBuilder(Material.BOOK);
+				default -> item = new GUIItemBuilder(Material.PAPER);
 			}
 
 			item.name(key.toString());
@@ -114,6 +116,37 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		}
 
 		p.openInventory(allBlocksGUI.getInventory());
+	}
+
+	private static void historyQueryInventory(Player p) {
+		if (!(p.hasPermission("honeypot.history"))) {
+			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+			return;
+		}
+
+		GUIMenu historyQueryGUI = Honeypot.getGUI().create("Query Player History", 3);
+
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			GUIItemBuilder item;
+
+			ItemStack skullItem = new ItemStack(Material.PLAYER_HEAD);
+			SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();
+			skullMeta.setOwningPlayer(player);
+			skullItem.setItemMeta(skullMeta);
+
+			item = new GUIItemBuilder(skullItem);
+			item.name(player.getName());
+
+			GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {
+				event.getWhoClicked().closeInventory();
+				Bukkit.dispatchCommand(event.getWhoClicked(), "honeypot history query " + item.getName());
+			});
+
+			historyQueryGUI.addButton(button);
+
+		}
+
+		p.openInventory(historyQueryGUI.getInventory());
 	}
 
 	private static void createHoneypotInventory(Player p) {
@@ -374,6 +407,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		GUIItemBuilder removeItem;
 		GUIItemBuilder listItem;
 		GUIItemBuilder locateItem;
+		GUIItemBuilder historyItem;
 
 		createItem = new GUIItemBuilder(
 				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.create-button")));
@@ -390,6 +424,10 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		locateItem = new GUIItemBuilder(
 				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.locate-button")));
 		locateItem.name("Locate nearby Honeypots");
+
+		historyItem = new GUIItemBuilder(
+			Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("main-buttons.history-button")));
+		historyItem.name("Query player history");
 
 		GUIButton createButton = new GUIButton(createItem.build()).withListener((InventoryClickEvent event) -> createHoneypotInventory(p));
 
@@ -458,10 +496,13 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			}
 		});
 
+		GUIButton historyButton = new GUIButton(historyItem.build()).withListener((InventoryClickEvent event) -> historyQueryInventory(p));
+
 		mainMenu.setButton(2, createButton);
 		mainMenu.setButton(3, removeButton);
-		mainMenu.setButton(5, listButton);
-		mainMenu.setButton(6, locateButton);
+		mainMenu.setButton(4, listButton);
+		mainMenu.setButton(5, locateButton);
+		mainMenu.setButton(6, historyButton);
 
 		return mainMenu;
 	}

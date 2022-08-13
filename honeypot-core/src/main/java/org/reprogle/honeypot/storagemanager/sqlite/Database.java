@@ -605,20 +605,20 @@ public abstract class Database {
 
         try {
             c = getSQLConnection();
-            if (n != null) {
-                //TODO - SQLite is throwing errors here because it doesn't like the Desc keyword
-                ps = c.prepareStatement(DELETE + HISTORY_TABLE + " WHERE playerUUID = ? DESC LIMIT ?;");
+            if (n.length > 0) {
+                ps = c.prepareStatement(DELETE + HISTORY_TABLE + " WHERE rowid IN (SELECT rowid FROM " + HISTORY_TABLE + " WHERE playerUUID = ? ORDER BY rowid DESC LIMIT ?);");
+                ps.setString(1, p.getUniqueId().toString());
                 ps.setInt(2, n[0]);
             } else {
                 ps = c.prepareStatement(DELETE + HISTORY_TABLE + " WHERE playerUUID = ?;");
+                ps.setString(1, p.getUniqueId().toString());
             }
 
-            ps.setString(1, p.getUniqueId().toString());
             ps.executeUpdate();
 
         }
         catch (SQLException e) {
-            Honeypot.getPlugin().getLogger().severe("Error while remove executing SQL statement on block table: " + e);
+            Honeypot.getPlugin().getLogger().severe("Error while executing SQL statement on block table: " + e);
         }
         finally {
             try {

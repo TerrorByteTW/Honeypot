@@ -7,6 +7,11 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.storagemanager.sqlite.SQLite;
 
+/**
+ * A class for managing Honeypot history entries.
+ * Adds functions for creating, removing, querying, and purging the history database. 
+ * @see HoneypotPlayerHistoryObject
+ */
 public class HoneypotPlayerHistoryManager {
 
     /**
@@ -47,7 +52,7 @@ public class HoneypotPlayerHistoryManager {
         db = new SQLite(Honeypot.getPlugin());
         db.load();
 
-        if (n != null) {
+        if (n.length > 0) {
             db.deletePlayerHistory(p, n);
         } else {
             db.deletePlayerHistory(p);

@@ -13,6 +13,11 @@ import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryObject;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
+
 @SuppressWarnings({"java:S1192", "java:S3776"})
 public class HoneypotHistory implements HoneypotSubCommand{
 
@@ -60,10 +65,14 @@ public class HoneypotHistory implements HoneypotSubCommand{
                 }
 
                 for (int i = 0; i < limit; i++) {
-                    p.sendMessage(ChatColor.GOLD + "---[ " + ChatColor.WHITE + history.get(i).getDateTime() + ChatColor.GOLD + " ]---");
-                    p.sendMessage("Player: " + ChatColor.GOLD + history.get(i).getPlayer() + ChatColor.WHITE + " @ " + ChatColor.WHITE + ChatColor.GOLD + history.get(i).getHoneypot().getWorld() + " " + history.get(i).getHoneypot().getCoordinates());
+                    p.sendMessage(ChatColor.GOLD + "\n-------[ " + ChatColor.WHITE + history.get(i).getDateTime() + ChatColor.GOLD + " ]-------");
+                    TextComponent playerInfo = new TextComponent("Player: " + ChatColor.GOLD + history.get(i).getPlayer() + ChatColor.WHITE + " @ " + ChatColor.WHITE + ChatColor.GOLD + history.get(i).getHoneypot().getWorld() + " " + history.get(i).getHoneypot().getCoordinates());
+                    playerInfo.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/hpteleport " + (history.get(i).getHoneypot().getLocation().getX() + 0.5) + " " + (history.get(i).getHoneypot().getLocation().getY() + 1) + " " + (history.get(i).getHoneypot().getLocation().getZ() + 0.5)));
+                    playerInfo.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GRAY + "" + ChatColor.ITALIC + "Click to teleport")));
+
+                    p.spigot().sendMessage(playerInfo);
                     p.sendMessage("Action: " + ChatColor.GOLD + history.get(i).getHoneypot().getAction());
-                    p.sendMessage(ChatColor.GOLD + "-------------------------\n");
+                    p.sendMessage(ChatColor.GOLD + "----------------------------------");
                 }
                 
             } else if (args[1].equalsIgnoreCase("delete")) {

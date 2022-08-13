@@ -10,6 +10,7 @@ softdepend: [WorldGuard, GriefPrevention]
 commands:
   honeypot:
     description: Creates or deletes a honeypot block
+    aliases: [hp]
 
 permissions:
   honeypot.gui:
@@ -45,6 +46,9 @@ permissions:
   honeypot.upgrade:
     description: Upgrades old Honeypots to new ones
     default: op
+  honeypot.history:
+    description: Allows querying and modifying the history table
+    default: op
   honeypot.*:
     description: Allows all Honeypot permissions
     default: op
@@ -59,3 +63,4 @@ permissions:
       honeypot.locate: true
       honeypot.update: true
       honeypot.upgrade: true
+      honeypot.history: true
