@@ -1,5 +1,10 @@
-# Honeypot Griefing Auto-Moderator 🍯🚫 
+# Honeypot Anti-Grief 🍯🚫 
 [![Release](https://jitpack.io/v/TerrrorByte/Honeypot.svg)](https://jitpack.io/#TerrrorByte/Honeypot) [![Java CI with Maven](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=TerrrorByte_Honeypot&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=TerrrorByte_Honeypot)
+
+![Info Slide 1](https://i.imgur.com/pFi4FMk.png)
+![Info Slide 2](https://i.imgur.com/o1jEa1c.png)
+
+***
 
 ## What is Honeypot?
 Honeypot is a Minecraft Spigot server plugin which is designed to catch bad actors and punish them in the act. The goal is to catch them before damage is done, especially if staff doesn't realize it's happening or are unable to intervene. Its job is to minimize damage and make less of a mess for staff to clean up later on. 
@@ -26,16 +31,10 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 ## Developers
 If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
 
-## To-do 📝
-* Add language translations *(Always in progress, currently supporting en_US and es_MX!)*
-* Add history command to allow staff to look up if/when the last time a player interacted with a Honeypot was *(Researching)*
-* Add unit tests with MockBukkit to make development quicker and testing easier *(In progress)*
-* Add support for other plugins (Such as grief pretection and WorldEdit/Guard) *(Partially implemented as of [Honeypot 2.2.5](https://github.com/TerrrorByte/Honeypot/releases/tag/2.2.5))*
-
 ## Credits 🎬
-TerrorByte aka redstonefreak589 is the sole developer of this plugin. He maintains the entire codebase, however any forks, pull-requests, etc. are welcomed! Big thanks to dejvokep for their [BoostedYAML](https://www.spigotmc.org/threads/%E2%9A%A1-boostedyaml-standalone-yaml-library-with-updater-and-comment-support-much-more-5min-setup-%E2%9A%A1.545585/) library!
+Big thanks to dejvokep for their [BoostedYAML](https://www.spigotmc.org/threads/%E2%9A%A1-boostedyaml-standalone-yaml-library-with-updater-and-comment-support-much-more-5min-setup-%E2%9A%A1.545585/) library, and the Spigot community for all their tips and tricks!
 
 ## Note 📒
-Honeypot Anti-Grief Solution is not designed to replace land protection plugins such as [Lands](https://www.spigotmc.org/resources/lands-land-claim-plugin-grief-prevention-protection-gui-management-nations-wars-1-17-support.53313/), [WorldGuard](https://dev.bukkit.org/projects/worldguard), [GriefPrevention](https://www.spigotmc.org/resources/griefprevention.1884/), [CoreProtect](https://www.spigotmc.org/resources/coreprotect.8631/), etc. Please make sure you have another protection and rollback plugin to prevent mass griefing. Honeypot is just meant to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I actually recommend CoreProtect and the paid Lands plugin, as I used them in production servers and they are fantastic! Honeypot is a perfect plugin to compliment them both.
+Honeypot Anti-Grief Solution is not designed to replace plugins such as [Lands](https://www.spigotmc.org/resources/lands-land-claim-plugin-grief-prevention-protection-gui-management-nations-wars-1-17-support.53313/), [WorldGuard](https://dev.bukkit.org/projects/worldguard), [GriefPrevention](https://www.spigotmc.org/resources/griefprevention.1884/), [CoreProtect](https://www.spigotmc.org/resources/coreprotect.8631/), etc. Please make sure you have another protection and rollback plugin to prevent mass griefing. Honeypot is just meant to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I highly recommend CoreProtect and GriefPrevention, but if you have the money to spend, Lands is an awesome plugin as well.
 
 This plugin was also designed for Minecraft 1.17+ and is compiled using Java 17. If you are not running Java 17 on your server, this plugin is not for you.
