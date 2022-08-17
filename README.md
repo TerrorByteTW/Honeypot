@@ -1,7 +1,28 @@
 # Honeypot Anti-Grief 🍯🚫 
-[![Release](https://jitpack.io/v/TerrrorByte/Honeypot.svg)](https://jitpack.io/#TerrrorByte/Honeypot) [![Java CI with Maven](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master)](https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=TerrrorByte_Honeypot&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=TerrrorByte_Honeypot)
+<p align="center">
+    <a href="https://jitpack.io/#TerrrorByte/Honeypot">
+        <img alt="Release" src="https://jitpack.io/v/TerrrorByte/Honeypot.svg">
+    </a>
+    <a href="https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml">
+        <img alt="Java CI with Maven" src="https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master">
+    </a>
+    <a href="https://sonarcloud.io/summary/new_code?id=TerrrorByte_Honeypot">
+        <img alt="Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=TerrrorByte_Honeypot&metric=sqale_rating">
+    </a>
+</p>
 
-[![Polymart](https://img.shields.io/badge/Download%20At-Polymart-%2303a092?style=for-the-badge)](https://polymart.org/resource/honeypot-anti-grief.2756) [![BuiltByBit](https://img.shields.io/badge/Download%20At-BuiltByBit-%232c86c1?style=for-the-badge)](https://builtbybit.com/resources/honeypot-anti-grief.24799/) [![SpigotMC](https://img.shields.io/badge/Download%20At-SpigotMC-yellow?style=for-the-badge)](https://www.spigotmc.org/resources/honeypot-anti-grief.96665/)
+
+<p align="center">
+    <a href="https://polymart.org/resource/honeypot-anti-grief.2756">
+        <img alt="Polymart" src="https://img.shields.io/badge/Download%20At-Polymart-%2303a092?style=for-the-badge">
+    </a>
+    <a href="https://builtbybit.com/resources/honeypot-anti-grief.24799/">
+        <img alt="BuiltByBit" src="https://img.shields.io/badge/Download%20At-BuiltByBit-%232c86c1?style=for-the-badge">
+    </a>
+    <a href="https://www.spigotmc.org/resources/honeypot-anti-grief.96665/">
+        <img alt="SpigotMC" src="https://img.shields.io/badge/Download%20At-SpigotMC-yellow?style=for-the-badge">
+    </a>
+</p>
 
 ![Info Slide 1](https://i.imgur.com/pFi4FMk.png)
 ![Info Slide 2](https://i.imgur.com/o1jEa1c.png)
