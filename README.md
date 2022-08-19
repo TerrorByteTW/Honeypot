@@ -29,9 +29,6 @@
 
 ***
 
-## What is Honeypot?
-Honeypot is a Minecraft Spigot server plugin which is designed to catch bad actors and punish them in the act. The goal is to catch them before damage is done, especially if staff doesn't realize it's happening or are unable to intervene. Its job is to minimize damage and make less of a mess for staff to clean up later on. 
-
 ## Why was Honeypot created?
 Honeypot is a customizable anti-grief plugin which allows any placeable block to be used as a trap for players looking to grief. It can be used to catch Xray-ers, deter griefers from breaking unprotected builds, and more.
 Honeypot plugins were popularized back in the early days of Minecraft servers but never really took off due to their lack of customization, updates, or difficulty to configure, setup, and/or maintain. This plugin was designed to be simple, lightweight, and easy to use for staff and admins.
@@ -40,16 +37,31 @@ Honeypot plugins were popularized back in the early days of Minecraft servers bu
 
 [![Honeypot Demo](https://img.youtube.com/vi/M58d5X3NpP0/0.jpg)](https://www.youtube.com/watch?v=M58d5X3NpP0)
 
-## Goals
-These are the goals for Honeypot. Not all of these have been achieved yet, but I think I'm on the right track.
-* **👀 Privacy focused.** This plugin collects no data, but starting in version 2.0 I do collect basic statistics using bStats. If you want to know more about the stats I collect, I'm happy to share! You can also view them [here](https://bstats.org/plugin/bukkit/Honeypot/15425)
-* **💪 Lightweight.** I wanted this Honeypot plugin to be lightweight. I'm still working on optimizing the code but so far so good.
-* **😄 Easy to update.** The code in this plugin uses really basic Java and Bukkit/Spigot APIs, so it's not too overly complicate to update.
-* **🔨 Easy to build upon.** I made the Honeypot block manager classes super easy to use and add functionality to. I designed the Command Manager to be extensible, enabling me to add commands and subcommands at any time without too many major updates to the code or base classes. It also has the added benefit of making it easier for other developers to fork and add on to. 
-
-So far we've met those goals, but are working on adding more features to the plugin and continuously optimizing as time goes on.
-
 Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
+
+## Compiling from source
+Prerequisites: 
+- Java 17 (You may compile with Java 18, but Java 17 is what this project is configured to use. Plus, Java 17 is used more widely on servers. I'd just use Java 17)
+- Maven 3.8.6+ (That is what I used for compiling this project, so I'd recommend just using that version at least. I do know from prior experience that the maven packaged with package managers such as `apt` does _not_ function properly.)
+
+1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that accordingly
+
+```
+$ git clone https://github.com/TerrrorByte/Honeypot.git
+```
+
+2. Update Git modules
+
+```
+$ cd Honeypot
+$ git submodule update --init --recursive
+```
+
+3. Compile & Package
+```
+$ mvn compile
+$ mvn package
+```
 
 ## Developers
 If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
