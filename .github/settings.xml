@@ -12,8 +12,8 @@
             <repositories>
                 <repository>
                     <id>github</id>
-                    <name>GitHub TerrrorByte Apache Maven Packages</name>
-                    <url>https://maven.pkg.github.com/TerrrorByte/Honeypot</url>
+                    <name>GitHub TerrorByteTW Apache Maven Packages</name>
+                    <url>https://maven.pkg.github.com/TerrorByteTW/Honeypot</url>
                 </repository>
             </repositories>
         </profile>

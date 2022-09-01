@@ -1,13 +1,13 @@
 # Honeypot Anti-Grief 🍯🚫 
 <p align="center">
-    <a href="https://jitpack.io/#TerrrorByte/Honeypot">
-        <img alt="Release" src="https://jitpack.io/v/TerrrorByte/Honeypot.svg">
+    <a href="https://jitpack.io/#TerrorByteTW/Honeypot">
+        <img alt="Release" src="https://jitpack.io/v/TerrorByteTW/Honeypot.svg">
     </a>
-    <a href="https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml">
-        <img alt="Java CI with Maven" src="https://github.com/TerrrorByte/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master">
+    <a href="https://github.com/TerrorByteTW/Honeypot/actions/workflows/maven.yml">
+        <img alt="Java CI with Maven" src="https://github.com/TerrorByteTW/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master">
     </a>
-    <a href="https://sonarcloud.io/summary/new_code?id=TerrrorByte_Honeypot">
-        <img alt="Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=TerrrorByte_Honeypot&metric=sqale_rating">
+    <a href="https://sonarcloud.io/summary/new_code?id=TerrorByteTW_Honeypot">
+        <img alt="Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=TerrorByteTW_Honeypot&metric=sqale_rating">
     </a>
 </p>
 
@@ -47,7 +47,7 @@ Prerequisites:
 1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that accordingly
 
 ```
-$ git clone https://github.com/TerrrorByte/Honeypot.git
+$ git clone https://github.com/TerrorByteTW/Honeypot.git
 ```
 
 2. Update Git modules
@@ -64,7 +64,7 @@ $ mvn package
 ```
 
 ## Developers
-If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrrorByte/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
+If you are looking to develop using the Honeypot API, please [see the Wiki](https://github.com/TerrorByteTW/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
 
 ## Credits 🎬
 Big thanks to dejvokep for their [BoostedYAML](https://www.spigotmc.org/threads/%E2%9A%A1-boostedyaml-standalone-yaml-library-with-updater-and-comment-support-much-more-5min-setup-%E2%9A%A1.545585/) library, and the Spigot community for all their tips and tricks!

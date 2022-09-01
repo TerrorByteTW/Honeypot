@@ -14,7 +14,7 @@
 
     <name>Honeypot</name>
     <description>Plugin for Spigot MC servers to deter griefers and take action autonomously</description>
-    <url>https://github.com/TerrrorByte/Honeypot</url>
+    <url>https://github.com/TerrorByteTW/Honeypot</url>
 
     <licenses>
         <license>
@@ -28,28 +28,28 @@
             <name>Nate Reprogle</name>
             <email>nate@reprogle.org</email>
             <organization>org.reprogle</organization>
-            <organizationUrl>https://github.com/TerrrorByte</organizationUrl>
+            <organizationUrl>https://github.com/TerrorByteTW</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/TerrrorByte/Honeypot.git</connection>
-        <developerConnection>scm:git:ssh://github.com:TerrrorByte/Honeypot.git</developerConnection>
-        <url>http://github.com/TerrrorByte/Honeypot/tree/master</url>
+        <connection>scm:git:git://github.com/TerrorByteTW/Honeypot.git</connection>
+        <developerConnection>scm:git:ssh://github.com:TerrorByteTW/Honeypot.git</developerConnection>
+        <url>http://github.com/TerrorByteTW/Honeypot/tree/master</url>
     </scm>
 
     <distributionManagement>
         <repository>
             <id>github</id>
-            <name>GitHub TerrrorByte Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/TerrrorByte/Honeypot</url>
+            <name>GitHub TerrorByteTW Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/TerrorByteTW/Honeypot</url>
         </repository>
     </distributionManagement>
 
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sonar.organization>terrrorbyte</sonar.organization>
+        <sonar.organization>terrorbytetw</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 

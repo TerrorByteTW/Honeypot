@@ -16,7 +16,7 @@
     <artifactId>honeypot-core</artifactId>
     <name>honeypot-core</name>
     <description>A plugin to deter griefers from griefing your server</description>
-    <url>https://github.com/TerrrorByte/Honeypot</url>
+    <url>https://github.com/TerrorByteTW/Honeypot</url>
 
     <licenses>
         <license>
@@ -30,14 +30,14 @@
             <name>Nate Reprogle</name>
             <email>nate@reprogle.org</email>
             <organization>org.reprogle</organization>
-            <organizationUrl>https://github.com/TerrrorByte</organizationUrl>
+            <organizationUrl>https://github.com/TerrorByteTW</organizationUrl>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/TerrrorByte/Honeypot.git</connection>
-        <developerConnection>scm:git:ssh://github.com:TerrrorByte/Honeypot.git</developerConnection>
-        <url>http://github.com/TerrrorByte/Honeypot/tree/master</url>
+        <connection>scm:git:git://github.com/TerrorByteTW/Honeypot.git</connection>
+        <developerConnection>scm:git:ssh://github.com:TerrorByteTW/Honeypot.git</developerConnection>
+        <url>http://github.com/TerrorByteTW/Honeypot/tree/master</url>
     </scm>
 
     <build>

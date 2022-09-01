@@ -139,7 +139,7 @@ public final class Honeypot extends JavaPlugin {
         }
 
         // Check for any updates
-        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrrorByte/Honeypot/master/version.txt")
+        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt")
                 .getVersion(latest -> {
 
                     if (Integer.parseInt(latest.replace(".", "")) > 
