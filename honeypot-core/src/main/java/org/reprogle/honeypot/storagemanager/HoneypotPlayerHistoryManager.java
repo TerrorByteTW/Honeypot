@@ -18,13 +18,23 @@ public class HoneypotPlayerHistoryManager {
 
     private static HoneypotPlayerHistoryManager instance = null;
 
-    private HoneypotPlayerHistoryManager() {
+    /**
+     * Creates an instance of the HoneypotPlayerHistoryManager
+     * @deprecated
+     * This function is now deprecated as this class is intended to be used as a singleton. Please use {@link #getInstance()} instead
+     * The immediate next version of Honeypot will make this function private.
+     */
+    @Deprecated
+    public HoneypotPlayerHistoryManager() {
+        // This will be made private in the next version, hence why it's deprecated
     }
 
     /**
      * Returns the singleton instance of this class
      * @return The {@link HoneypotPlayerHistoryManager} instance
      */
+    // Warnings are suppressed due to the deprecation of the public HoneypotBlockManager constructor
+    @SuppressWarnings("java:S1874")
     public static HoneypotPlayerHistoryManager getInstance() {
         if (instance == null)
             instance = new HoneypotPlayerHistoryManager();
