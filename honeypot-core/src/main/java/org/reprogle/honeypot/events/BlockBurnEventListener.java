@@ -8,6 +8,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 
 public class BlockBurnEventListener implements Listener {
 
@@ -22,8 +23,9 @@ public class BlockBurnEventListener implements Listener {
 	public static void onBlockBurnEvent(BlockBurnEvent event) {
 		Block block = event.getBlock();
 
-		if (Honeypot.getBlockManager().isHoneypotBlock(block)) {
-			Honeypot.getHoneypotLogger().log("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ());
+		if (HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
+			Honeypot.getHoneypotLogger().log("BlockBurnEvent being called for Honeypot: " + block.getX() + ", "
+					+ block.getY() + ", " + block.getZ());
 			event.setCancelled(true);
 
 			Block[] adjacentBlocks = new Block[] {
@@ -35,7 +37,8 @@ public class BlockBurnEventListener implements Listener {
 					block.getRelative(BlockFace.WEST)
 			};
 
-			// Proactively put out any fires adjacent the burning block, to reduce future processing
+			// Proactively put out any fires adjacent the burning block, to reduce future
+			// processing
 			for (Block adjacentBlock : adjacentBlocks) {
 				if (adjacentBlock.getType() == Material.FIRE
 						&& adjacentBlock.getRelative(BlockFace.DOWN).getType() != Material.NETHERRACK) {

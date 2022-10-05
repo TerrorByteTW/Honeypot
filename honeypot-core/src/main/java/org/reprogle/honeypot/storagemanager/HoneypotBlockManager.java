@@ -8,10 +8,27 @@ import org.reprogle.honeypot.storagemanager.sqlite.SQLite;
 import java.util.List;
 
 public class HoneypotBlockManager {
+
+    private static HoneypotBlockManager instance = null;
+
+    private HoneypotBlockManager() {
+    }
+
+    /**
+     * Returns the singleton instance of this class
+     * @return The {@link HoneypotBlockManager} instance
+     */
+    public static HoneypotBlockManager getInstance() {
+        if (instance == null)
+            instance = new HoneypotBlockManager();
+
+        return instance;
+    }
+
     /**
      * Create a Honeypot {@link Block} and add it to the DB
      * 
-     * @param block The Honeypot Block we're creating
+     * @param block  The Honeypot Block we're creating
      * @param action The action of the Honeypot
      */
     @SuppressWarnings("java:S1604")
@@ -23,7 +40,8 @@ public class HoneypotBlockManager {
         db.createHoneypotBlock(block, action);
         CacheManager.addToCache(new HoneypotBlockObject(block, action));
 
-        Honeypot.getHoneypotLogger().log("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
+        Honeypot.getHoneypotLogger().log("Created Honeypot block with action " + action + " at " + block.getX() + ", "
+                + block.getY() + ", " + block.getZ());
     }
 
     /**
@@ -39,7 +57,8 @@ public class HoneypotBlockManager {
         db.removeHoneypotBlock(block);
         CacheManager.removeFromCache(new HoneypotBlockObject(block, null));
 
-        Honeypot.getHoneypotLogger().log("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
+        Honeypot.getHoneypotLogger()
+                .log("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
     }
 
     /**
@@ -49,14 +68,15 @@ public class HoneypotBlockManager {
      * @return true or false
      */
     public boolean isHoneypotBlock(Block block) {
-        if (CacheManager.isInCache(new HoneypotBlockObject(block, null)) != null) return true;
+        if (CacheManager.isInCache(new HoneypotBlockObject(block, null)) != null)
+            return true;
 
         Database db;
 
         db = new SQLite(Honeypot.getPlugin());
         db.load();
 
-        if(Boolean.TRUE.equals(db.isHoneypotBlock(block))) {
+        if (Boolean.TRUE.equals(db.isHoneypotBlock(block))) {
             String action = getAction(block);
             CacheManager.addToCache(new HoneypotBlockObject(block, action));
             return true;
@@ -67,14 +87,15 @@ public class HoneypotBlockManager {
 
     /**
      * Get the Honeypot Block object from Cache or the DB
+     * 
      * @param block The Block to retrieve as a Honeypot Block Object
      * @return The Honeypot Block Object if it exists, null if it doesn't
      */
     public HoneypotBlockObject getHoneypotBlock(Block block) {
 
-        if(Boolean.TRUE.equals(isHoneypotBlock(block)))  
+        if (Boolean.TRUE.equals(isHoneypotBlock(block)))
             return new HoneypotBlockObject(block, getAction(block));
-        
+
         return null;
     }
 
@@ -88,7 +109,7 @@ public class HoneypotBlockManager {
         // Check if block exists in cache. If it doesn't this will be null
         HoneypotBlockObject potential = CacheManager.isInCache(new HoneypotBlockObject(block, null));
 
-        if (potential != null) 
+        if (potential != null)
             return potential.getAction();
 
         Database db;
@@ -110,7 +131,7 @@ public class HoneypotBlockManager {
 
         db.deleteAllBlocks();
         CacheManager.clearCache();
-        
+
         Honeypot.getHoneypotLogger().log("Deleted all Honeypot blocks!");
     }
 

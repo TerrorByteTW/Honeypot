@@ -14,9 +14,6 @@ import org.reprogle.honeypot.commands.CommandManager;
 import org.reprogle.honeypot.events.*;
 import org.reprogle.honeypot.gui.GUI;
 import org.reprogle.honeypot.storagemanager.CacheManager;
-import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
@@ -31,12 +28,6 @@ public final class Honeypot extends JavaPlugin {
     private static Honeypot plugin;
 
     private static GUI gui;
-
-    private static HoneypotBlockManager blockManager;
-
-    private static HoneypotPlayerManager playerManager;
-
-    private static HoneypotPlayerHistoryManager playerHistoryManager;
 
     private static HoneypotLogger logger;
 
@@ -86,9 +77,6 @@ public final class Honeypot extends JavaPlugin {
         plugin = this;
         gui = new GUI(this);
         logger = new HoneypotLogger();
-        blockManager = new HoneypotBlockManager();
-        playerManager = new HoneypotPlayerManager();
-        playerHistoryManager = new HoneypotPlayerHistoryManager();
 
 
         // Create/load configuration files
@@ -231,36 +219,10 @@ public final class Honeypot extends JavaPlugin {
     /**
      * Checks if the plugin is running a Mock
      * 
-     * @return Yes if mocking, no if running on a server
+     * @return True if mocking, false if running on a server
      */
     public static boolean getTesting() {
         return testing;
-    }
-
-    /**
-     * Gets the HoneypotBlockManager object
-     * 
-     * @return {@link HoneypotBlockManager}
-     */
-    public static HoneypotBlockManager getBlockManager() {
-        return blockManager;
-    }
-
-    /**
-     * Gets the HoneypotPlayerManager object
-     * 
-     * @return {@link HoneypotPlayerManager}
-     */
-    public static HoneypotPlayerManager getPlayerManager() {
-        return playerManager;
-    }
-
-    /**
-     * Ges the HoneypotHistoryManager object
-     * @return {@link HoneypotPlayerHistoryManager}
-     */
-    public static HoneypotPlayerHistoryManager getPlayerHistoryManager() {
-        return playerHistoryManager;
     }
 
     /**

@@ -6,27 +6,30 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 
-public class BlockFromToEventListener implements Listener{
+public class BlockFromToEventListener implements Listener {
 
-	  /**
-     * Create package listener to hide implicit one
-     */
-    BlockFromToEventListener() {
+  /**
+   * Create package listener to hide implicit one
+   */
+  BlockFromToEventListener() {
 
+  }
+
+  /**
+   * Block water from flowing into Honeypot blocks (Such as torches)
+   * 
+   * @param event The BlockFromToEvent, passed from Bukkit's event handler
+   */
+  @EventHandler(priority = EventPriority.LOW)
+  public static void blockFromToEvent(BlockFromToEvent event) {
+    Block toBlock = event.getToBlock();
+    if (HoneypotBlockManager.getInstance().isHoneypotBlock(toBlock)) {
+      Honeypot.getHoneypotLogger().log("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", "
+          + toBlock.getY() + ", " + toBlock.getZ());
+      event.setCancelled(true);
     }
+  }
 
-    /**
-     * Block water from flowing into Honeypot blocks (Such as torches)
-     * @param event The BlockFromToEvent, passed from Bukkit's event handler
-     */
-    @EventHandler(priority = EventPriority.LOW)
-    public static void blockFromToEvent(BlockFromToEvent event) {
-      Block toBlock = event.getToBlock();
-      if (Honeypot.getBlockManager().isHoneypotBlock(toBlock)) {
-        Honeypot.getHoneypotLogger().log("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", " + toBlock.getY() + ", " + toBlock.getZ());
-        event.setCancelled(true);
-      }
-    }
-	
 }

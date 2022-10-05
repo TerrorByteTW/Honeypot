@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
@@ -33,7 +33,7 @@ public class HoneypotUpgrade implements HoneypotSubCommand {
 		}
 
 		if (args.length >= 2 && args[1].equalsIgnoreCase("confirm")) {
-			List<HoneypotBlockObject> oldBlocks = Honeypot.getBlockManager().getAllHoneypots();
+			List<HoneypotBlockObject> oldBlocks = HoneypotBlockManager.getInstance().getAllHoneypots();
 			int customBlock = 0;
 
 			for (HoneypotBlockObject block : oldBlocks) {
@@ -55,12 +55,13 @@ public class HoneypotUpgrade implements HoneypotSubCommand {
 
 					++customBlock;
 
-					Honeypot.getBlockManager().deleteBlock(block.getBlock());
-					Honeypot.getBlockManager().createBlock(block.getBlock(), route);
+					HoneypotBlockManager.getInstance().deleteBlock(block.getBlock());
+					HoneypotBlockManager.getInstance().createBlock(block.getBlock(), route);
 				}
 			}
 
-			// Mark custom actions as having already been upgraded to prevent an accidental double-upgrade (Which will break things)
+			// Mark custom actions as having already been upgraded to prevent an accidental
+			// double-upgrade (Which will break things)
 			HoneypotConfigManager.getHoneypotsConfig().createSection("upgraded").set("upgraded", true);
 
 			HoneypotConfigManager.getHoneypotsConfig().save();

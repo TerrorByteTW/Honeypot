@@ -16,6 +16,7 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.util.List;
@@ -65,7 +66,7 @@ public class PlayerInteractEventListener implements Listener {
 
         try {
             if (!Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getType().equals(Material.ENDER_CHEST)
-                    && Boolean.TRUE.equals(Honeypot.getBlockManager()
+                    && Boolean.TRUE.equals(HoneypotBlockManager.getInstance()
                             .isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5))))) {
                 // Fire HoneypotPrePlayerInteractEvent
                 HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(event.getPlayer(),
@@ -99,18 +100,20 @@ public class PlayerInteractEventListener implements Listener {
         Player player = event.getPlayer();
 
         assert block != null;
-        String action = Honeypot.getBlockManager().getAction(block);
+        String action = HoneypotBlockManager.getInstance().getAction(block);
 
         assert action != null;
-        Honeypot.getHoneypotLogger().log("PlayerInteractEvent being called for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
-        
+        Honeypot.getHoneypotLogger().log("PlayerInteractEvent being called for player: " + event.getPlayer().getName()
+                + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
+
         switch (action) {
             case "kick" -> player.kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
 
             case "ban" -> {
                 String banReason = CommandFeedback.sendCommandFeedback("ban");
 
-                Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), banReason, null, CommandFeedback.getChatPrefix());
+                Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), banReason, null,
+                        CommandFeedback.getChatPrefix());
                 player.kickPlayer(banReason);
             }
 
@@ -122,15 +125,17 @@ public class PlayerInteractEventListener implements Listener {
                 // honeypot block
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (p.hasPermission("honeypot.notify") || p.hasPermission("honeypot.*") || p.isOp()) {
-                        p.sendMessage(CommandFeedback.getChatPrefix() + " " + ChatColor.RED + event.getPlayer().getName()
-                                + " was caught opening a Honeypot container at x=" + block.getX() + ", y="
-                                + block.getY()
-                                + ", z=" + block.getZ());
+                        p.sendMessage(
+                                CommandFeedback.getChatPrefix() + " " + ChatColor.RED + event.getPlayer().getName()
+                                        + " was caught opening a Honeypot container at x=" + block.getX() + ", y="
+                                        + block.getY()
+                                        + ", z=" + block.getZ());
                     }
                 }
 
-                Honeypot.getPlugin().getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + " " + ChatColor.RED
-                        + event.getPlayer().getName() + " was caught opening a Honeypot container");
+                Honeypot.getPlugin().getServer().getConsoleSender()
+                        .sendMessage(CommandFeedback.getChatPrefix() + " " + ChatColor.RED
+                                + event.getPlayer().getName() + " was caught opening a Honeypot container");
             }
 
             default -> {

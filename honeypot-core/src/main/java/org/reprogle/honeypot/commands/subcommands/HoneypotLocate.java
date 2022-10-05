@@ -8,6 +8,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.util.ArrayList;
@@ -46,10 +47,11 @@ public class HoneypotLocate implements HoneypotSubCommand {
                     final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
                     // If it is a honeypot do this
-                    if (Boolean.TRUE.equals(Honeypot.getBlockManager().isHoneypotBlock(b))) {
+                    if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(b))) {
                         potFound = true;
 
-                        // Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn it inside the
+                        // Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
+                        // it inside the
                         // block
                         Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(b.getWorld().getName()))
                                 .spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
@@ -60,7 +62,8 @@ public class HoneypotLocate implements HoneypotSubCommand {
                         slime.setHealth(4.0);
                         slime.setInvisible(true);
 
-                        // After 5 seconds, remove the slime. Setting its health to 0 causes the death animation,
+                        // After 5 seconds, remove the slime. Setting its health to 0 causes the death
+                        // animation,
                         // removing it just makes it go away. Poof!
                         new BukkitRunnable() {
 
@@ -77,13 +80,13 @@ public class HoneypotLocate implements HoneypotSubCommand {
         // Let the player know if a pot was found or not
         if (potFound) {
             p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
-        }
-        else {
+        } else {
             p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
         }
     }
 
-    // We don't have any subcommands here, but we cannot return null otherwise the tab completer in the CommandManager
+    // We don't have any subcommands here, but we cannot return null otherwise the
+    // tab completer in the CommandManager
     // will throw an exception since CopyPartialMatches doesn't allow null values
     @Override
     public List<String> getSubcommands(Player p, String[] args) {

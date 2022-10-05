@@ -57,16 +57,16 @@ public class TestDatabaseCreation {
 	public void testDBPushPull() {
 		// Create a block for use in the GUI
 		WorldMock worldMock = server.addSimpleWorld("world");
-		BlockMock block = worldMock.createBlock(new Coordinate(0, 65, 9));	
+		BlockMock block = worldMock.createBlock(new Coordinate(0, 65, 9));
 		block.setType(Material.DIAMOND_ORE);
-		Honeypot.getBlockManager().createBlock(block, "kick");
+		HoneypotBlockManager.getInstance().createBlock(block, "kick");
 
-		List<HoneypotBlockObject> blocks = Honeypot.getBlockManager().getAllHoneypots();
+		List<HoneypotBlockObject> blocks = HoneypotBlockManager.getInstance().getAllHoneypots();
 
 		Assertions.assertEquals("kick", blocks.get(0).getAction());
 		Assertions.assertEquals("0, 65, 9", blocks.get(0).getCoordinates());
 		Assertions.assertEquals("world", blocks.get(0).getWorld());
 
 	}
-	
+
 }

@@ -7,6 +7,22 @@ import org.reprogle.honeypot.storagemanager.sqlite.SQLite;
 
 public class HoneypotPlayerManager {
 
+    private static HoneypotPlayerManager instance = null;
+
+    private HoneypotPlayerManager() {
+    }
+
+    /**
+     * Returns the singleton instance of this class
+     * @return The {@link HoneypotPlayerManager} instance
+     */
+    public static HoneypotPlayerManager getInstance() {
+        if (instance == null)
+            instance = new HoneypotPlayerManager();
+
+        return instance;
+    }
+
     /**
      * Create a honeypot block by calling the SQLite DB. In the future this will be a switch case statement to handle
      * multiple DB types

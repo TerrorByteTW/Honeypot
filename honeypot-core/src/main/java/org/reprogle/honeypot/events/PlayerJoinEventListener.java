@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.utils.HoneypotUpdateChecker;
 
 public class PlayerJoinEventListener implements Listener {
@@ -28,15 +29,17 @@ public class PlayerJoinEventListener implements Listener {
         Player p = event.getPlayer();
 
         // Convert player names to UUIDs
-        int breaks = Honeypot.getPlayerManager().getCount(p);
+        int breaks = HoneypotPlayerManager.getInstance().getCount(p);
         if (breaks >= 0) {
-            Honeypot.getPlayerManager().setPlayerCount(p, breaks);
+            HoneypotPlayerManager.getInstance().setPlayerCount(p, breaks);
         }
 
         if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
             new HoneypotUpdateChecker(Honeypot.getPlugin(),
                     "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt").getVersion(latest -> {
-                        if (Integer.parseInt(latest.replace(".", "")) > Integer.parseInt(Honeypot.getPlugin().getDescription().getVersion().replace(".", "")) || Boolean.TRUE.equals(Honeypot.getTesting())) {
+                        if (Integer.parseInt(latest.replace(".", "")) > Integer
+                                .parseInt(Honeypot.getPlugin().getDescription().getVersion().replace(".", ""))
+                                || Boolean.TRUE.equals(Honeypot.getTesting())) {
                             TextComponent message = new TextComponent(
                                     CommandFeedback.sendCommandFeedback("updateavailable"));
                             message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
