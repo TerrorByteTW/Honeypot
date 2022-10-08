@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryObject;
+import org.reprogle.honeypot.storagemanager.queue.QueueManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -19,6 +20,8 @@ public abstract class Database {
     Honeypot plugin;
 
     Connection connection;
+
+    QueueManager qm = QueueManager.getInstance();
 
     private static final String PLAYER_TABLE = "honeypot_players";
 
@@ -104,7 +107,7 @@ public abstract class Database {
             ps.setString(1, coordinates);
             ps.setString(2, action);
             ps.setString(3, worldName);
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -140,7 +143,7 @@ public abstract class Database {
             ps = c.prepareStatement(DELETE + BLOCK_TABLE + WHERE);
             ps.setString(1, coordinates);
             ps.setString(2, worldName);
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -321,7 +324,7 @@ public abstract class Database {
             ps = c.prepareStatement(INSERT_INTO + PLAYER_TABLE + " (playerName, blocksBroken) VALUES (?, ?);");
             ps.setString(1, player.getUniqueId().toString());
             ps.setInt(2, blocksBroken);
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -356,7 +359,7 @@ public abstract class Database {
             ps = c.prepareStatement("REPLACE INTO " + PLAYER_TABLE + " (playerName, blocksBroken) VALUES (?, ?);");
             ps.setString(1, playerName.getUniqueId().toString());
             ps.setInt(2, blocksBroken);
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -437,7 +440,7 @@ public abstract class Database {
         try {
             c = getSQLConnection();
             ps = c.prepareStatement(DELETE + BLOCK_TABLE + ";");
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -466,7 +469,7 @@ public abstract class Database {
         try {
             c = getSQLConnection();
             ps = c.prepareStatement(DELETE + PLAYER_TABLE + ";");
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -495,7 +498,7 @@ public abstract class Database {
         try {
             c = getSQLConnection();
             ps = c.prepareStatement(DELETE + HISTORY_TABLE + ";");
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -537,7 +540,7 @@ public abstract class Database {
             ps.setString(3, block.getCoordinates());
             ps.setString(4, block.getWorld());
             ps.setString(5, block.getAction());
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
@@ -616,7 +619,7 @@ public abstract class Database {
                 ps.setString(1, p.getUniqueId().toString());
             }
 
-            ps.executeUpdate();
+            qm.addToQueue(ps);
 
         }
         catch (SQLException e) {
