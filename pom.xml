@@ -4,7 +4,7 @@
 
     <groupId>org.reprogle</groupId>
     <artifactId>honeypot-parent</artifactId>
-    <version>2.5.1</version>
+    <version>2.5.2</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -35,7 +35,7 @@
     <scm>
         <connection>scm:git:git://github.com/TerrorByteTW/Honeypot.git</connection>
         <developerConnection>scm:git:ssh://github.com:TerrorByteTW/Honeypot.git</developerConnection>
-        <url>http://github.com/TerrorByteTW/Honeypot/tree/master</url>
+        <url>https://github.com/TerrorByteTW/Honeypot/tree/master</url>
     </scm>
 
     <distributionManagement>

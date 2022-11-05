@@ -25,27 +25,29 @@ public class SQLite extends Database {
             "`playerName` VARCHAR NOT NULL," +
             "`blocksBroken` INT NOT NULL," +
             "PRIMARY KEY (`playerName`)" +
-        ");";
+            ");";
 
     private static final String SQLITE_CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
             "`coordinates` VARCHAR NOT NULL," +
             "`worldName` VARCHAR NOT NULL," +
             "`action` VARCHAR NOT NULL," +
             "PRIMARY KEY (`coordinates`, `worldName`)" +
-        ");";
-            
-    //SQLite has this cool feature where if no primary key is provided, the primary key defaults to the rowid. Nifty!
+            ");";
+
+    // SQLite has this cool feature where if no primary key is provided, the primary
+    // key defaults to the rowid. Nifty!
     private static final String SQLITE_CREATE_HISTORY_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_history (" +
             "`datetime` VARCHAR NOT NULL," +
             "`playerName` varchar NOT NULL," +
             "`playerUUID` VARCHAR NOT NULL," +
-            "`coordinates` VARCHAR NOT NULL,"+
-            "`world` VARCHAR NOT NULL,"+
+            "`coordinates` VARCHAR NOT NULL," +
+            "`world` VARCHAR NOT NULL," +
             "`action` VARCHAR NOT NULL" +
-        ");";
+            ");";
+
     /**
-     * Get's the DB connection, also verifies if JDBC is installed. If it isn't plugin is disabled as it can't function
-     * without it
+     * Get's the DB connection, also verifies if JDBC is installed. If it isn't
+     * plugin is disabled as it can't function without it
      * 
      * @return Connection if the connection is valid, otherwise returns null
      */
@@ -59,8 +61,7 @@ public class SQLite extends Database {
                 } else {
                     Honeypot.getPlugin().getLogger().severe("Could not create data folder!");
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 Honeypot.getPlugin().getLogger().severe("Could not create honeypot.db file");
             }
         }
@@ -73,11 +74,9 @@ public class SQLite extends Database {
             connection = DriverManager.getConnection("jdbc:sqlite:" + dataFolder);
             return connection;
 
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             Honeypot.getPlugin().getLogger().severe("SQLite exception on initialize: " + e);
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             Honeypot.getPlugin().getLogger()
                     .severe("SQLite JDBC Library not found. Please install this on your PC to use SQLite: " + e);
             Honeypot.getPlugin().getPluginLoader().disablePlugin(Honeypot.getPlugin());
@@ -88,6 +87,8 @@ public class SQLite extends Database {
 
     /**
      * Loads the DB
+     * 
+     * @return
      */
     @Override
     public void load() {
@@ -96,9 +97,9 @@ public class SQLite extends Database {
             s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
             s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
             s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
-        }
-        catch (SQLException e) {
-            Honeypot.getPlugin().getLogger().severe("SQLException occured while attempting to create tables if they don't exist: " + e);
+        } catch (SQLException e) {
+            Honeypot.getPlugin().getLogger()
+                    .severe("SQLException occured while attempting to create tables if they don't exist: " + e);
         }
 
         initialize();
