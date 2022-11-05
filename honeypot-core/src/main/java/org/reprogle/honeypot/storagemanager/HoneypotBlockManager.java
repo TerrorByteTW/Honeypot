@@ -11,24 +11,16 @@ public class HoneypotBlockManager {
 
     private static HoneypotBlockManager instance = null;
 
-    /**
-     * Creates an instance of the HoneypotBlockManager
-     * @deprecated
-     * This function is now deprecated as this class is intended to be used as a singleton. Please use {@link #getInstance()} instead
-     * The immediate next version of Honeypot will make this function private.
-     */
-    @Deprecated
-    public HoneypotBlockManager() {
+    private HoneypotBlockManager() {
         // This will be made private in the next version, hence why it's deprecated
     }
 
     /**
      * Returns the singleton instance of this class
+     * 
      * @return The {@link HoneypotBlockManager} instance
      */
-    // Warnings are suppressed due to the deprecation of the public HoneypotBlockManager constructor
-    @SuppressWarnings("java:S1874")
-    public static HoneypotBlockManager getInstance() {
+    public static synchronized HoneypotBlockManager getInstance() {
         if (instance == null)
             instance = new HoneypotBlockManager();
 
@@ -41,10 +33,8 @@ public class HoneypotBlockManager {
      * @param block  The Honeypot Block we're creating
      * @param action The action of the Honeypot
      */
-    @SuppressWarnings("java:S1604")
     public void createBlock(Block block, String action) {
-        Database db;
-        db = new SQLite(Honeypot.getPlugin());
+        Database db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.createHoneypotBlock(block, action);
@@ -60,8 +50,7 @@ public class HoneypotBlockManager {
      * @param block The Honeypot {@link Block} we're deleting
      */
     public void deleteBlock(Block block) {
-        Database db;
-        db = new SQLite(Honeypot.getPlugin());
+        Database db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.removeHoneypotBlock(block);
@@ -81,9 +70,7 @@ public class HoneypotBlockManager {
         if (CacheManager.isInCache(new HoneypotBlockObject(block, null)) != null)
             return true;
 
-        Database db;
-
-        db = new SQLite(Honeypot.getPlugin());
+        Database db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         if (Boolean.TRUE.equals(db.isHoneypotBlock(block))) {
@@ -122,9 +109,7 @@ public class HoneypotBlockManager {
         if (potential != null)
             return potential.getAction();
 
-        Database db;
-
-        db = new SQLite(Honeypot.getPlugin());
+        Database db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getAction(block);
@@ -134,9 +119,7 @@ public class HoneypotBlockManager {
      * Delete all Honeypots in the entire DB
      */
     public void deleteAllHoneypotBlocks() {
-        Database db;
-
-        db = new SQLite(Honeypot.getPlugin());
+        Database db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         db.deleteAllBlocks();
@@ -151,9 +134,7 @@ public class HoneypotBlockManager {
      * @return An array list of all HoneypotBlockObjects
      */
     public List<HoneypotBlockObject> getAllHoneypots() {
-        Database db;
-
-        db = new SQLite(Honeypot.getPlugin());
+        Database db = new SQLite(Honeypot.getPlugin());
         db.load();
 
         return db.getAllHoneypots();
