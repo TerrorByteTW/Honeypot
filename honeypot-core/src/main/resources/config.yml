@@ -10,6 +10,9 @@ file-version: 12
 # Please see https://github.com/TerrorByteTW/Honeypot/wiki#faq for more info. If you don't know what this is, leave it alone
 cache-size: 20
 
+# Determines if the config was generated prior to version 1.6 (DO NOT EDIT)
+upgraded: true
+
 # The database-type option has been removed for now. The only options were JSON and SQLite.
 # JSON support has been removed because I did not like how it was implemented, and it was very difficult to build on to. The default and only option is SQLite, however I plan
 # on implementing some more options in the future
