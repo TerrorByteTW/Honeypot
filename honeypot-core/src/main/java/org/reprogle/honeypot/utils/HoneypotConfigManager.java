@@ -13,6 +13,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class HoneypotConfigManager extends JavaPlugin {
 
@@ -24,13 +26,29 @@ public class HoneypotConfigManager extends JavaPlugin {
 
     private static YamlDocument languageFile;
 
+    /*
+     * I know this method of listing supported languages isn't great, but it's the
+     * only option I could think of *right now*. There is no method that I know of
+     * that Spigot has that can list all the files within the *embedded* resource
+     * folder. `plugin.getDataFolder()` returns the data folder
+     * of the plugin located in the server's /plugins directory. Therefore, there
+     * wasn't really a way to generate this list on the fly.
+     * We can always brute force decoding the jar to get the files that way but
+     * that's suuuuper icky.
+     * (https://www.spigotmc.org/threads/getresources-function.226318/ if anyone
+     * wants an example)
+     */
+    private static List<String> languages = Arrays.asList("en_US", "es_MX", "fr_FR");
+
     /**
-     * Sets up the plugin config and saves it to private variables for use later. Will shut down the plugin if there are
-     * any IOExceptions as these config files are non-negotiable in the function of this plugin.
+     * Sets up the plugin config and saves it to private variables for use later.
+     * Will shut down the plugin if there are
+     * any IOExceptions as these config files are non-negotiable in the function of
+     * this plugin.
      * 
      * @param plugin The Honeypot Plugin object
      */
-    @SuppressWarnings({"java:S1192", "java:S2629"})
+    @SuppressWarnings({ "java:S1192", "java:S2629" })
     public static void setupConfig(Plugin plugin) {
 
         plugin.getLogger().info("Attempting to load all plugin config files...");
@@ -43,10 +61,10 @@ public class HoneypotConfigManager extends JavaPlugin {
 
             config.update();
             config.save();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             plugin.getLogger().severe(
-                    "Could not create/load plugin config, disabling! Please alert the plugin author with the following info: " + e);
+                    "Could not create/load plugin config, disabling! Please alert the plugin author with the following info: "
+                            + e);
             plugin.getPluginLoader().disablePlugin(plugin);
         }
 
@@ -58,51 +76,58 @@ public class HoneypotConfigManager extends JavaPlugin {
 
             guiConfig.update();
             guiConfig.save();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             plugin.getLogger().severe(
-                    "Could not create/load GUI config, disabling! Please alert the plugin author with following info: " + e);
+                    "Could not create/load GUI config, disabling! Please alert the plugin author with following info: "
+                            + e);
             plugin.getPluginLoader().disablePlugin(plugin);
         }
- 
+
         try {
-            honeypotsConfig = YamlDocument.create(new File(plugin.getDataFolder(), "honeypots.yml"), plugin.getResource("honeypots.yml"),
-                    GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(false).build(),
+            honeypotsConfig = YamlDocument.create(new File(plugin.getDataFolder(), "honeypots.yml"),
+                    plugin.getResource("honeypots.yml"),
+                    GeneralSettings.builder().setUseDefaults(false).build(),
+                    LoaderSettings.builder().setAutoUpdate(false).build(),
                     DumperSettings.DEFAULT, UpdaterSettings.DEFAULT);
 
             guiConfig.update();
             guiConfig.save();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             plugin.getLogger().severe(
-                    "Could not create/load Honeypot config, disabling! Please alert the plugin author with following info: " + e);
+                    "Could not create/load Honeypot config, disabling! Please alert the plugin author with following info: "
+                            + e);
             plugin.getPluginLoader().disablePlugin(plugin);
         }
 
         String language = config.getString("language");
 
-        if (!(language.equals("en_US") || language.equals("es_MX")) && Boolean.FALSE.equals(config.getBoolean("bypass-language-check"))) {
-            plugin.getLogger().warning("Language is currently set to " + language + ". This language is currently not supported, defaulting to en_US.");
+        if (!(languages.contains(language))
+                && Boolean.FALSE.equals(config.getBoolean("bypass-language-check"))) {
+            plugin.getLogger().warning("Language is currently set to " + language
+                    + ". This language is currently not supported, defaulting to en_US.");
             language = "en_US";
         }
 
         try {
-            languageFile = YamlDocument.create(new File(new File(plugin.getDataFolder(), "lang"), language + ".yml"), plugin.getResource("lang/" + language + ".yml"),
-                GeneralSettings.DEFAULT, LoaderSettings.builder().setAutoUpdate(true).build(),
-                DumperSettings.DEFAULT, UpdaterSettings.builder().setVersioning(new BasicVersioning("language-version"))
-                    .setOptionSorting(OptionSorting.SORT_BY_DEFAULTS).build());
+            languageFile = YamlDocument.create(new File(new File(plugin.getDataFolder(), "lang"), language + ".yml"),
+                    plugin.getResource("lang/" + language + ".yml"),
+                    GeneralSettings.DEFAULT, LoaderSettings.builder().setAutoUpdate(true).build(),
+                    DumperSettings.DEFAULT,
+                    UpdaterSettings.builder().setVersioning(new BasicVersioning("language-version"))
+                            .setOptionSorting(OptionSorting.SORT_BY_DEFAULTS).build());
 
             languageFile.update();
             languageFile.save();
 
             plugin.getLogger().info("Language set to: " + language);
         } catch (IOException e) {
-            plugin.getLogger().severe("Could not load language file, disabling! Please alert the plugin author with the following info:" + e);
+            plugin.getLogger().severe(
+                    "Could not load language file, disabling! Please alert the plugin author with the following info:"
+                            + e);
             plugin.getPluginLoader().disablePlugin(plugin);
         }
 
         plugin.getLogger().info("Successfully loaded all plugin config files!");
-        
 
     }
 
