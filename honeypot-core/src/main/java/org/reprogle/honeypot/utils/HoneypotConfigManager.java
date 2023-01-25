@@ -38,7 +38,7 @@ public class HoneypotConfigManager extends JavaPlugin {
      * (https://www.spigotmc.org/threads/getresources-function.226318/ if anyone
      * wants an example)
      */
-    private static List<String> languages = Arrays.asList("en_US", "es_MX", "fr_FR");
+    private static List<String> languages = Arrays.asList("en_US", "es_MX", "fr_FR", "ja_JP");
 
     /**
      * Sets up the plugin config and saves it to private variables for use later.

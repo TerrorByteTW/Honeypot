@@ -1,0 +1,33 @@
+language-version: 2
+prefix: '&6[Honeypot]&r'
+kick-reason: あなたはハニーポットを破壊しました。これらの行為は許可されていません。
+ban-reason: あなたはハニーポットを破壊したためBANされました。
+warn-message: そのブロックを破壊しないでください。
+already-exists: このブロックは既にハニーポットになっています。一度削除してからもう一度作成してください。
+success:
+  created: ハニーポットを作成しました
+  removed: ハニーポットを削除しました
+  default: 成功しました
+not-a-honeypot: '&cこのブロックはハニーポットではありません。'
+no-permission: '&cあなたにはこのコマンドを実行する権限がありません。'
+reload: configを再読み込みします。言語ファイルに変更を加えた場合、反映させるにはサーバーそのものを再起動する必要があります。
+found-pots: 周辺のハニーポットを可視化しました。
+no-pots-found: この周辺にハニーポットがありません。
+update-available: このプラグインにアップデートがあります。&6https://github.com/TerrorByteTW/Honeypot&r から新しいバージョンをダウンロードしてください。
+against-filter: This block is not in the filter, so you can't do that!
+not-looking-at-block: ハニーポットにしたいブロックにカーソルを当ててください
+no-exist: 処罰が見つかりませんでした。
+deleted:
+  all: 全てのハニーポットを削除しました
+  near: 近くにある全てのハニーポットを削除しました
+upgrade: '&c警告!&r インポート後、処罰の名前を変更しないでください。処罰が実行されなくなります。 &c/honeypot upgrade confirm&r を実行するとアップグレードされます。'
+already-upgraded: '&cあなたは既にアップグレードを実行しています。&r 今後、このコマンドは使わないでください。もう一度アップグレードが必要な場合は、プラグイン作者に連絡してください'
+worldguard: このリージョンではハニーポットが無効です。
+griefprevention: このエリアはGriefPreventionによって保護されています。あなたには建築を行う権限がありません。
+unknown-error: 不明なエラーが発生しました。サーバー管理者に連絡してください。
+staff-broke: 今あなたが破壊したブロックはハニーポットです。ブロックが破壊されたためハニーポットが削除されました。
+exempt-no-break: あなたにはこのブロックを破壊する権限がありません。
+searching: 検索しています、しばらくお待ちください...
+truncating: Trimming results per config settings...
+not-online: '&c指定されたプレイヤーはオフラインです'
+no-history: 指定されたプレイヤーの履歴が見つかりませんでした。
