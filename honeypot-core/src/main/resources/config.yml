@@ -37,6 +37,9 @@ allow-enderman: false
 # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
 enable-container-actions: true
 
+# Enable players to still open inventories if container actions are enabled. Defaults to false
+always-allow-container-access: false
+
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
 search-range: 5
 
@@ -47,14 +50,14 @@ ghost-honeypot-checker:
   enable: true
   check-interval: 20
 
-# Enable more detailed logging, stored in a logs.txt file in the Honeypot folder
+# Enable more detailed logging, stored in a honeypot.log file in the Honeypot folder
 enable-logging: true
 
 ######################################################################
 #                      C H A T   S E T T I N G S                     #
 ######################################################################
 
-# Select your language. Current supported languages are: [en_US, es_MX]
+# Select your language. Current supported languages are: [en_US, es_MX, fr_FR, ja_JP]
 # Want to create your own translation? Visit here: https://github.com/TerrorByteTW/Honeypot/wiki/Translating-Honeypot
 language: en_US
 
@@ -89,6 +92,6 @@ allowed-blocks:
 #                   3 R D  P A R T Y  S E T T I N G S                #
 ######################################################################
 
-# Enabling this will allow Honeypots to be created within GriefPrevention claims
-# Disabling this will not allow Honeypots to be created in GriefPrevention claims, even if the player has permission to build there
+# Changing this setting to true will allow players to create Honeypots within GriefPrevention areas if they have build permission there. If they don't, Honeypot creation will be blocked
+# Changing this to false will always block Honeypot creation within GriefPrevention areas, even if they have permission to build there.
 respect-griefprevention: false

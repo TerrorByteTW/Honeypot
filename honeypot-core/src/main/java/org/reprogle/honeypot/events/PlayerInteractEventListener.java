@@ -79,7 +79,9 @@ public class PlayerInteractEventListener implements Listener {
                 if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-container-actions"))
                         && !(event.getPlayer().hasPermission("honeypot.exempt")
                                 || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
-                    event.setCancelled(true);
+                    if (Boolean.FALSE.equals(
+                            HoneypotConfigManager.getPluginConfig().getBoolean("always-allow-container-access")))
+                        event.setCancelled(true);
                     openAction(event);
                 }
 
