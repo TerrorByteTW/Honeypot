@@ -18,12 +18,12 @@ public class HoneypotLogger {
 	 */
 	public HoneypotLogger() {
 		try {
-			logFile = new File(Honeypot.getPlugin().getDataFolder(), "logs.txt");
+			logFile = new File(Honeypot.getPlugin().getDataFolder(), "honeypot.log");
 			if (logFile.createNewFile()) {
 				Honeypot.getPlugin().getLogger().info("Logs file created: " + logFile.getName());
 			}
 		} catch (IOException e) {
-			Honeypot.getPlugin().getLogger().severe("Could not create the logs.txt file for logging!");
+			Honeypot.getPlugin().getLogger().severe("Could not create the honeypot.log file for logging!");
 		}
 	}
 
@@ -38,7 +38,7 @@ public class HoneypotLogger {
 			LocalDateTime now = LocalDateTime.now();
             bw.append("[" + dtf.format(now) + "] " + message + "\n");
         } catch (IOException e) {
-            Honeypot.getPlugin().getLogger().warning("An error occured while attempting to log to the logs.txt file! " + e);
+            Honeypot.getPlugin().getLogger().warning("An error occured while attempting to log to the honeypot.log file! " + e);
         }
 	}
 

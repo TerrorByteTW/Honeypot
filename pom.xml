@@ -110,6 +110,7 @@
     </repositories>
 
     <dependencies>
+        <!-- Hard Dependency, this is the actual Spigot API -->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>

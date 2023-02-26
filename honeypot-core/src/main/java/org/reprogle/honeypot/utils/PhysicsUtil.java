@@ -12,6 +12,7 @@ public class PhysicsUtil {
 
     }
     
+    // TODO - Update for version 1.20
     private static final List<Material> physicsUp = Arrays.asList (
         Material.ACACIA_BUTTON,
         Material.ACACIA_DOOR,
@@ -215,6 +216,7 @@ public class PhysicsUtil {
         Material.YELLOW_CARPET
     );
 
+    // TODO - Update for version 1.20
     private static final List<Material> physicsSide = Arrays.asList (
         Material.ACACIA_BUTTON,
         Material.ACACIA_SIGN,

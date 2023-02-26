@@ -179,7 +179,8 @@ public final class Honeypot extends JavaPlugin {
         int revisionVer = split.length > 2 ? Integer.parseInt(split[2]) : 0;
 
         // Return true if between 1.17 & 1.19.2
-        return (majorVer == 1 && minorVer >= 17) && (majorVer == 1 && minorVer <= 19 && revisionVer <= 3);
+        // TODO - Update for version 1.20
+        return (majorVer == 1 && minorVer >= 17) && (majorVer == 1 && minorVer <= 19 && revisionVer <= 2);
     }
 
     /*

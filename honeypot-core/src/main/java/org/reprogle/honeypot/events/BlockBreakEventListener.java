@@ -348,6 +348,7 @@ public class BlockBreakEventListener implements Listener {
         }
     }
 
+    // FIXME - Aside from color code translation, these are practically the same function? Fix this
     private static String formatMessage(String message, BlockBreakEvent event) {
         String formattedString = message.replace("%player%", event.getPlayer().getName());
         formattedString = formattedString.replace("%pLocation%", event.getPlayer().getLocation().getX() + " "
