@@ -4,7 +4,8 @@ import org.bukkit.entity.Player;
 
 /**
  * A utility class for better managing permissions across the plugin, instead of
- * having to write spaghetti-logic
+ * having to write spaghetti-logic. This is not yet fully written, used, or
+ * implemented
  */
 public class PermissionManager {
 
