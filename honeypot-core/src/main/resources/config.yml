@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 12
+file-version: 13
 
 # How many Honeypots to store in cache at any given time. The maximum size is 50, and anything larger than that is ignored.
 # Setting this to <=0 will disable caching
@@ -36,8 +36,12 @@ allow-enderman: false
 
 # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
 enable-container-actions: true
+  # If you want to use InventoryClickEvents instead of PlayerInteractEvent, set to true. Defaults to false
+  use-inventory-click: false
+  # Only trigger actions if inventory clicks are set to true and items are taken. Defaults to true.
+  only-trigger-on-withdrawal: true
 
-# Enable players to still open inventories if container actions are enabled. Defaults to false
+# Enable players to still open inventories if container actions are enabled. Always true if use-inventory-click is true. Defaults to false
 always-allow-container-access: false
 
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
@@ -95,3 +99,11 @@ allowed-blocks:
 # Changing this setting to true will allow players to create Honeypots within GriefPrevention areas if they have build permission there. If they don't, Honeypot creation will be blocked
 # Changing this to false will always block Honeypot creation within GriefPrevention areas, even if they have permission to build there.
 respect-griefprevention: false
+
+######################################################################
+#                           C R E D I T S                            #
+######################################################################
+# Credit where credit is due! If you contribute to Honeypot in any way, you'll get your name here
+# Code Contributions: TerrrorByte
+# Feature Contributions: MattVid#3488, Jammers
+# Translation Contributions: siyukatu#4489 (ja_JP)

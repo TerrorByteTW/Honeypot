@@ -1,7 +1,5 @@
 package org.reprogle.honeypot.events;
 
-import java.util.List;
-
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,10 +17,9 @@ import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerManager;
+import org.reprogle.honeypot.utils.ActionHandler;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.PhysicsUtil;
-
-import dev.dejvokep.boostedyaml.YamlDocument;
 
 public class BlockBreakEventListener implements Listener {
 
@@ -221,88 +218,7 @@ public class BlockBreakEventListener implements Listener {
                 }
 
                 default -> {
-                    // Default path is likely due to custom actions. Run whatever the action was
-                    YamlDocument config = HoneypotConfigManager.getHoneypotsConfig();
-                    if (config.contains(action)) {
-                        String type = config.getString(action + ".type");
-                        switch (type) {
-                            case "command" -> {
-                                List<String> commands = config.getStringList(action + ".commands");
-                                List<String> messages = config.getStringList(action + ".messages");
-                                if (commands.isEmpty()) {
-                                    Honeypot.getPlugin().getLogger().warning(
-                                            "Commands list is empty for Honeypot type " + action
-                                                    + "! Please verify config");
-                                    return;
-                                }
-
-                                for (String command : commands) {
-                                    Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
-                                            formatCommand(command, event));
-                                }
-
-                                if (!messages.isEmpty()) {
-                                    for (String message : messages) {
-                                        event.getPlayer().sendMessage(formatMessage(message, event));
-                                    }
-                                }
-                            }
-
-                            case "permission" -> {
-                                List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
-                                List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
-                                List<String> messages = config.getStringList(action + ".messages");
-                                if (permissionsAdd.isEmpty() && permissionsRemove.isEmpty()) {
-                                    Honeypot.getPlugin().getLogger()
-                                            .warning("Permissions lists are empty for Honeypot type "
-                                                    + action + "! Please verify config");
-                                    return;
-                                }
-
-                                for (String permission : permissionsAdd) {
-                                    Honeypot.getPermissions().playerAdd(null, event.getPlayer(), permission);
-                                }
-
-                                for (String permission : permissionsRemove) {
-                                    Honeypot.getPermissions().playerRemove(null, event.getPlayer(), permission);
-                                }
-
-                                if (!messages.isEmpty()) {
-                                    for (String message : messages) {
-                                        event.getPlayer().sendMessage(formatMessage(message, event));
-                                    }
-                                }
-
-                            }
-
-                            case "broadcast" -> {
-                                List<String> broadcasts = config.getStringList(action + ".broadcasts");
-                                List<String> messages = config.getStringList(action + ".messages");
-
-                                if (broadcasts.isEmpty()) {
-                                    Honeypot.getPlugin().getLogger().warning(
-                                            "Broadcasts list is empty for Honeypot type " + action
-                                                    + "! Please verify config");
-                                    return;
-                                }
-
-                                for (String broadcast : broadcasts) {
-                                    Honeypot.getPlugin().getServer().broadcastMessage(formatMessage(broadcast, event));
-                                }
-
-                                if (!messages.isEmpty()) {
-                                    for (String message : messages) {
-                                        event.getPlayer().sendMessage(formatMessage(message, event));
-                                    }
-                                }
-                            }
-
-                            default -> {
-                                Honeypot.getPlugin().getLogger().warning("Honeypot " + action
-                                        + " tried to run as a type that doesn't exist! Please verify config");
-                            }
-                        }
-                    }
+                    ActionHandler.handleCustomAction(action, block, event.getPlayer());
                 }
             }
 
@@ -346,26 +262,5 @@ public class BlockBreakEventListener implements Listener {
             // Just count it
             HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), blocksBroken);
         }
-    }
-
-    // FIXME - Aside from color code translation, these are practically the same function? Fix this
-    private static String formatMessage(String message, BlockBreakEvent event) {
-        String formattedString = message.replace("%player%", event.getPlayer().getName());
-        formattedString = formattedString.replace("%pLocation%", event.getPlayer().getLocation().getX() + " "
-                + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
-        formattedString = formattedString.replace("%bLocation%", event.getBlock().getLocation().getX() + " "
-                + event.getBlock().getLocation().getY() + " " + event.getBlock().getLocation().getZ());
-
-        return ChatColor.translateAlternateColorCodes('&', formattedString);
-    }
-
-    private static String formatCommand(String command, BlockBreakEvent event) {
-        String formattedCommand = command.replace("%player%", event.getPlayer().getName());
-        formattedCommand = formattedCommand.replace("%pLocation%", event.getPlayer().getLocation().getX() + " "
-                + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
-        formattedCommand = formattedCommand.replace("%bLocation%", event.getBlock().getLocation().getX() + " "
-                + event.getBlock().getLocation().getY() + " " + event.getBlock().getLocation().getZ());
-
-        return formattedCommand;
     }
 }

@@ -17,6 +17,7 @@ import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.utils.ActionHandler;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 import java.util.List;
@@ -76,13 +77,12 @@ public class PlayerInteractEventListener implements Listener {
                 if (hppie.isCancelled())
                     return;
 
-                if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-container-actions"))
-                        && !(event.getPlayer().hasPermission("honeypot.exempt")
-                                || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
+                if (!(event.getPlayer().hasPermission("honeypot.exempt")
+                        || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
                     if (Boolean.FALSE.equals(
                             HoneypotConfigManager.getPluginConfig().getBoolean("always-allow-container-access")))
                         event.setCancelled(true);
-                    openAction(event);
+                    executeAction(event);
                 }
 
                 HoneypotPlayerInteractEvent hpie = new HoneypotPlayerInteractEvent(event.getPlayer(),
@@ -96,7 +96,7 @@ public class PlayerInteractEventListener implements Listener {
         }
     }
 
-    private static void openAction(PlayerInteractEvent event) {
+    private static void executeAction(PlayerInteractEvent event) {
 
         Block block = event.getPlayer().getTargetBlockExact(5);
         Player player = event.getPlayer();
@@ -141,12 +141,7 @@ public class PlayerInteractEventListener implements Listener {
             }
 
             default -> {
-                if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-custom-actions"))) {
-                    String formattedAction = action.replace("%player%", event.getPlayer().getName());
-                    formattedAction = formattedAction.replace("%location%", event.getPlayer().getLocation().getX() + " "
-                            + event.getPlayer().getLocation().getY() + " " + event.getPlayer().getLocation().getZ());
-                    Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), formattedAction);
-                }
+                ActionHandler.handleCustomAction(action, block, player);
             }
         }
     }
