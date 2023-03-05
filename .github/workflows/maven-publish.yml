@@ -24,7 +24,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ env.GITHUB_WORKSPACE }} # location for the settings.xml file
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
     
     - name: Checkout submodules
       uses: actions/checkout@v3
@@ -37,4 +37,4 @@ jobs:
     - name: Publish to GitHub Packages Apache Maven
       run: mvn deploy -s $GITHUB_WORKSPACE/.github/settings.xml
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
