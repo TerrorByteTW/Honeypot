@@ -34,8 +34,9 @@ allow-explode: false
 # Allow enderman to pick up Honeypot blocks. Default is false
 allow-enderman: false
 
-# Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
-enable-container-actions: true
+container-actions:
+  # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
+  enable-container-actions: true
   # If you want to use InventoryClickEvents instead of PlayerInteractEvent, set to true. Defaults to false
   use-inventory-click: false
   # Only trigger actions if inventory clicks are set to true and items are taken. Defaults to true.

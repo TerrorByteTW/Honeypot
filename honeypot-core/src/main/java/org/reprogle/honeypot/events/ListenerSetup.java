@@ -1,6 +1,7 @@
 package org.reprogle.honeypot.events;
 
 import org.bukkit.plugin.Plugin;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
 
 public class ListenerSetup {
@@ -26,11 +27,16 @@ public class ListenerSetup {
         plugin.getServer().getPluginManager().registerEvents(new PistonExtendRetractListener(), plugin);
 
         // A tiny bit of logic to register the proper container listeners
-        if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-container-actions"))) {
+        if (Boolean.TRUE.equals(
+                HoneypotConfigManager.getPluginConfig().getBoolean("container-actions.enable-container-actions"))) {
             if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig()
-                    .getBoolean("enable-container-actions.use-inventory-click"))) {
+                    .getBoolean("container-actions.use-inventory-click"))) {
+                plugin.getLogger().info("Using inventory click for containers");
+                Honeypot.getHoneypotLogger().log("Using inventory click for containers");
                 plugin.getServer().getPluginManager().registerEvents(new InventoryClickEventListener(), plugin);
             } else {
+                plugin.getLogger().info("Using player interact for containers");
+                Honeypot.getHoneypotLogger().log("Using player interact for containers");
                 plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
             }
         }

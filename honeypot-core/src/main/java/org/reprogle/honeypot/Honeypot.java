@@ -97,7 +97,8 @@ public final class Honeypot extends JavaPlugin {
                 " _____                         _\n" +
                 "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
                 "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
-                "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
+                "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion()
+                + "\n" + ChatColor.GOLD +
                 "                  |___|_|");
 
         // Output the version check message
@@ -159,9 +160,8 @@ public final class Honeypot extends JavaPlugin {
         int minorVer = Integer.parseInt(split[1]);
         int revisionVer = split.length > 2 ? Integer.parseInt(split[2]) : 0;
 
-        // Return true if between 1.17 & 1.19.2
         // TODO - Update for version 1.20
-        return (majorVer == 1 && minorVer >= 17) && (majorVer == 1 && minorVer <= 19 && revisionVer <= 2);
+        return (majorVer == 1 && minorVer >= 17) && (majorVer == 1 && minorVer <= 19 && revisionVer <= 3);
     }
 
     /*

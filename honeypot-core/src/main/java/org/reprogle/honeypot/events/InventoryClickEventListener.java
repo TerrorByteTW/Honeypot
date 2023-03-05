@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -34,16 +35,15 @@ public class InventoryClickEventListener implements Listener {
     @SuppressWarnings({ "unchecked", "java:S3776" })
     @EventHandler(priority = EventPriority.HIGH)
     public static void inventoryClickEvent(InventoryClickEvent event) {
-        // Sanity checks to ensure the clicker is a Player and the holder is a container
-        // type block
+        // Sanity checks to ensure the clicker is a Player and the holder is a Container
         if (!(event.getWhoClicked() instanceof Player))
             return;
-        if (!(event.getInventory().getHolder() instanceof Block))
+        if (!(event.getInventory().getHolder() instanceof Container))
             return;
         if (event.getSlotType() != SlotType.CONTAINER)
             return;
 
-        final Block block = (Block) event.getInventory().getHolder();
+        final Block block = ((Container) event.getInventory().getHolder()).getBlock();
         final Player player = (Player) event.getWhoClicked();
         final Inventory inventory = event.getInventory();
 
@@ -67,7 +67,7 @@ public class InventoryClickEventListener implements Listener {
             }
         }
 
-        if (!Objects.requireNonNull(player.getTargetBlockExact(5)).getType().equals(Material.ENDER_CHEST)
+        if (!block.getType().equals(Material.ENDER_CHEST)
                 && Boolean.TRUE.equals(HoneypotBlockManager.getInstance()
                         .isHoneypotBlock(Objects.requireNonNull(block)))) {
             // Fire HoneypotPreInventoryClickEvent
@@ -79,11 +79,11 @@ public class InventoryClickEventListener implements Listener {
 
             if (!(player.hasPermission("honeypot.exempt")
                     || player.hasPermission("honeypot.*") || player.isOp())) {
-                event.setCancelled(true);
                 if (event.getInventory().getItem(event.getSlot()) == null && HoneypotConfigManager.getPluginConfig()
-                        .getBoolean("enable-container-actions.only-trigger-on-withdrawal")) {
+                        .getBoolean("container-actions.only-trigger-on-withdrawal")) {
                     return;
                 } else {
+                    event.setCancelled(true);
                     executeAction(event);
                 }
             }
@@ -96,7 +96,7 @@ public class InventoryClickEventListener implements Listener {
 
     private static void executeAction(InventoryClickEvent event) {
 
-        final Block block = (Block) event.getInventory().getHolder();
+        final Block block = ((Container) event.getInventory().getHolder()).getBlock();
         final Player player = (Player) event.getWhoClicked();
 
         assert block != null;
