@@ -40,6 +40,10 @@ public class BlockBreakEventListener implements Listener {
     @EventHandler(priority = EventPriority.LOW)
     @SuppressWarnings({ "java:S3776", "java:S1192" })
     public static void blockBreakEvent(BlockBreakEvent event) {
+        // Check to see if the event is cancelled before doing any logic.
+        // Ex: Creative mode player with Sword in hand
+        if (event.isCancelled())
+            return;
         if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(event.getBlock()))) {
             // Fire HoneypotPrePlayerBreakEvent
             HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(event.getPlayer(), event.getBlock());

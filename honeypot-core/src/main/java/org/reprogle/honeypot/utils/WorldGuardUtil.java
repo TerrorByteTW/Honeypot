@@ -22,10 +22,10 @@ public class WorldGuardUtil {
 	private StateFlag honeypotFlag;
 
 	/**
-     * Sets up the hook for WorldGuard
-     */
-    @SuppressWarnings("java:S2696")
-    public StateFlag setupWorldGuard() {
+	 * Sets up the hook for WorldGuard
+	 */
+	@SuppressWarnings("java:S2696")
+	public StateFlag setupWorldGuard() {
 		FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
 
 		try {
@@ -44,24 +44,26 @@ public class WorldGuardUtil {
 		}
 
 		honeypotFlag = null;
-        return honeypotFlag;
-    }
+		return honeypotFlag;
+	}
 
 	/**
 	 * Returns the WorldGuard flag
+	 * 
 	 * @return {@link StateFlag}
 	 */
 	public StateFlag getWorldGuardFlag() {
-        return honeypotFlag;
-    }
+		return honeypotFlag;
+	}
 
 	/**
 	 * Check if the allow-honeypots flag is on
 	 * 
-	 * @param player The player initiating the action
-	 * @param location The location of the block being placed (It may be different than the player location)
-	 * @return True if the action is allowed, false if the action isn't allowed OR if WorldGuard support isn't enabled.
-	 * @see #isEnabled() {@link #isEnabled()}
+	 * @param player   The player initiating the action
+	 * @param location The location of the block being placed (It may be different
+	 *                 than the player location)
+	 * @return True if the action is allowed, false if the action isn't allowed OR
+	 *         if WorldGuard support isn't enabled.
 	 */
 	public boolean isAllowed(Player player, Location location) {
 		LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
