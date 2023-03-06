@@ -108,6 +108,6 @@ respect-griefprevention: false
 # Code Contributions: TerrrorByte
 # Feature Contributions: MattVid#3488, Jammers
 # Translation Contributions: siyukatu#4489 (ja_JP)
-# Bug Reports: Casper#9647
+# Bug Reports: Casper#9647, siyukatu#4489, MattVid#3488
 # The next line is ignored, just a dummy value so the credits above get populated within the config!
 thank-you: true

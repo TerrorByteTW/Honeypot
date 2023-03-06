@@ -1,4 +1,8 @@
 # Change notes will now be listed here from here on out as well as in the release notes
+
+## Honeypot 2.6.2
+This release fixes Issues #126 and #127
+
 ## Honeypot 2.6.1
 This release is a hotfix for a bug found in Honeypot which affects versions 2.5.x - 2.6.0 and is recommend for all users.
 A bug was found which, if abused, could allow players to teleport wherever they wanted without needing permissions. The bug works by abusing an internal command used for the Player History GUI menu. This command was not registered with the server so players were unable to see it in the tab-complete menu, however it *was* used as a placeholder to bypass needing /minecraft:tp permissions for staff in order to teleport them to where a history event took place. However, due to not writing the event listener responsible for handling this command properly, the command bypassed permission checks altogether.
