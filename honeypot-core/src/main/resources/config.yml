@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 13
+file-version: 14
 
 # How many Honeypots to store in cache at any given time. The maximum size is 50, and anything larger than that is ignored.
 # Setting this to <=0 will disable caching
@@ -108,3 +108,6 @@ respect-griefprevention: false
 # Code Contributions: TerrrorByte
 # Feature Contributions: MattVid#3488, Jammers
 # Translation Contributions: siyukatu#4489 (ja_JP)
+# Bug Reports: Casper#9647
+# The next line is ignored, just a dummy value so the credits above get populated within the config!
+thank-you: true
