@@ -9,8 +9,8 @@ The latest minor release and all revisions of the plugin will get feature and se
 | Version | Supported          | Support Given              |
 | ------- | ------------------ | -------------------------- |
 | 2.6.x   | :white_check_mark: | Feature & Security Updates |
-| 2.3.x - 2.5.x<sup>*</sup>   | :white_check_mark: | Security Updates only      |
-| < 2.3.x   | :x:                | No updates, update now!    |
+| 2.5.x - 2.6.x<sup>*</sup>   | :white_check_mark: | Security Updates only      |
+| < 2.5.x   | :x:                | No updates, update now!    |
 
 <sup>\*Version 2.4 was skipped</sup>
 
