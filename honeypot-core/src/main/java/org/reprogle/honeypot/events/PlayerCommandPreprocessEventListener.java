@@ -18,15 +18,18 @@ public class PlayerCommandPreprocessEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public static void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
-        if (event.getMessage().startsWith("/hpteleport") && event.getPlayer().hasPermission("honeypot.teleport")) {
+        if (event.getMessage().startsWith("/hpteleport")) {
             event.setCancelled(true);
-            String rawCommand = event.getMessage();
-            String processedCommand = rawCommand.replace("/hpteleport", "minecraft:tp " + event.getPlayer().getName());
+            if (event.getPlayer().hasPermission("honeypot.teleport")) {
+                String rawCommand = event.getMessage();
+                String processedCommand = rawCommand.replace("/hpteleport",
+                        "minecraft:tp " + event.getPlayer().getName());
 
-            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand);
-        } else {
-            event.getPlayer().sendMessage(
-                    CommandFeedback.getChatPrefix() + CommandFeedback.sendCommandFeedback("nopermission"));
+                Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand);
+            } else {
+                event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+            }
+
         }
     }
 
