@@ -32,7 +32,7 @@ public class PlayerInteractEventListener implements Listener {
 
     }
 
-    // Player block break event
+    // Player interact event
     @EventHandler(priority = EventPriority.LOW)
     @SuppressWarnings({ "unchecked", "java:S3776" })
     public static void playerInteractEvent(PlayerInteractEvent event) {

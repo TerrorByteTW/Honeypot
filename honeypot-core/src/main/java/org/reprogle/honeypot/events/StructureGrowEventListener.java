@@ -17,7 +17,7 @@ public class StructureGrowEventListener implements Listener {
 
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public static void onStructureGrowEvent(StructureGrowEvent event) {
 		for (int i = 0; i < event.getBlocks().size(); i++) {
 			BlockState block = event.getBlocks().get(i);
