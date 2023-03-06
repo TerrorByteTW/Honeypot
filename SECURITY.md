@@ -6,13 +6,13 @@ Generally speaking, Honeypot will be built on the current LTS version of Java *o
 
 The latest minor release and all revisions of the plugin will get feature and security updates, the previous minor release and all revisions will get security updates, and anything older than that will not receive updates unless A) that version is still used on a susbstantial amount of servers (See [bstats](https://bstats.org/plugin/bukkit/Honeypot/15425)) and B) is vulnerable to a critical flaw (See [Log4j](https://en.wikipedia.org/wiki/Log4Shell), which luckily never *directly* affected Honeypot).
 
-| Version | Supported          | Support Given              |
-| ------- | ------------------ | -------------------------- |
-| 2.6.x   | :white_check_mark: | Feature & Security Updates |
-| 2.5.x - 2.6.x<sup>*</sup>   | :white_check_mark: | Security Updates only      |
-| < 2.5.x   | :x:                | No updates, update now!    |
+| Version       | Supported          | Support Given              |
+| ------------- | ------------------ | -------------------------- |
+| 2.6.x         | :white_check_mark: | Feature & Security Updates |
+| 2.5.x - 2.6.x | :white_check_mark: | Security Updates only      |
+| < 2.5.x       | :x:                | No updates, update now!    |
 
-<sup>\*Version 2.4 was skipped</sup>
+
 
 ## Reporting a Vulnerability
 
