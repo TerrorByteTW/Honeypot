@@ -93,7 +93,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
                 }
                 p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
             }
-        } else if (args.length >= 1 && args[1].equalsIgnoreCase("purge")) {
+        } else if (args.length == 1 && args[1].equalsIgnoreCase("purge")) {
             HoneypotPlayerHistoryManager.getInstance().deleteAllHistory();
             p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
         } else {
