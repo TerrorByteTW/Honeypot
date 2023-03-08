@@ -33,7 +33,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
             return;
         }
 
-        if (args.length >= 3 && args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query")) {
+        if (args.length >= 3 && (args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query"))) {
             Player argPlayer = Bukkit.getPlayer(args[2]);
 
             if (argPlayer == null || !Bukkit.getPlayer(args[2]).isOnline()) {
@@ -93,7 +93,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
                 }
                 p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
             }
-        } else if (args[1].equalsIgnoreCase("purge")) {
+        } else if (args.length >= 1 && args[1].equalsIgnoreCase("purge")) {
             HoneypotPlayerHistoryManager.getInstance().deleteAllHistory();
             p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
         } else {
