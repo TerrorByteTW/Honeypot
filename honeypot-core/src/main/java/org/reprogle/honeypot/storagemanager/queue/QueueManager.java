@@ -6,7 +6,7 @@ import java.util.LinkedList;
 
 /**
  * A class to manage the PreparedStatement queues.
- * Utilizes a custom queue, see {@link ListenableQueue} 
+ * Utilizes a custom queue, see {@link ListenableQueue}
  * 
  * @see ListenableQueue
  */
@@ -17,17 +17,22 @@ public class QueueManager {
 
     private QueueManager() {
         queue.registerListener(element -> {
-            PreparedStatement ps = queue.poll();
-            try {
-                ps.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            // If an SQL query is added to the queue but the queue has more than one lined
+            // up, we need to go ahead and handle them all
+            while (queue.peek() != null) {
+                PreparedStatement ps = queue.poll();
+                try {
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
     /**
      * Returns the QueueManager instance
+     * 
      * @return {@link QueueManager}
      */
     public static synchronized QueueManager getInstance() {
@@ -39,6 +44,7 @@ public class QueueManager {
 
     /**
      * A simple function that adds a PreparedStatement to the queue.
+     * 
      * @param ps A prepared statement to add to the queue
      * @return True if successfully added, false if not
      */

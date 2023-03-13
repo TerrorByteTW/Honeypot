@@ -12,6 +12,7 @@ import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotPermission;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -28,12 +29,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) throws IOException {
-        if (!p.hasPermission("honeypot.history")) {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-            return;
-        }
-
-        if (args.length >= 3 && args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query")) {
+        if (args.length >= 3 && (args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query"))) {
             Player argPlayer = Bukkit.getPlayer(args[2]);
 
             if (argPlayer == null || !Bukkit.getPlayer(args[2]).isOnline()) {
@@ -93,7 +89,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
                 }
                 p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
             }
-        } else if (args[1].equalsIgnoreCase("purge")) {
+        } else if (args.length == 1 && args[1].equalsIgnoreCase("purge")) {
             HoneypotPlayerHistoryManager.getInstance().deleteAllHistory();
             p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
         } else {
@@ -126,6 +122,13 @@ public class HoneypotHistory implements HoneypotSubCommand {
         }
 
         return subcommands;
+    }
+
+    @Override
+    public List<HoneypotPermission> getRequiredPermissions() {
+        List<HoneypotPermission> permissions = new ArrayList<>();
+        permissions.add(new HoneypotPermission("honeypot.history"));
+        return permissions;
     }
 
 }

@@ -10,6 +10,7 @@ import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotPermission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,6 @@ public class HoneypotLocate implements HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) {
-
-        // If the player has locate permissions, do this
-        if (!(p.hasPermission("honeypot.locate"))) {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-            return;
-        }
-
         final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
         final double xCoord = p.getLocation().getX();
         final double yCoord = p.getLocation().getY();
@@ -91,5 +85,12 @@ public class HoneypotLocate implements HoneypotSubCommand {
     @Override
     public List<String> getSubcommands(Player p, String[] args) {
         return new ArrayList<>();
+    }
+
+    @Override
+    public List<HoneypotPermission> getRequiredPermissions() {
+        List<HoneypotPermission> permissions = new ArrayList<>();
+        permissions.add(new HoneypotPermission("honeypot.locate"));
+        return permissions;
     }
 }
