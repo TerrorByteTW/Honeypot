@@ -77,8 +77,7 @@ public class GUIMenuListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
 
-        if (event.getInventory().getHolder() != null
-                && event.getInventory().getHolder() instanceof GUIMenu) {
+        if (event.getInventory().getHolder() instanceof GUIMenu) {
 
             GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
 

@@ -76,7 +76,7 @@ public class CommandManager implements TabExecutor {
      *         Defaults as false
      */
     @Override
-    @SuppressWarnings("java:S3776")
+    @SuppressWarnings({ "java:S3776", "java:S1192" })
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
             @NotNull String[] args) {
 
@@ -95,7 +95,7 @@ public class CommandManager implements TabExecutor {
                 for (HoneypotSubCommand subcommand : subcommands) {
                     if (args[0].equalsIgnoreCase(subcommand.getName())) {
                         try {
-                            if (!checkPermissions(p, subcommand)) {
+                            if (Boolean.FALSE.equals(checkPermissions(p, subcommand))) {
                                 p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
                                 return false;
                             }
@@ -117,7 +117,7 @@ public class CommandManager implements TabExecutor {
                 for (HoneypotSubCommand subcommand : subcommands) {
                     if (subcommand.getName().equals("gui")) {
                         try {
-                            if (!checkPermissions(p, subcommand)) {
+                            if (Boolean.FALSE.equals(checkPermissions(p, subcommand))) {
                                 p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
                                 return false;
                             }
