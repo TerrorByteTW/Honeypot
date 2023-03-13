@@ -28,6 +28,7 @@ import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotPermission;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import net.md_5.bungee.api.ChatColor;
@@ -42,13 +43,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 	@Override
 	@SuppressWarnings("java:S1192")
 	public void perform(Player p, String[] args) throws IOException {
-		if (!(p.hasPermission("honeypot.gui"))) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-			return;
-		}
-
 		p.openInventory(mainMenu(p, args).getInventory());
-
 	}
 
 	@SuppressWarnings({ "java:S1192", "java:S1121" })
@@ -84,7 +79,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 	}
 
 	@SuppressWarnings("java:S1192")
-	private static void allBlocksInventory(Player p) {
+	private static void allHoneypotsInventory(Player p) {
 		if (!(p.hasPermission("honeypot.locate"))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 			return;
@@ -440,7 +435,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				.withListener((InventoryClickEvent event) -> removeHoneypotInventory(p));
 
 		GUIButton listButton = new GUIButton(listItem.build())
-				.withListener((InventoryClickEvent event) -> allBlocksInventory(p));
+				.withListener((InventoryClickEvent event) -> allHoneypotsInventory(p));
 
 		GUIButton locateButton = new GUIButton(locateItem.build()).withListener((InventoryClickEvent event) -> {
 			event.getWhoClicked().closeInventory();
@@ -518,5 +513,18 @@ public class HoneypotGUI implements HoneypotSubCommand {
 	@Override
 	public List<String> getSubcommands(Player p, String[] args) {
 		return new ArrayList<>();
+	}
+
+	// We will let the individual GUIs handle their own permission checking, but the
+	// overall permissions of the GUI will be handled here
+	@Override
+	public List<HoneypotPermission> getRequiredPermissions() {
+		List<HoneypotPermission> permissions = new ArrayList<>();
+		permissions.add(new HoneypotPermission("honeypot.gui"));
+		return permissions;
+	}
+
+	public static void callAllHoneypotsInventory(Player p) {
+		allHoneypotsInventory(p);
 	}
 }

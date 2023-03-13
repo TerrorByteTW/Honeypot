@@ -12,6 +12,7 @@ import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.storagemanager.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotPermission;
 
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -28,11 +29,6 @@ public class HoneypotHistory implements HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) throws IOException {
-        if (!p.hasPermission("honeypot.history")) {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-            return;
-        }
-
         if (args.length >= 3 && (args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query"))) {
             Player argPlayer = Bukkit.getPlayer(args[2]);
 
@@ -126,6 +122,13 @@ public class HoneypotHistory implements HoneypotSubCommand {
         }
 
         return subcommands;
+    }
+
+    @Override
+    public List<HoneypotPermission> getRequiredPermissions() {
+        List<HoneypotPermission> permissions = new ArrayList<>();
+        permissions.add(new HoneypotPermission("honeypot.history"));
+        return permissions;
     }
 
 }

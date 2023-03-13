@@ -21,22 +21,24 @@ public class GUIMenuListener implements Listener {
         this.guiManager = guiManager;
     }
 
-    // Supressed warnings here because I don't have the brainpower currently to rework this method to be compliant with cognitive complexity rules
+    // Supressed warnings here because I don't have the brainpower currently to
+    // rework this method to be compliant with cognitive complexity rules
     @EventHandler
     @SuppressWarnings("java:S3776")
     public void onInventoryClick(InventoryClickEvent event) {
 
-        if (event.getInventory().getHolder() instanceof GUIMenu) {
+        if (event.getClickedInventory() != null
+                && event.getClickedInventory().getHolder() != null
+                && event.getInventory().getHolder() instanceof GUIMenu) {
 
-            GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
+            GUIMenu clickedGui = (GUIMenu) event.getClickedInventory().getHolder();
 
             if (!clickedGui.getOwner().equals(owner))
                 return;
 
             if (clickedGui.areDefaultInteractionsBlocked() != null) {
                 event.setCancelled(clickedGui.areDefaultInteractionsBlocked());
-            }
-            else {
+            } else {
                 if (guiManager.areDefaultInteractionsBlocked())
                     event.setCancelled(true);
             }
@@ -75,9 +77,11 @@ public class GUIMenuListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
 
-        if (event.getInventory().getHolder() instanceof GUIMenu) {
+        if (event.getInventory().getHolder() != null
+                && event.getInventory().getHolder() instanceof GUIMenu) {
 
             GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
+
             if (!clickedGui.getOwner().equals(owner))
                 return;
 

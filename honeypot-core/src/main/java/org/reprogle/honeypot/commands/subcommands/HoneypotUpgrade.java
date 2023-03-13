@@ -10,6 +10,7 @@ import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotPermission;
 
 @SuppressWarnings("java:S1192")
 public class HoneypotUpgrade implements HoneypotSubCommand {
@@ -21,11 +22,6 @@ public class HoneypotUpgrade implements HoneypotSubCommand {
 
 	@Override
 	public void perform(Player p, String[] args) throws IOException {
-		if (!(p.hasPermission("honeypot.upgrade"))) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-			return;
-		}
-
 		if (HoneypotConfigManager.getHoneypotsConfig().contains("upgraded")
 				&& Boolean.TRUE.equals(HoneypotConfigManager.getHoneypotsConfig().getBoolean("upgraded"))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyupgraded"));
@@ -77,6 +73,13 @@ public class HoneypotUpgrade implements HoneypotSubCommand {
 	@Override
 	public List<String> getSubcommands(Player p, String[] args) {
 		return new ArrayList<>();
+	}
+
+	@Override
+	public List<HoneypotPermission> getRequiredPermissions() {
+		List<HoneypotPermission> permissions = new ArrayList<>();
+		permissions.add(new HoneypotPermission("honeypot.upgrade"));
+		return permissions;
 	}
 
 }

@@ -1,8 +1,6 @@
 package org.reprogle.honeypot.gui;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
@@ -199,8 +197,7 @@ public class GUIMenu implements InventoryHolder {
             if (this.onPageChange != null)
                 this.onPageChange.accept(this);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -212,8 +209,7 @@ public class GUIMenu implements InventoryHolder {
             if (this.onPageChange != null)
                 this.onPageChange.accept(this);
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -320,7 +316,7 @@ public class GUIMenu implements InventoryHolder {
         return inventory;
     }
 
-    public void checkIfPaginationNeeded(boolean needsPagination, Inventory inventory){
+    public void checkIfPaginationNeeded(boolean needsPagination, Inventory inventory) {
         // Render the pagination items.
         if (needsPagination) {
             paginationButtonBuilder = guiManager.getDefaultPaginationButtonBuilder();

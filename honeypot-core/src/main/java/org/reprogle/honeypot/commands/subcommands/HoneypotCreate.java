@@ -11,6 +11,7 @@ import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotPermission;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
 import java.util.ArrayList;
@@ -30,12 +31,6 @@ public class HoneypotCreate implements HoneypotSubCommand {
         Block block;
         WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
         GriefPreventionUtil gpu = Honeypot.getGriefPreventionUtil();
-
-        // If player doesn't have the create permission, don't let them do this
-        if (!(p.hasPermission("honeypot.create"))) {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-            return;
-        }
 
         // Get block the player is looking at
         if (p.getTargetBlockExact(5) != null) {
@@ -158,5 +153,12 @@ public class HoneypotCreate implements HoneypotSubCommand {
         }
 
         return subcommands;
+    }
+
+    @Override
+    public List<HoneypotPermission> getRequiredPermissions() {
+        List<HoneypotPermission> permissions = new ArrayList<>();
+        permissions.add(new HoneypotPermission("honeypot.create"));
+        return permissions;
     }
 }

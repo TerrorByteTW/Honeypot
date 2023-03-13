@@ -7,6 +7,7 @@ import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.utils.HoneypotPermission;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,12 +22,6 @@ public class HoneypotRemove implements HoneypotSubCommand {
     @Override
     @SuppressWarnings("java:S3776")
     public void perform(Player p, String[] args) throws IOException {
-
-        if (!p.hasPermission("honeypot.break") && !p.hasPermission("honeypot.remove")) {
-            p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-            return;
-        }
-
         Block block = p.getTargetBlockExact(5);
 
         if (args.length >= 2) {
@@ -92,5 +87,13 @@ public class HoneypotRemove implements HoneypotSubCommand {
         } else {
             p.sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
         }
+    }
+
+    @Override
+    public List<HoneypotPermission> getRequiredPermissions() {
+        List<HoneypotPermission> permissions = new ArrayList<>();
+        permissions.add(new HoneypotPermission("honeypot.remove"));
+        permissions.add(new HoneypotPermission("honeypot.break"));
+        return permissions;
     }
 }

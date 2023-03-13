@@ -14,12 +14,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
 import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.gui.GUIMenu;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.utils.ActionHandler;
 import org.reprogle.honeypot.utils.HoneypotConfigManager;
@@ -33,17 +35,25 @@ public class InventoryClickEventListener implements Listener {
     }
 
     @SuppressWarnings({ "unchecked", "java:S3776" })
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public static void inventoryClickEvent(InventoryClickEvent event) {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
+        // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player))
             return;
-        if (!(event.getInventory().getHolder() instanceof Container))
+        if (!(event.getInventory().getHolder() instanceof Container)
+                || event.getInventory().getHolder() instanceof GUIMenu)
             return;
         if (event.getSlotType() != SlotType.CONTAINER)
             return;
+        if (event.getClickedInventory().getType().equals(InventoryType.PLAYER))
+            return;
 
-        final Block block = ((Container) event.getInventory().getHolder()).getBlock();
+        // Preemptively set cancelled to handle race conditions that sometimes cause
+        // players to still be able to place items in chests
+        event.setCancelled(true);
+
+        final Block block = ((Container) event.getClickedInventory().getHolder()).getBlock();
         final Player player = (Player) event.getWhoClicked();
         final Inventory inventory = event.getInventory();
 
@@ -63,6 +73,7 @@ public class InventoryClickEventListener implements Listener {
             }
 
             if (!allowed) {
+                event.setCancelled(false);
                 return;
             }
         }
@@ -79,19 +90,25 @@ public class InventoryClickEventListener implements Listener {
 
             if (!(player.hasPermission("honeypot.exempt")
                     || player.hasPermission("honeypot.*") || player.isOp())) {
+
+                // If the clicked slot is null, that means the slot didn't have something in it,
+                // whether or not the player placed something in that slot. slot == null
+                // corresponds to a click or place, not a take
                 if (event.getInventory().getItem(event.getSlot()) == null && HoneypotConfigManager.getPluginConfig()
                         .getBoolean("container-actions.only-trigger-on-withdrawal")) {
-                    return;
-                } else {
-                    event.setCancelled(true);
-                    executeAction(event);
                 }
+
+                executeAction(event);
+                return;
+
             }
 
             HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player,
                     inventory);
             Bukkit.getPluginManager().callEvent(hice);
         }
+
+        event.setCancelled(false);
     }
 
     private static void executeAction(InventoryClickEvent event) {
