@@ -96,6 +96,7 @@ public class InventoryClickEventListener implements Listener {
                 // corresponds to a click or place, not a take
                 if (event.getInventory().getItem(event.getSlot()) == null && HoneypotConfigManager.getPluginConfig()
                         .getBoolean("container-actions.only-trigger-on-withdrawal")) {
+                    return;
                 }
 
                 executeAction(event);
