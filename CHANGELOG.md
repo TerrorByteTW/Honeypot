@@ -1,5 +1,12 @@
 # Change notes will now be listed here from here on out as well as in the release notes
 
+## Honeypot 2.6.3
+* Add /honeypot list to go directly to All Honeypots GUI
+* Fix #129
+* Begin writing permissions manager to be more extensible
+  * NOTE: This permissions manager is heavily lacking in features. More coming soon!
+* Adjust ListenableQueue functionality
+
 ## Honeypot 2.6.2
 This release fixes Issues #126 and #127
 
