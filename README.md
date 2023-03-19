@@ -13,6 +13,9 @@
 
 
 <p align="center">
+    <a href="https://modrinth.com/plugin/honeypot">
+        <img alt="Modrinth" src="https://img.shields.io/badge/Download%20at-Modrinth-brightgreen?style=for-the-badge&logo=modrinth">
+    </a>
     <a href="https://polymart.org/resource/honeypot-anti-grief.2756">
         <img alt="Polymart" src="https://img.shields.io/badge/Download%20At-Polymart-%2303a092?style=for-the-badge">
     </a>
