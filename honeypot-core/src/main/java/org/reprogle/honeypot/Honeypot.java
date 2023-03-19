@@ -71,6 +71,7 @@ public final class Honeypot extends JavaPlugin {
             gpu = new GriefPreventionUtil();
         }
 
+        // Initialize Bstats
         int pluginId = 15425;
         Metrics metrics = new Metrics(this, pluginId);
 
@@ -87,7 +88,7 @@ public final class Honeypot extends JavaPlugin {
         getCommand("honeypot").setExecutor(new CommandManager());
         logger.log("Loaded plugin");
 
-        // Output the "splash" message
+        // Output the splash message
         getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" +
                 " _____                         _\n" +
                 "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
@@ -96,7 +97,8 @@ public final class Honeypot extends JavaPlugin {
                 + "\n" + ChatColor.GOLD +
                 "                  |___|_|");
 
-        versionCheck();
+        // A small helper method to verify if the server version is supported by Honeypot. I've moved it to its own method because it's rather large
+        checkIfServerSupported();
 
         // Check for any updates
         new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt")
@@ -140,13 +142,10 @@ public final class Honeypot extends JavaPlugin {
     }
 
     /**
-     * Check the version of Spigot we're running on. Current supported version is
-     * 1.17 - 1.19.4
-     *
-     * @return True if the version is supported, false if not
+     * Check the GitHub repo of the plugin to verify the version of Spigot we're running on is supported
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static void versionCheck() {
+    public static void checkIfServerSupported() {
         String[] serverVersion = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
         int serverMajorVer = Integer.parseInt(serverVersion[0]);
         int serverMinorVer = Integer.parseInt(serverVersion[1]);
@@ -171,11 +170,13 @@ public final class Honeypot extends JavaPlugin {
                     // Check if the version the server is running is within the bounds of the supported versions
                     // We are doing this check dynamically because it allows us to verify and disable version check messages without updating the plugin code
                     // This means if a minor MC version rolls out and doesn't affect functionality to the plugin, we can update it on the GitHub side and server admins will not see an error message
-                    if ((serverMajorVer <= lowerMajorVer && serverMajorVer >= upperMajorVer) &&
-                            (serverMinorVer <= lowerMinorVer && serverMinorVer >= upperMinorVer) &&
-                            (serverRevisionVer <= lowerRevisionVer && serverRevisionVer >= upperRevisionVer)) {
+                    if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer) &&
+                            (serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer) &&
+                            (serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
                         plugin.getServer().getLogger().warning(
                                 "Honeypot is not guaranteed to support this version of Spigot. We won't prevent you from using it, but some newer blocks (If any) may exhibit unusual behavior!");
+                        plugin.getServer().getLogger().warning(
+                                "Honeypot " + pluginVersion + " supports server versions " + value);
                     }
                 });
 

@@ -161,10 +161,7 @@ public class CommandManager implements TabExecutor {
                         + "                  |___|_|");
                 console.sendMessage(
                         CommandFeedback.getChatPrefix() + " Honeypot running on Spigot version " + Bukkit.getVersion());
-                if (!Honeypot.versionCheck()) {
-                    console.sendMessage(CommandFeedback.getChatPrefix()
-                            + " This version of Honeypot is not guaranteed to work on this version of Spigot. Some newer blocks (If any) may exhibit unusual behavior!");
-                }
+                Honeypot.checkIfServerSupported();
             }
         }
 

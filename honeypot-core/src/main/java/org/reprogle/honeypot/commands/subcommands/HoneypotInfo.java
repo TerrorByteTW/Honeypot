@@ -24,10 +24,7 @@ public class HoneypotInfo implements HoneypotSubCommand {
                 + Honeypot.getPlugin().getDescription().getVersion());
 
         p.sendMessage(CommandFeedback.getChatPrefix() + " Running on " + Bukkit.getVersion());
-        if (!Honeypot.versionCheck()) {
-            p.sendMessage(CommandFeedback.getChatPrefix()
-                    + " This version of Honeypot is not guaranteed to work on this version of Spigot. Some newer blocks (If any) may exhibit unusual behavior!");
-        }
+        Honeypot.checkIfServerSupported();
     }
 
     @Override
