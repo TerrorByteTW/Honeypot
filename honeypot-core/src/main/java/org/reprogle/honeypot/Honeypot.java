@@ -1,5 +1,6 @@
 package org.reprogle.honeypot;
 
+import net.milkbowl.vault.permission.Permission;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -7,17 +8,10 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.CommandManager;
-import org.reprogle.honeypot.events.*;
+import org.reprogle.honeypot.events.ListenerSetup;
 import org.reprogle.honeypot.gui.GUI;
 import org.reprogle.honeypot.storagemanager.CacheManager;
-import org.reprogle.honeypot.utils.GhostHoneypotFixer;
-import org.reprogle.honeypot.utils.GriefPreventionUtil;
-import org.reprogle.honeypot.utils.HoneypotConfigManager;
-import org.reprogle.honeypot.utils.HoneypotLogger;
-import org.reprogle.honeypot.utils.HoneypotUpdateChecker;
-import org.reprogle.honeypot.utils.WorldGuardUtil;
-
-import net.milkbowl.vault.permission.Permission;
+import org.reprogle.honeypot.utils.*;
 
 public final class Honeypot extends JavaPlugin {
 
@@ -51,7 +45,7 @@ public final class Honeypot extends JavaPlugin {
      * it has to do
      */
     @Override
-    @SuppressWarnings({ "unused", "java:S2696" })
+    @SuppressWarnings({"unused", "java:S2696"})
     public void onEnable() {
         // Variables and stuff
         plugin = this;
@@ -71,12 +65,13 @@ public final class Honeypot extends JavaPlugin {
             return;
         }
 
-        // Register GriefPrevention (This could technically be a static function but
+        // Register GriefPrevention (This could technically be a static function, but
         // it's not due to the abstraction API)
         if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
             gpu = new GriefPreventionUtil();
         }
 
+        // Initialize Bstats
         int pluginId = 15425;
         Metrics metrics = new Metrics(this, pluginId);
 
@@ -89,10 +84,11 @@ public final class Honeypot extends JavaPlugin {
 
         // Set up listeners and command executor
         ListenerSetup.setupListeners(this);
+        //noinspection DataFlowIssue
         getCommand("honeypot").setExecutor(new CommandManager());
         logger.log("Loaded plugin");
 
-        // Output the "splash" message
+        // Output the splash message
         getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" +
                 " _____                         _\n" +
                 "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
@@ -101,11 +97,8 @@ public final class Honeypot extends JavaPlugin {
                 + "\n" + ChatColor.GOLD +
                 "                  |___|_|");
 
-        // Output the version check message
-        if (!versionCheck()) {
-            getServer().getLogger().warning(
-                    "Honeypot is not guaranteed to support this version of Spigot. We won't prevent you from using it, but some newer blocks (If any) may exhibit unusual behavior!");
-        }
+        // A small helper method to verify if the server version is supported by Honeypot. I've moved it to its own method because it's rather large
+        checkIfServerSupported();
 
         // Check for any updates
         new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt")
@@ -149,24 +142,49 @@ public final class Honeypot extends JavaPlugin {
     }
 
     /**
-     * Check the version of Spigot we're running on. Current supported version is
-     * 1.17 - 1.19.2
-     * 
-     * @return True if the version is supported, false if not
+     * Check the GitHub repo of the plugin to verify the version of Spigot we're running on is supported
      */
-    public static boolean versionCheck() {
-        String[] split = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
-        int majorVer = Integer.parseInt(split[0]);
-        int minorVer = Integer.parseInt(split[1]);
-        int revisionVer = split.length > 2 ? Integer.parseInt(split[2]) : 0;
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static void checkIfServerSupported() {
+        String[] serverVersion = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+        int serverMajorVer = Integer.parseInt(serverVersion[0]);
+        int serverMinorVer = Integer.parseInt(serverVersion[1]);
+        int serverRevisionVer = serverVersion.length > 2 ? Integer.parseInt(serverVersion[2]) : 0;
 
-        // TODO - Update for version 1.20
-        return (majorVer == 1 && minorVer >= 17) && (majorVer == 1 && minorVer <= 19 && revisionVer <= 3);
+        String pluginVersion = plugin.getDescription().getVersion();
+        // Check for any updates
+        new HoneypotSupportedVersions(plugin, pluginVersion)
+                .getSupportedVersions(value -> {
+                    // Get the least supported and most supported server versions for this version of Honeypot
+                    String[] lowerVersion = value.split("-")[0].split("\\.");
+                    String[] upperVersion = value.split("-")[1].split("\\.");
+
+                    int lowerMajorVer = Integer.parseInt(lowerVersion[0]);
+                    int lowerMinorVer = Integer.parseInt(lowerVersion[1]);
+                    int lowerRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
+
+                    int upperMajorVer = Integer.parseInt(upperVersion[1]);
+                    int upperMinorVer = Integer.parseInt(upperVersion[1]);
+                    int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
+
+                    // Check if the version the server is running is within the bounds of the supported versions
+                    // We are doing this check dynamically because it allows us to verify and disable version check messages without updating the plugin code
+                    // This means if a minor MC version rolls out and doesn't affect functionality to the plugin, we can update it on the GitHub side and server admins will not see an error message
+                    if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer) &&
+                            (serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer) &&
+                            (serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
+                        plugin.getServer().getLogger().warning(
+                                "Honeypot is not guaranteed to support this version of Spigot. We won't prevent you from using it, but some newer blocks (If any) may exhibit unusual behavior!");
+                        plugin.getServer().getLogger().warning(
+                                "Honeypot " + pluginVersion + " supports server versions " + value);
+                    }
+                });
+
     }
 
     /*
-     * All the functions below are getter functinos
-     * 
+     * All the functions below are getter functions
+     *
      * These simply return objects to prevent static keyword abuse
      */
 
@@ -182,7 +200,7 @@ public final class Honeypot extends JavaPlugin {
 
     /**
      * Returns the permission object for Vault
-     * 
+     *
      * @return Vault {@link Permission}
      */
     public static Permission getPermissions() {
@@ -191,7 +209,7 @@ public final class Honeypot extends JavaPlugin {
 
     /**
      * Returns the GUI object of the plugin for GUI creation
-     * 
+     *
      * @return {@link GUI}
      */
     public static GUI getGUI() {
@@ -200,7 +218,7 @@ public final class Honeypot extends JavaPlugin {
 
     /**
      * Gets the Honeypot logger
-     * 
+     *
      * @return {@link HoneypotLogger}
      */
     public static HoneypotLogger getHoneypotLogger() {

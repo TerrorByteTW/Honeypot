@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.reprogle</groupId>
         <artifactId>honeypot-parent</artifactId>
-        <version>2.6.3</version>
+        <version>2.6.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -39,7 +39,7 @@
     <scm>
         <connection>scm:git:git://github.com/TerrorByteTW/Honeypot.git</connection>
         <developerConnection>scm:git:ssh://github.com:TerrorByteTW/Honeypot.git</developerConnection>
-        <url>http://github.com/TerrorByteTW/Honeypot/tree/master</url>
+        <url>https://github.com/TerrorByteTW/Honeypot/tree/master</url>
     </scm>
 
     <build>
@@ -106,7 +106,7 @@
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>honeypot-api</artifactId>
-            <version>2.6.0</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>dev.dejvokep</groupId>
