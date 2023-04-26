@@ -1,4 +1,7 @@
 # Honeypot Anti-Grief 🍯🚫 
+
+## ‼️‼️[Announcing development of Honeypot 3.0](https://gist.github.com/natereprogle/82faf3438f2d68613dec31ff2ed09026)
+
 <p align="center">
     <a href="https://jitpack.io/#TerrorByteTW/Honeypot">
         <img alt="Release" src="https://jitpack.io/v/TerrorByteTW/Honeypot.svg">
