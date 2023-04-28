@@ -10,7 +10,7 @@ import org.reprogle.honeypot.utils.HoneypotConfigManager;
  */
 public class CacheManager {
 
-    private static List<HoneypotBlockObject> cache = new ArrayList<>();
+    private static final List<HoneypotBlockObject> cache = new ArrayList<>();
 
     // Create constructor to hide implicit one
     CacheManager() {
@@ -19,7 +19,7 @@ public class CacheManager {
 
     /**
      * Gets the entire cache list for further processing if necessary
-     * @return The List of {@link HoneypotBlockObjects} in the cache
+     * @return The List of {@link HoneypotBlockObject} in the cache
      */
     public static List<HoneypotBlockObject> getCache() {
         return cache;

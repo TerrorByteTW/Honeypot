@@ -6,11 +6,10 @@
 
     <groupId>org.reprogle</groupId>
     <artifactId>honeypot-parent</artifactId>
-    <version>2.6.4</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>honeypot-api</module>
         <module>honeypot-core</module>
     </modules>
 

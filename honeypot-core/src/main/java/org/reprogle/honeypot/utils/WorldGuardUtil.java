@@ -61,7 +61,7 @@ public class WorldGuardUtil {
 	 * 
 	 * @param player   The player initiating the action
 	 * @param location The location of the block being placed (It may be different
-	 *                 than the player location)
+	 *                 from the player location)
 	 * @return True if the action is allowed, false if the action isn't allowed OR
 	 *         if WorldGuard support isn't enabled.
 	 */

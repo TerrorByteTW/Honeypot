@@ -49,7 +49,7 @@ public class HoneypotPlayerManager {
      * will be a switch case statement to handle multiple DB types without changing
      * code
      * 
-     * @param playerName   The Player object
+     * @param player   The Player object
      * @param blocksBroken The amount of blocks broken by the player
      */
     public void setPlayerCount(Player player, int blocksBroken) {

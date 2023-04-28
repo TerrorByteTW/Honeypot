@@ -14,7 +14,7 @@ public class SQLite extends Database {
     /**
      * Create an SQLite object from the instance
      * 
-     * @param instance
+     * @param instance The instance of the plugin
      */
     public SQLite(Honeypot instance) {
         super(instance);
@@ -87,8 +87,6 @@ public class SQLite extends Database {
 
     /**
      * Loads the DB
-     * 
-     * @return
      */
     @Override
     public void load() {

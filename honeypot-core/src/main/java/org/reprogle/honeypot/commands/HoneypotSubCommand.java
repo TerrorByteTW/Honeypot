@@ -13,7 +13,7 @@ public interface HoneypotSubCommand {
      * 
      * @return The String name
      */
-    public abstract String getName();
+    String getName();
 
     /**
      * Performs the command
@@ -23,7 +23,7 @@ public interface HoneypotSubCommand {
      * @throws IOException Throws if any IO actions fail inside the perform command
      *                     (Such as DB calls)
      */
-    public abstract void perform(Player p, String[] args) throws IOException;
+    void perform(Player p, String[] args) throws IOException;
 
     /**
      * Gets all subcommands of the main command if any (Such as with the create or
@@ -33,15 +33,12 @@ public interface HoneypotSubCommand {
      * @param args Any arguments to pass
      * @return A list of all subcommands as strings
      */
-    public abstract List<String> getSubcommands(Player p, String[] args);
+    List<String> getSubcommands(Player p, String[] args);
 
     /**
      * Gets the required permissions to run the command. May be multiple
-     * 
-     * @param p    The Player running the command
-     * @param args Any arguments to pass
      * @return A list of all subcommands as strings
      */
-    public abstract List<HoneypotPermission> getRequiredPermissions();
+    List<HoneypotPermission> getRequiredPermissions();
 
 }
