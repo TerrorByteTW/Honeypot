@@ -1,4 +1,4 @@
-package org.reprogle.honeypot.providers;
+package org.reprogle.honeypot.providers.exceptions;
 
 public class InvalidBehaviorDefinitionException extends Exception{
     public InvalidBehaviorDefinitionException(String errorMessage) {
