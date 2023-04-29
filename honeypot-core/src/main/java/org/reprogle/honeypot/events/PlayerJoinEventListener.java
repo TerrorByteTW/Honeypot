@@ -1,3 +1,19 @@
+/*
+ * Honeypot is a tool for griefing auto-moderation
+ * Copyright TerrorByte (c) 2022-2023
+ * Copyright Honeypot Contributors (c) 2022-2023
+ *
+ * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
+ * as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
+ * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
+ * See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.events;
 
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -28,19 +44,19 @@ public class PlayerJoinEventListener implements Listener {
         Player p = event.getPlayer();
 
         if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
-            new HoneypotUpdateChecker(Honeypot.getPlugin(),
+            new HoneypotUpdateChecker(Honeypot.plugin,
                     "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt").getVersion(latest -> {
-                        if (Integer.parseInt(latest.replace(".", "")) > Integer
-                                .parseInt(Honeypot.getPlugin().getDescription().getVersion().replace(".", ""))) {
-                            TextComponent message = new TextComponent(
-                                    CommandFeedback.sendCommandFeedback("updateavailable"));
-                            message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-                                    "https://github.com/TerrorByteTW/Honeypot"));
-                            message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                    new Text("Click me to download the latest update!")));
-                            p.spigot().sendMessage(message);
-                        }
-                    });
+                if (Integer.parseInt(latest.replace(".", "")) > Integer
+                        .parseInt(Honeypot.plugin.getDescription().getVersion().replace(".", ""))) {
+                    TextComponent message = new TextComponent(
+                            CommandFeedback.sendCommandFeedback("updateavailable"));
+                    message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
+                            "https://github.com/TerrorByteTW/Honeypot"));
+                    message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            new Text("Click me to download the latest update!")));
+                    p.spigot().sendMessage(message);
+                }
+            });
         }
     }
 

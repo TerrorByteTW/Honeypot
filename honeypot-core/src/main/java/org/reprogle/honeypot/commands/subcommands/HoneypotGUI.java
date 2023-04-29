@@ -1,11 +1,22 @@
+/*
+ * Honeypot is a tool for griefing auto-moderation
+ * Copyright TerrorByte (c) 2022-2023
+ * Copyright Honeypot Contributors (c) 2022-2023
+ *
+ * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
+ * as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
+ * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
+ * See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.commands.subcommands;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -31,7 +42,11 @@ import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.HoneypotPermission;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
-import net.md_5.bungee.api.ChatColor;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class HoneypotGUI implements HoneypotSubCommand {
 
@@ -46,7 +61,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		p.openInventory(mainMenu(p, args).getInventory());
 	}
 
-	@SuppressWarnings({ "java:S1192", "java:S1121" })
+	@SuppressWarnings({"java:S1192", "java:S1121"})
 	private static void customHoneypotsInventory(Player p) {
 		GUIMenu customHoneypotsGUI = Honeypot.getGUI().create("Custom Honeypot", 3);
 		List<String> types = new ArrayList<>();
@@ -102,7 +117,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			}
 
 			GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {
-				event.getWhoClicked().sendMessage(ChatColor.ITALIC.toString() + ChatColor.GRAY.toString() + "Whoosh!");
+				event.getWhoClicked().sendMessage(ChatColor.ITALIC + ChatColor.GRAY.toString() + "Whoosh!");
 				event.getWhoClicked().teleport(honeypotBlock.getLocation().add(0.5, 1, 0.5));
 				event.getWhoClicked().closeInventory();
 			});
@@ -127,6 +142,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 			ItemStack skullItem = new ItemStack(Material.PLAYER_HEAD);
 			SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();
+			assert skullMeta != null;
 			skullMeta.setOwningPlayer(player);
 			skullItem.setItemMeta(skullMeta);
 
@@ -219,7 +235,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	}
 
-	@SuppressWarnings({ "java:S3776", "java:S1192" })
+	@SuppressWarnings({"java:S3776", "java:S1192"})
 	private static void removeHoneypotInventory(Player p) {
 		if (!(p.hasPermission("honeypot.remove"))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
@@ -281,7 +297,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 					event.getWhoClicked().closeInventory();
 
 					if (event.getWhoClicked().getTargetBlockExact(5) != null) {
-						block = ((Player) event.getWhoClicked()).getTargetBlockExact(5);
+						block = event.getWhoClicked().getTargetBlockExact(5);
 					} else {
 						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 						return;
@@ -308,7 +324,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	}
 
-	@SuppressWarnings({ "unchecked", "java:S3776" })
+	@SuppressWarnings({"unchecked", "java:S3776"})
 	private static void createHoneypotFromGUI(InventoryClickEvent event, String action, String... customAction) {
 		Block block;
 		WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
@@ -316,7 +332,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		// Get block the player is looking at
 		if (event.getWhoClicked().getTargetBlockExact(5) != null) {
-			block = ((Player) event.getWhoClicked()).getTargetBlockExact(5);
+			block = event.getWhoClicked().getTargetBlockExact(5);
 		} else {
 			event.getWhoClicked().closeInventory();
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
@@ -483,9 +499,9 @@ public class HoneypotGUI implements HoneypotSubCommand {
 								public void run() {
 									slime.remove();
 								}
-							}.runTaskLater(Honeypot.getPlugin(), 20L * 5); // 20 ticks in 1 second * 5 seconds equals
-																			// 100
-																			// ticks
+							}.runTaskLater(Honeypot.plugin, 20L * 5); // 20 ticks in 1 second * 5 seconds equals
+							// 100
+							// ticks
 						}
 					}
 				}

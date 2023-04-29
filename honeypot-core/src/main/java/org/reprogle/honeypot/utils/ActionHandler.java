@@ -1,21 +1,36 @@
+/*
+ * Honeypot is a tool for griefing auto-moderation
+ * Copyright TerrorByte (c) 2022-2023
+ * Copyright Honeypot Contributors (c) 2022-2023
+ *
+ * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
+ * as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
+ * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
+ * See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.utils;
 
-import java.util.List;
-
+import dev.dejvokep.boostedyaml.YamlDocument;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 
-import dev.dejvokep.boostedyaml.YamlDocument;
+import java.util.List;
 
 public class ActionHandler {
 
     private ActionHandler() {
     }
 
-    @SuppressWarnings({ "java:S3776", "java:S2629", "java:S1192" })
+    @SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
     public static void handleCustomAction(String action, Block block, Player player) {
         // Default path is likely due to custom actions. Run whatever the action was
         YamlDocument config = HoneypotConfigManager.getHoneypotsConfig();
@@ -26,7 +41,7 @@ public class ActionHandler {
                     List<String> commands = config.getStringList(action + ".commands");
                     List<String> messages = config.getStringList(action + ".messages");
                     if (commands.isEmpty()) {
-                        Honeypot.getPlugin().getLogger().warning(
+                        Honeypot.plugin.getLogger().warning(
                                 "Commands list is empty for Honeypot type " + action
                                         + "! Please verify config");
                         return;
@@ -49,7 +64,7 @@ public class ActionHandler {
                     List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
                     List<String> messages = config.getStringList(action + ".messages");
                     if (permissionsAdd.isEmpty() && permissionsRemove.isEmpty()) {
-                        Honeypot.getPlugin().getLogger()
+                        Honeypot.plugin.getLogger()
                                 .warning("Permissions lists are empty for Honeypot type "
                                         + action + "! Please verify config");
                         return;
@@ -76,14 +91,14 @@ public class ActionHandler {
                     List<String> messages = config.getStringList(action + ".messages");
 
                     if (broadcasts.isEmpty()) {
-                        Honeypot.getPlugin().getLogger().warning(
+                        Honeypot.plugin.getLogger().warning(
                                 "Broadcasts list is empty for Honeypot type " + action
                                         + "! Please verify config");
                         return;
                     }
 
                     for (String broadcast : broadcasts) {
-                        Honeypot.getPlugin().getServer().broadcastMessage(formatMessage(broadcast, block, player));
+                        Honeypot.plugin.getServer().broadcastMessage(formatMessage(broadcast, block, player));
                     }
 
                     if (!messages.isEmpty()) {
@@ -94,7 +109,7 @@ public class ActionHandler {
                 }
 
                 default -> {
-                    Honeypot.getPlugin().getLogger().warning("Honeypot " + action
+                    Honeypot.plugin.getLogger().warning("Honeypot " + action
                             + " tried to run as a type that doesn't exist! Please verify config");
                 }
             }

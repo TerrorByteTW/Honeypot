@@ -1,8 +1,22 @@
+/*
+ * Honeypot is a tool for griefing auto-moderation
+ * Copyright TerrorByte (c) 2022-2023
+ * Copyright Honeypot Contributors (c) 2022-2023
+ *
+ * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
+ * as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
+ * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
+ * See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.gui;
 
-import java.util.*;
-import java.util.function.Consumer;
-
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
@@ -12,7 +26,10 @@ import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.pagination.GUIPageButtonBuilder;
 import org.reprogle.honeypot.gui.pagination.GUIPageButtonType;
 
-import net.md_5.bungee.api.ChatColor;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class GUIMenu implements InventoryHolder {
     private final JavaPlugin owner;
@@ -287,10 +304,10 @@ public class GUIMenu implements InventoryHolder {
         boolean needsPagination = getMaxPage() > 0 && isAutomaticPaginationEnabled;
 
         Inventory inventory = Bukkit.createInventory(this, ((needsPagination)
-                // Pagination enabled: add the bottom toolbar row.
-                ? getPageSize() + 9
-                // Pagination not required or disabled.
-                : getPageSize()),
+                        // Pagination enabled: add the bottom toolbar row.
+                        ? getPageSize() + 9
+                        // Pagination not required or disabled.
+                        : getPageSize()),
                 name.replace("{currentPage}", String.valueOf(currentPage + 1)).replace("{maxPage}",
                         String.valueOf(getMaxPage())));
 

@@ -14,28 +14,17 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.utils;
+package org.reprogle.honeypot.providers;
 
-/**
- * A class used for writing and managing permissions better. This class does not
- * yet have the ability to handle exlusivity, but I'm working on that. I've put
- * the permissions in a class to add features later
- */
-public class HoneypotPermission {
-
-    private final String permission;
-
-    public HoneypotPermission(String permission) {
-        this.permission = permission;
-    }
-
-    /**
-     * Get the string of the permission required
-     *
-     * @return Permission string
-     */
-    public String getPermission() {
-        return permission;
-    }
-
+public enum BehaviorType {
+    COMMAND,
+    PERMISSION,
+    BROADCAST,
+    HYBRID,
+    BAN,
+    KICK,
+    WARN,
+    NOTIFY,
+    NOTHING,
+    CUSTOM
 }

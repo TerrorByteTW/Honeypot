@@ -14,28 +14,28 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.utils;
+package org.reprogle.honeypot.providers.included;
 
-/**
- * A class used for writing and managing permissions better. This class does not
- * yet have the ability to handle exlusivity, but I'm working on that. I've put
- * the permissions in a class to add features later
- */
-public class HoneypotPermission {
+import org.bukkit.BanList;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.reprogle.honeypot.commands.CommandFeedback;
+import org.reprogle.honeypot.providers.Behavior;
+import org.reprogle.honeypot.providers.BehaviorProvider;
+import org.reprogle.honeypot.providers.BehaviorType;
 
-    private final String permission;
+@Behavior(type = BehaviorType.BAN, name = "Ban")
+public class Ban extends BehaviorProvider {
 
-    public HoneypotPermission(String permission) {
-        this.permission = permission;
-    }
+	@Override
+	public boolean process(Player p) {
+		String banReason = CommandFeedback.sendCommandFeedback("ban");
+		String chatPrefix = CommandFeedback.getChatPrefix();
 
-    /**
-     * Get the string of the permission required
-     *
-     * @return Permission string
-     */
-    public String getPermission() {
-        return permission;
-    }
+		Bukkit.getBanList(BanList.Type.NAME).addBan(p.getName(), banReason, null,
+				chatPrefix);
+		p.kickPlayer(banReason);
 
+		return true;
+	}
 }
