@@ -43,7 +43,6 @@ public class WorldGuardUtil {
 			}
 		}
 
-		honeypotFlag = null;
 		return honeypotFlag;
 	}
 

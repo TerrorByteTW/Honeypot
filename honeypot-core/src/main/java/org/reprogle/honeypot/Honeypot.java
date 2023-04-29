@@ -72,8 +72,7 @@ public final class Honeypot extends JavaPlugin {
         }
 
         // Initialize Bstats
-        int pluginId = 15425;
-        Metrics metrics = new Metrics(this, pluginId);
+        Metrics metrics = new Metrics(this, 15425);
 
         // Start the GhostHoneypotFixer
         if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
@@ -93,8 +92,7 @@ public final class Honeypot extends JavaPlugin {
                 " _____                         _\n" +
                 "|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
                 "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
-                "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion()
-                + "\n" + ChatColor.GOLD +
+                "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
                 "                  |___|_|");
 
         // A small helper method to verify if the server version is supported by Honeypot. I've moved it to its own method because it's rather large
@@ -137,7 +135,7 @@ public final class Honeypot extends JavaPlugin {
             return false;
         }
         RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-        perms = rsp.getProvider();
+        perms = rsp != null ? rsp.getProvider() : null;
         return perms != null;
     }
 
