@@ -20,32 +20,31 @@ import org.bukkit.entity.Player;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.utils.HoneypotPermission;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotList implements HoneypotSubCommand {
 
-    @Override
-    public String getName() {
-        return "list";
-    }
+	@Override
+	public String getName() {
+		return "list";
+	}
 
-    @Override
-    public void perform(Player p, String[] args) throws IOException {
-        HoneypotGUI.callAllHoneypotsInventory(p);
-    }
+	@Override
+	public void perform(Player p, String[] args) {
+		HoneypotGUI.callAllHoneypotsInventory(p);
+	}
 
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        return new ArrayList<>();
-    }
+	@Override
+	public List<String> getSubcommands(Player p, String[] args) {
+		return new ArrayList<>();
+	}
 
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        List<HoneypotPermission> permissions = new ArrayList<>();
-        permissions.add(new HoneypotPermission("honeypot.gui"));
-        return permissions;
-    }
+	@Override
+	public List<HoneypotPermission> getRequiredPermissions() {
+		List<HoneypotPermission> permissions = new ArrayList<>();
+		permissions.add(new HoneypotPermission("honeypot.gui"));
+		return permissions;
+	}
 
 }

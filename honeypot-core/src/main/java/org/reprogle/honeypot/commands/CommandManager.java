@@ -254,7 +254,7 @@ public class CommandManager implements TabExecutor {
 			return true;
 
 		for (HoneypotPermission permission : subcommand.getRequiredPermissions()) {
-			if (p.hasPermission(permission.getPermission())) {
+			if (p.hasPermission(permission.permission())) {
 				allowed = true;
 				break;
 			}

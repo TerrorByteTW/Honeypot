@@ -28,83 +28,81 @@ import org.reprogle.honeypot.gui.pagination.GUIPageButtonBuilder;
 import org.reprogle.honeypot.gui.pagination.GUIPageButtonType;
 
 public class GUIMenuListener implements Listener {
-    private final JavaPlugin owner;
+	private final JavaPlugin owner;
 
-    private final GUI guiManager;
+	private final GUI guiManager;
 
-    public GUIMenuListener(JavaPlugin owner, GUI guiManager) {
-        this.owner = owner;
-        this.guiManager = guiManager;
-    }
+	public GUIMenuListener(JavaPlugin owner, GUI guiManager) {
+		this.owner = owner;
+		this.guiManager = guiManager;
+	}
 
-    // Supressed warnings here because I don't have the brainpower currently to
-    // rework this method to be compliant with cognitive complexity rules
-    @EventHandler
-    @SuppressWarnings("java:S3776")
-    public void onInventoryClick(InventoryClickEvent event) {
+	// Supressed warnings here because I don't have the brainpower currently to
+	// rework this method to be compliant with cognitive complexity rules
+	@EventHandler
+	@SuppressWarnings("java:S3776")
+	public void onInventoryClick(InventoryClickEvent event) {
 
-        if (event.getClickedInventory() != null
-                && event.getClickedInventory().getHolder() != null
-                && event.getInventory().getHolder() instanceof GUIMenu) {
+		if (event.getClickedInventory() != null
+				&& event.getClickedInventory().getHolder() != null
+				&& event.getInventory().getHolder() instanceof GUIMenu) {
 
-            GUIMenu clickedGui = (GUIMenu) event.getClickedInventory().getHolder();
+			GUIMenu clickedGui = (GUIMenu) event.getClickedInventory().getHolder();
 
-            if (!clickedGui.getOwner().equals(owner))
-                return;
+			if (!clickedGui.getOwner().equals(owner))
+				return;
 
-            if (clickedGui.areDefaultInteractionsBlocked() != null) {
-                event.setCancelled(clickedGui.areDefaultInteractionsBlocked());
-            } else {
-                if (guiManager.areDefaultInteractionsBlocked())
-                    event.setCancelled(true);
-            }
+			if (clickedGui.areDefaultInteractionsBlocked() != null) {
+				event.setCancelled(clickedGui.areDefaultInteractionsBlocked());
+			} else {
+				if (guiManager.areDefaultInteractionsBlocked())
+					event.setCancelled(true);
+			}
 
-            if (event.getSlot() > clickedGui.getPageSize()) {
-                int offset = event.getSlot() - clickedGui.getPageSize();
-                GUIPageButtonBuilder paginationButtonBuilder = guiManager.getDefaultPaginationButtonBuilder();
+			if (event.getSlot() > clickedGui.getPageSize()) {
+				int offset = event.getSlot() - clickedGui.getPageSize();
+				GUIPageButtonBuilder paginationButtonBuilder = guiManager.getDefaultPaginationButtonBuilder();
 
-                if (clickedGui.getPaginationButtonBuilder() != null) {
-                    paginationButtonBuilder = clickedGui.getPaginationButtonBuilder();
-                }
+				if (clickedGui.getPaginationButtonBuilder() != null) {
+					paginationButtonBuilder = clickedGui.getPaginationButtonBuilder();
+				}
 
-                GUIPageButtonType buttonType = GUIPageButtonType.forSlot(offset);
-                GUIButton paginationButton = paginationButtonBuilder.buildPaginationButton(buttonType, clickedGui);
-                if (paginationButton != null)
-                    paginationButton.getListener().onClick(event);
-                return;
-            }
+				GUIPageButtonType buttonType = GUIPageButtonType.forSlot(offset);
+				GUIButton paginationButton = paginationButtonBuilder.buildPaginationButton(buttonType, clickedGui);
+				if (paginationButton != null)
+					paginationButton.getListener().onClick(event);
+				return;
+			}
 
-            if (clickedGui.isStickiedSlot(event.getSlot())) {
-                GUIButton button = clickedGui.getButton(0, event.getSlot());
-                if (button != null && button.getListener() != null)
-                    button.getListener().onClick(event);
-                return;
-            }
+			if (clickedGui.isStickiedSlot(event.getSlot())) {
+				GUIButton button = clickedGui.getButton(0, event.getSlot());
+				if (button != null && button.getListener() != null)
+					button.getListener().onClick(event);
+				return;
+			}
 
-            GUIButton button = clickedGui.getButton(clickedGui.getCurrentPage(), event.getSlot());
-            if (button != null && button.getListener() != null) {
-                button.getListener().onClick(event);
-            }
+			GUIButton button = clickedGui.getButton(clickedGui.getCurrentPage(), event.getSlot());
+			if (button != null && button.getListener() != null) {
+				button.getListener().onClick(event);
+			}
 
-        }
+		}
 
-    }
+	}
 
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
+	@EventHandler
+	public void onInventoryClose(InventoryCloseEvent event) {
 
-        if (event.getInventory().getHolder() instanceof GUIMenu) {
+		if (event.getInventory().getHolder() instanceof GUIMenu clickedGui) {
 
-            GUIMenu clickedGui = (GUIMenu) event.getInventory().getHolder();
+			if (!clickedGui.getOwner().equals(owner))
+				return;
 
-            if (!clickedGui.getOwner().equals(owner))
-                return;
+			if (clickedGui.getOnClose() != null)
+				clickedGui.getOnClose().accept(clickedGui);
 
-            if (clickedGui.getOnClose() != null)
-                clickedGui.getOnClose().accept(clickedGui);
+		}
 
-        }
-
-    }
+	}
 
 }

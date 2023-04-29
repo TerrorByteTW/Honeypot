@@ -28,57 +28,52 @@ import java.util.List;
 @SuppressWarnings({"java:S1604"})
 public class GhostHoneypotFixer {
 
-    // Create package constructor to hide implicit one
-    public GhostHoneypotFixer() {
-        // Start the GhostHoneypotFixer
-        if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
-            Honeypot.plugin.getLogger().info(
-                    "Starting the ghost checker task! If you need to disable this, update the config and restart the server");
-            this.startTask();
-        }
-    }
+	// Create package constructor to hide implicit one
+	public GhostHoneypotFixer() {
+		// Start the GhostHoneypotFixer
+		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
+			Honeypot.plugin.getLogger().info(
+					"Starting the ghost checker task! If you need to disable this, update the config and restart the server");
+			this.startTask();
+		}
+	}
 
-    private static BukkitTask task;
+	private static BukkitTask task;
 
-    /**
-     * Start a task to check for ghost honeypots every defined interval
-     */
-    public void startTask() {
-        // Store the task, just in case we need it in the future. For now, it's unused
-        // so we're silencing unused warnings
-        task = Bukkit.getScheduler().runTaskTimer(Honeypot.plugin, new Runnable() {
+	/**
+	 * Start a task to check for ghost honeypots every defined interval
+	 */
+	public void startTask() {
+		// Store the task, just in case we need it in the future. For now, it's unused
+		// so we're silencing unused warnings
+		task = Bukkit.getScheduler().runTaskTimer(Honeypot.plugin, () -> {
+			Honeypot.plugin.getLogger().info("Running ghost Honeypot checks...");
+			Honeypot.getHoneypotLogger().log("Running ghost Honeypot checks...");
+			int removedPots = 0;
+			List<HoneypotBlockObject> pots = HoneypotBlockManager.getInstance().getAllHoneypots();
+			for (HoneypotBlockObject pot : pots) {
+				if (pot.getBlock().getType().equals(Material.AIR)) {
+					Honeypot.plugin.getLogger()
+							.info("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
+					Honeypot.getHoneypotLogger()
+							.log("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
+					HoneypotBlockManager.getInstance().deleteBlock(pot.getBlock());
+					removedPots++;
+				}
+			}
 
-            @Override
-            public void run() {
-                Honeypot.plugin.getLogger().info("Running ghost Honeypot checks...");
-                Honeypot.getHoneypotLogger().log("Running ghost Honeypot checks...");
-                int removedPots = 0;
-                List<HoneypotBlockObject> pots = HoneypotBlockManager.getInstance().getAllHoneypots();
-                for (HoneypotBlockObject pot : pots) {
-                    if (pot.getBlock().getType().equals(Material.AIR)) {
-                        Honeypot.plugin.getLogger()
-                                .info("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
-                        Honeypot.getHoneypotLogger()
-                                .log("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
-                        HoneypotBlockManager.getInstance().deleteBlock(pot.getBlock());
-                        removedPots++;
-                    }
-                }
+			Honeypot.plugin.getLogger()
+					.info("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
+			Honeypot.getHoneypotLogger()
+					.log("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
+		}, 0L, 20L * 60 * HoneypotConfigManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
+	}
 
-                Honeypot.plugin.getLogger()
-                        .info("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
-                Honeypot.getHoneypotLogger()
-                        .log("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
-            }
-
-        }, 0L, 20L * 60 * HoneypotConfigManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
-    }
-
-    /**
-     * Cancel the ghost honeypot task
-     */
-    public void cancelTask() {
-        task.cancel();
-    }
+	/**
+	 * Cancel the ghost honeypot task
+	 */
+	public void cancelTask() {
+		task.cancel();
+	}
 
 }

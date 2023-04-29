@@ -23,34 +23,33 @@ import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.utils.HoneypotPermission;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotInfo implements HoneypotSubCommand {
 
-    @Override
-    public String getName() {
-        return "info";
-    }
+	@Override
+	public String getName() {
+		return "info";
+	}
 
-    @Override
-    public void perform(Player p, String[] args) throws IOException {
-        p.sendMessage(CommandFeedback.getChatPrefix() + " Honeypot version "
-                + Honeypot.plugin.getDescription().getVersion());
+	@Override
+	public void perform(Player p, String[] args) {
+		p.sendMessage(CommandFeedback.getChatPrefix() + " Honeypot version "
+				+ Honeypot.plugin.getDescription().getVersion());
 
-        p.sendMessage(CommandFeedback.getChatPrefix() + " Running on " + Bukkit.getVersion());
-        Honeypot.checkIfServerSupported();
-    }
+		p.sendMessage(CommandFeedback.getChatPrefix() + " Running on " + Bukkit.getVersion());
+		Honeypot.checkIfServerSupported();
+	}
 
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        return new ArrayList<>();
-    }
+	@Override
+	public List<String> getSubcommands(Player p, String[] args) {
+		return new ArrayList<>();
+	}
 
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        return new ArrayList<>();
-    }
+	@Override
+	public List<HoneypotPermission> getRequiredPermissions() {
+		return new ArrayList<>();
+	}
 
 }

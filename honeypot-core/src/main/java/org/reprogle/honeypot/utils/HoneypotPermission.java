@@ -21,21 +21,16 @@ package org.reprogle.honeypot.utils;
  * yet have the ability to handle exlusivity, but I'm working on that. I've put
  * the permissions in a class to add features later
  */
-public class HoneypotPermission {
+public record HoneypotPermission(String permission) {
 
-    private final String permission;
-
-    public HoneypotPermission(String permission) {
-        this.permission = permission;
-    }
-
-    /**
-     * Get the string of the permission required
-     *
-     * @return Permission string
-     */
-    public String getPermission() {
-        return permission;
-    }
+	/**
+	 * Get the string of the permission required
+	 *
+	 * @return Permission string
+	 */
+	@Override
+	public String permission() {
+		return permission;
+	}
 
 }

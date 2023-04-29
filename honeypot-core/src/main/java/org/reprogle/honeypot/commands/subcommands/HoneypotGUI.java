@@ -42,7 +42,6 @@ import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.HoneypotPermission;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +56,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	@Override
 	@SuppressWarnings("java:S1192")
-	public void perform(Player p, String[] args) throws IOException {
+	public void perform(Player p, String[] args) {
 		p.openInventory(mainMenu(p, args).getInventory());
 	}
 
