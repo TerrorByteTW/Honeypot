@@ -17,10 +17,8 @@
 package org.reprogle.honeypot.events;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -202,30 +200,8 @@ public class BlockBreakEventListener implements Listener {
 			Honeypot.getHoneypotLogger().log("BlockBreakEvent being called for player: " + event.getPlayer().getName()
 					+ ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
 			switch (action) {
-				case "kick" -> event.getPlayer().kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
-
-				case "ban" -> {
-					Honeypot.processor.process(Honeypot.getRegistry().getBehaviorProvider("ban"), event.getPlayer());
-				}
-
-				case "warn" -> event.getPlayer()
-						.sendMessage(CommandFeedback.sendCommandFeedback("warn"));
-
-				case "notify" -> {
-					// Notify all staff members with permission or Op that someone tried to break a
-					// honeypot block
-					for (Player player : Bukkit.getOnlinePlayers()) {
-						if (player.hasPermission("honeypot.notify") || player.hasPermission(WILDCARD_PERMISSION)
-								|| player.isOp()) {
-							player.sendMessage(chatPrefix + " " + ChatColor.RED + event.getPlayer().getName()
-									+ " was caught breaking a Honeypot block at x=" + block.getX() + ", y="
-									+ block.getY()
-									+ ", z=" + block.getZ() + " in world " + block.getWorld().getName());
-						}
-					}
-
-					Honeypot.plugin.getServer().getConsoleSender().sendMessage(chatPrefix + " " + ChatColor.RED
-							+ event.getPlayer().getName() + " was caught breaking a Honeypot block");
+				case "kick", "ban", "warn", "notify" -> {
+					Honeypot.processor.process(Honeypot.getRegistry().getBehaviorProvider(action), event.getPlayer(), null);
 				}
 
 				case "nothing" -> {

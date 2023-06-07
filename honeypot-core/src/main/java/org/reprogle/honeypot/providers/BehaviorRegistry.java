@@ -67,7 +67,7 @@ public class BehaviorRegistry {
 			if (!behavior.getClass().isAnnotationPresent(Behavior.class))
 				throw new InvalidBehaviorDefinitionException("Behavior " + behavior.getClass().getName().toLowerCase() + " is improperly defined, and therefore cannot be registered. Please contact the author of the plugin attempting to register this provider");
 
-			if (behaviorProviders.containsKey(behavior.getProviderName())) {
+			if (behaviorProviders.containsKey(behavior.getProviderName().toLowerCase())) {
 				throw new BehaviorConflictException("Behavior " + behavior.getClass().getName().toLowerCase() + " is already registered");
 			}
 

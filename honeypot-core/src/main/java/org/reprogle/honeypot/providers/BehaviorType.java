@@ -17,14 +17,13 @@
 package org.reprogle.honeypot.providers;
 
 public enum BehaviorType {
-    COMMAND,
-    PERMISSION,
-    BROADCAST,
-    HYBRID,
-    BAN,
-    KICK,
-    WARN,
-    NOTIFY,
-    NOTHING,
-    CUSTOM
+	COMMAND,
+	PERMISSION,
+	BROADCAST,
+	BAN,
+	KICK,
+	WARN,
+	NOTIFY,
+	NOTHING,
+	CUSTOM
 }

@@ -23,64 +23,64 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
 
 /**
- * Event that is triggered before a Honeypot is created.
- * This event is called <i>before</i> the block is created, not after.
- * This event is cancellable. If cancelled, the creation does not happen.
+ * Event that is triggered after a player triggers a container action
+ * This event is called <i>after</i> a container action is triggered, not before. This means the state of the player may be unknown, for example if they were kicked as a result.
+ * This event is not cancellable, you cannot cancel the action of a Honeypot container already interacted with by a player. If you need to cancel it, please use {@link HoneypotPreInventoryClickEvent}
  */
 public class HoneypotInventoryClickEvent extends Event {
 
-    private static final HandlerList HANDLERS = new HandlerList();
+	private static final HandlerList HANDLERS = new HandlerList();
 
-    private final Player player;
+	private final Player player;
 
-    private final Inventory inv;
+	private final Inventory inv;
 
-    /**
-     * Called after an action is ran on a player who modified a Honeypot inventory.
-     *
-     * @param player The Player breaking with the Honeypot
-     * @param inv    The inventory of the block
-     */
-    public HoneypotInventoryClickEvent(Player player, Inventory inv) {
-        this.player = player;
-        this.inv = inv;
-    }
+	/**
+	 * Called after an action is ran on a player who modified a Honeypot inventory.
+	 *
+	 * @param player The Player breaking with the Honeypot
+	 * @param inv    The inventory of the block
+	 */
+	public HoneypotInventoryClickEvent(Player player, Inventory inv) {
+		this.player = player;
+		this.inv = inv;
+	}
 
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @Override
-    public HandlerList getHandlers() {
-        return HANDLERS;
-    }
+	/**
+	 * Boilerplate function for Bukkit
+	 *
+	 * @return HandlerList
+	 */
+	@Override
+	public HandlerList getHandlers() {
+		return HANDLERS;
+	}
 
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @SuppressWarnings("java:S4144")
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+	/**
+	 * Boilerplate function for Bukkit
+	 *
+	 * @return HandlerList
+	 */
+	@SuppressWarnings("java:S4144")
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
 
-    /**
-     * Get the player that broke the block
-     *
-     * @return {@link Player}
-     */
-    public Player getPlayer() {
-        return player;
-    }
+	/**
+	 * Get the player that broke the block
+	 *
+	 * @return {@link Player}
+	 */
+	public Player getPlayer() {
+		return player;
+	}
 
-    /**
-     * Get the block that was involved in the event
-     *
-     * @return {@link Block}
-     */
-    public Inventory getInventory() {
-        return inv;
-    }
+	/**
+	 * Get the block that was involved in the event
+	 *
+	 * @return {@link Block}
+	 */
+	public Inventory getInventory() {
+		return inv;
+	}
 }

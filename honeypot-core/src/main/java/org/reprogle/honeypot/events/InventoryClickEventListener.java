@@ -107,7 +107,7 @@ public class InventoryClickEventListener implements Listener {
 					|| player.hasPermission("honeypot.*") || player.isOp())) {
 
 				// If the clicked slot is null, that means the slot didn't have something in it,
-				// whether or not the player placed something in that slot. slot == null
+				// whether the player placed something in that slot. slot == null
 				// corresponds to a click or place, not a take
 				if (event.getInventory().getItem(event.getSlot()) == null && HoneypotConfigManager.getPluginConfig()
 						.getBoolean("container-actions.only-trigger-on-withdrawal")) {
@@ -115,13 +115,13 @@ public class InventoryClickEventListener implements Listener {
 				}
 
 				executeAction(event);
+
+				HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player,
+						inventory);
+				Bukkit.getPluginManager().callEvent(hice);
 				return;
 
 			}
-
-			HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player,
-					inventory);
-			Bukkit.getPluginManager().callEvent(hice);
 		}
 
 		event.setCancelled(false);

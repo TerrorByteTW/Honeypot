@@ -1,7 +1,7 @@
 /*
  * Honeypot is a tool for griefing auto-moderation
- * Copyright TerrorByte (c) 2022-2023
- * Copyright Honeypot Contributors (c) 2022-2023
+ * Copyright TerrorByte (c) 2023
+ * Copyright Honeypot Contributors (c) 2023
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -16,10 +16,11 @@
 
 package org.reprogle.honeypot.providers.included;
 
-import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.providers.Behavior;
 import org.reprogle.honeypot.providers.BehaviorProvider;
@@ -27,17 +28,28 @@ import org.reprogle.honeypot.providers.BehaviorType;
 
 import javax.annotation.Nullable;
 
-@Behavior(type = BehaviorType.BAN, name = "Ban")
-public class Ban extends BehaviorProvider {
+@Behavior(type = BehaviorType.NOTIFY, name = "notify")
+public class Notify extends BehaviorProvider {
 
 	@Override
 	public boolean process(Player p, @Nullable Block block) {
-		String banReason = CommandFeedback.sendCommandFeedback("ban");
+
+		if (block == null) return false;
+
 		String chatPrefix = CommandFeedback.getChatPrefix();
 
-		Bukkit.getBanList(BanList.Type.NAME).addBan(p.getName(), banReason, null,
-				chatPrefix);
-		p.kickPlayer(banReason);
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (player.hasPermission("honeypot.notify") || player.hasPermission("honeypot.*")
+					|| player.isOp()) {
+				player.sendMessage(chatPrefix + " " + ChatColor.RED + p.getName()
+						+ " was caught breaking a Honeypot block at x=" + block.getX() + ", y="
+						+ block.getY()
+						+ ", z=" + block.getZ() + " in world " + block.getWorld().getName());
+			}
+		}
+
+		Honeypot.plugin.getServer().getConsoleSender().sendMessage(chatPrefix + " " + ChatColor.RED
+				+ p.getName() + " was caught breaking a Honeypot block");
 
 		return true;
 	}

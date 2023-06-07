@@ -27,112 +27,119 @@ import java.util.List;
 
 public class ActionHandler {
 
-    private ActionHandler() {
-    }
+	private ActionHandler() {
+	}
 
-    @SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
-    public static void handleCustomAction(String action, Block block, Player player) {
-        // Default path is likely due to custom actions. Run whatever the action was
-        YamlDocument config = HoneypotConfigManager.getHoneypotsConfig();
-        if (config.contains(action)) {
-            String type = config.getString(action + ".type");
-            switch (type) {
-                case "command" -> {
-                    List<String> commands = config.getStringList(action + ".commands");
-                    List<String> messages = config.getStringList(action + ".messages");
-                    if (commands.isEmpty()) {
-                        Honeypot.plugin.getLogger().warning(
-                                "Commands list is empty for Honeypot type " + action
-                                        + "! Please verify config");
-                        return;
-                    }
+	@SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
+	public static void handleCustomAction(String action, Block block, Player player) {
 
-                    for (String command : commands) {
-                        Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
-                                formatCommand(command, block, player));
-                    }
+		// Behavior providers take higher precedence over custom config actions.
+		if (Honeypot.getRegistry().getBehaviorProvider(action) != null) {
+			Honeypot.processor.process(Honeypot.getRegistry().getBehaviorProvider(action), player, block);
+			return;
+		}
 
-                    if (!messages.isEmpty()) {
-                        for (String message : messages) {
-                            player.sendMessage(formatMessage(message, block, player));
-                        }
-                    }
-                }
+		// Default path is likely due to custom actions. Run whatever the action was
+		YamlDocument config = HoneypotConfigManager.getHoneypotsConfig();
+		if (config.contains(action)) {
+			String type = config.getString(action + ".type");
+			switch (type) {
+				case "command" -> {
+					List<String> commands = config.getStringList(action + ".commands");
+					List<String> messages = config.getStringList(action + ".messages");
+					if (commands.isEmpty()) {
+						Honeypot.plugin.getLogger().warning(
+								"Commands list is empty for Honeypot type " + action
+										+ "! Please verify config");
+						return;
+					}
 
-                case "permission" -> {
-                    List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
-                    List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
-                    List<String> messages = config.getStringList(action + ".messages");
-                    if (permissionsAdd.isEmpty() && permissionsRemove.isEmpty()) {
-                        Honeypot.plugin.getLogger()
-                                .warning("Permissions lists are empty for Honeypot type "
-                                        + action + "! Please verify config");
-                        return;
-                    }
+					for (String command : commands) {
+						Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
+								formatCommand(command, block, player));
+					}
 
-                    for (String permission : permissionsAdd) {
-                        Honeypot.getPermissions().playerAdd(null, player, permission);
-                    }
+					if (!messages.isEmpty()) {
+						for (String message : messages) {
+							player.sendMessage(formatMessage(message, block, player));
+						}
+					}
+				}
 
-                    for (String permission : permissionsRemove) {
-                        Honeypot.getPermissions().playerRemove(null, player, permission);
-                    }
+				case "permission" -> {
+					List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
+					List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
+					List<String> messages = config.getStringList(action + ".messages");
+					if (permissionsAdd.isEmpty() && permissionsRemove.isEmpty()) {
+						Honeypot.plugin.getLogger()
+								.warning("Permissions lists are empty for Honeypot type "
+										+ action + "! Please verify config");
+						return;
+					}
 
-                    if (!messages.isEmpty()) {
-                        for (String message : messages) {
-                            player.sendMessage(formatMessage(message, block, player));
-                        }
-                    }
+					for (String permission : permissionsAdd) {
+						Honeypot.getPermissions().playerAdd(null, player, permission);
+					}
 
-                }
+					for (String permission : permissionsRemove) {
+						Honeypot.getPermissions().playerRemove(null, player, permission);
+					}
 
-                case "broadcast" -> {
-                    List<String> broadcasts = config.getStringList(action + ".broadcasts");
-                    List<String> messages = config.getStringList(action + ".messages");
+					if (!messages.isEmpty()) {
+						for (String message : messages) {
+							player.sendMessage(formatMessage(message, block, player));
+						}
+					}
 
-                    if (broadcasts.isEmpty()) {
-                        Honeypot.plugin.getLogger().warning(
-                                "Broadcasts list is empty for Honeypot type " + action
-                                        + "! Please verify config");
-                        return;
-                    }
+				}
 
-                    for (String broadcast : broadcasts) {
-                        Honeypot.plugin.getServer().broadcastMessage(formatMessage(broadcast, block, player));
-                    }
+				case "broadcast" -> {
+					List<String> broadcasts = config.getStringList(action + ".broadcasts");
+					List<String> messages = config.getStringList(action + ".messages");
 
-                    if (!messages.isEmpty()) {
-                        for (String message : messages) {
-                            player.sendMessage(formatMessage(message, block, player));
-                        }
-                    }
-                }
+					if (broadcasts.isEmpty()) {
+						Honeypot.plugin.getLogger().warning(
+								"Broadcasts list is empty for Honeypot type " + action
+										+ "! Please verify config");
+						return;
+					}
 
-                default -> {
-                    Honeypot.plugin.getLogger().warning("Honeypot " + action
-                            + " tried to run as a type that doesn't exist! Please verify config");
-                }
-            }
-        }
-    }
+					for (String broadcast : broadcasts) {
+						Honeypot.plugin.getServer().broadcastMessage(formatMessage(broadcast, block, player));
+					}
 
-    private static String formatMessage(String message, Block block, Player player) {
-        String formattedString = message.replace("%player%", player.getName());
-        formattedString = formattedString.replace("%pLocation%", player.getLocation().getX() + " "
-                + player.getLocation().getY() + " " + player.getLocation().getZ());
-        formattedString = formattedString.replace("%bLocation%", block.getLocation().getX() + " "
-                + block.getLocation().getY() + " " + block.getLocation().getZ());
+					if (!messages.isEmpty()) {
+						for (String message : messages) {
+							player.sendMessage(formatMessage(message, block, player));
+						}
+					}
+				}
 
-        return ChatColor.translateAlternateColorCodes('&', formattedString);
-    }
+				default -> {
+					Honeypot.plugin.getLogger().warning("Honeypot " + action
+							+ " tried to run as a type that doesn't exist! Please verify config");
+				}
+			}
+		}
+	}
 
-    private static String formatCommand(String command, Block block, Player player) {
-        String formattedCommand = command.replace("%player%", player.getName());
-        formattedCommand = formattedCommand.replace("%pLocation%", player.getLocation().getX() + " "
-                + player.getLocation().getY() + " " + player.getLocation().getZ());
-        formattedCommand = formattedCommand.replace("%bLocation%", block.getLocation().getX() + " "
-                + block.getLocation().getY() + " " + block.getLocation().getZ());
+	private static String formatMessage(String message, Block block, Player player) {
+		String formattedString = message.replace("%player%", player.getName());
+		formattedString = formattedString.replace("%pLocation%", player.getLocation().getX() + " "
+				+ player.getLocation().getY() + " " + player.getLocation().getZ());
+		formattedString = formattedString.replace("%bLocation%", block.getLocation().getX() + " "
+				+ block.getLocation().getY() + " " + block.getLocation().getZ());
 
-        return formattedCommand;
-    }
+		return ChatColor.translateAlternateColorCodes('&', formattedString);
+	}
+
+	private static String formatCommand(String command, Block block, Player player) {
+		String formattedCommand = command.replace("%player%", player.getName());
+		formattedCommand = formattedCommand.replace("%pLocation%", player.getLocation().getX() + " "
+				+ player.getLocation().getY() + " " + player.getLocation().getZ());
+		formattedCommand = formattedCommand.replace("%bLocation%", block.getLocation().getX() + " "
+				+ block.getLocation().getY() + " " + block.getLocation().getZ());
+
+		return formattedCommand;
+	}
 }

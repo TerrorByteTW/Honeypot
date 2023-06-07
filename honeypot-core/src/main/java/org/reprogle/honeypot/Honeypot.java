@@ -30,6 +30,9 @@ import org.reprogle.honeypot.providers.BehaviorProcessor;
 import org.reprogle.honeypot.providers.BehaviorProvider;
 import org.reprogle.honeypot.providers.BehaviorRegistry;
 import org.reprogle.honeypot.providers.included.Ban;
+import org.reprogle.honeypot.providers.included.Kick;
+import org.reprogle.honeypot.providers.included.Notify;
+import org.reprogle.honeypot.providers.included.Warn;
 import org.reprogle.honeypot.storagemanager.CacheManager;
 import org.reprogle.honeypot.utils.*;
 
@@ -54,7 +57,10 @@ public final class Honeypot extends JavaPlugin {
 	public static BehaviorProcessor processor = null;
 
 	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[]{
-			new Ban()
+			new Ban(),
+			new Kick(),
+			new Warn(),
+			new Notify()
 	};
 
 	/**
@@ -75,7 +81,6 @@ public final class Honeypot extends JavaPlugin {
 			registry.register(behavior);
 		}
 
-		registry.setInitialized(true);
 		processor = new BehaviorProcessor();
 
 	}
@@ -91,6 +96,7 @@ public final class Honeypot extends JavaPlugin {
 		plugin = this;
 		gui = new GUI(this);
 		logger = new HoneypotLogger();
+		registry.setInitialized(true);
 
 		getLogger().info("Successfully registered " + registry.size() + " behavior providers");
 
