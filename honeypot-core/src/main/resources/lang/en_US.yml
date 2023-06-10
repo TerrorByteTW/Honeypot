@@ -1,4 +1,4 @@
-language-version: 2
+language-version: 3
 prefix: "&6[Honeypot]&r"
 kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
 ban-reason: "You have been banned for breaking honeypot blocks"
@@ -20,8 +20,6 @@ no-exist: "Could not find that Honeypot type in the config"
 deleted:
   all: "Deleted all honeypot blocks"
   near: "Deleted all honeypot blocks nearby"
-upgrade: "&cWARNING!&r After importing, you must not rename the converted actions! Doing so will cause your Honeypots to cease functioning. Run &c/honeypot upgrade confirm&r to upgrade"
-already-upgraded: "&cYou have already ran the upgrade command!&r You should NOT use this command again. Please reach out to the plugin author if you need to do another upgrade, they can provide instructions on how to do so"
 worldguard: "Honeypots are disabled in this region"
 griefprevention: "This area is protected by GriefPrevention, and you don't have permission to build"
 unknown-error: "Unknown error. Please contact server admin"

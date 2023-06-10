@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot.providers;
 
+import org.bukkit.Material;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,18 +30,25 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Behavior {
 
-    /**
-     * The type of the BehaviorProvider. This is currently a formality and does not have any bearing on the provider functionality.
-     * Please define it correctly however, as this may receive added functionality in the future
-     *
-     * @return The type of the {@link BehaviorProvider}
-     */
-    BehaviorType type();
+	/**
+	 * The type of the BehaviorProvider. This is currently a formality and does not have any bearing on the provider functionality.
+	 * Please define it correctly however, as this may receive added functionality in the future
+	 *
+	 * @return The type of the {@link BehaviorProvider}
+	 */
+	BehaviorType type();
 
-    /**
-     * The name of the provider. Each provider must have a unique name
-     *
-     * @return The name of the {@link BehaviorProvider}
-     */
-    String name();
+	/**
+	 * The name of the provider. Each provider must have a unique name
+	 *
+	 * @return The name of the {@link BehaviorProvider}
+	 */
+	String name();
+
+	/**
+	 * The icon of the provider to display within the GUI. Any {@link org.bukkit.Material} will do
+	 *
+	 * @return The {@link org.bukkit.Material} to display
+	 */
+	Material icon();
 }

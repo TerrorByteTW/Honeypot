@@ -16,9 +16,7 @@
 
 package org.reprogle.honeypot.events;
 
-import org.bukkit.BanList;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -33,7 +31,6 @@ import org.bukkit.inventory.Inventory;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
-import org.reprogle.honeypot.commands.CommandFeedback;
 import org.reprogle.honeypot.gui.GUIMenu;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.utils.ActionHandler;
@@ -138,41 +135,42 @@ public class InventoryClickEventListener implements Listener {
 		Honeypot.getHoneypotLogger().log("InventoryClickEvent being called for player: " + player.getName()
 				+ ", UUID of " + player.getUniqueId() + ". Action is: " + action);
 
-		switch (action) {
-			case "kick" -> player.kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
-
-			case "ban" -> {
-				String banReason = CommandFeedback.sendCommandFeedback("ban");
-
-				Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), banReason, null,
-						CommandFeedback.getChatPrefix());
-				player.kickPlayer(banReason);
-			}
-
-			case "warn" -> player.sendMessage(CommandFeedback.sendCommandFeedback("warn"));
-
-			case "notify" -> {
-				// Notify all staff members with permission or Op that someone tried to break a
-				// honeypot block
-				for (Player p : Bukkit.getOnlinePlayers()) {
-					if (p.hasPermission("honeypot.notify") || p.hasPermission("honeypot.*") || p.isOp()) {
-						p.sendMessage(
-								CommandFeedback.getChatPrefix() + " " + ChatColor.RED + player.getName()
-										+ " was caught opening a Honeypot container at x=" + block.getX() + ", y="
-										+ block.getY()
-										+ ", z=" + block.getZ());
-					}
-				}
-
-				Honeypot.plugin.getServer().getConsoleSender()
-						.sendMessage(CommandFeedback.getChatPrefix() + " " + ChatColor.RED
-								+ player.getName() + " was caught opening a Honeypot container");
-			}
-
-			default -> {
-				ActionHandler.handleCustomAction(action, block, player);
-			}
-		}
+//		switch (action) {
+//			case "kick" -> player.kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
+//
+//			case "ban" -> {
+//				String banReason = CommandFeedback.sendCommandFeedback("ban");
+//
+//				Bukkit.getBanList(BanList.Type.NAME).addBan(player.getName(), banReason, null,
+//						CommandFeedback.getChatPrefix());
+//				player.kickPlayer(banReason);
+//			}
+//
+//			case "warn" -> player.sendMessage(CommandFeedback.sendCommandFeedback("warn"));
+//
+//			case "notify" -> {
+//				// Notify all staff members with permission or Op that someone tried to break a
+//				// honeypot block
+//				for (Player p : Bukkit.getOnlinePlayers()) {
+//					if (p.hasPermission("honeypot.notify") || p.hasPermission("honeypot.*") || p.isOp()) {
+//						p.sendMessage(
+//								CommandFeedback.getChatPrefix() + " " + ChatColor.RED + player.getName()
+//										+ " was caught opening a Honeypot container at x=" + block.getX() + ", y="
+//										+ block.getY()
+//										+ ", z=" + block.getZ());
+//					}
+//				}
+//
+//				Honeypot.plugin.getServer().getConsoleSender()
+//						.sendMessage(CommandFeedback.getChatPrefix() + " " + ChatColor.RED
+//								+ player.getName() + " was caught opening a Honeypot container");
+//			}
+//
+//			default -> {
+//				ActionHandler.handleCustomAction(action, block, player);
+//			}
+//		}
+		ActionHandler.handleCustomAction(action, block, player);
 	}
 
 }

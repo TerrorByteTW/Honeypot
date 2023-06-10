@@ -18,6 +18,7 @@ package org.reprogle.honeypot.providers.included;
 
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.commands.CommandFeedback;
@@ -27,7 +28,7 @@ import org.reprogle.honeypot.providers.BehaviorType;
 
 import javax.annotation.Nullable;
 
-@Behavior(type = BehaviorType.BAN, name = "Ban")
+@Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER)
 public class Ban extends BehaviorProvider {
 
 	@Override

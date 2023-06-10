@@ -33,6 +33,8 @@ public class ActionHandler {
 	@SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
 	public static void handleCustomAction(String action, Block block, Player player) {
 
+		Honeypot.getHoneypotLogger().log("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation());
+
 		// Behavior providers take higher precedence over custom config actions.
 		if (Honeypot.getRegistry().getBehaviorProvider(action) != null) {
 			Honeypot.processor.process(Honeypot.getRegistry().getBehaviorProvider(action), player, block);

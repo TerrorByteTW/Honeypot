@@ -25,6 +25,7 @@ import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings.OptionSorting;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.honeypot.Honeypot;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,6 +144,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 		}
 
 		plugin.getLogger().info("Successfully loaded all plugin config files!");
+		Honeypot.getHoneypotLogger().log("All plugin config files successfully loaded");
 
 	}
 

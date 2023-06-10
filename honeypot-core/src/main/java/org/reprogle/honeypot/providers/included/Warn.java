@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.providers.included;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.commands.CommandFeedback;
@@ -25,7 +26,7 @@ import org.reprogle.honeypot.providers.BehaviorType;
 
 import javax.annotation.Nullable;
 
-@Behavior(type = BehaviorType.WARN, name = "warn")
+@Behavior(type = BehaviorType.WARN, name = "warn", icon = Material.STONE_AXE)
 public class Warn extends BehaviorProvider {
 
 	@Override

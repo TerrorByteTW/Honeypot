@@ -55,6 +55,7 @@ public class BehaviorRegistry {
 			try {
 				forceRegister(behavior);
 			} catch (InvalidBehaviorDefinitionException | BehaviorConflictException e) {
+				Logger.getLogger("minecraft").warning(e.getMessage());
 				Logger.getLogger("minecraft").warning("An error occurred while registering a behavior. Please see details above!");
 			}
 		}
@@ -68,7 +69,7 @@ public class BehaviorRegistry {
 				throw new InvalidBehaviorDefinitionException("Behavior " + behavior.getClass().getName().toLowerCase() + " is improperly defined, and therefore cannot be registered. Please contact the author of the plugin attempting to register this provider");
 
 			if (behaviorProviders.containsKey(behavior.getProviderName().toLowerCase())) {
-				throw new BehaviorConflictException("Behavior " + behavior.getClass().getName().toLowerCase() + " is already registered");
+				throw new BehaviorConflictException("Behavior " + behavior.getClass().getName().toLowerCase() + " is already registered under that name. Please rename the Behavior");
 			}
 
 			return behaviorProviders.put(behavior.getProviderName().toLowerCase(), behavior);
@@ -85,6 +86,15 @@ public class BehaviorRegistry {
 	 */
 	public BehaviorProvider getBehaviorProvider(@NotNull String name) {
 		return behaviorProviders.get(name.toLowerCase());
+	}
+
+	/**
+	 * Returns all behavior providers
+	 *
+	 * @return A concurrent map of all behavior providers in the form of String, BehaviorProvider
+	 */
+	public ConcurrentMap<String, BehaviorProvider> getBehaviorProviders() {
+		return behaviorProviders;
 	}
 
 	/**

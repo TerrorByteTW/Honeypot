@@ -24,6 +24,5 @@ public enum BehaviorType {
 	KICK,
 	WARN,
 	NOTIFY,
-	NOTHING,
 	CUSTOM
 }

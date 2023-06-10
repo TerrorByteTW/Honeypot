@@ -182,7 +182,6 @@ public class BlockBreakEventListener implements Listener {
 
 		// Get the block broken and the chat prefix for prettiness
 		Block block = event.getBlock();
-		String chatPrefix = CommandFeedback.getChatPrefix();
 
 		// If the player isn't exempt, doesn't have permissions, and isn't Op
 		if (!(event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().hasPermission(REMOVE_PERMISSION)
@@ -199,19 +198,19 @@ public class BlockBreakEventListener implements Listener {
 			assert action != null;
 			Honeypot.getHoneypotLogger().log("BlockBreakEvent being called for player: " + event.getPlayer().getName()
 					+ ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
-			switch (action) {
-				case "kick", "ban", "warn", "notify" -> {
-					Honeypot.processor.process(Honeypot.getRegistry().getBehaviorProvider(action), event.getPlayer(), null);
-				}
 
-				case "nothing" -> {
-					// Do...nothing
-				}
-
-				default -> {
-					ActionHandler.handleCustomAction(action, block, event.getPlayer());
-				}
-			}
+//			Is this code necessary anymore?
+//
+//			switch (action) {
+//				case "kick", "ban", "warn", "notify" ->
+//						Honeypot.processor.process(Honeypot.getRegistry().getBehaviorProvider(action), event.getPlayer(), null);
+//
+//
+//				default -> ActionHandler.handleCustomAction(action, block, event.getPlayer());
+//
+//			}
+			
+			ActionHandler.handleCustomAction(action, block, event.getPlayer());
 
 			// At this point we know the player has one of those permissions above. Now we
 			// need to figure out which

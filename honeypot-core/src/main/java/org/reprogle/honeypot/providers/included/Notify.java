@@ -18,6 +18,7 @@ package org.reprogle.honeypot.providers.included;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
@@ -28,7 +29,7 @@ import org.reprogle.honeypot.providers.BehaviorType;
 
 import javax.annotation.Nullable;
 
-@Behavior(type = BehaviorType.NOTIFY, name = "notify")
+@Behavior(type = BehaviorType.NOTIFY, name = "notify", icon = Material.BEACON)
 public class Notify extends BehaviorProvider {
 
 	@Override

@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.providers.included;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.commands.CommandFeedback;
@@ -25,7 +26,7 @@ import org.reprogle.honeypot.providers.BehaviorType;
 
 import javax.annotation.Nullable;
 
-@Behavior(type = BehaviorType.BAN, name = "Ban")
+@Behavior(type = BehaviorType.KICK, name = "kick", icon = Material.LEATHER_BOOTS)
 public class Kick extends BehaviorProvider {
 
 	@Override

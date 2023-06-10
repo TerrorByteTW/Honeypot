@@ -52,7 +52,6 @@ public class CommandManager implements TabExecutor {
 		subcommands.add(new HoneypotLocate());
 		subcommands.add(new HoneypotGUI());
 		subcommands.add(new HoneypotHelp());
-		subcommands.add(new HoneypotUpgrade());
 		subcommands.add(new HoneypotInfo());
 		subcommands.add(new HoneypotHistory());
 		subcommands.add(new HoneypotList());
@@ -130,7 +129,7 @@ public class CommandManager implements TabExecutor {
 							return true;
 						} catch (IOException e) {
 							Honeypot.plugin.getLogger()
-									.severe("Error while running command " + args[0] + "! Full stack trace: " + e);
+									.severe("Error while running command! Full stack trace: " + e);
 						}
 					}
 				}

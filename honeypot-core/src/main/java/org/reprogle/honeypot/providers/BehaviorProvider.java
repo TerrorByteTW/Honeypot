@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.providers;
 
 import com.google.common.base.Objects;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -27,9 +28,12 @@ public abstract class BehaviorProvider {
 	protected final String providerName;
 	protected final BehaviorType behaviorType;
 
+	protected final Material icon;
+
 	public BehaviorProvider() {
 		this.providerName = getClass().getAnnotation(Behavior.class).name();
 		this.behaviorType = getClass().getAnnotation(Behavior.class).type();
+		this.icon = getClass().getAnnotation(Behavior.class).icon();
 	}
 
 	/**
@@ -41,8 +45,22 @@ public abstract class BehaviorProvider {
 		return providerName;
 	}
 
+	/**
+	 * Return the type of the behavior. Currently type has no use
+	 *
+	 * @return The name of the behavior provider
+	 */
 	public BehaviorType getBehaviorType() {
 		return behaviorType;
+	}
+
+	/**
+	 * Return the type of the behavior. Currently, type has no use
+	 *
+	 * @return The name of the behavior provider
+	 */
+	public Material getIcon() {
+		return icon;
 	}
 
 	/**
@@ -57,13 +75,13 @@ public abstract class BehaviorProvider {
 		if (!(o instanceof BehaviorProvider behavior)) return false;
 		if (o == this) return true;
 
-		// Don't really care about the type since providerName must be unique
+		// Don't really care about the type or icon since providerName must be unique
 		return behavior.getProviderName().equals(this.providerName);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(providerName, behaviorType);
+		return Objects.hashCode(providerName, behaviorType, icon);
 	}
 
 	/**

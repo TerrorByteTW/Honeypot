@@ -67,13 +67,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
 					return;
 				}
 
-				int limit;
-
-				if (history.size() > length) {
-					limit = length;
-				} else {
-					limit = history.size();
-				}
+				int limit = Math.min(history.size(), length);
 
 				for (int i = 0; i < limit; i++) {
 					p.sendMessage(ChatColor.GOLD + "\n-------[ " + ChatColor.WHITE + history.get(i).getDateTime()
@@ -103,7 +97,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
 				}
 				p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
 			}
-		} else if (args.length == 1 && args[1].equalsIgnoreCase("purge")) {
+		} else if (args.length == 2 && args[1].equalsIgnoreCase("purge")) {
 			HoneypotPlayerHistoryManager.getInstance().deleteAllHistory();
 			p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
 		} else {

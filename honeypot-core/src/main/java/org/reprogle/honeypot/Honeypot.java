@@ -98,10 +98,13 @@ public final class Honeypot extends JavaPlugin {
 		logger = new HoneypotLogger();
 		registry.setInitialized(true);
 
+		// Load plugin configs
+		HoneypotConfigManager.setupConfig(this);
+
+		logger.log("Registered " + registry.size() + " behavior providers. Locking further registrations");
 		getLogger().info("Successfully registered " + registry.size() + " behavior providers");
 
 		// Load everything necessary for the plugin to work
-		HoneypotConfigManager.setupConfig(this);
 		Metrics metrics = new Metrics(this, 15425);
 		ListenerSetup.setupListeners(this);
 
@@ -133,6 +136,7 @@ public final class Honeypot extends JavaPlugin {
 				"|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
 				"                  |___|_|");
 
+		getLogger().warning("This is a SNAPSHOT version! This version is stable, but not all the features of 3.0.0 are present. Please report any issues you may find! https://github.com/TerrorByteTW/Honeypot/issues");
 		// A small helper method to verify if the server version is supported by Honeypot. I've moved it to its own method because it's rather large
 		checkIfServerSupported();
 
@@ -213,6 +217,7 @@ public final class Honeypot extends JavaPlugin {
 								"Honeypot is not guaranteed to support this version of Spigot. We won't prevent you from using it, but some newer blocks (If any) may exhibit unusual behavior!");
 						plugin.getServer().getLogger().warning(
 								"Honeypot " + pluginVersion + " supports server versions " + value);
+						logger.log("This version of honeypot is not guaranteed to work on this version of Spigot. Unusual behavior may occur.");
 					}
 				});
 
