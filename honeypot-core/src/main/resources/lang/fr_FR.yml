@@ -1,4 +1,4 @@
-language-version: 1
+language-version: 2
 prefix: "&6[Honeypot]&r"
 kick-reason: "Coup de pied pour avoir cassé des blocs de pot de miel. Ne chagrine pas !"
 ban-reason: "Vous avez été banni pour avoir cassé des blocs de pot de miel"
@@ -20,8 +20,6 @@ no-exist: "Impossible de trouver ce type Honeypot dans la configuration"
 deleted:
   all: "Suppression de tous les blocs de pot de miel"
   near: "Suppression de tous les blocs de pots de miel à proximité"
-upgrade: "&cATTENTION!&r Après l'importation, vous ne devez pas renommer les actions converties! Cela entraînera l'arrêt de vos pots de miel. Exécutez la mise à niveau &c/honeypot upgrade confirm&r la mise à niveau"
-already-upgraded: "&cVous avez déjà exécuté la commande de mise à niveau!&r Vous ne devez PAS réutiliser cette commande. Veuillez contacter l'auteur du plugin si vous avez besoin de faire une autre mise à jour, il peut vous fournir des instructions sur la façon de le faire"
 worldguard: "Les pots de miel sont désactivés dans cette région"
 griefprevention: "Cette zone est protégée par GriefPrevention et vous n'êtes pas autorisé à construire"
 unknown-error: "Erreur inconnue. Veuillez contacter l'administrateur du serveur"

@@ -1,11 +1,22 @@
+/*
+ * Honeypot is a tool for griefing auto-moderation
+ * Copyright TerrorByte (c) 2022-2023
+ * Copyright Honeypot Contributors (c) 2022-2023
+ *
+ * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
+ * as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
+ * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
+ * See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.commands.subcommands;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +35,7 @@ import org.reprogle.honeypot.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.gui.GUIMenu;
 import org.reprogle.honeypot.gui.button.GUIButton;
 import org.reprogle.honeypot.gui.item.GUIItemBuilder;
+import org.reprogle.honeypot.providers.BehaviorProvider;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.utils.GriefPreventionUtil;
@@ -31,7 +43,11 @@ import org.reprogle.honeypot.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.utils.HoneypotPermission;
 import org.reprogle.honeypot.utils.WorldGuardUtil;
 
-import net.md_5.bungee.api.ChatColor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
 public class HoneypotGUI implements HoneypotSubCommand {
 
@@ -42,11 +58,11 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	@Override
 	@SuppressWarnings("java:S1192")
-	public void perform(Player p, String[] args) throws IOException {
+	public void perform(Player p, String[] args) {
 		p.openInventory(mainMenu(p, args).getInventory());
 	}
 
-	@SuppressWarnings({ "java:S1192", "java:S1121" })
+	@SuppressWarnings({"java:S1192", "java:S1121"})
 	private static void customHoneypotsInventory(Player p) {
 		GUIMenu customHoneypotsGUI = Honeypot.getGUI().create("Custom Honeypot", 3);
 		List<String> types = new ArrayList<>();
@@ -56,21 +72,30 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			types.add(key.toString());
 		}
 
-		for (Object key : keys) {
-			String type = HoneypotConfigManager.getHoneypotsConfig().getString(key.toString() + ".type");
+		ConcurrentMap<String, BehaviorProvider> map = Honeypot.getRegistry().getBehaviorProviders();
+		map.forEach((providerName, provider) -> types.add(providerName));
+
+		for (String type : types) {
+
 			GUIItemBuilder item;
 
-			switch (type) {
-				case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
-				case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
-				case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
-				default -> item = new GUIItemBuilder(Material.PAPER);
+			if (Honeypot.getRegistry().getBehaviorProvider(type) == null) {
+				String action = HoneypotConfigManager.getHoneypotsConfig().getString(type + ".type");
+
+				switch (action) {
+					case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
+					case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
+					case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
+					default -> item = new GUIItemBuilder(Material.PAPER);
+				}
+			} else {
+				item = new GUIItemBuilder(Honeypot.getRegistry().getBehaviorProvider(type).getIcon());
 			}
 
-			item.name(key.toString());
+			item.name(type);
 			item.lore("Click to create a Honeypot of this type");
 			GUIButton button = new GUIButton(item.build()).withListener(
-					(InventoryClickEvent event) -> createHoneypotFromGUI(event, "custom", key.toString()));
+					(InventoryClickEvent event) -> createHoneypotFromGUI(event, type));
 
 			customHoneypotsGUI.addButton(button);
 		}
@@ -102,7 +127,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			}
 
 			GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {
-				event.getWhoClicked().sendMessage(ChatColor.ITALIC.toString() + ChatColor.GRAY.toString() + "Whoosh!");
+				event.getWhoClicked().sendMessage(ChatColor.ITALIC + ChatColor.GRAY.toString() + "Whoosh!");
 				event.getWhoClicked().teleport(honeypotBlock.getLocation().add(0.5, 1, 0.5));
 				event.getWhoClicked().closeInventory();
 			});
@@ -127,6 +152,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 			ItemStack skullItem = new ItemStack(Material.PLAYER_HEAD);
 			SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();
+			assert skullMeta != null;
 			skullMeta.setOwningPlayer(player);
 			skullItem.setItemMeta(skullMeta);
 
@@ -145,81 +171,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		p.openInventory(historyQueryGUI.getInventory());
 	}
 
-	private static void createHoneypotInventory(Player p) {
-		if (!(p.hasPermission("honeypot.create"))) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
-			return;
-		}
-
-		GUIMenu createHoneypotGUI = Honeypot.getGUI().create("Create Honeypot", 1);
-
-		GUIItemBuilder kickItem;
-		GUIItemBuilder banItem;
-		GUIItemBuilder warnItem;
-		GUIItemBuilder notifyItem;
-		GUIItemBuilder nothingItem;
-		GUIItemBuilder customItem;
-
-		kickItem = new GUIItemBuilder(
-				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.kick-button")));
-		kickItem.name("Kick");
-		kickItem.lore("Click to create a 'kick' action");
-
-		banItem = new GUIItemBuilder(
-				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.ban-button")));
-		banItem.name("Ban");
-		banItem.lore("Click to create a 'ban' action");
-
-		warnItem = new GUIItemBuilder(
-				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.warn-button")));
-		warnItem.name("Warn");
-		warnItem.lore("Click to create a 'warn' action");
-
-		notifyItem = new GUIItemBuilder(
-				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.notify-button")));
-		notifyItem.name("Notify");
-		notifyItem.lore("Click to create a 'notify' action");
-
-		nothingItem = new GUIItemBuilder(
-				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.nothing-button")));
-		nothingItem.name("Nothing");
-		nothingItem.lore("Click to create a 'nothing' action");
-
-		customItem = new GUIItemBuilder(
-				Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("create-buttons.custom-button")));
-		customItem.name("Custom Item");
-		customItem.lore("Click to create a custom Honeypot");
-
-		GUIButton kickButton = new GUIButton(kickItem.build())
-				.withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "kick"));
-
-		GUIButton banButton = new GUIButton(banItem.build())
-				.withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "ban"));
-
-		GUIButton warnButton = new GUIButton(warnItem.build())
-				.withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "warn"));
-
-		GUIButton notifyButton = new GUIButton(notifyItem.build())
-				.withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "notify"));
-
-		GUIButton nothingButton = new GUIButton(nothingItem.build())
-				.withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, "nothing"));
-
-		GUIButton customButton = new GUIButton(customItem.build())
-				.withListener((InventoryClickEvent event) -> customHoneypotsInventory(p));
-
-		createHoneypotGUI.setButton(1, kickButton);
-		createHoneypotGUI.setButton(2, banButton);
-		createHoneypotGUI.setButton(3, warnButton);
-		createHoneypotGUI.setButton(5, notifyButton);
-		createHoneypotGUI.setButton(6, nothingButton);
-		createHoneypotGUI.setButton(7, customButton);
-
-		p.openInventory(createHoneypotGUI.getInventory());
-
-	}
-
-	@SuppressWarnings({ "java:S3776", "java:S1192" })
+	@SuppressWarnings({"java:S3776", "java:S1192"})
 	private static void removeHoneypotInventory(Player p) {
 		if (!(p.hasPermission("honeypot.remove"))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
@@ -281,7 +233,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 					event.getWhoClicked().closeInventory();
 
 					if (event.getWhoClicked().getTargetBlockExact(5) != null) {
-						block = ((Player) event.getWhoClicked()).getTargetBlockExact(5);
+						block = event.getWhoClicked().getTargetBlockExact(5);
 					} else {
 						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 						return;
@@ -308,15 +260,15 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	}
 
-	@SuppressWarnings({ "unchecked", "java:S3776" })
-	private static void createHoneypotFromGUI(InventoryClickEvent event, String action, String... customAction) {
+	@SuppressWarnings({"unchecked", "java:S3776"})
+	private static void createHoneypotFromGUI(InventoryClickEvent event, String action) {
 		Block block;
 		WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
 		GriefPreventionUtil gpu = Honeypot.getGriefPreventionUtil();
 
 		// Get block the player is looking at
 		if (event.getWhoClicked().getTargetBlockExact(5) != null) {
-			block = ((Player) event.getWhoClicked()).getTargetBlockExact(5);
+			block = event.getWhoClicked().getTargetBlockExact(5);
 		} else {
 			event.getWhoClicked().closeInventory();
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
@@ -385,13 +337,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			if (hpce.isCancelled())
 				return;
 
-			if (action.equalsIgnoreCase("custom")) {
-				HoneypotBlockManager.getInstance().createBlock(block, customAction[0]);
-				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
-			} else {
-				HoneypotBlockManager.getInstance().createBlock(event.getWhoClicked().getTargetBlockExact(5), action);
-				event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
-			}
+			HoneypotBlockManager.getInstance().createBlock(block, action);
+			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 
 			// Fire HoneypotCreateEvent
 			HoneypotPreCreateEvent hce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
@@ -429,7 +376,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		historyItem.name("Query player history");
 
 		GUIButton createButton = new GUIButton(createItem.build())
-				.withListener((InventoryClickEvent event) -> createHoneypotInventory(p));
+				.withListener((InventoryClickEvent event) -> customHoneypotsInventory(p));
 
 		GUIButton removeButton = new GUIButton(removeItem.build())
 				.withListener((InventoryClickEvent event) -> removeHoneypotInventory(p));
@@ -472,7 +419,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 							slime.setAI(false);
 							slime.setGlowing(true);
 							slime.setInvulnerable(true);
-							slime.setHealth(4.0);
+							slime.setHealth(1000.0);
 							slime.setInvisible(true);
 
 							// After 5 seconds, remove the slime. Setting its health to 0 causes the death
@@ -483,9 +430,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 								public void run() {
 									slime.remove();
 								}
-							}.runTaskLater(Honeypot.getPlugin(), 20L * 5); // 20 ticks in 1 second * 5 seconds equals
-																			// 100
-																			// ticks
+							}.runTaskLater(Honeypot.plugin, 20L * 5); // 20 ticks in 1 second * 5 seconds equals 100 ticks
 						}
 					}
 				}

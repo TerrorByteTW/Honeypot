@@ -1,4 +1,4 @@
-language-version: 2
+language-version: 3
 prefix: '&6[Honeypot]&r'
 kick-reason: あなたはハニーポットを破壊しました。これらの行為は許可されていません。
 ban-reason: あなたはハニーポットを破壊したためBANされました。
@@ -20,8 +20,6 @@ no-exist: 処罰が見つかりませんでした。
 deleted:
   all: 全てのハニーポットを削除しました
   near: 近くにある全てのハニーポットを削除しました
-upgrade: '&c警告!&r インポート後、処罰の名前を変更しないでください。処罰が実行されなくなります。 &c/honeypot upgrade confirm&r を実行するとアップグレードされます。'
-already-upgraded: '&cあなたは既にアップグレードを実行しています。&r 今後、このコマンドは使わないでください。もう一度アップグレードが必要な場合は、プラグイン作者に連絡してください'
 worldguard: このリージョンではハニーポットが無効です。
 griefprevention: このエリアはGriefPreventionによって保護されています。あなたには建築を行う権限がありません。
 unknown-error: 不明なエラーが発生しました。サーバー管理者に連絡してください。

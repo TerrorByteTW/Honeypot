@@ -3,15 +3,12 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 14
+file-version: 15
 
 # How many Honeypots to store in cache at any given time. The maximum size is 50, and anything larger than that is ignored.
 # Setting this to <=0 will disable caching
 # Please see https://github.com/TerrorByteTW/Honeypot/wiki#faq for more info. If you don't know what this is, leave it alone
 cache-size: 20
-
-# Determines if the config was generated prior to version 1.6 (DO NOT EDIT)
-upgraded: true
 
 # The database-type option has been removed for now. The only options were JSON and SQLite.
 # JSON support has been removed because I did not like how it was implemented, and it was very difficult to build on to. The default and only option is SQLite, however I plan

@@ -37,13 +37,3 @@ remove-buttons:
   remove-all-button: RED_CONCRETE
   remove-near-button: YELLOW_CONCRETE
   remove-target-button: GREEN_CONCRETE
-
-# The buttons to display in the create menu
-create-buttons:
-  kick-button: YELLOW_CONCRETE
-  ban-button: RED_CONCRETE
-  warn-button: GREEN_CONCRETE
-  notify-button: OAK_SIGN
-  nothing-button: BARRIER
-  custom-button: WRITTEN_BOOK
-
