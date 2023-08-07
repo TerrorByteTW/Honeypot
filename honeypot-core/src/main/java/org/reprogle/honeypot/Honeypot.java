@@ -22,19 +22,21 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reprogle.honeypot.commands.CommandFeedback;
-import org.reprogle.honeypot.commands.CommandManager;
-import org.reprogle.honeypot.events.ListenerSetup;
-import org.reprogle.honeypot.gui.GUI;
-import org.reprogle.honeypot.providers.BehaviorProcessor;
-import org.reprogle.honeypot.providers.BehaviorProvider;
-import org.reprogle.honeypot.providers.BehaviorRegistry;
-import org.reprogle.honeypot.providers.included.Ban;
-import org.reprogle.honeypot.providers.included.Kick;
-import org.reprogle.honeypot.providers.included.Notify;
-import org.reprogle.honeypot.providers.included.Warn;
-import org.reprogle.honeypot.storagemanager.CacheManager;
-import org.reprogle.honeypot.utils.*;
+import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.commands.CommandManager;
+import org.reprogle.honeypot.common.events.ListenerSetup;
+import org.reprogle.honeypot.common.gui.GUI;
+import org.reprogle.honeypot.common.providers.BehaviorProcessor;
+import org.reprogle.honeypot.common.providers.BehaviorProvider;
+import org.reprogle.honeypot.common.providers.BehaviorRegistry;
+import org.reprogle.honeypot.common.providers.included.Ban;
+import org.reprogle.honeypot.common.providers.included.Kick;
+import org.reprogle.honeypot.common.providers.included.Notify;
+import org.reprogle.honeypot.common.providers.included.Warn;
+import org.reprogle.honeypot.common.storagemanager.CacheManager;
+import org.reprogle.honeypot.common.utils.*;
+import org.reprogle.honeypot.common.utils.integrations.GriefPreventionUtil;
+import org.reprogle.honeypot.common.utils.integrations.WorldGuardUtil;
 
 public final class Honeypot extends JavaPlugin {
 
