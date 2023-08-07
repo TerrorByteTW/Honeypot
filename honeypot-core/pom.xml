@@ -78,11 +78,11 @@
                     <relocations>
                         <relocation>
                             <pattern>dev.dejvokep.boostedyaml</pattern>
-                            <shadedPattern>org.reprogle.honeypot.libs</shadedPattern>
+                            <shadedPattern>org.reprogle.honeypot.common.libs</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>org.reprogle.honeypot.libs</shadedPattern>
+                            <shadedPattern>org.reprogle.honeypot.common.libs</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
