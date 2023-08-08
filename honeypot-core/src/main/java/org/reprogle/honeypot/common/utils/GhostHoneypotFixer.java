@@ -52,7 +52,24 @@ public class GhostHoneypotFixer {
 			int removedPots = 0;
 			List<HoneypotBlockObject> pots = HoneypotBlockManager.getInstance().getAllHoneypots();
 			for (HoneypotBlockObject pot : pots) {
-				if (pot.getBlock().getType().equals(Material.AIR)) {
+
+				Material block;
+
+				/*
+					This try/catch stems from Folia, where a region may not be ticking yet, or even loaded, so the getType() method returns an error
+					Remember, pot is a HoneypotBlockObject, not a Block itself, so #getBlock() may return null (Usually not, but it's possible)
+					This is a place we can improve, but for now it's fine since I've never seen the error before prior to testing Folia
+					Don't get me wrong, I hate the mindset of "I haven't seen it break so it obviously won't" when *clearly* the Spigot API docs
+					state that it *can* break, but I'm going to put a pin in it for now :)
+				*/
+				try {
+					block = pot.getBlock().getType();
+				} catch (NullPointerException e) {
+					Honeypot.plugin.getLogger().info("Could not get the material for Honeypot at " + pot.getCoordinates() + " because the world isn't loaded yet (Maybe running Folia?)");
+					continue;
+				}
+
+				if (block.equals(Material.AIR)) {
 					Honeypot.plugin.getLogger()
 							.info("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
 					Honeypot.getHoneypotLogger()

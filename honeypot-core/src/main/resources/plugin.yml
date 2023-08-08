@@ -5,6 +5,7 @@ description: Creates honeypot blocks designed to prevent griefing on your server
 main: org.reprogle.honeypot.Honeypot
 api-version: 1.17
 load: STARTUP
+folia-supported: true
 depend: [ Vault ]
 softdepend: [ WorldGuard, GriefPrevention ]
 commands:

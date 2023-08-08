@@ -49,6 +49,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.reprogle.honeypot.folia.Scheduler.FOLIA;
+
 public class HoneypotGUI implements HoneypotSubCommand {
 
 	@Override
@@ -128,7 +130,13 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 			GUIButton button = new GUIButton(item.build()).withListener((InventoryClickEvent event) -> {
 				event.getWhoClicked().sendMessage(ChatColor.ITALIC + ChatColor.GRAY.toString() + "Whoosh!");
-				event.getWhoClicked().teleport(honeypotBlock.getLocation().add(0.5, 1, 0.5));
+
+				// In the future, we're going to make this nice and pretty. Until then, ew.
+				if (FOLIA) {
+					event.getWhoClicked().teleportAsync(honeypotBlock.getLocation().add(0.5, 1, 0.5));
+				} else {
+					event.getWhoClicked().teleport(honeypotBlock.getLocation().add(0.5, 1, 0.5));
+				}
 				event.getWhoClicked().closeInventory();
 			});
 
