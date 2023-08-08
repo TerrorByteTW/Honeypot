@@ -158,7 +158,7 @@
         <dependency>
             <groupId>com.gitlab.ruany</groupId>
             <artifactId>LiteBansAPI</artifactId>
-            <version>0.3.5</version>
+            <version>0.4.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
