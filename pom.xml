@@ -22,7 +22,7 @@
 
     <groupId>org.reprogle</groupId>
     <artifactId>honeypot-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -122,7 +122,7 @@
     </repositories>
 
     <dependencies>
-        <!-- Hard Dependency, this is the actual Spigot API -->
+        <!-- Server Software, this is the actual Spigot API -->
         <dependency>
             <groupId>dev.folia</groupId>
             <artifactId>folia-api</artifactId>

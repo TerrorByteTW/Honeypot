@@ -139,6 +139,11 @@ public final class Honeypot extends JavaPlugin {
 				"                  |___|_|");
 
 		getLogger().warning("This is a SNAPSHOT version! This version is stable, but not all the features of 3.0.0 are present. Please report any issues you may find! https://github.com/TerrorByteTW/Honeypot/issues");
+
+		if (isFolia()) {
+			getLogger().warning("YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited, be wary when using it for now!");
+		}
+
 		// A small helper method to verify if the server version is supported by Honeypot. I've moved it to its own method because it's rather large
 		checkIfServerSupported();
 
@@ -223,6 +228,20 @@ public final class Honeypot extends JavaPlugin {
 					}
 				});
 
+	}
+
+	/**
+	 * Check if the server is running on the experimental Folia software.
+	 *
+	 * @return True if Folia, false if anything else
+	 */
+	public static boolean isFolia() {
+		try {
+			Class.forName("io.papermc.paper.threadedregions.RegionizedServerInitEvent");
+		} catch (ClassNotFoundException e) {
+			return false;
+		}
+		return true;
 	}
 
 	/*
