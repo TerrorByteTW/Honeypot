@@ -114,11 +114,10 @@ public final class Honeypot extends JavaPlugin {
 
 		// Setup Vault (This is a requirement!)
 		if (!setupPermissions()) {
-			getLogger().severe(
-					CommandFeedback.getChatPrefix() + ChatColor.RED + " Disabled due to Vault not being installed");
+			getLogger().warning(
+					CommandFeedback.getChatPrefix() + ChatColor.RED + " Vault is not installed, some features won't work");
 			logger.log(
-					"Disabling due to Vault not being installed. Please download here: https://www.spigotmc.org/resources/vault.34315/");
-			getServer().getPluginManager().disablePlugin(this);
+					"Vault is not installed. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
 			return;
 		}
 
@@ -137,8 +136,6 @@ public final class Honeypot extends JavaPlugin {
 				"|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
 				"|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
 				"                  |___|_|");
-
-		getLogger().warning("This is a SNAPSHOT version! This version is stable, but not all the features of 3.0.0 are present. Please report any issues you may find! https://github.com/TerrorByteTW/Honeypot/issues");
 
 		if (isFolia()) {
 			getLogger().warning("YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited, be wary when using it for now!");
@@ -221,10 +218,10 @@ public final class Honeypot extends JavaPlugin {
 							(serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer) &&
 							(serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
 						plugin.getServer().getLogger().warning(
-								"Honeypot is not guaranteed to support this version of Spigot. We won't prevent you from using it, but some newer blocks (If any) may exhibit unusual behavior!");
+								"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but some unusual behavior may occur, such as new blocks being processed strangely!");
 						plugin.getServer().getLogger().warning(
 								"Honeypot " + pluginVersion + " supports server versions " + value);
-						logger.log("This version of honeypot is not guaranteed to work on this version of Spigot. Unusual behavior may occur.");
+						logger.log("This version of honeypot is not guaranteed to work on this version of Minecraft. Unusual behavior may occur.");
 					}
 				});
 
