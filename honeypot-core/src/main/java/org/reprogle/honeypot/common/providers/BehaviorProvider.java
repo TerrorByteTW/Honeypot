@@ -21,8 +21,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
-
 public abstract class BehaviorProvider {
 
 	protected final String providerName;
@@ -46,7 +44,7 @@ public abstract class BehaviorProvider {
 	}
 
 	/**
-	 * Return the type of the behavior. Currently type has no use
+	 * Return the type of the behavior. Currently, type has no use
 	 *
 	 * @return The name of the behavior provider
 	 */
@@ -87,8 +85,9 @@ public abstract class BehaviorProvider {
 	/**
 	 * A method to be executed when an action requires processing.
 	 *
-	 * @param p The {@link org.bukkit.entity.Player} who the behavior provider will process against
+	 * @param p     The {@link org.bukkit.entity.Player} who the behavior provider will process against
+	 * @param block The block object belonging to the Honeypot.
 	 * @return Your behavior provider should return true if the processing is successful, otherwise return false.
 	 */
-	public abstract boolean process(Player p, @Nullable Block block);
+	public abstract boolean process(Player p, Block block);
 }
