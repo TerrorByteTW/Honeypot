@@ -11,12 +11,13 @@
 # %player% - The player who broke the Honeypot           #
 # %pLocation% - The location of the Player               #
 # %bLocation% - The location of the Honeypot             #
+# %world% - The world the Honeypot was in                #
 # For more information, please visit the Honeypot wiki   #
 ##########################################################
 
 demo-command:
   type: command
-  commands: 
+  commands:
     - "eco take %player% 1000"
     - "minecraft:clear %player%"
   messages:
@@ -26,10 +27,10 @@ demo-permission:
   type: permission
   permissions-add:
     - my.special.permission
-  permissions-remove: 
+  permissions-remove:
     - essentials.kit
     - essentials.back
-  messages: []
+  messages: [ ]
 
 demo-broadcast:
   type: broadcast

@@ -86,7 +86,6 @@ public abstract class BehaviorProvider {
 
 	/**
 	 * A method to be executed when an action requires processing.
-	 * This is ignored if the <code>BehaviorType</code> is not set to <code>BehaviorTypes.CUSTOM</code>
 	 *
 	 * @param p The {@link org.bukkit.entity.Player} who the behavior provider will process against
 	 * @return Your behavior provider should return true if the processing is successful, otherwise return false.

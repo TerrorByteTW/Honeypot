@@ -21,8 +21,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.reprogle.honeypot.Honeypot;
 
-import javax.annotation.Nullable;
-
 public class BehaviorProcessor {
 
 	/**
@@ -33,7 +31,7 @@ public class BehaviorProcessor {
 	 * @param block    The block that was involved in the event, may be null in some rare instances
 	 * @return True if successful, false if not
 	 */
-	public boolean process(@NotNull BehaviorProvider behavior, Player p, @Nullable Block block) {
+	public boolean process(@NotNull BehaviorProvider behavior, Player p, Block block) {
 		if (Honeypot.getRegistry().isInitialized() && Honeypot.getRegistry().getBehaviorProvider(behavior.getProviderName()) != null) {
 			return behavior.process(p, block);
 		}

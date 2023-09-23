@@ -24,13 +24,11 @@ import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
-import javax.annotation.Nullable;
-
 @Behavior(type = BehaviorType.KICK, name = "kick", icon = Material.LEATHER_BOOTS)
 public class Kick extends BehaviorProvider {
 
 	@Override
-	public boolean process(Player p, @Nullable Block block) {
+	public boolean process(Player p, Block block) {
 		p.kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
 
 		return true;
