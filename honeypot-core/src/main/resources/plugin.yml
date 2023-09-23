@@ -6,8 +6,7 @@ main: org.reprogle.honeypot.Honeypot
 api-version: 1.17
 load: STARTUP
 folia-supported: true
-depend: [ Vault ]
-softdepend: [ WorldGuard, GriefPrevention ]
+softdepend: [ Vault, WorldGuard, GriefPrevention ]
 commands:
   honeypot:
     description: Creates or deletes a honeypot block

@@ -26,13 +26,11 @@ import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
-import javax.annotation.Nullable;
-
 @Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER)
 public class Ban extends BehaviorProvider {
 
 	@Override
-	public boolean process(Player p, @Nullable Block block) {
+	public boolean process(Player p, Block block) {
 		String banReason = CommandFeedback.sendCommandFeedback("ban");
 		String chatPrefix = CommandFeedback.getChatPrefix();
 
