@@ -27,15 +27,11 @@ import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
-import javax.annotation.Nullable;
-
 @Behavior(type = BehaviorType.NOTIFY, name = "notify", icon = Material.BEACON)
 public class Notify extends BehaviorProvider {
 
 	@Override
-	public boolean process(Player p, @Nullable Block block) {
-
-		if (block == null) return false;
+	public boolean process(Player p, Block block) {
 
 		String chatPrefix = CommandFeedback.getChatPrefix();
 

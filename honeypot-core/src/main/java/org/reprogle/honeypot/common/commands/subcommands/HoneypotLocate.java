@@ -22,13 +22,13 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
+import org.reprogle.honeypot.folia.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,13 +77,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
 						// After 5 seconds, remove the slime. Setting its health to 0 causes the death
 						// animation,
 						// removing it just makes it go away. Poof!
-						new BukkitRunnable() {
-
-							@Override
-							public void run() {
-								slime.remove();
-							}
-						}.runTaskLater(Honeypot.plugin, 20L * 5);
+						Scheduler.runTaskLater(Honeypot.plugin, slime::remove, 20L * 5, slime);
 					}
 				}
 			}

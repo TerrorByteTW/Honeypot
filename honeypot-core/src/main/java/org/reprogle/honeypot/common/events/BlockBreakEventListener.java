@@ -199,17 +199,6 @@ public class BlockBreakEventListener implements Listener {
 			Honeypot.getHoneypotLogger().log("BlockBreakEvent being called for player: " + event.getPlayer().getName()
 					+ ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
 
-//			Is this code necessary anymore?
-//
-//			switch (action) {
-//				case "kick", "ban", "warn", "notify" ->
-//						Honeypot.processor.process(Honeypot.getRegistry().getBehaviorProvider(action), event.getPlayer(), null);
-//
-//
-//				default -> ActionHandler.handleCustomAction(action, block, event.getPlayer());
-//
-//			}
-
 			ActionHandler.handleCustomAction(action, block, event.getPlayer());
 
 			// At this point we know the player has one of those permissions above. Now we

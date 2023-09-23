@@ -22,6 +22,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.commands.CommandFeedback;
 
 import java.util.List;
 
@@ -69,6 +70,14 @@ public class ActionHandler {
 				}
 
 				case "permission" -> {
+					if (Honeypot.getPermissions() == null) {
+						Honeypot.plugin.getLogger().warning(
+								CommandFeedback.getChatPrefix() + ChatColor.RED + " Vault is not installed, permission Honeypots won't work");
+						Honeypot.getHoneypotLogger().log(
+								"Vault is not installed. Permission Honeypots won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
+						return;
+					}
+					
 					List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
 					List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
 					List<String> messages = config.getStringList(action + ".messages");
@@ -131,6 +140,7 @@ public class ActionHandler {
 				+ player.getLocation().getY() + " " + player.getLocation().getZ());
 		formattedString = formattedString.replace("%bLocation%", block.getLocation().getX() + " "
 				+ block.getLocation().getY() + " " + block.getLocation().getZ());
+		formattedString = formattedString.replace("%world%", block.getLocation().getWorld().getName());
 
 		return ChatColor.translateAlternateColorCodes('&', formattedString);
 	}
@@ -141,6 +151,7 @@ public class ActionHandler {
 				+ player.getLocation().getY() + " " + player.getLocation().getZ());
 		formattedCommand = formattedCommand.replace("%bLocation%", block.getLocation().getX() + " "
 				+ block.getLocation().getY() + " " + block.getLocation().getZ());
+		formattedCommand = formattedCommand.replace("%world%", block.getLocation().getWorld().getName());
 
 		return formattedCommand;
 	}
