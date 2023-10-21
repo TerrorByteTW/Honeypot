@@ -207,6 +207,8 @@ public class BlockBreakEventListener implements Listener {
 
 	private static void countBreak(BlockBreakEvent event) {
 
+		// Don't count the break if they are exempt, have the remove permission,
+		// wildcard permission, or are Op
 		if (event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().isOp()
 				|| event.getPlayer().hasPermission(REMOVE_PERMISSION)
 				|| event.getPlayer().hasPermission(WILDCARD_PERMISSION))
