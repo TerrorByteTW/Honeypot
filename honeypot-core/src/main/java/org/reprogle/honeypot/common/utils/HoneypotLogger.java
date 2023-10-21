@@ -47,15 +47,96 @@ public class HoneypotLogger {
 	 * Log a message to the log file. Automatically prepends date and time
 	 *
 	 * @param message The message to log
+	 * @deprecated Use #info() instead. They are functionally the same, but this
+	 *             method will be removed later
 	 */
+	@Deprecated
 	public void log(String message) {
-		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging"))) return;
+		Honeypot.plugin.getLogger().info(message);
+		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
-			bw.append("[").append(dtf.format(now)).append("] ").append(message).append("\n");
+			bw.append("[").append(dtf.format(now)).append("] INFO: ").append(message).append("\n");
 		} catch (IOException e) {
-			Honeypot.plugin.getLogger().warning("An error occured while attempting to log to the honeypot.log file! " + e);
+			Honeypot.plugin.getLogger()
+					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
+		}
+	}
+
+	/**
+	 * Log debug messages to the log file. Automatically prepends date and time
+	 *
+	 * @param message The message to log
+	 */
+	public void debug(String message) {
+		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+			return;
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			bw.append("[").append(dtf.format(now)).append("] DEBUG: ").append(message).append("\n");
+		} catch (IOException e) {
+			Honeypot.plugin.getLogger()
+					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
+		}
+	}
+
+	/**
+	 * Log a message to the log file. Automatically prepends date and time
+	 *
+	 * @param message The message to log
+	 */
+	public void info(String message) {
+		Honeypot.plugin.getLogger().info(message);
+		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+			return;
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			bw.append("[").append(dtf.format(now)).append("] INFO: ").append(message).append("\n");
+		} catch (IOException e) {
+			Honeypot.plugin.getLogger()
+					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
+		}
+	}
+
+	/**
+	 * Log a warning message to the log file. Automatically prepends date and time
+	 *
+	 * @param message The message to log
+	 */
+	public void warning(String message) {
+		Honeypot.plugin.getLogger().warning(message);
+		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+			return;
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			bw.append("[").append(dtf.format(now)).append("] WARNING: ").append(message).append("\n");
+		} catch (IOException e) {
+			Honeypot.plugin.getLogger()
+					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
+		}
+	}
+
+	/**
+	 * Log a severe message to the log file. Automatically prepends date and time
+	 *
+	 * @param message The message to log
+	 */
+	public void severe(String message) {
+		Honeypot.plugin.getLogger().severe(message);
+		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+			return;
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			bw.append("[").append(dtf.format(now)).append("] SEVERE: ").append(message).append("\n");
+		} catch (IOException e) {
+			Honeypot.plugin.getLogger()
+					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
 

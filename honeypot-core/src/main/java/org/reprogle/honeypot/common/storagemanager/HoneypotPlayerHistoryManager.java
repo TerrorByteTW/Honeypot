@@ -63,7 +63,7 @@ public class HoneypotPlayerHistoryManager {
 
 		db.addPlayerHistory(p, b);
 
-		Honeypot.getHoneypotLogger().log("Added new history entry for player " + p.getName());
+		Honeypot.getHoneypotLogger().debug("Added new history entry for player " + p.getName());
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class HoneypotPlayerHistoryManager {
 			db.deletePlayerHistory(p);
 		}
 
-		Honeypot.getHoneypotLogger().log("Deleting player history for player " + p.getName());
+		Honeypot.getHoneypotLogger().debug("Deleting player history for player " + p.getName());
 	}
 
 	/**

@@ -136,12 +136,7 @@ public class BlockBreakEventListener implements Listener {
 			if (HoneypotBlockManager.getInstance().isHoneypotBlock(adjacentBlock)) {
 				blockBreakEvent(new BlockBreakEvent(adjacentBlock, event.getPlayer()));
 				HoneypotBlockManager.getInstance().deleteBlock(adjacentBlock);
-				Honeypot.plugin.getLogger().warning(
-						"A Honeypot has been removed due to the block it's attached to being broken. It was located at "
-								+ adjacentBlock.getX() + ", " + adjacentBlock.getY() + ", " + adjacentBlock.getZ()
-								+ ". " + event.getPlayer().getName()
-								+ " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
-				Honeypot.getHoneypotLogger().log(
+				Honeypot.getHoneypotLogger().warning(
 						"A Honeypot has been removed due to the block it's attached to being broken. It was located at "
 								+ adjacentBlock.getX() + ", " + adjacentBlock.getY() + ", " + adjacentBlock.getZ()
 								+ ". " + event.getPlayer().getName()
@@ -155,12 +150,7 @@ public class BlockBreakEventListener implements Listener {
 				&& HoneypotBlockManager.getInstance().isHoneypotBlock(blockUp)) {
 			blockBreakEvent(new BlockBreakEvent(blockUp, event.getPlayer()));
 			HoneypotBlockManager.getInstance().deleteBlock(blockUp);
-			Honeypot.plugin.getLogger().warning(
-					"A Honeypot has been removed due to the block it's attached to being broken. It was located at "
-							+ blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
-							+ ". " + event.getPlayer().getName()
-							+ " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
-			Honeypot.getHoneypotLogger().log(
+			Honeypot.getHoneypotLogger().warning(
 					"A Honeypot has been removed due to the block it's attached to being broken. It was located at "
 							+ blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
 							+ ". " + event.getPlayer().getName()
@@ -187,7 +177,7 @@ public class BlockBreakEventListener implements Listener {
 
 			// Run certain actions based on the action of the Honeypot Block
 			assert action != null;
-			Honeypot.getHoneypotLogger().log("BlockBreakEvent being called for player: " + event.getPlayer().getName()
+			Honeypot.getHoneypotLogger().debug("BlockBreakEvent being called for player: " + event.getPlayer().getName()
 					+ ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
 
 			ActionHandler.handleCustomAction(action, block, event.getPlayer());

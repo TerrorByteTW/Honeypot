@@ -34,7 +34,7 @@ public class ActionHandler {
 	@SuppressWarnings({ "java:S3776", "java:S2629", "java:S1192", "deprecation" })
 	public static void handleCustomAction(String action, Block block, Player player) {
 
-		Honeypot.getHoneypotLogger().log("Handling action " + action + " for player " + player.getName()
+		Honeypot.getHoneypotLogger().debug("Handling action " + action + " for player " + player.getName()
 				+ " at location " + block.getLocation());
 
 		// Behavior providers take higher precedence over custom config actions.
@@ -52,7 +52,7 @@ public class ActionHandler {
 					List<String> commands = config.getStringList(action + ".commands");
 					List<String> messages = config.getStringList(action + ".messages");
 					if (commands.isEmpty()) {
-						Honeypot.plugin.getLogger().warning(
+						Honeypot.getHoneypotLogger().warning(
 								"Commands list is empty for Honeypot type " + action
 										+ "! Please verify config");
 						return;
@@ -72,10 +72,10 @@ public class ActionHandler {
 
 				case "permission" -> {
 					if (Honeypot.getPermissions() == null) {
-						Honeypot.plugin.getLogger().warning(
+						Honeypot.getHoneypotLogger().warning(
 								CommandFeedback.getChatPrefix() + ChatColor.RED
 										+ " Vault is not installed, permission Honeypots won't work");
-						Honeypot.getHoneypotLogger().log(
+						Honeypot.getHoneypotLogger().info(
 								"Vault is not installed. Permission Honeypots won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
 						return;
 					}
@@ -84,7 +84,7 @@ public class ActionHandler {
 					List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
 					List<String> messages = config.getStringList(action + ".messages");
 					if (permissionsAdd.isEmpty() && permissionsRemove.isEmpty()) {
-						Honeypot.plugin.getLogger()
+						Honeypot.getHoneypotLogger()
 								.warning("Permissions lists are empty for Honeypot type "
 										+ action + "! Please verify config");
 						return;
@@ -111,7 +111,7 @@ public class ActionHandler {
 					List<String> messages = config.getStringList(action + ".messages");
 
 					if (broadcasts.isEmpty()) {
-						Honeypot.plugin.getLogger().warning(
+						Honeypot.getHoneypotLogger().warning(
 								"Broadcasts list is empty for Honeypot type " + action
 										+ "! Please verify config");
 						return;
@@ -129,7 +129,7 @@ public class ActionHandler {
 				}
 
 				default -> {
-					Honeypot.plugin.getLogger().warning("Honeypot " + action
+					Honeypot.getHoneypotLogger().warning("Honeypot " + action
 							+ " tried to run as a type that doesn't exist! Please verify config");
 				}
 			}
