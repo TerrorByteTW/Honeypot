@@ -144,7 +144,7 @@ public class InventoryClickDragEventListener implements Listener {
 		String action = HoneypotBlockManager.getInstance().getAction(block);
 
 		assert action != null;
-		Honeypot.getHoneypotLogger().log("InventoryClickEvent being called for player: " + player.getName()
+		Honeypot.getHoneypotLogger().debug("InventoryClickEvent being called for player: " + player.getName()
 				+ ", UUID of " + player.getUniqueId() + ". Action is: " + action);
 
 		ActionHandler.handleCustomAction(action, block, player);

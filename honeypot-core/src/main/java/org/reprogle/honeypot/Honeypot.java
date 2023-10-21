@@ -57,6 +57,9 @@ public final class Honeypot extends JavaPlugin {
 
 	private static BehaviorRegistry registry = new BehaviorRegistry();
 
+	// Sonarlint doesn't know what it's talking about. We need to assign
+	// BehaviorProcessor in the onLoad() method, so it can't be final
+	@SuppressWarnings({ "java:S1444" })
 	public static BehaviorProcessor processor = null;
 
 	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[] {
@@ -105,7 +108,7 @@ public final class Honeypot extends JavaPlugin {
 		HoneypotConfigManager.setupConfig(this);
 
 		logger.log("Registered " + registry.size() + " behavior providers. Locking further registrations");
-		getLogger().info("Successfully registered " + registry.size() + " behavior providers");
+		getHoneypotLogger().info("Successfully registered " + registry.size() + " behavior providers");
 
 		// Load everything necessary for the plugin to work
 		Metrics metrics = new Metrics(this, 15425);
@@ -115,7 +118,7 @@ public final class Honeypot extends JavaPlugin {
 
 		// Setup Vault (This is a requirement!)
 		if (!setupPermissions()) {
-			getLogger().warning(
+			getHoneypotLogger().warning(
 					CommandFeedback.getChatPrefix() + ChatColor.RED
 							+ " Vault is not installed, some features won't work");
 			logger.log(
@@ -141,7 +144,7 @@ public final class Honeypot extends JavaPlugin {
 				"                  |___|_|");
 
 		if (isFolia()) {
-			getLogger().warning(
+			getHoneypotLogger().warning(
 					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited, be wary when using it for now!");
 		}
 
@@ -170,11 +173,11 @@ public final class Honeypot extends JavaPlugin {
 	 */
 	@Override
 	public void onDisable() {
-		getLogger().info("Stopping the ghost checker task");
+		getHoneypotLogger().info("Stopping the ghost checker task");
 		ghf.cancelTask();
 		CacheManager.clearCache();
 		logger.log("Shut down plugin");
-		getLogger().info("Successfully shutdown Honeypot. Bye for now!");
+		getHoneypotLogger().info("Successfully shutdown Honeypot. Bye for now!");
 	}
 
 	/**
@@ -228,9 +231,9 @@ public final class Honeypot extends JavaPlugin {
 					if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer) &&
 							(serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer) &&
 							(serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
-						plugin.getServer().getLogger().warning(
+						getHoneypotLogger().warning(
 								"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but some unusual behavior may occur, such as new blocks being processed strangely!");
-						plugin.getServer().getLogger().warning(
+						getHoneypotLogger().warning(
 								"Honeypot " + pluginVersion + " supports server versions " + value);
 						logger.log(
 								"This version of honeypot is not guaranteed to work on this version of Minecraft. Unusual behavior may occur.");
