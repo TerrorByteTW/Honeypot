@@ -40,23 +40,24 @@ public class PlayerJoinEventListener implements Listener {
 
 	// Player join event
 	@EventHandler(priority = EventPriority.LOWEST)
+	@SuppressWarnings("deprecation")
 	public static void playerJoinEvent(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
 
 		if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
 			new HoneypotUpdateChecker(Honeypot.plugin,
 					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt").getVersion(latest -> {
-				if (Integer.parseInt(latest.replace(".", "")) > Integer
-						.parseInt(Honeypot.plugin.getDescription().getVersion().replace(".", ""))) {
-					TextComponent message = new TextComponent(
-							CommandFeedback.sendCommandFeedback("updateavailable"));
-					message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-							"https://github.com/TerrorByteTW/Honeypot"));
-					message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-							new Text("Click me to download the latest update!")));
-					p.spigot().sendMessage(message);
-				}
-			});
+						if (Integer.parseInt(latest.replace(".", "")) > Integer
+								.parseInt(Honeypot.plugin.getDescription().getVersion().replace(".", ""))) {
+							TextComponent message = new TextComponent(
+									CommandFeedback.sendCommandFeedback("updateavailable"));
+							message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
+									"https://github.com/TerrorByteTW/Honeypot"));
+							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+									new Text("Click me to download the latest update!")));
+							p.spigot().sendMessage(message);
+						}
+					});
 		}
 	}
 

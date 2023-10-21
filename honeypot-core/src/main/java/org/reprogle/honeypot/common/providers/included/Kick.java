@@ -25,6 +25,7 @@ import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
 @Behavior(type = BehaviorType.KICK, name = "kick", icon = Material.LEATHER_BOOTS)
+@SuppressWarnings("deprecation")
 public class Kick extends BehaviorProvider {
 
 	@Override

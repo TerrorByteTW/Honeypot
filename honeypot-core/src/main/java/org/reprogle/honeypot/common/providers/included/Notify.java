@@ -28,6 +28,7 @@ import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
 @Behavior(type = BehaviorType.NOTIFY, name = "notify", icon = Material.BEACON)
+@SuppressWarnings("deprecation")
 public class Notify extends BehaviorProvider {
 
 	@Override

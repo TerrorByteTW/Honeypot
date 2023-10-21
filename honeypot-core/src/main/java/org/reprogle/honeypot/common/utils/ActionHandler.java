@@ -31,10 +31,11 @@ public class ActionHandler {
 	private ActionHandler() {
 	}
 
-	@SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
+	@SuppressWarnings({ "java:S3776", "java:S2629", "java:S1192", "deprecation" })
 	public static void handleCustomAction(String action, Block block, Player player) {
 
-		Honeypot.getHoneypotLogger().log("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation());
+		Honeypot.getHoneypotLogger().log("Handling action " + action + " for player " + player.getName()
+				+ " at location " + block.getLocation());
 
 		// Behavior providers take higher precedence over custom config actions.
 		if (Honeypot.getRegistry().getBehaviorProvider(action) != null) {
@@ -72,12 +73,13 @@ public class ActionHandler {
 				case "permission" -> {
 					if (Honeypot.getPermissions() == null) {
 						Honeypot.plugin.getLogger().warning(
-								CommandFeedback.getChatPrefix() + ChatColor.RED + " Vault is not installed, permission Honeypots won't work");
+								CommandFeedback.getChatPrefix() + ChatColor.RED
+										+ " Vault is not installed, permission Honeypots won't work");
 						Honeypot.getHoneypotLogger().log(
 								"Vault is not installed. Permission Honeypots won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
 						return;
 					}
-					
+
 					List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
 					List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
 					List<String> messages = config.getStringList(action + ".messages");

@@ -48,7 +48,7 @@ public class InventoryClickDragEventListener implements Listener {
 	InventoryClickDragEventListener() {
 	}
 
-	@SuppressWarnings({"unchecked", "java:S3776"})
+	@SuppressWarnings({ "java:S3776" })
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public static void inventoryClickEvent(InventoryClickEvent event) {
 		// Sanity checks to ensure the clicker is a Player and the holder is a Container
@@ -66,11 +66,12 @@ public class InventoryClickDragEventListener implements Listener {
 		final Block block = ((Container) event.getClickedInventory().getHolder()).getBlock();
 		final Inventory inventory = event.getInventory();
 
-		if (!checkFilter(block)) return;
+		if (!checkFilter(block))
+			return;
 
 		if (!block.getType().equals(Material.ENDER_CHEST)
 				&& Boolean.TRUE.equals(HoneypotBlockManager.getInstance()
-				.isHoneypotBlock(Objects.requireNonNull(block)))) {
+						.isHoneypotBlock(Objects.requireNonNull(block)))) {
 			// Fire HoneypotPreInventoryClickEvent
 			HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
 			Bukkit.getPluginManager().callEvent(hpice);
@@ -98,7 +99,7 @@ public class InventoryClickDragEventListener implements Listener {
 		event.setCancelled(false);
 	}
 
-	@SuppressWarnings({"unchecked", "java:S3776"})
+	@SuppressWarnings({ "java:S3776" })
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public static void inventoryDragEvent(InventoryDragEvent event) {
 		// Sanity checks to ensure the clicker is a Player and the holder is a Container
@@ -108,16 +109,18 @@ public class InventoryClickDragEventListener implements Listener {
 		if (!(event.getInventory().getHolder() instanceof Container)
 				|| event.getInventory().getHolder() instanceof GUIMenu)
 			return;
-		if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
+		if (event.getInventory().getType().equals(InventoryType.PLAYER))
+			return;
 
 		final Block block = ((Container) event.getInventory().getHolder()).getBlock();
 		final Inventory inventory = event.getInventory();
 
-		if (!checkFilter(block)) return;
+		if (!checkFilter(block))
+			return;
 
 		if (!block.getType().equals(Material.ENDER_CHEST)
 				&& Boolean.TRUE.equals(HoneypotBlockManager.getInstance()
-				.isHoneypotBlock(Objects.requireNonNull(block)))) {
+						.isHoneypotBlock(Objects.requireNonNull(block)))) {
 			// Fire HoneypotPreInventoryClickEvent
 			HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
 			Bukkit.getPluginManager().callEvent(hpice);
@@ -158,7 +161,7 @@ public class InventoryClickDragEventListener implements Listener {
 	 * @param block The block to verify
 	 * @return True if filter is disabled or block is within it, otherwise false
 	 */
-	@SuppressWarnings({"unchecked", "java:S3776"})
+	@SuppressWarnings({ "unchecked", "java:S3776" })
 	private static boolean checkFilter(Block block) {
 		// We want to filter on inventories upon opening, not just creation (Like in the
 		// HoneypotCreate class) because

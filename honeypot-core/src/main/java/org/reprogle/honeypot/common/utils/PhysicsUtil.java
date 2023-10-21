@@ -30,9 +30,8 @@ public class PhysicsUtil {
 
 	}
 
-
-	// TODO: - Test behavior of new items. They are in this list, but we need to make sure they actually function the way we expect them to
-	// TODO: - Pitcher crop is, for whatever reason, not recognized in IntelliJ but *is* in Visual Studio Code. Need to recompile at some point, or figure out why IntelliJ is not seeing that reference.
+	// TODO: - Test behavior of new items. They are in this list, but we need to
+	// make sure they actually function the way we expect them to
 	private static final List<Material> physicsUp = Arrays.asList(
 			Material.ACACIA_BUTTON,
 			Material.ACACIA_DOOR,
@@ -209,6 +208,9 @@ public class PhysicsUtil {
 			Material.PINK_CARPET,
 			Material.PINK_PETALS,
 			Material.PINK_TULIP,
+			Material.PITCHER_CROP,
+			Material.PITCHER_PLANT,
+			Material.PITCHER_POD,
 			Material.POINTED_DRIPSTONE,
 			Material.POPPY,
 			Material.POTATOES,

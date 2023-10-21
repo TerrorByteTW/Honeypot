@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.reprogle.honeypot.folia.Scheduler.FOLIA;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("deprecation")
 public abstract class ScheduledRunnable implements Runnable {
 
 	private Object task;
@@ -94,10 +94,12 @@ public abstract class ScheduledRunnable implements Runnable {
 		}
 	}
 
-	public synchronized Scheduler.ScheduledTask runTaskTimer(Plugin plugin, long delay, long period, Location location) {
+	public synchronized Scheduler.ScheduledTask runTaskTimer(Plugin plugin, long delay, long period,
+			Location location) {
 		checkNotYetScheduled();
 		if (FOLIA) {
-			return setupTask(Bukkit.getRegionScheduler().runAtFixedRate(plugin, location, scheduledTask -> run(), delay, period));
+			return setupTask(Bukkit.getRegionScheduler().runAtFixedRate(plugin, location, scheduledTask -> run(), delay,
+					period));
 		} else {
 			return setupTask(Bukkit.getScheduler().runTaskTimer(plugin, this, delay, period));
 		}
@@ -124,7 +126,8 @@ public abstract class ScheduledRunnable implements Runnable {
 	public synchronized Scheduler.ScheduledTask runTaskTimer(Plugin plugin, long delay, long period) {
 		checkNotYetScheduled();
 		if (FOLIA) {
-			return setupTask(Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> run(), delay, period));
+			return setupTask(
+					Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> run(), delay, period));
 		} else {
 			return setupTask(Bukkit.getScheduler().runTaskTimer(plugin, this, delay, period));
 		}
@@ -142,7 +145,8 @@ public abstract class ScheduledRunnable implements Runnable {
 	public synchronized Scheduler.ScheduledTask runTaskLaterAsynchronously(Plugin plugin, long delay) {
 		checkNotYetScheduled();
 		if (FOLIA) {
-			return setupTask(Bukkit.getAsyncScheduler().runDelayed(plugin, scheduledTask -> run(), delay * 50, TimeUnit.MILLISECONDS));
+			return setupTask(Bukkit.getAsyncScheduler().runDelayed(plugin, scheduledTask -> run(), delay * 50,
+					TimeUnit.MILLISECONDS));
 		} else {
 			return setupTask(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, this, delay));
 		}
@@ -151,7 +155,8 @@ public abstract class ScheduledRunnable implements Runnable {
 	public synchronized Scheduler.ScheduledTask runTaskTimerAsynchronously(Plugin plugin, long delay, long period) {
 		checkNotYetScheduled();
 		if (FOLIA) {
-			return setupTask(Bukkit.getAsyncScheduler().runAtFixedRate(plugin, scheduledTask -> run(), Math.max(1, delay * 50), period * 50, TimeUnit.MILLISECONDS));
+			return setupTask(Bukkit.getAsyncScheduler().runAtFixedRate(plugin, scheduledTask -> run(),
+					Math.max(1, delay * 50), period * 50, TimeUnit.MILLISECONDS));
 		} else {
 			return setupTask(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this, delay, period));
 		}

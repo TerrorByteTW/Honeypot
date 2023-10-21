@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class HoneypotConfigManager extends JavaPlugin {
 
 	private static YamlDocument config;
@@ -64,7 +65,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 	 *
 	 * @param plugin The Honeypot Plugin object
 	 */
-	@SuppressWarnings({"java:S1192", "java:S2629", "removal"})
+	@SuppressWarnings({ "java:S1192", "java:S2629", "removal" })
 	public static void setupConfig(Plugin plugin) {
 
 		plugin.getLogger().info("Attempting to load all plugin config files...");

@@ -24,7 +24,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({ "deprecation" })
 public class Scheduler {
 
 	public static final boolean FOLIA;
@@ -83,7 +83,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskLater(Plugin plugin, Runnable task, long delay, Entity entity) {
 		if (FOLIA) {
-			return new ScheduledTask(entity.getScheduler().runDelayed(plugin, scheduledTask -> task.run(), null, delay));
+			return new ScheduledTask(
+					entity.getScheduler().runDelayed(plugin, scheduledTask -> task.run(), null, delay));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskLater(plugin, task, delay));
 		}
@@ -91,7 +92,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskTimer(Plugin plugin, Runnable task, long delay, long period, Entity entity) {
 		if (FOLIA) {
-			return new ScheduledTask(entity.getScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), null, Math.max(1, delay), period));
+			return new ScheduledTask(entity.getScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), null,
+					Math.max(1, delay), period));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period));
 		}
@@ -107,7 +109,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskLater(Plugin plugin, Runnable task, long delay, Location location) {
 		if (FOLIA) {
-			return new ScheduledTask(Bukkit.getRegionScheduler().runDelayed(plugin, location, scheduledTask -> task.run(), delay));
+			return new ScheduledTask(
+					Bukkit.getRegionScheduler().runDelayed(plugin, location, scheduledTask -> task.run(), delay));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskLater(plugin, task, delay));
 		}
@@ -115,7 +118,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskTimer(Plugin plugin, Runnable task, long delay, long period, Location location) {
 		if (FOLIA) {
-			return new ScheduledTask(Bukkit.getRegionScheduler().runAtFixedRate(plugin, location, scheduledTask -> task.run(), Math.max(1, delay), period));
+			return new ScheduledTask(Bukkit.getRegionScheduler().runAtFixedRate(plugin, location,
+					scheduledTask -> task.run(), Math.max(1, delay), period));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period));
 		}
@@ -131,7 +135,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskLater(Plugin plugin, Runnable task, long delay) {
 		if (FOLIA) {
-			return new ScheduledTask(Bukkit.getGlobalRegionScheduler().runDelayed(plugin, scheduledTask -> task.run(), delay));
+			return new ScheduledTask(
+					Bukkit.getGlobalRegionScheduler().runDelayed(plugin, scheduledTask -> task.run(), delay));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskLater(plugin, task, delay));
 		}
@@ -139,7 +144,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskTimer(Plugin plugin, Runnable task, long delay, long period) {
 		if (FOLIA) {
-			return new ScheduledTask(Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), Math.max(1, delay), period));
+			return new ScheduledTask(Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin,
+					scheduledTask -> task.run(), Math.max(1, delay), period));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskTimer(plugin, task, delay, period));
 		}
@@ -155,7 +161,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskLaterAsynchronously(Plugin plugin, Runnable task, long delay) {
 		if (FOLIA) {
-			return new ScheduledTask(Bukkit.getAsyncScheduler().runDelayed(plugin, scheduledTask -> task.run(), delay * 50, TimeUnit.MILLISECONDS));
+			return new ScheduledTask(Bukkit.getAsyncScheduler().runDelayed(plugin, scheduledTask -> task.run(),
+					delay * 50, TimeUnit.MILLISECONDS));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delay));
 		}
@@ -163,7 +170,8 @@ public class Scheduler {
 
 	public static ScheduledTask runTaskTimerAsynchronously(Plugin plugin, Runnable task, long delay, long period) {
 		if (FOLIA) {
-			return new ScheduledTask(Bukkit.getAsyncScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(), Math.max(1, delay * 50), period * 50, TimeUnit.MILLISECONDS));
+			return new ScheduledTask(Bukkit.getAsyncScheduler().runAtFixedRate(plugin, scheduledTask -> task.run(),
+					Math.max(1, delay * 50), period * 50, TimeUnit.MILLISECONDS));
 		} else {
 			return new ScheduledTask(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period));
 		}
@@ -202,6 +210,5 @@ public class Scheduler {
 		}
 
 	}
-
 
 }

@@ -33,7 +33,7 @@ import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings({"java:S1192", "java:S3776"})
+@SuppressWarnings({ "java:S1192", "java:S3776", "deprecation" })
 public class HoneypotHistory implements HoneypotSubCommand {
 
 	@Override

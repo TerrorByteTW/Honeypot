@@ -64,10 +64,13 @@ public class CommandManager implements TabExecutor {
 	/**
 	 * Called by Bukkit when a player runs a command registered to our plugin. When
 	 * called, the plugin will check if the sender is a player.
-	 * If it is, it will first verify permissions, then verify if there were any subcommands.
-	 * If not, show the GUI. If there were subcommands, but they aren't valid, show the usage.
+	 * If it is, it will first verify permissions, then verify if there were any
+	 * subcommands.
+	 * If not, show the GUI. If there were subcommands, but they aren't valid, show
+	 * the usage.
 	 * <p>
-	 * If the sender is not a player, it will check if the command was reload. If it was, it'll allow the command to be run,
+	 * If the sender is not a player, it will check if the command was reload. If it
+	 * was, it'll allow the command to be run,
 	 * otherwise it will throw an error.
 	 *
 	 * @param sender  The Sender sending the command. Not necessarily a player,
@@ -76,12 +79,12 @@ public class CommandManager implements TabExecutor {
 	 * @param label   The label of the command
 	 * @param args    Any arguments passed to the command
 	 * @return True if it ran successfully, false if it errored at any point.
-	 * Defaults as false
+	 *         Defaults as false
 	 */
 	@Override
-	@SuppressWarnings({"java:S3776", "java:S1192"})
+	@SuppressWarnings({ "java:S3776", "java:S1192", "deprecation" })
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-							 @NotNull String[] args) {
+			@NotNull String[] args) {
 
 		// Check if the command sender is a player
 		if (sender instanceof Player p) {
@@ -197,7 +200,7 @@ public class CommandManager implements TabExecutor {
 	@Nullable
 	@Override
 	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias,
-									  @NotNull String[] args) {
+			@NotNull String[] args) {
 
 		// Cast the CommandSender object to Player
 		Player p = (Player) sender;
@@ -249,7 +252,7 @@ public class CommandManager implements TabExecutor {
 	private Boolean checkPermissions(Player p, HoneypotSubCommand subcommand) {
 		boolean allowed = false;
 
-		if (subcommand.getRequiredPermissions().size() < 1)
+		if (subcommand.getRequiredPermissions().isEmpty())
 			return true;
 
 		for (HoneypotPermission permission : subcommand.getRequiredPermissions()) {

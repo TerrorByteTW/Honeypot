@@ -8,9 +8,6 @@
 # IntelliJ
 out/
 
-# Exclude vscode folder
-.vscode/
-
 # Maven
 apache-maven-*/
 

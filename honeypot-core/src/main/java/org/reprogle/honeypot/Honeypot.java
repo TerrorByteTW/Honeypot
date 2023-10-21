@@ -38,6 +38,7 @@ import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionUtil;
 import org.reprogle.honeypot.common.utils.integrations.WorldGuardUtil;
 
+@SuppressWarnings("deprecation")
 public final class Honeypot extends JavaPlugin {
 
 	public static Honeypot plugin;
@@ -58,7 +59,7 @@ public final class Honeypot extends JavaPlugin {
 
 	public static BehaviorProcessor processor = null;
 
-	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[]{
+	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[] {
 			new Ban(),
 			new Kick(),
 			new Warn(),
@@ -92,7 +93,7 @@ public final class Honeypot extends JavaPlugin {
 	 * it has to do
 	 */
 	@Override
-	@SuppressWarnings({"unused", "java:S2696"})
+	@SuppressWarnings({ "unused", "java:S2696" })
 	public void onEnable() {
 		// Variables and stuff
 		plugin = this;
@@ -115,7 +116,8 @@ public final class Honeypot extends JavaPlugin {
 		// Setup Vault (This is a requirement!)
 		if (!setupPermissions()) {
 			getLogger().warning(
-					CommandFeedback.getChatPrefix() + ChatColor.RED + " Vault is not installed, some features won't work");
+					CommandFeedback.getChatPrefix() + ChatColor.RED
+							+ " Vault is not installed, some features won't work");
 			logger.log(
 					"Vault is not installed. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
 			return;
@@ -125,7 +127,7 @@ public final class Honeypot extends JavaPlugin {
 		if (getServer().getPluginManager().getPlugin("GriefPrevention") != null)
 			gpu = new GriefPreventionUtil();
 
-		//noinspection DataFlowIssue
+		// noinspection DataFlowIssue
 		getCommand("honeypot").setExecutor(new CommandManager());
 		logger.log("Loaded plugin");
 
@@ -134,14 +136,17 @@ public final class Honeypot extends JavaPlugin {
 				" _____                         _\n" +
 				"|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
 				"|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
-				"|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD +
+				"|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion()
+				+ "\n" + ChatColor.GOLD +
 				"                  |___|_|");
 
 		if (isFolia()) {
-			getLogger().warning("YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited, be wary when using it for now!");
+			getLogger().warning(
+					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited, be wary when using it for now!");
 		}
 
-		// A small helper method to verify if the server version is supported by Honeypot. I've moved it to its own method because it's rather large
+		// A small helper method to verify if the server version is supported by
+		// Honeypot. I've moved it to its own method because it's rather large
 		checkIfServerSupported();
 
 		// Check for any updates
@@ -186,7 +191,8 @@ public final class Honeypot extends JavaPlugin {
 	}
 
 	/**
-	 * Check the GitHub repo of the plugin to verify the version of Spigot we're running on is supported
+	 * Check the GitHub repo of the plugin to verify the version of Spigot we're
+	 * running on is supported
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static void checkIfServerSupported() {
@@ -199,7 +205,8 @@ public final class Honeypot extends JavaPlugin {
 		// Check for any updates
 		new HoneypotSupportedVersions(plugin, pluginVersion)
 				.getSupportedVersions(value -> {
-					// Get the least supported and most supported server versions for this version of Honeypot
+					// Get the least supported and most supported server versions for this version
+					// of Honeypot
 					String[] lowerVersion = value.split("-")[0].split("\\.");
 					String[] upperVersion = value.split("-")[1].split("\\.");
 
@@ -211,9 +218,13 @@ public final class Honeypot extends JavaPlugin {
 					int upperMinorVer = Integer.parseInt(upperVersion[1]);
 					int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
 
-					// Check if the version the server is running is within the bounds of the supported versions
-					// We are doing this check dynamically because it allows us to verify and disable version check messages without updating the plugin code
-					// This means if a minor MC version rolls out and doesn't affect functionality to the plugin, we can update it on the GitHub side and server admins will not see an error message
+					// Check if the version the server is running is within the bounds of the
+					// supported versions
+					// We are doing this check dynamically because it allows us to verify and
+					// disable version check messages without updating the plugin code
+					// This means if a minor MC version rolls out and doesn't affect functionality
+					// to the plugin, we can update it on the GitHub side and server admins will not
+					// see an error message
 					if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer) &&
 							(serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer) &&
 							(serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
@@ -221,7 +232,8 @@ public final class Honeypot extends JavaPlugin {
 								"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but some unusual behavior may occur, such as new blocks being processed strangely!");
 						plugin.getServer().getLogger().warning(
 								"Honeypot " + pluginVersion + " supports server versions " + value);
-						logger.log("This version of honeypot is not guaranteed to work on this version of Minecraft. Unusual behavior may occur.");
+						logger.log(
+								"This version of honeypot is not guaranteed to work on this version of Minecraft. Unusual behavior may occur.");
 					}
 				});
 

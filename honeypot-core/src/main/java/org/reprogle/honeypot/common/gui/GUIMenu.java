@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@SuppressWarnings("deprecation")
 public class GUIMenu implements InventoryHolder {
 	private final JavaPlugin owner;
 
@@ -304,10 +305,10 @@ public class GUIMenu implements InventoryHolder {
 		boolean needsPagination = getMaxPage() > 0 && isAutomaticPaginationEnabled;
 
 		Inventory inventory = Bukkit.createInventory(this, ((needsPagination)
-						// Pagination enabled: add the bottom toolbar row.
-						? getPageSize() + 9
-						// Pagination not required or disabled.
-						: getPageSize()),
+				// Pagination enabled: add the bottom toolbar row.
+				? getPageSize() + 9
+				// Pagination not required or disabled.
+				: getPageSize()),
 				name.replace("{currentPage}", String.valueOf(currentPage + 1)).replace("{maxPage}",
 						String.valueOf(getMaxPage())));
 

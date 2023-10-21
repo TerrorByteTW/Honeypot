@@ -27,6 +27,7 @@ import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
 @Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER)
+@SuppressWarnings("deprecation")
 public class Ban extends BehaviorProvider {
 
 	@Override

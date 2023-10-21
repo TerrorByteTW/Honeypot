@@ -51,7 +51,7 @@ public class BlockBreakEventListener implements Listener {
 
 	// Player block break event
 	@EventHandler(priority = EventPriority.LOW)
-	@SuppressWarnings({"java:S3776", "java:S1192"})
+	@SuppressWarnings({ "java:S3776", "java:S1192" })
 	public static void blockBreakEvent(BlockBreakEvent event) {
 		// Check to see if the event is cancelled before doing any logic.
 		// Ex: Creative mode player with Sword in hand
@@ -76,17 +76,16 @@ public class BlockBreakEventListener implements Listener {
 			// from the DB. Otherwise, set the BlockBreakEvent to cancelled
 			if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))
 					|| (event.getPlayer().hasPermission(REMOVE_PERMISSION)
-					|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
+							|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
 				deleteBlock = true;
 			} else {
 				event.setCancelled(true);
 			}
 
-			// If blocks broken before action is less than or equal to 1, or allow
-			// destruction is enabled, just go to
-			// the break action. Otherwise, count it
-			if (HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken") <= 1 || Boolean.TRUE
-					.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))) {
+			// If blocks broken before action is less than or equal to 1, go to the break
+			// action.
+			// Otherwise, count it
+			if (HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken") <= 1) {
 				breakAction(event);
 			} else {
 				// If the player is not exempt, not op, and does not have remove perms, count
@@ -122,12 +121,12 @@ public class BlockBreakEventListener implements Listener {
 	public static void checkBlockBreakSideEffects(BlockBreakEvent event) {
 		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))
 				&& !(event.getPlayer().hasPermission(REMOVE_PERMISSION)
-				|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()))
+						|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()))
 			return;
 
 		Block block = event.getBlock();
 
-		Block[] adjacentBlocks = new Block[]{
+		Block[] adjacentBlocks = new Block[] {
 				block.getRelative(BlockFace.DOWN),
 				block.getRelative(BlockFace.NORTH),
 				block.getRelative(BlockFace.SOUTH),
@@ -177,7 +176,7 @@ public class BlockBreakEventListener implements Listener {
 		}
 	}
 
-	@SuppressWarnings({"java:S3776", "java:S2629", "java:S1192"})
+	@SuppressWarnings({ "java:S3776", "java:S2629", "java:S1192" })
 	private static void breakAction(BlockBreakEvent event) {
 
 		// Get the block broken and the chat prefix for prettiness

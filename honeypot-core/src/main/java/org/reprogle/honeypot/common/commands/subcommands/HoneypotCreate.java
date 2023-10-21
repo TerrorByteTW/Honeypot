@@ -44,7 +44,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 	}
 
 	@Override
-	@SuppressWarnings({"unchecked", "java:S3776", "java:S1192"})
+	@SuppressWarnings({ "unchecked", "java:S3776", "java:S1192" })
 	public void perform(Player p, String[] args) {
 		Block block;
 		WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
@@ -153,7 +153,8 @@ public class HoneypotCreate implements HoneypotSubCommand {
 		// aka /honeypot create <THIS ONE>
 
 		if (args.length == 2) {
-			// Add all behavior providers to the subcommands list, including the built-in ones
+			// Add all behavior providers to the subcommands list, including the built-in
+			// ones
 			ConcurrentMap<String, BehaviorProvider> map = Honeypot.getRegistry().getBehaviorProviders();
 			map.forEach((providerName, provider) -> subcommands.add(providerName));
 
