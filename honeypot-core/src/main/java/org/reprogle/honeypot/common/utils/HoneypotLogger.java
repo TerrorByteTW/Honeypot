@@ -36,10 +36,10 @@ public class HoneypotLogger {
 		try {
 			logFile = new File(Honeypot.plugin.getDataFolder(), "honeypot.log");
 			if (logFile.createNewFile()) {
-				Honeypot.getHoneypotLogger().info("Logs file created: " + logFile.getName());
+				Honeypot.plugin.getLogger().info("Logs file created: " + logFile.getName());
 			}
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger().severe("Could not create the honeypot.log file for logging!");
+			Honeypot.plugin.getLogger().severe("Could not create the honeypot.log file for logging!");
 		}
 	}
 

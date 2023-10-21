@@ -68,7 +68,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 	@SuppressWarnings({ "java:S1192", "java:S2629", "removal" })
 	public static void setupConfig(Plugin plugin) {
 
-		Honeypot.getHoneypotLogger().info("Attempting to load all plugin config files...");
+		Honeypot.plugin.getLogger().info("Attempting to load all plugin config files...");
 		try {
 			config = YamlDocument.create(new File(plugin.getDataFolder(), "config.yml"),
 					plugin.getResource("config.yml"), GeneralSettings.DEFAULT,
@@ -79,7 +79,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 			config.update();
 			config.save();
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger().severe(
+			Honeypot.plugin.getLogger().severe(
 					"Could not create/load plugin config, disabling! Please alert the plugin author with the following info: "
 							+ e);
 			plugin.getPluginLoader().disablePlugin(plugin);
@@ -94,7 +94,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 			guiConfig.update();
 			guiConfig.save();
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger().severe(
+			Honeypot.plugin.getLogger().severe(
 					"Could not create/load GUI config, disabling! Please alert the plugin author with following info: "
 							+ e);
 			plugin.getPluginLoader().disablePlugin(plugin);
@@ -110,7 +110,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 			guiConfig.update();
 			guiConfig.save();
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger().severe(
+			Honeypot.plugin.getLogger().severe(
 					"Could not create/load Honeypot config, disabling! Please alert the plugin author with following info: "
 							+ e);
 			plugin.getPluginLoader().disablePlugin(plugin);
@@ -120,7 +120,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 
 		if (!(languages.contains(language))
 				&& Boolean.FALSE.equals(config.getBoolean("bypass-language-check"))) {
-			Honeypot.getHoneypotLogger().warning("Language is currently set to " + language
+			Honeypot.plugin.getLogger().warning("Language is currently set to " + language
 					+ ". This language is currently not supported, defaulting to en_US.");
 			language = "en_US";
 		}
@@ -136,15 +136,15 @@ public class HoneypotConfigManager extends JavaPlugin {
 			languageFile.update();
 			languageFile.save();
 
-			Honeypot.getHoneypotLogger().info("Language set to: " + language);
+			Honeypot.plugin.getLogger().info("Language set to: " + language);
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger().severe(
+			Honeypot.plugin.getLogger().severe(
 					"Could not load language file, disabling! Please alert the plugin author with the following info:"
 							+ e);
 			plugin.getPluginLoader().disablePlugin(plugin);
 		}
 
-		Honeypot.getHoneypotLogger().info("All plugin config files successfully loaded");
+		Honeypot.plugin.getLogger().info("All plugin config files successfully loaded");
 
 	}
 
