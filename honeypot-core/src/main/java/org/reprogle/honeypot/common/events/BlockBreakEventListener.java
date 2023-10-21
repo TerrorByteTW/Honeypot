@@ -84,19 +84,11 @@ public class BlockBreakEventListener implements Listener {
 
 			// If blocks broken before action is less than or equal to 1, go to the break
 			// action.
-			// Otherwise, count it
+			// Otherwise, check if the player should have the action triggered
 			if (HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken") <= 1) {
 				breakAction(event);
 			} else {
-				// If the player is not exempt, not op, and does not have remove perms, count
-				// the break. Otherwise, just
-				// activate the break action.
-				if (!event.getPlayer().hasPermission(EXEMPT_PERMISSION) && !event.getPlayer().isOp()
-						&& !event.getPlayer().hasPermission(REMOVE_PERMISSION)) {
-					countBreak(event);
-				} else {
-					breakAction(event);
-				}
+				countBreak(event);
 			}
 
 			// Fire HoneypotPlayerBreakEvent
@@ -214,6 +206,11 @@ public class BlockBreakEventListener implements Listener {
 	}
 
 	private static void countBreak(BlockBreakEvent event) {
+
+		if (event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().isOp()
+				|| event.getPlayer().hasPermission(REMOVE_PERMISSION)
+				|| event.getPlayer().hasPermission(WILDCARD_PERMISSION))
+			return;
 
 		// Get the config value and the amount of blocks broken
 		int breaksBeforeAction = HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken");
