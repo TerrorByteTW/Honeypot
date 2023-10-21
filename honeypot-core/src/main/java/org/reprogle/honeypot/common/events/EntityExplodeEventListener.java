@@ -63,13 +63,14 @@ public class EntityExplodeEventListener implements Listener {
 		// If so, just delete the Honeypot. If not, cancel the explosion
 		for (Block block : destroyedBlocks) {
 			if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(block))) {
-				Honeypot.getHoneypotLogger().log("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", "
-						+ block.getY() + ", " + block.getZ());
+				Honeypot.getHoneypotLogger()
+						.debug("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", "
+								+ block.getY() + ", " + block.getZ());
 
 				if (source instanceof Player) {
 					HoneypotPlayerHistoryManager.getInstance().addPlayerHistory((Player) source,
 							HoneypotBlockManager.getInstance().getHoneypotBlock(block));
-					Honeypot.getHoneypotLogger().log(
+					Honeypot.getHoneypotLogger().debug(
 							"EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: "
 									+ source.getName());
 

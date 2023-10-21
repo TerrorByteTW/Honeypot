@@ -10,10 +10,6 @@ file-version: 17
 # Please see https://github.com/TerrorByteTW/Honeypot/wiki#faq for more info. If you don't know what this is, leave it alone
 cache-size: 20
 
-# The database-type option has been removed for now. The only options were JSON and SQLite.
-# JSON support has been removed because I did not like how it was implemented, and it was very difficult to build on to. The default and only option is SQLite, however I plan
-# on implementing some more options in the future
-
 ######################################################################
 #                     P L U G I N   S E T T I N G S                  #
 ######################################################################
@@ -21,8 +17,8 @@ cache-size: 20
 # The number of honeypot blocks a player is allowed to break before any action is taken. Default is 1 (immediate action)
 blocks-broken-before-action-taken: 1
 
-# Allow players to break Honeypot blocks. If players are allowed to break Honeypots, 
-# an action will *NOT* trigger until a player hits the locks-broken-before-action-taken value
+# Allow players to break Honeypot blocks. If set to true, 
+# an action will *NOT* trigger until a player hits the blocks-broken-before-action-taken value
 # If you want action taken on all Honeypots, regardless if players can remove them or not, be sure to set blocks-broken-before-action-taken to 1
 # This behavior was changed in version 3.0.3, please open a ticket on the support Discord if you are confused or need assistance.
 allow-player-destruction: true
@@ -37,6 +33,7 @@ container-actions:
   # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
   enable-container-actions: true
   # If you want to use InventoryClickEvents instead of PlayerInteractEvent, set to true. Defaults to false
+  # InventoryClickEvents happen on interacting with the inventory, PlayerInteractEvent happens upon players attempting to open the inventory
   use-inventory-click: false
   # Only trigger actions if inventory clicks are set to true and items are taken. Defaults to true.
   only-trigger-on-withdrawal: true
@@ -47,9 +44,10 @@ always-allow-container-access: false
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
 search-range: 5
 
+# Removes Honeypots from the DB if their cooresponding blocks no longer exists (e.g. are air)
 # enabled: Check for ghost pots periodically.
 # check-interval: How often to check for ghost pots, in MINUTES. 20 minutes = 1 Minecraft day.
-# Server restarts are required to update these values, as these settings are grabbed on plugin load and are not re-evaluated
+# Server restarts are required to update these values, as this feature is evaluated at plugin load and is not re-evaluated with /honeypot reload
 ghost-honeypot-checker:
   enable: true
   check-interval: 20

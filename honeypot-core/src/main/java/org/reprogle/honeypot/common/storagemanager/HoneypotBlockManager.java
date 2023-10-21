@@ -56,7 +56,7 @@ public class HoneypotBlockManager {
 		db.createHoneypotBlock(block, action);
 		CacheManager.addToCache(new HoneypotBlockObject(block, action));
 
-		Honeypot.getHoneypotLogger().log("Created Honeypot block with action " + action + " at " + block.getX() + ", "
+		Honeypot.getHoneypotLogger().debug("Created Honeypot block with action " + action + " at " + block.getX() + ", "
 				+ block.getY() + ", " + block.getZ());
 	}
 
@@ -73,7 +73,7 @@ public class HoneypotBlockManager {
 		CacheManager.removeFromCache(new HoneypotBlockObject(block, null));
 
 		Honeypot.getHoneypotLogger()
-				.log("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
+				.debug("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class HoneypotBlockManager {
 		db.deleteAllBlocks();
 		CacheManager.clearCache();
 
-		Honeypot.getHoneypotLogger().log("Deleted all Honeypot blocks!");
+		Honeypot.getHoneypotLogger().debug("Deleted all Honeypot blocks!");
 	}
 
 	/**

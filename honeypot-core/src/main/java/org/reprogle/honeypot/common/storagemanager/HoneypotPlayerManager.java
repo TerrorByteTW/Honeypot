@@ -74,7 +74,7 @@ public class HoneypotPlayerManager {
 		db.load();
 
 		db.setPlayerCount(player, blocksBroken);
-		Honeypot.getHoneypotLogger().log("Updated Honeypot player: " + player.getName() + ", UUID of: "
+		Honeypot.getHoneypotLogger().debug("Updated Honeypot player: " + player.getName() + ", UUID of: "
 				+ player.getUniqueId() + ". New count: " + blocksBroken);
 	}
 
@@ -101,7 +101,7 @@ public class HoneypotPlayerManager {
 		db.load();
 
 		db.deleteAllPlayers();
-		Honeypot.getHoneypotLogger().log("Deleted all Honeypot players from DB");
+		Honeypot.getHoneypotLogger().debug("Deleted all Honeypot players from DB");
 	}
 
 }

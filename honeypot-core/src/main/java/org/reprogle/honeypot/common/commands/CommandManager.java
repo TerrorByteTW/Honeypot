@@ -109,7 +109,7 @@ public class CommandManager implements TabExecutor {
 							subcommand.perform(p, args);
 							return true;
 						} catch (IOException e) {
-							Honeypot.plugin.getLogger()
+							Honeypot.getHoneypotLogger()
 									.severe("Error while running command " + args[0] + "! Full stack trace: " + e);
 						}
 					}
@@ -131,7 +131,7 @@ public class CommandManager implements TabExecutor {
 							subcommand.perform(p, args);
 							return true;
 						} catch (IOException e) {
-							Honeypot.plugin.getLogger()
+							Honeypot.getHoneypotLogger()
 									.severe("Error while running command! Full stack trace: " + e);
 						}
 					}
@@ -154,7 +154,7 @@ public class CommandManager implements TabExecutor {
 							.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
 					return true;
 				} catch (IOException e) {
-					Honeypot.plugin.getLogger().severe("Could not reload honeypot config! Full stack trace: " + e);
+					Honeypot.getHoneypotLogger().severe("Could not reload honeypot config! Full stack trace: " + e);
 				}
 			} else {
 				ConsoleCommandSender console = Honeypot.plugin.getServer().getConsoleSender();

@@ -51,12 +51,10 @@ public class ListenerSetup {
 				HoneypotConfigManager.getPluginConfig().getBoolean("container-actions.enable-container-actions"))) {
 			if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig()
 					.getBoolean("container-actions.use-inventory-click"))) {
-				plugin.getLogger().info("Using inventory click for containers");
-				Honeypot.getHoneypotLogger().log("Using inventory click for containers");
+				Honeypot.getHoneypotLogger().info("Using inventory click for containers");
 				plugin.getServer().getPluginManager().registerEvents(new InventoryClickDragEventListener(), plugin);
 			} else {
-				plugin.getLogger().info("Using player interact for containers");
-				Honeypot.getHoneypotLogger().log("Using player interact for containers");
+				Honeypot.getHoneypotLogger().info("Using player interact for containers");
 				plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
 			}
 		}
