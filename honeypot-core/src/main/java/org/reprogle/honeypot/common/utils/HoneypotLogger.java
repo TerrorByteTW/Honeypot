@@ -52,15 +52,15 @@ public class HoneypotLogger {
 	 */
 	@Deprecated
 	public void log(String message) {
-		Honeypot.getHoneypotLogger().info(message);
+		Honeypot.plugin.getLogger().info(message);
 		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
-			bw.append("[").append(dtf.format(now)).append("] ").append(message).append("\n");
+			bw.append("[").append(dtf.format(now)).append("] INFO: ").append(message).append("\n");
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger()
+			Honeypot.plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
@@ -78,7 +78,7 @@ public class HoneypotLogger {
 			LocalDateTime now = LocalDateTime.now();
 			bw.append("[").append(dtf.format(now)).append("] DEBUG: ").append(message).append("\n");
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger()
+			Honeypot.plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
@@ -89,7 +89,7 @@ public class HoneypotLogger {
 	 * @param message The message to log
 	 */
 	public void info(String message) {
-		Honeypot.getHoneypotLogger().info(message);
+		Honeypot.plugin.getLogger().info(message);
 		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
@@ -97,7 +97,7 @@ public class HoneypotLogger {
 			LocalDateTime now = LocalDateTime.now();
 			bw.append("[").append(dtf.format(now)).append("] INFO: ").append(message).append("\n");
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger()
+			Honeypot.plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
@@ -108,7 +108,7 @@ public class HoneypotLogger {
 	 * @param message The message to log
 	 */
 	public void warning(String message) {
-		Honeypot.getHoneypotLogger().warning(message);
+		Honeypot.plugin.getLogger().warning(message);
 		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
@@ -116,7 +116,7 @@ public class HoneypotLogger {
 			LocalDateTime now = LocalDateTime.now();
 			bw.append("[").append(dtf.format(now)).append("] WARNING: ").append(message).append("\n");
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger()
+			Honeypot.plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
@@ -127,7 +127,7 @@ public class HoneypotLogger {
 	 * @param message The message to log
 	 */
 	public void severe(String message) {
-		Honeypot.getHoneypotLogger().severe(message);
+		Honeypot.plugin.getLogger().severe(message);
 		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
@@ -135,7 +135,7 @@ public class HoneypotLogger {
 			LocalDateTime now = LocalDateTime.now();
 			bw.append("[").append(dtf.format(now)).append("] SEVERE: ").append(message).append("\n");
 		} catch (IOException e) {
-			Honeypot.getHoneypotLogger()
+			Honeypot.plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
