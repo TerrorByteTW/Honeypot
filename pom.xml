@@ -22,7 +22,7 @@
 
     <groupId>org.reprogle</groupId>
     <artifactId>honeypot-parent</artifactId>
-    <version>3.0.3</version>
+    <version>3.0.4</version>
     <packaging>pom</packaging>
 
     <modules>
