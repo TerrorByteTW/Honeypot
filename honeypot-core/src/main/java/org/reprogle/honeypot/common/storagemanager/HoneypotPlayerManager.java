@@ -56,7 +56,7 @@ public class HoneypotPlayerManager {
 
 		db.createHoneypotPlayer(player, blocksBroken);
 		Honeypot.getHoneypotLogger()
-				.log("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
+				.info("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
 	}
 
 	/**
