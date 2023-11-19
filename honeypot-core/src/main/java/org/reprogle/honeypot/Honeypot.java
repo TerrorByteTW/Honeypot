@@ -123,7 +123,6 @@ public final class Honeypot extends JavaPlugin {
 							+ " Vault is not installed, some features won't work");
 			logger.log(
 					"Vault is not installed. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
-			return;
 		}
 
 		// Register GriefPrevention
