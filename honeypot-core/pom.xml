@@ -27,7 +27,7 @@ purpose or non-infringing.
     <parent>
         <groupId>org.reprogle</groupId>
         <artifactId>honeypot-parent</artifactId>
-        <version>3.0.4</version>
+        <version>3.0.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
