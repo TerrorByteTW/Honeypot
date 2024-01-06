@@ -46,7 +46,7 @@ public class PlayerInteractEventListener implements Listener {
 
 	// Player interact event
 	@EventHandler(priority = EventPriority.LOW)
-	@SuppressWarnings({"unchecked", "java:S3776"})
+	@SuppressWarnings({ "unchecked", "java:S3776" })
 	public static void playerInteractEvent(PlayerInteractEvent event) {
 
 		if (event.getPlayer().getTargetBlockExact(5) == null)
@@ -80,7 +80,7 @@ public class PlayerInteractEventListener implements Listener {
 		try {
 			if (!Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getType().equals(Material.ENDER_CHEST)
 					&& Boolean.TRUE.equals(HoneypotBlockManager.getInstance()
-					.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5))))) {
+							.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5))))) {
 				// Fire HoneypotPrePlayerInteractEvent
 				HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(event.getPlayer(),
 						event.getClickedBlock());
@@ -116,44 +116,9 @@ public class PlayerInteractEventListener implements Listener {
 		String action = HoneypotBlockManager.getInstance().getAction(block);
 
 		assert action != null;
-		Honeypot.getHoneypotLogger().log("PlayerInteractEvent being called for player: " + event.getPlayer().getName()
+		Honeypot.getHoneypotLogger().debug("PlayerInteractEvent being called for player: " + event.getPlayer().getName()
 				+ ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
 
-//        switch (action) {
-//            case "kick" -> player.kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
-//
-//            case "ban" -> {
-//                String banReason = CommandFeedback.sendCommandFeedback("ban");
-//
-//                Bukkit.getBanList(BanList.Type.NAME).addBan(event.getPlayer().getName(), banReason, null,
-//                        CommandFeedback.getChatPrefix());
-//                player.kickPlayer(banReason);
-//            }
-//
-//            case "warn" -> event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("warn"));
-//
-//            case "notify" -> {
-//                // Notify all staff members with permission or Op that someone tried to break a
-//                // honeypot block
-//                for (Player p : Bukkit.getOnlinePlayers()) {
-//                    if (p.hasPermission("honeypot.notify") || p.hasPermission("honeypot.*") || p.isOp()) {
-//                        p.sendMessage(
-//                                CommandFeedback.getChatPrefix() + " " + ChatColor.RED + event.getPlayer().getName()
-//                                        + " was caught opening a Honeypot container at x=" + block.getX() + ", y="
-//                                        + block.getY()
-//                                        + ", z=" + block.getZ());
-//                    }
-//                }
-//
-//                Honeypot.plugin.getServer().getConsoleSender()
-//                        .sendMessage(CommandFeedback.getChatPrefix() + " " + ChatColor.RED
-//                                + event.getPlayer().getName() + " was caught opening a Honeypot container");
-//            }
-//
-//            default -> {
-//                ActionHandler.handleCustomAction(action, block, player);
-//            }
-//        }
 		ActionHandler.handleCustomAction(action, block, event.getPlayer());
 	}
 }
