@@ -71,9 +71,9 @@ public class BlockBreakEventListener implements Listener {
 			// Create a boolean for if we should remove the block from the DB or not
 			boolean deleteBlock = false;
 
-			// If Allow Player Destruction is true, the player has permissions or is Op,
-			// flag the block for deletion
-			// from the DB. Otherwise, set the BlockBreakEvent to cancelled
+			// If Allow Player Destruction is true, the player has permissions, or is Op,
+			// flag the block for deletion from the DB
+			// Otherwise, set the BlockBreakEvent to cancelled
 			if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))
 					|| (event.getPlayer().hasPermission(REMOVE_PERMISSION)
 							|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
@@ -106,7 +106,7 @@ public class BlockBreakEventListener implements Listener {
 
 	// This is a separate event from the one above. We want to know if any Honeypots
 	// were broken due to breaking a
-	// "root" block, such as torches breaking due to
+	// supporting block, such as torches breaking due to
 	// the block they're on being broken
 	@EventHandler(priority = EventPriority.LOW)
 	@SuppressWarnings("java:S1192")

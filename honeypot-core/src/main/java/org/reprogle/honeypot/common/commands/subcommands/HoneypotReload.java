@@ -17,6 +17,8 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
@@ -47,9 +49,20 @@ public class HoneypotReload implements HoneypotSubCommand {
 			HoneypotConfigManager.getLanguageFile().reload();
 			HoneypotConfigManager.getLanguageFile().save();
 
+			Honeypot.getFixer().cancelTask();
+			if (Boolean.TRUE
+					.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
+				Honeypot.getFixer().startTask();
+			}
+
 			p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
-		} catch (IOException e) {
-			// Nothing
+			Honeypot.getHoneypotLogger().info("Honeypot has successfully been reloaded");
+		}
+		catch (IOException e) {
+			Honeypot.plugin.getLogger().severe(
+					"Could not load language file, disabling! Please alert the plugin author with the following info:"
+							+ e);
+			Honeypot.plugin.getServer().getPluginManager().disablePlugin(Honeypot.plugin);
 		}
 	}
 

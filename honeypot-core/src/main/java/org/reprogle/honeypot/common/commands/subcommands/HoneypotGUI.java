@@ -40,16 +40,20 @@ import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
-import org.reprogle.honeypot.common.utils.integrations.GriefPreventionUtil;
-import org.reprogle.honeypot.common.utils.integrations.WorldGuardUtil;
+import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
+import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
+import org.reprogle.honeypot.common.utils.integrations.LandsAdapter;
+import org.reprogle.honeypot.common.utils.integrations.WorldGuardAdapter;
+
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory.Adapter;
+
+import static org.reprogle.honeypot.common.utils.folia.Scheduler.FOLIA;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-
-import static org.reprogle.honeypot.folia.Scheduler.FOLIA;
 
 public class HoneypotGUI implements HoneypotSubCommand {
 
@@ -64,7 +68,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		p.openInventory(mainMenu(p, args).getInventory());
 	}
 
-	@SuppressWarnings({"java:S1192", "java:S1121"})
+	@SuppressWarnings({ "java:S1192", "java:S1121" })
 	private static void customHoneypotsInventory(Player p) {
 		GUIMenu customHoneypotsGUI = Honeypot.getGUI().create("Custom Honeypot", 3);
 		List<String> types = new ArrayList<>();
@@ -85,19 +89,20 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				String action = HoneypotConfigManager.getHoneypotsConfig().getString(type + ".type");
 
 				switch (action) {
-					case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
-					case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
-					case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
-					default -> item = new GUIItemBuilder(Material.PAPER);
+				case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
+				case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
+				case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
+				default -> item = new GUIItemBuilder(Material.PAPER);
 				}
-			} else {
+			}
+			else {
 				item = new GUIItemBuilder(Honeypot.getRegistry().getBehaviorProvider(type).getIcon());
 			}
 
 			item.name(type);
 			item.lore("Click to create a Honeypot of this type");
-			GUIButton button = new GUIButton(item.build()).withListener(
-					(InventoryClickEvent event) -> createHoneypotFromGUI(event, type));
+			GUIButton button = new GUIButton(item.build())
+					.withListener((InventoryClickEvent event) -> createHoneypotFromGUI(event, type));
 
 			customHoneypotsGUI.addButton(button);
 		}
@@ -121,7 +126,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				item = new GUIItemBuilder(honeypotBlock.getBlock().getType());
 				item.lore("Click to teleport to Honeypot");
 				item.name("Honeypot: " + honeypotBlock.getCoordinates());
-			} else {
+			}
+			else {
 				item = new GUIItemBuilder(
 						Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("default-gui-button")));
 				item.lore("Click to teleport to Honeypot");
@@ -134,7 +140,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				// In the future, we're going to make this nice and pretty. Until then, ew.
 				if (FOLIA) {
 					event.getWhoClicked().teleportAsync(honeypotBlock.getLocation().add(0.5, 1, 0.5));
-				} else {
+				}
+				else {
 					event.getWhoClicked().teleport(honeypotBlock.getLocation().add(0.5, 1, 0.5));
 				}
 				event.getWhoClicked().closeInventory();
@@ -179,7 +186,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		p.openInventory(historyQueryGUI.getInventory());
 	}
 
-	@SuppressWarnings({"java:S3776", "java:S1192"})
+	@SuppressWarnings({ "java:S3776", "java:S1192" })
 	private static void removeHoneypotInventory(Player p) {
 		if (!(p.hasPermission("honeypot.remove"))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
@@ -242,7 +249,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 					if (event.getWhoClicked().getTargetBlockExact(5) != null) {
 						block = event.getWhoClicked().getTargetBlockExact(5);
-					} else {
+					}
+					else {
 						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 						return;
 					}
@@ -255,7 +263,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 					if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(block))) {
 						HoneypotBlockManager.getInstance().deleteBlock(block);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
-					} else {
+					}
+					else {
 						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
 					}
 				});
@@ -268,16 +277,18 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	}
 
-	@SuppressWarnings({"unchecked", "java:S3776"})
+	@SuppressWarnings({ "unchecked", "java:S3776" })
 	private static void createHoneypotFromGUI(InventoryClickEvent event, String action) {
 		Block block;
-		WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
-		GriefPreventionUtil gpu = Honeypot.getGriefPreventionUtil();
+		WorldGuardAdapter wga = AdapterManager.getWorldGuardAdapter();
+		GriefPreventionAdapter gpa = AdapterManager.getGriefPreventionAdapter();
+		LandsAdapter la = AdapterManager.getLandsAdapter();
 
 		// Get block the player is looking at
 		if (event.getWhoClicked().getTargetBlockExact(5) != null) {
 			block = event.getWhoClicked().getTargetBlockExact(5);
-		} else {
+		}
+		else {
 			event.getWhoClicked().closeInventory();
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 			return;
@@ -285,16 +296,23 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		// Check if in a WorldGuard region and the flag is set to deny. If it is, don't
 		// bother continuing
-		if (wgu != null && !wgu.isAllowed((Player) event.getWhoClicked(), block.getLocation())) {
+		if (wga != null && !wga.isAllowed((Player) event.getWhoClicked(), block.getLocation())) {
 			event.getWhoClicked().closeInventory();
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("worldguard"));
 			return;
 		}
 
 		// Check if in a GriefPrevention region.
-		if (gpu != null && !gpu.isAllowed((Player) event.getWhoClicked(), block.getLocation())) {
+		if (gpa != null && !gpa.isAllowed((Player) event.getWhoClicked(), block.getLocation())) {
 			event.getWhoClicked().closeInventory();
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("griefprevention"));
+			return;
+		}
+
+		// Check if in a Lands land
+		if (la != null && !la.isAllowed((Player) event.getWhoClicked(), block.getLocation())) {
+			event.getWhoClicked().closeInventory();
+			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("lands"));
 			return;
 		}
 
@@ -336,7 +354,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 			// If it does not have a honeypot tag or the honeypot tag does not equal 1,
 			// create one
-		} else {
+		}
+		else {
 
 			// Fire HoneypotPreCreateEvent
 			HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
@@ -438,7 +457,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 								public void run() {
 									slime.remove();
 								}
-							}.runTaskLater(Honeypot.plugin, 20L * 5); // 20 ticks in 1 second * 5 seconds equals 100 ticks
+							}.runTaskLater(Honeypot.plugin, 20L * 5); // 20 ticks in 1 second * 5 seconds equals 100
+																		// ticks
 						}
 					}
 				}
@@ -446,7 +466,8 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 			if (potFound) {
 				p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
-			} else {
+			}
+			else {
 				p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
 			}
 		});

@@ -26,7 +26,7 @@ purpose or non-infringing.
 
     <groupId>org.reprogle</groupId>
     <artifactId>honeypot-parent</artifactId>
-    <version>3.0.5</version>
+    <version>3.1.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -130,19 +130,19 @@ purpose or non-infringing.
         <dependency>
             <groupId>dev.folia</groupId>
             <artifactId>folia-api</artifactId>
-            <version>1.20.1-R0.1-SNAPSHOT</version>
+            <version>1.20.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.20.1-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -157,6 +157,12 @@ purpose or non-infringing.
             <groupId>com.github.TechFortress</groupId>
             <artifactId>GriefPrevention</artifactId>
             <version>16.18.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.angeschossen</groupId>
+            <artifactId>LandsAPI</artifactId>
+            <version>6.44.6</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -23,7 +23,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.folia.Scheduler;
+import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 public class PlayerCommandPreprocessEventListener implements Listener {
 

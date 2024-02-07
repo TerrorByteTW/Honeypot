@@ -28,8 +28,10 @@ import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
-import org.reprogle.honeypot.common.utils.integrations.GriefPreventionUtil;
-import org.reprogle.honeypot.common.utils.integrations.WorldGuardUtil;
+import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
+import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
+import org.reprogle.honeypot.common.utils.integrations.LandsAdapter;
+import org.reprogle.honeypot.common.utils.integrations.WorldGuardAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,27 +49,35 @@ public class HoneypotCreate implements HoneypotSubCommand {
 	@SuppressWarnings({ "unchecked", "java:S3776", "java:S1192" })
 	public void perform(Player p, String[] args) {
 		Block block;
-		WorldGuardUtil wgu = Honeypot.getWorldGuardUtil();
-		GriefPreventionUtil gpu = Honeypot.getGriefPreventionUtil();
+		WorldGuardAdapter wga = AdapterManager.getWorldGuardAdapter();
+		GriefPreventionAdapter gpa = AdapterManager.getGriefPreventionAdapter();
+		LandsAdapter la = AdapterManager.getLandsAdapter();
 
 		// Get block the player is looking at
 		if (p.getTargetBlockExact(5) != null) {
 			block = p.getTargetBlockExact(5);
-		} else {
+		}
+		else {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 			return;
 		}
 
 		// Check if in a WorldGuard region and the flag is set to deny. If it is, don't
 		// bother continuing
-		if (wgu != null && !wgu.isAllowed(p, block.getLocation())) {
+		if (wga != null && !wga.isAllowed(p, block.getLocation())) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("worldguard"));
 			return;
 		}
 
 		// Check if in a GriefPrevention region
-		if (gpu != null && !gpu.isAllowed(p, block.getLocation())) {
+		if (gpa != null && !gpa.isAllowed(p, block.getLocation())) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("griefprevention"));
+			return;
+		}
+
+		// Check if in a GriefPrevention region
+		if (la != null && !la.isAllowed(p, block.getLocation())) {
+			p.sendMessage(CommandFeedback.sendCommandFeedback("lands"));
 			return;
 		}
 
@@ -110,7 +120,8 @@ public class HoneypotCreate implements HoneypotSubCommand {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
 			// If the block doesn't exist
-		} else {
+		}
+		else {
 			if (args.length >= 2) {
 
 				// Fire HoneypotPreCreateEvent
@@ -125,10 +136,12 @@ public class HoneypotCreate implements HoneypotSubCommand {
 					if (!args[2].isEmpty() && HoneypotConfigManager.getHoneypotsConfig().contains(args[2])) {
 						HoneypotBlockManager.getInstance().createBlock(block, args[2]);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
-					} else {
+					}
+					else {
 						p.sendMessage(CommandFeedback.sendCommandFeedback("noexist"));
 					}
-				} else {
+				}
+				else {
 					HoneypotBlockManager.getInstance().createBlock(block, args[1]);
 					p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 				}
@@ -137,7 +150,8 @@ public class HoneypotCreate implements HoneypotSubCommand {
 				HoneypotCreateEvent hce = new HoneypotCreateEvent(p, block);
 				Bukkit.getPluginManager().callEvent(hce);
 
-			} else {
+			}
+			else {
 				p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
 			}
 		}

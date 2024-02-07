@@ -1,4 +1,4 @@
-language-version: 3
+language-version: 4
 prefix: '&6[Honeypot]&r'
 kick-reason: あなたはハニーポットを破壊しました。これらの行為は許可されていません。
 ban-reason: あなたはハニーポットを破壊したためBANされました。
@@ -14,7 +14,7 @@ reload: configを再読み込みします。言語ファイルに変更を加え
 found-pots: 周辺のハニーポットを可視化しました。
 no-pots-found: この周辺にハニーポットがありません。
 update-available: このプラグインにアップデートがあります。&6https://github.com/TerrorByteTW/Honeypot&r から新しいバージョンをダウンロードしてください。
-against-filter: This block is not in the filter, so you can't do that!
+against-filter: このブロックはフィルター内にないので、それはできません。
 not-looking-at-block: ハニーポットにしたいブロックにカーソルを当ててください
 no-exist: 処罰が見つかりませんでした。
 deleted:
@@ -22,10 +22,11 @@ deleted:
   near: 近くにある全てのハニーポットを削除しました
 worldguard: このリージョンではハニーポットが無効です。
 griefprevention: このエリアはGriefPreventionによって保護されています。あなたには建築を行う権限がありません。
+lands: この地域は土地によって保護されています。 土地の主張にハニーポットを配置することはできません
 unknown-error: 不明なエラーが発生しました。サーバー管理者に連絡してください。
 staff-broke: 今あなたが破壊したブロックはハニーポットです。ブロックが破壊されたためハニーポットが削除されました。
 exempt-no-break: あなたにはこのブロックを破壊する権限がありません。
 searching: 検索しています、しばらくお待ちください...
-truncating: Trimming results per config settings...
+truncating: 構成設定ごとに結果をトリミングしています...
 not-online: '&c指定されたプレイヤーはオフラインです'
 no-history: 指定されたプレイヤーの履歴が見つかりませんでした。

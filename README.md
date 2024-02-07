@@ -95,5 +95,5 @@ etc. Please make sure you have another protection and rollback plugin to prevent
 to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I highly
 recommend CoreProtect and GriefPrevention, but if you have the money to spend, Lands is an awesome plugin as well.
 
-This plugin was also designed for Minecraft 1.17+ and is compiled using Java 17. If you are not running Java 17 on your
-server, this plugin is not for you.
+This plugin is currently written for Minecraft 1.18+ and is compiled using Java 17. If you are not running Java 17 on your
+server, or using Minecraft 1.17(.x) or earlier, this plugin is not for you.

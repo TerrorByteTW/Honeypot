@@ -17,14 +17,14 @@
 package org.reprogle.honeypot.common.utils;
 
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Consumer;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.folia.Scheduler;
+import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 public record HoneypotSupportedVersions(Plugin plugin, String version) {
 
@@ -36,12 +36,15 @@ public record HoneypotSupportedVersions(Plugin plugin, String version) {
 	public void getSupportedVersions(final Consumer<String> consumer) {
 		Scheduler.runTaskAsynchronously(this.plugin, () -> {
 			Honeypot.getHoneypotLogger().info("Checking for updates");
-			try (InputStream inputStream = new URL("https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version).openStream();
-				 Scanner scanner = new Scanner(inputStream)) {
+			try (InputStream inputStream = new URL(
+					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version)
+							.openStream();
+					Scanner scanner = new Scanner(inputStream)) {
 				if (scanner.hasNext()) {
 					consumer.accept(scanner.next());
 				}
-			} catch (IOException exception) {
+			}
+			catch (IOException exception) {
 				Honeypot.getHoneypotLogger().info("Unable to check supported versions: " + exception.getMessage());
 			}
 		});
