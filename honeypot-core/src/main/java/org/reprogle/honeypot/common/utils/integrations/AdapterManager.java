@@ -4,6 +4,13 @@ import org.bukkit.Server;
 
 public class AdapterManager {
 
+    /**
+     * Private constructor to hide implicit one
+     */
+    AdapterManager() {
+
+    }
+
     private static WorldGuardAdapter wga = null;
 
     private static GriefPreventionAdapter gpa = null;

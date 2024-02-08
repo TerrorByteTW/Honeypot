@@ -17,7 +17,6 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;

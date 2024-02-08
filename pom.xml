@@ -29,6 +29,8 @@ purpose or non-infringing.
     <version>3.1.0</version>
     <packaging>pom</packaging>
 
+    <!-- I used to have my API and Core in separate modules. Now the API is bundled with Honeypot. I
+    couldn't be bothered to re-merge the POMs as I really don't care lol-->
     <modules>
         <module>honeypot-core</module>
     </modules>
@@ -122,6 +124,10 @@ purpose or non-infringing.
         <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
+        </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
     </repositories>
 

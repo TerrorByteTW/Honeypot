@@ -36,6 +36,7 @@ import org.reprogle.honeypot.common.providers.included.Warn;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
+import org.reprogle.honeypot.common.utils.integrations.PlaceholderAPIExpansion;
 
 @SuppressWarnings({ "deprecation", "java:S1444", "java:S1104" })
 public final class Honeypot extends JavaPlugin {
@@ -104,6 +105,10 @@ public final class Honeypot extends JavaPlugin {
 		if (!setupPermissions()) {
 			getHoneypotLogger().warning(CommandFeedback.getChatPrefix() + ChatColor.RED
 					+ " Vault is not installed, some features won't work. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
+		}
+
+		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+			new PlaceholderAPIExpansion(this).register();
 		}
 
 		// Register remaining adapters

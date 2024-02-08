@@ -14,6 +14,11 @@ cache-size: 20
 #                     P L U G I N   S E T T I N G S                  #
 ######################################################################
 
+# This setting enables whether or not some potentially unnecessary events are enabled.
+# Leaving these off won't reduce functionality of Honeypot, but if enabled can trigger events to process without player interaction
+# A full list of events that are considered "extra" is here: https://github.com/TerrorByteTW/Honeypot/wiki/Extra-Events
+enable-extra-events: false
+
 # The number of honeypot blocks a player is allowed to break before any action is taken. Default is 1 (immediate action)
 blocks-broken-before-action-taken: 1
 

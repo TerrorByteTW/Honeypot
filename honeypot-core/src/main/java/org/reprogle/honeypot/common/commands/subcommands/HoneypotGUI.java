@@ -45,8 +45,6 @@ import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
 import org.reprogle.honeypot.common.utils.integrations.LandsAdapter;
 import org.reprogle.honeypot.common.utils.integrations.WorldGuardAdapter;
 
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory.Adapter;
-
 import static org.reprogle.honeypot.common.utils.folia.Scheduler.FOLIA;
 
 import java.util.ArrayList;
@@ -277,7 +275,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	}
 
-	@SuppressWarnings({ "unchecked", "java:S3776" })
+	@SuppressWarnings({ "unchecked", "java:S3776", "java:S6541" })
 	private static void createHoneypotFromGUI(InventoryClickEvent event, String action) {
 		Block block;
 		WorldGuardAdapter wga = AdapterManager.getWorldGuardAdapter();
