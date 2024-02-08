@@ -162,7 +162,7 @@ purpose or non-infringing.
         <dependency>
             <groupId>com.github.TechFortress</groupId>
             <artifactId>GriefPrevention</artifactId>
-            <version>16.18.1</version>
+            <version>17.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
