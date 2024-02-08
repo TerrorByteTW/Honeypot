@@ -4,6 +4,7 @@ import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerManager;
+import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
@@ -43,6 +44,9 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("current_count_broken")) {
             Honeypot.getHoneypotLogger().debug("Returning placeholder for player " + player.getName());
             return String.valueOf(HoneypotPlayerManager.getInstance().getCount(player));
+        }
+        else if (params.equalsIgnoreCase("breaks_before_action")) {
+            return String.valueOf(HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken"));
         }
 
         return null;
