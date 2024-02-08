@@ -16,7 +16,12 @@
 
 package org.reprogle.honeypot.common.events;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
@@ -35,28 +40,41 @@ public class ListenerSetup {
 	 * @param plugin The Honeypot plugin instance
 	 */
 	public static void setupListeners(Plugin plugin) {
-		plugin.getServer().getPluginManager().registerEvents(new BlockBreakEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new BlockFromToEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new BlockBurnEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new EntityChangeBlockEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new EntityExplodeEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new PistonExtendRetractListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new InventoryMoveItemEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new PlayerJoinEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new StructureGrowEventListener(), plugin);
-		plugin.getServer().getPluginManager().registerEvents(new PlayerCommandPreprocessEventListener(), plugin);
 
-		// A tiny bit of logic to register the proper container listeners
+		// All primary listners go here
+		final List<Listener> primaryListeners = new ArrayList<>(List.of(new BlockBreakEventListener(),
+				new BlockFromToEventListener(), new BlockBurnEventListener(), new EntityChangeBlockEventListener(),
+				new EntityExplodeEventListener(), new PistonExtendRetractListener(),
+				new InventoryMoveItemEventListener(), new StructureGrowEventListener(),
+				new PlayerCommandPreprocessEventListener(), new PlayerJoinEventListener()));
+
+		// All secondary listeners here
+		final List<Listener> secondaryListeners = new ArrayList<>(
+				List.of(new BlockFormEventListener(), new LeavesDecayEventListener(), new SignChangeEventListener()));
+
+		// Initial registration of events
+		PluginManager manager = plugin.getServer().getPluginManager();
+		primaryListeners.forEach(event -> manager.registerEvents(event, plugin));
+
+		// Register the proper events for container actions and their processors
 		if (Boolean.TRUE.equals(
 				HoneypotConfigManager.getPluginConfig().getBoolean("container-actions.enable-container-actions"))) {
-			if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig()
-					.getBoolean("container-actions.use-inventory-click"))) {
+			if (Boolean.TRUE.equals(
+					HoneypotConfigManager.getPluginConfig().getBoolean("container-actions.use-inventory-click"))) {
 				Honeypot.getHoneypotLogger().info("Using inventory click for containers");
-				plugin.getServer().getPluginManager().registerEvents(new InventoryClickDragEventListener(), plugin);
-			} else {
-				Honeypot.getHoneypotLogger().info("Using player interact for containers");
-				plugin.getServer().getPluginManager().registerEvents(new PlayerInteractEventListener(), plugin);
+				manager.registerEvents(new InventoryClickDragEventListener(), plugin);
 			}
+			else {
+				Honeypot.getHoneypotLogger().info("Using player interact for containers");
+				manager.registerEvents(new PlayerInteractEventListener(), plugin);
+			}
+		}
+
+		// Register extra unnecessary events
+		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-extra-events"))) {
+			Honeypot.getHoneypotLogger().info(
+					"Extra events have been enabled. These shouldn't cause lag, but do note they may fire without player interaction necessary");
+			secondaryListeners.forEach(event -> manager.registerEvents(event, plugin));
 		}
 	}
 

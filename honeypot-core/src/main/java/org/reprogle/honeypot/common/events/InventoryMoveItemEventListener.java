@@ -28,6 +28,13 @@ import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 
 public class InventoryMoveItemEventListener implements Listener {
 
+	/**
+	 * Create constructor to hide implicit one
+	 */
+	InventoryMoveItemEventListener() {
+
+	}
+
 	@EventHandler(priority = EventPriority.LOW)
 	public static void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
 		// Get the inventory type of the source block
@@ -35,15 +42,19 @@ public class InventoryMoveItemEventListener implements Listener {
 
 		// Get the location of the destination block, and the world. These require null checks
 		Location location = event.getDestination().getLocation();
-		if (location == null) return;
+		if (location == null)
+			return;
 
 		World world = location.getWorld();
-		if (world == null) return;
+		if (world == null)
+			return;
 
 		Block block = world.getBlockAt(event.getDestination().getLocation());
 
-		// Check if the source was a Hopper or Dropper and if the destination is a Honeypot. If so, cancel the whole thing.
-		if ((source.equals(InventoryType.HOPPER) || source.equals(InventoryType.DROPPER)) && HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
+		// Check if the source was a Hopper or Dropper and if the destination is a Honeypot. If so, cancel the whole
+		// thing.
+		if ((source.equals(InventoryType.HOPPER) || source.equals(InventoryType.DROPPER))
+				&& HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
 			event.setCancelled(true);
 		}
 	}

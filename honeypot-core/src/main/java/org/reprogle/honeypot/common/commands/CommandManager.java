@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class CommandManager implements TabExecutor {
 
 	// Create an ArrayList of SubCommands called subcommands
@@ -62,29 +63,26 @@ public class CommandManager implements TabExecutor {
 	}
 
 	/**
-	 * Called by Bukkit when a player runs a command registered to our plugin. When
-	 * called, the plugin will check if the sender is a player.
-	 * If it is, it will first verify permissions, then verify if there were any
-	 * subcommands.
-	 * If not, show the GUI. If there were subcommands, but they aren't valid, show
-	 * the usage.
+	 * Called by Bukkit when a player runs a command registered to our plugin. When called, the plugin will check if the
+	 * sender is a player. If it is, it will first verify permissions, then verify if there were any subcommands. If
+	 * not, show the GUI. If there were subcommands, but they aren't valid, show the usage.
 	 * <p>
-	 * If the sender is not a player, it will check if the command was reload. If it
-	 * was, it'll allow the command to be run,
-	 * otherwise it will throw an error.
+	 * If the sender is not a player, it will check if the command was reload. If it was, it'll allow the command to be
+	 * run, otherwise it will throw an error.
 	 *
-	 * @param sender  The Sender sending the command. Not necessarily a player,
-	 *                could be console or a plugin
+	 * @param sender The Sender sending the command. Not necessarily a player, could be console or a plugin
 	 * @param command The Command being executed
-	 * @param label   The label of the command
-	 * @param args    Any arguments passed to the command
-	 * @return True if it ran successfully, false if it errored at any point.
-	 *         Defaults as false
+	 * @param label The label of the command
+	 * @param args Any arguments passed to the command
+	 * @return True if it ran successfully, false if it errored at any point. Defaults as false
 	 */
 	@Override
-	@SuppressWarnings({ "java:S3776", "java:S1192", "deprecation" })
-	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-			@NotNull String[] args) {
+	@SuppressWarnings({ "java:S3776", "java:S1192" })
+	public boolean onCommand(@NotNull
+	CommandSender sender, @NotNull
+	Command command, @NotNull
+	String label, @NotNull
+	String[] args) {
 
 		// Check if the command sender is a player
 		if (sender instanceof Player p) {
@@ -108,7 +106,8 @@ public class CommandManager implements TabExecutor {
 
 							subcommand.perform(p, args);
 							return true;
-						} catch (IOException e) {
+						}
+						catch (IOException e) {
 							Honeypot.getHoneypotLogger()
 									.severe("Error while running command " + args[0] + "! Full stack trace: " + e);
 						}
@@ -116,7 +115,8 @@ public class CommandManager implements TabExecutor {
 				}
 
 				p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
-			} else {
+			}
+			else {
 				// If no subcommands are passed, open the GUI. This is done by looping through
 				// all the subcommands and
 				// finding the GUI one, then performing it
@@ -130,15 +130,16 @@ public class CommandManager implements TabExecutor {
 
 							subcommand.perform(p, args);
 							return true;
-						} catch (IOException e) {
-							Honeypot.getHoneypotLogger()
-									.severe("Error while running command! Full stack trace: " + e);
+						}
+						catch (IOException e) {
+							Honeypot.getHoneypotLogger().severe("Error while running command! Full stack trace: " + e);
 						}
 					}
 				}
 			}
 
-		} else {
+		}
+		else {
 			if (args.length > 0 && args[0].equals("reload")) {
 				try {
 					HoneypotConfigManager.getPluginConfig().reload();
@@ -153,15 +154,16 @@ public class CommandManager implements TabExecutor {
 					Honeypot.plugin.getServer().getConsoleSender()
 							.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
 					return true;
-				} catch (IOException e) {
+				}
+				catch (IOException e) {
 					Honeypot.getHoneypotLogger().severe("Could not reload honeypot config! Full stack trace: " + e);
 				}
-			} else {
+			}
+			else {
 				ConsoleCommandSender console = Honeypot.plugin.getServer().getConsoleSender();
-				console.sendMessage(ChatColor.GOLD + "\n"
-						+ " _____                         _\n"
-						+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n"
-						+ "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD
+				console.sendMessage(ChatColor.GOLD + "\n" + " _____                         _\n"
+						+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n" + "|     | . |   | -_| | | . | . |  _|    by"
+						+ ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD
 						+ "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED
 						+ Honeypot.plugin.getDescription().getVersion() + "\n" + ChatColor.GOLD
 						+ "                  |___|_|");
@@ -184,23 +186,23 @@ public class CommandManager implements TabExecutor {
 	}
 
 	/**
-	 * This function is responsible for tab completion of our pluign. It will check
-	 * if the tab completer is at the first
-	 * arg. If it is, return partial matches for the tab completer. If it's longer
-	 * than one arg, return partial matches
+	 * This function is responsible for tab completion of our pluign. It will check if the tab completer is at the first
+	 * arg. If it is, return partial matches for the tab completer. If it's longer than one arg, return partial matches
 	 * for the subcommand (such as create)
 	 *
-	 * @param sender  The sender of the command
+	 * @param sender The sender of the command
 	 * @param command The command being tab completed
-	 * @param alias   The alias of the command
-	 * @param args    The arguments passed to the tab completer (Required for tab
-	 *                completion)
+	 * @param alias The alias of the command
+	 * @param args The arguments passed to the tab completer (Required for tab completion)
 	 * @return A list of valid tab completed commands
 	 */
 	@Nullable
 	@Override
-	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias,
-			@NotNull String[] args) {
+	public List<String> onTabComplete(@NotNull
+	CommandSender sender, @NotNull
+	Command command, @NotNull
+	String alias, @NotNull
+	String[] args) {
 
 		// Cast the CommandSender object to Player
 		Player p = (Player) sender;
@@ -218,7 +220,8 @@ public class CommandManager implements TabExecutor {
 				StringUtil.copyPartialMatches(args[0], subcommandsNameOnly, subcommandsTabComplete);
 
 				return subcommandsTabComplete;
-			} else if (args.length >= 2) {
+			}
+			else if (args.length >= 2) {
 				// If the argument is the 2nd one or more, return the subcommands for that
 				// subcommand
 				for (HoneypotSubCommand subcommand : subcommands) {
@@ -246,7 +249,7 @@ public class CommandManager implements TabExecutor {
 	/**
 	 * Check if the Player has the permissions necessary to run the subcommand
 	 *
-	 * @param p          The player to check
+	 * @param p The player to check
 	 * @param subcommand The subcommand we're checking
 	 */
 	private Boolean checkPermissions(Player p, HoneypotSubCommand subcommand) {
