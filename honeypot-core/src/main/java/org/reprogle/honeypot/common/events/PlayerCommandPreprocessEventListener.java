@@ -23,7 +23,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.folia.Scheduler;
+import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 public class PlayerCommandPreprocessEventListener implements Listener {
 
@@ -42,12 +42,11 @@ public class PlayerCommandPreprocessEventListener implements Listener {
 				String rawCommand = event.getMessage();
 				String processedCommand = rawCommand.replace("/hpteleport",
 						"minecraft:tp " + event.getPlayer().getName());
-				
-				Scheduler.runTask(Honeypot.plugin, () -> {
-					Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand);
-				});
 
-			} else {
+				Scheduler.runTask(Honeypot.plugin,
+						() -> Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand));
+			}
+			else {
 				event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 			}
 

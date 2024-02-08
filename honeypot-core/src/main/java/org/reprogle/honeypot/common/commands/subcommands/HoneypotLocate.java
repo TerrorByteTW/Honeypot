@@ -28,7 +28,7 @@ import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
-import org.reprogle.honeypot.folia.Scheduler;
+import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;

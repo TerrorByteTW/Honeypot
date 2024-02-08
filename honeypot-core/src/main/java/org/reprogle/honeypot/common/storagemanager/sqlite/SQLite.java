@@ -67,7 +67,6 @@ public class SQLite extends Database {
 	 *
 	 * @return Connection if the connection is valid, otherwise returns null
 	 */
-	@SuppressWarnings("deprecation")
 	public Connection getSQLConnection() {
 		File dataFolder = new File(Honeypot.plugin.getDataFolder(), "honeypot.db");
 		if (!dataFolder.exists()) {
@@ -96,8 +95,7 @@ public class SQLite extends Database {
 		} catch (ClassNotFoundException e) {
 			Honeypot.getHoneypotLogger()
 					.severe("SQLite JDBC Library not found. Please install this on your PC to use SQLite: " + e);
-			// noinspection removal
-			Honeypot.plugin.getPluginLoader().disablePlugin(Honeypot.plugin);
+			Honeypot.plugin.getServer().getPluginManager().disablePlugin(Honeypot.plugin);
 		}
 
 		return null;
