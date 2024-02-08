@@ -27,7 +27,7 @@ purpose or non-infringing.
     <parent>
         <groupId>org.reprogle</groupId>
         <artifactId>honeypot-parent</artifactId>
-        <version>3.0.5</version>
+        <version>3.1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -69,7 +69,7 @@ purpose or non-infringing.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.5.1</version>
                 <configuration>
                     <filters>
                         <filter>
@@ -140,6 +140,12 @@ purpose or non-infringing.
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

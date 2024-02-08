@@ -20,7 +20,7 @@ import org.bukkit.Material;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
-import org.reprogle.honeypot.folia.Scheduler;
+import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 import java.util.List;
 
@@ -32,12 +32,12 @@ public class GhostHoneypotFixer {
 		// Start the GhostHoneypotFixer
 		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
 			Honeypot.getHoneypotLogger().info(
-					"Starting the ghost checker task! If you need to disable this, update the config and restart the server");
+					"Starting the ghost checker task! If you need to change the settings for this function, edit the config then do /honeypot reload");
 			this.startTask();
 		}
 	}
 
-	private static Scheduler.ScheduledTask task;
+	private Scheduler.ScheduledTask task;
 
 	/**
 	 * Start a task to check for ghost honeypots every defined interval
@@ -55,27 +55,25 @@ public class GhostHoneypotFixer {
 				Material block;
 
 				/*
-				 * This try/catch stems from Folia, where a region may not be ticking yet, or
-				 * even loaded, so the getType() method returns an error
-				 * Remember, pot is a HoneypotBlockObject, not a Block itself, so #getBlock()
-				 * may return null (Usually not, but it's possible)
-				 * This is a place we can improve, but for now it's fine since I've never seen
-				 * the error before prior to testing Folia
-				 * Don't get me wrong, I hate the mindset of
-				 * "I haven't seen it break so it obviously won't" when *clearly* the Spigot API
+				 * This try/catch stems from Folia, where a region may not be ticking yet, or even loaded, so the
+				 * getType() method returns an error. Remember, `pot` is a HoneypotBlockObject, not a Block itself, so
+				 * #getBlock() may return null (Usually not, but it's possible) This is a place we can improve, but for
+				 * now it's fine since I've never seen the error before prior to testing Folia. Don't get me wrong, I
+				 * hate the mindset of "I haven't seen it break so it obviously won't" when *clearly* the Spigot API
 				 * docs state that it *can* break, but I'm going to put a pin in it for now :)
 				 */
 				try {
 					block = pot.getBlock().getType();
-				} catch (NullPointerException e) {
-					Honeypot.getHoneypotLogger().info("Could not get the material for Honeypot at "
+				}
+				catch (NullPointerException e) {
+					Honeypot.getHoneypotLogger().warning("Could not get the material for Honeypot at "
 							+ pot.getCoordinates() + " because the world isn't loaded yet (Maybe running Folia?)");
 					continue;
 				}
 
 				if (block.equals(Material.AIR)) {
 					Honeypot.getHoneypotLogger()
-							.info("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
+							.debug("Found ghost Honeypot at " + pot.getCoordinates() + ". Removing");
 					HoneypotBlockManager.getInstance().deleteBlock(pot.getBlock());
 					removedPots++;
 				}
@@ -83,8 +81,6 @@ public class GhostHoneypotFixer {
 
 			Honeypot.getHoneypotLogger()
 					.info("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
-			Honeypot.getHoneypotLogger()
-					.log("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
 		}, 0L, 20L * 60 * HoneypotConfigManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
 	}
 
