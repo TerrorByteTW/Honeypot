@@ -30,8 +30,6 @@ public class PhysicsUtil {
 
 	}
 
-	// TODO: - Test behavior of new items. They are in this list, but we need to
-	// make sure they actually function the way we expect them to
 	private static final List<Material> physicsUp = Arrays.asList(
 			Material.ACACIA_BUTTON,
 			Material.ACACIA_DOOR,
@@ -387,10 +385,18 @@ public class PhysicsUtil {
 			Material.WHITE_BANNER,
 			Material.YELLOW_BANNER);
 
+	/**
+	 * Get the list of blocks that have physics which can be placed on the sides of blocks (Trapdoors, as an example)
+	 * @return Blocks that break when the block they're on break, but can be placed on the side
+	 */
 	public static List<Material> getSidePhysics() {
 		return physicsSide;
 	}
 
+	/**
+	 * Get the list of blocks that have physics but can only be placed on top of blocks (Flowers, as an example)
+	 * @return Blocks that break when the block they're on break, but only can be placed on top
+	 */
 	public static List<Material> getUpPhysics() {
 		return physicsUp;
 	}

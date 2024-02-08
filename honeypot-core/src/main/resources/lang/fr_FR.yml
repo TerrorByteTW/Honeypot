@@ -1,4 +1,4 @@
-language-version: 2
+language-version: 3
 prefix: "&6[Honeypot]&r"
 kick-reason: "Coup de pied pour avoir cassé des blocs de pot de miel. Ne chagrine pas !"
 ban-reason: "Vous avez été banni pour avoir cassé des blocs de pot de miel"
@@ -22,6 +22,7 @@ deleted:
   near: "Suppression de tous les blocs de pots de miel à proximité"
 worldguard: "Les pots de miel sont désactivés dans cette région"
 griefprevention: "Cette zone est protégée par GriefPrevention et vous n'êtes pas autorisé à construire"
+lands: "Cette zone est protégée par les Terres. Vous ne pouvez pas placer de Honeypots dans les revendications foncières"
 unknown-error: "Erreur inconnue. Veuillez contacter l'administrateur du serveur"
 staff-broke: "Juste un FYI c'était un pot de miel. Depuis que vous l'avez cassé, nous l'avons supprimé"
 exempt-no-break: "Vous êtes exempté des actions d'interruption, mais vous n'êtes pas autorisé à supprimer les blocs de pot de miel. Pardon!"

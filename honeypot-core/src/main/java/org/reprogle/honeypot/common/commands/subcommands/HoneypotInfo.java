@@ -26,6 +26,7 @@ import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class HoneypotInfo implements HoneypotSubCommand {
 
 	@Override
@@ -35,8 +36,8 @@ public class HoneypotInfo implements HoneypotSubCommand {
 
 	@Override
 	public void perform(Player p, String[] args) {
-		p.sendMessage(CommandFeedback.getChatPrefix() + " Honeypot version "
-				+ Honeypot.plugin.getDescription().getVersion());
+		p.sendMessage(
+				CommandFeedback.getChatPrefix() + " Honeypot version " + Honeypot.plugin.getDescription().getVersion());
 
 		p.sendMessage(CommandFeedback.getChatPrefix() + " Running on " + Bukkit.getVersion());
 		Honeypot.checkIfServerSupported();
