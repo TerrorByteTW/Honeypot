@@ -42,12 +42,11 @@ public class PlayerCommandPreprocessEventListener implements Listener {
 				String rawCommand = event.getMessage();
 				String processedCommand = rawCommand.replace("/hpteleport",
 						"minecraft:tp " + event.getPlayer().getName());
-				
-				Scheduler.runTask(Honeypot.plugin, () -> {
-					Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand);
-				});
 
-			} else {
+				Scheduler.runTask(Honeypot.plugin,
+						() -> Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand));
+			}
+			else {
 				event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
 			}
 

@@ -107,8 +107,12 @@ public final class Honeypot extends JavaPlugin {
 					+ " Vault is not installed, some features won't work. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
 		}
 
-		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			getHoneypotLogger().info("Hooking into Placeholder API!");
 			new PlaceholderAPIExpansion(this).register();
+		}
+		else {
+			getHoneypotLogger().info("PlaceholderAPI is not installed! Please install it");
 		}
 
 		// Register remaining adapters
@@ -126,7 +130,7 @@ public final class Honeypot extends JavaPlugin {
 
 		if (isFolia()) {
 			getHoneypotLogger().warning(
-					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited, be wary when using it for now!");
+					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited and not actively tested, be wary when using it for now!");
 		}
 
 		checkIfServerSupported();

@@ -33,14 +33,12 @@ public class CommandFeedback {
 	}
 
 	/**
-	 * A helper class which helps to reduce boilerplate player.sendMessage code by
-	 * providing the strings to send instead
+	 * A helper class which helps to reduce boilerplate player.sendMessage code by providing the strings to send instead
 	 * of having to copy and paste them.
 	 *
 	 * @param feedback The string to send back
-	 * @param success  An optional Boolean which is used for the success feedback.
-	 *                 If none is passed, success just
-	 *                 replies "Success!"
+	 * @param success An optional Boolean which is used for the success feedback. If none is passed, success just
+	 * replies "Success!"
 	 * @return The Feedback string
 	 */
 	@SuppressWarnings("java:S1192")
@@ -50,129 +48,105 @@ public class CommandFeedback {
 		YamlDocument languageFile = HoneypotConfigManager.getLanguageFile();
 
 		switch (feedback.toLowerCase()) {
-			case "usage" ->
-				feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " " + ChatColor.WHITE
-						+ "Need Help?\n" +
-						"  " + "/honeypot " + ChatColor.GRAY + "create [block]\n" +
-						"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" +
-						"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" +
-						"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "locate\n" +
-						"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n" +
-						"  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY
-						+ "history [query | delete | purge] \n \n" +
-						ChatColor.WHITE + "-----------------------");
+		case "usage" -> feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " "
+				+ ChatColor.WHITE + "Need Help?\n" + "  " + "/honeypot " + ChatColor.GRAY + "create [block]\n" + "  "
+				+ ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" + "  "
+				+ ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" + "  " + ChatColor.WHITE + "/honeypot "
+				+ ChatColor.GRAY + "locate\n" + "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n" + "  "
+				+ ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "history [query | delete | purge] \n \n"
+				+ ChatColor.WHITE + "-----------------------");
 
-			case "kick" ->
-				feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
-						Objects.requireNonNull(languageFile.getString("kick-reason"), "Kick reason is null"));
+		case "kick" -> feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
+				Objects.requireNonNull(languageFile.getString("kick-reason"), "Kick reason is null"));
 
-			case "ban" ->
-				feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
-						Objects.requireNonNull(languageFile.getString("ban-reason"), "Ban reason is null"));
+		case "ban" -> feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
+				Objects.requireNonNull(languageFile.getString("ban-reason"), "Ban reason is null"));
 
-			case "warn" ->
-				feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
-						Objects.requireNonNull(languageFile.getString("warn-message"), "Warn message is null"));
+		case "warn" -> feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
+				Objects.requireNonNull(languageFile.getString("warn-message"), "Warn message is null"));
 
-			case "alreadyexists" ->
+		case "alreadyexists" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("already-exists")));
+
+		case "success" -> {
+			if (success.length > 0 && success[0].equals(true)) {
 				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("already-exists")));
+						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.created")));
 
-			case "success" -> {
-				if (success.length > 0 && success[0].equals(true)) {
-					feedbackMessage = (chatPrefix + " "
-							+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.created")));
-
-				} else if (success.length > 0 && success[0].equals(false)) {
-					feedbackMessage = (chatPrefix + " "
-							+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.removed")));
-
-				} else {
-					feedbackMessage = (chatPrefix + " "
-							+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.default")));
-
-				}
 			}
-
-			case "notapot" ->
+			else if (success.length > 0 && success[0].equals(false)) {
 				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-a-honeypot")));
+						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.removed")));
 
-			case "nopermission" ->
+			}
+			else {
 				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-permission")));
+						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.default")));
 
-			case "reload" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("reload")));
+			}
+		}
 
-			case "foundpot" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("found-pots")));
+		case "notapot" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-a-honeypot")));
 
-			case "nopotfound" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-pots-found")));
+		case "nopermission" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-permission")));
 
-			case "updateavailable" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("update-available")));
+		case "reload" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("reload")));
 
-			case "againstfilter" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("against-filter")));
+		case "foundpot" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("found-pots")));
 
-			case "notlookingatblock" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-looking-at-block")));
+		case "nopotfound" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-pots-found")));
 
-			case "noexist" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-exist")));
+		case "updateavailable" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("update-available")));
 
-			case "deletedall" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("deleted.all")));
+		case "againstfilter" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("against-filter")));
 
-			case "deletednear" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("deleted.near")));
+		case "notlookingatblock" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-looking-at-block")));
 
-			case "worldguard" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("worldguard")));
+		case "noexist" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-exist")));
 
-			case "griefprevention" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("griefprevention")));
+		case "deletedall" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("deleted.all")));
 
-			case "staffbroke" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("staff-broke")));
+		case "deletednear" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("deleted.near")));
 
-			case "exemptnobreak" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("exempt-no-break")));
+		case "worldguard" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("worldguard")));
 
-			case "searching" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("searching")));
+		case "griefprevention" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("griefprevention")));
 
-			case "truncating" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("truncating")));
+		case "staffbroke" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("staff-broke")));
 
-			case "notonline" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-online")));
+		case "exemptnobreak" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("exempt-no-break")));
 
-			case "nohistory" ->
-				feedbackMessage = (chatPrefix + " "
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-history")));
+		case "searching" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("searching")));
 
-			default ->
-				feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
-						+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("unknown-error")));
+		case "truncating" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("truncating")));
+
+		case "notonline" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-online")));
+
+		case "nohistory" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-history")));
+
+		case "lands" -> feedbackMessage = (chatPrefix + " "
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("lands")));
+		default -> feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
+				+ ChatColor.translateAlternateColorCodes('&', languageFile.getString("unknown-error")));
 		}
 		return feedbackMessage;
 	}

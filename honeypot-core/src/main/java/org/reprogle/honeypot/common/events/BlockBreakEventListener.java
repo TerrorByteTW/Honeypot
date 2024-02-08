@@ -78,7 +78,8 @@ public class BlockBreakEventListener implements Listener {
 					|| (event.getPlayer().hasPermission(REMOVE_PERMISSION)
 							|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
 				deleteBlock = true;
-			} else {
+			}
+			else {
 				event.setCancelled(true);
 			}
 
@@ -86,8 +87,15 @@ public class BlockBreakEventListener implements Listener {
 			// action.
 			// Otherwise, check if the player should have the action triggered
 			if (HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken") <= 1) {
+				// This is just a precaution to ensure that the player count is always less than 1 if the value in the
+				// config is 1
+				if (HoneypotPlayerManager.getInstance().getCount(event.getPlayer()) > 1) {
+					HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), 0);
+				}
+
 				breakAction(event);
-			} else {
+			}
+			else {
 				countBreak(event);
 			}
 
@@ -118,13 +126,9 @@ public class BlockBreakEventListener implements Listener {
 
 		Block block = event.getBlock();
 
-		Block[] adjacentBlocks = new Block[] {
-				block.getRelative(BlockFace.DOWN),
-				block.getRelative(BlockFace.NORTH),
-				block.getRelative(BlockFace.SOUTH),
-				block.getRelative(BlockFace.EAST),
-				block.getRelative(BlockFace.WEST)
-		};
+		Block[] adjacentBlocks = new Block[] { block.getRelative(BlockFace.DOWN), block.getRelative(BlockFace.NORTH),
+				block.getRelative(BlockFace.SOUTH), block.getRelative(BlockFace.EAST),
+				block.getRelative(BlockFace.WEST) };
 
 		Block blockUp = block.getRelative(BlockFace.UP);
 
@@ -152,8 +156,8 @@ public class BlockBreakEventListener implements Listener {
 			HoneypotBlockManager.getInstance().deleteBlock(blockUp);
 			Honeypot.getHoneypotLogger().warning(
 					"A Honeypot has been removed due to the block it's attached to being broken. It was located at "
-							+ blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ()
-							+ ". " + event.getPlayer().getName()
+							+ blockUp.getX() + ", " + blockUp.getY() + ", " + blockUp.getZ() + ". "
+							+ event.getPlayer().getName()
 							+ " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot");
 		}
 	}
@@ -184,12 +188,14 @@ public class BlockBreakEventListener implements Listener {
 
 			// At this point we know the player has one of those permissions above. Now we
 			// need to figure out which
-		} else if (event.getPlayer().hasPermission(REMOVE_PERMISSION)
+		}
+		else if (event.getPlayer().hasPermission(REMOVE_PERMISSION)
 				|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()) {
 			event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("staffbroke"));
 
 			// If it got to here, then they are exempt but can't break blocks anyway.
-		} else {
+		}
+		else {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("exemptnobreak"));
 		}
@@ -225,7 +231,8 @@ public class BlockBreakEventListener implements Listener {
 		if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
 			HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), 0);
 			breakAction(event);
-		} else {
+		}
+		else {
 			// Just count it
 			HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), blocksBroken);
 		}
