@@ -68,7 +68,7 @@ Prerequisites:
 $ git clone https://github.com/TerrorByteTW/Honeypot.git
 ```
 
-2Install Dependencies, Compile & Package
+2. Install Dependencies, Compile & Package
 
 ```bash
 $ mvn install
