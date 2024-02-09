@@ -56,10 +56,10 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
 Prerequisites:
 
-- Java 17 (You may compile with Java 18, but Java 17 is what Minecraft servers 1.17.1+ are required to use. I'd compile
+- Java 17 (You may compile with Java 18, but Java 17 is what Minecraft servers 1.18+ are required to use. I'd compile
   for that version since most servers will be using Java 17)
 - Maven 3.8.6+ (That is what I used for compiling this project, so I'd recommend just using that version at least. I do
-  know from prior experience that the maven packaged with package managers such as `apt` does _not_ function properly.)
+  know from prior experience that the maven installed via package managers such as `apt` does _not_ function properly.)
 
 1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that
    accordingly
