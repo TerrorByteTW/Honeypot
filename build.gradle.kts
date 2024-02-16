@@ -52,7 +52,7 @@ subprojects {
                     if (gradle.taskGraph.hasTask(":build")) {
                         println("shadowJar was run as a dependency of build")
                     } else {
-                        println("If you are running the shadowJar task directly, don't! You'll have problems. Please run ./gradlew to actually build the project properly.")
+                        throw new GradleException("If you are running the shadowJar task directly, don't! You'll have problems. Please run ./gradlew to actually build the project properly.")
                     }
                 }
             }

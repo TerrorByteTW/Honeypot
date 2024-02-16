@@ -58,7 +58,7 @@ Prerequisites:
 
 - Java 17 (You may compile with Java 18, but Java 17 is what Minecraft servers 1.18+ are required to use. I'd compile
   for that version since most servers will be using Java 17)
-- Gradle 8.6 
+- Gradle 8.0.2+ (I use 8.6 as of writing this, but from testing I know at least 8.0.2+ works)
 
 1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that
    accordingly
@@ -70,7 +70,7 @@ $ git clone https://github.com/TerrorByteTW/Honeypot.git
 2. Install Dependencies, Compile & Package
 
 ```bash
-$ gradlew shadowJar
+$ ./gradlew build
 ```
 
 ## Developers
