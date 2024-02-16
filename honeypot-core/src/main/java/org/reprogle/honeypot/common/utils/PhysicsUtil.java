@@ -129,7 +129,7 @@ public class PhysicsUtil {
 			Material.FROGSPAWN,
 			Material.FROG_SPAWN_EGG,
 			Material.GLOW_LICHEN,
-			Material.GRASS,
+			Material.SHORT_GRASS,
 			Material.GRAVEL,
 			Material.GRAY_BANNER,
 			Material.GRAY_CANDLE,
