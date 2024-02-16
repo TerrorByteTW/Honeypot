@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.storagemanager;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.sqlite.Database;
@@ -42,11 +43,10 @@ public class HoneypotPlayerManager {
 	}
 
 	/**
-	 * Create a honeypot block by calling the SQLite DB. In the future this will be
-	 * a switch case statement to handle
+	 * Create a honeypot block by calling the SQLite DB. In the future this will be a switch case statement to handle
 	 * multiple DB types
 	 *
-	 * @param player       The Player object
+	 * @param player The Player object
 	 * @param blocksBroken The amount of Blocks broken
 	 */
 	public void addPlayer(Player player, int blocksBroken) {
@@ -56,16 +56,14 @@ public class HoneypotPlayerManager {
 
 		db.createHoneypotPlayer(player, blocksBroken);
 		Honeypot.getHoneypotLogger()
-				.log("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
+				.info("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
 	}
 
 	/**
-	 * Set the number of blocks broken by the player by calling the SQLite
-	 * setPlayerCount function. In the future this
-	 * will be a switch case statement to handle multiple DB types without changing
-	 * code
+	 * Set the number of blocks broken by the player by calling the SQLite setPlayerCount function. In the future this
+	 * will be a switch case statement to handle multiple DB types without changing code
 	 *
-	 * @param player       The Player object
+	 * @param player The Player object
 	 * @param blocksBroken The amount of blocks broken by the player
 	 */
 	public void setPlayerCount(Player player, int blocksBroken) {
@@ -79,17 +77,33 @@ public class HoneypotPlayerManager {
 	}
 
 	/**
-	 * Return the action for the honeypot block (Meant for ban, kick, etc.)
+	 * Gets the amount of Honeypots the player has broken. This is NOT the total, but rather the current amount until it
+	 * loops to 0, based on the config
 	 *
-	 * @param playerName the Player name
+	 * @param player the Player object
 	 * @return The amount of Honeypot blocks the player has broken
 	 */
-	public int getCount(Player playerName) {
+	public int getCount(Player player) {
 		Database db;
 		db = new SQLite(Honeypot.plugin);
 		db.load();
 
-		return db.getCount(playerName);
+		return db.getCount(player);
+	}
+
+	/**
+	 * Gets the amount of Honeypots the player has broken. This is NOT the total, but rather the current amount until it
+	 * loops to 0, based on the config
+	 *
+	 * @param player the Player name
+	 * @return The amount of Honeypot blocks the player has broken
+	 */
+	public int getCount(OfflinePlayer player) {
+		Database db;
+		db = new SQLite(Honeypot.plugin);
+		db.load();
+
+		return db.getCount(player);
 	}
 
 	/**

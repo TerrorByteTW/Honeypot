@@ -35,10 +35,10 @@ import org.reprogle.honeypot.common.providers.included.Notify;
 import org.reprogle.honeypot.common.providers.included.Warn;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.utils.*;
-import org.reprogle.honeypot.common.utils.integrations.GriefPreventionUtil;
-import org.reprogle.honeypot.common.utils.integrations.WorldGuardUtil;
+import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
+import org.reprogle.honeypot.common.utils.integrations.PlaceholderAPIExpansion;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "java:S1444", "java:S1104" })
 public final class Honeypot extends JavaPlugin {
 
 	public static Honeypot plugin;
@@ -49,10 +49,6 @@ public final class Honeypot extends JavaPlugin {
 
 	private static Permission perms = null;
 
-	private static WorldGuardUtil wgu = null;
-
-	private static GriefPreventionUtil gpu = null;
-
 	private static GhostHoneypotFixer ghf = null;
 
 	private static BehaviorRegistry registry = new BehaviorRegistry();
@@ -62,24 +58,16 @@ public final class Honeypot extends JavaPlugin {
 	@SuppressWarnings({ "java:S1444" })
 	public static BehaviorProcessor processor = null;
 
-	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[] {
-			new Ban(),
-			new Kick(),
-			new Warn(),
-			new Notify()
-	};
+	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[] { new Ban(), new Kick(), new Warn(),
+			new Notify() };
 
 	/**
-	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
-	 * registers flags.
+	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard registers flags.
 	 */
 	@Override
 	@SuppressWarnings("java:S2696")
 	public void onLoad() {
-		if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-			wgu = new WorldGuardUtil();
-			wgu.setupWorldGuard();
-		}
+		AdapterManager.onLoadAdapters(getServer());
 
 		registry = new BehaviorRegistry();
 
@@ -92,23 +80,20 @@ public final class Honeypot extends JavaPlugin {
 	}
 
 	/**
-	 * Enable method called by Bukkit. This is a little messy due to all the setup
-	 * it has to do
+	 * Enable method called by Bukkit. This is a little messy due to all the setup it has to do
 	 */
 	@Override
 	@SuppressWarnings({ "unused", "java:S2696" })
 	public void onEnable() {
-		// Variables and stuff
 		plugin = this;
 		gui = new GUI(this);
 		logger = new HoneypotLogger();
 		registry.setInitialized(true);
 
-		// Load plugin configs
 		HoneypotConfigManager.setupConfig(this);
 
-		logger.log("Registered " + registry.size() + " behavior providers. Locking further registrations");
-		getHoneypotLogger().info("Successfully registered " + registry.size() + " behavior providers");
+		getHoneypotLogger().info("Successfully registered " + registry.size()
+				+ " behavior providers. Further registrations are now locked.");
 
 		// Load everything necessary for the plugin to work
 		Metrics metrics = new Metrics(this, 15425);
@@ -116,40 +101,38 @@ public final class Honeypot extends JavaPlugin {
 
 		ghf = new GhostHoneypotFixer();
 
-		// Setup Vault (This is a requirement!)
+		// Setup Vault
 		if (!setupPermissions()) {
-			getHoneypotLogger().warning(
-					CommandFeedback.getChatPrefix() + ChatColor.RED
-							+ " Vault is not installed, some features won't work");
-			logger.log(
-					"Vault is not installed. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
-			return;
+			getHoneypotLogger().warning(CommandFeedback.getChatPrefix() + ChatColor.RED
+					+ " Vault is not installed, some features won't work. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
 		}
 
-		// Register GriefPrevention
-		if (getServer().getPluginManager().getPlugin("GriefPrevention") != null)
-			gpu = new GriefPreventionUtil();
+		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			getHoneypotLogger().info("Hooking into Placeholder API!");
+			new PlaceholderAPIExpansion(this).register();
+		}
+		else {
+			getHoneypotLogger().info("PlaceholderAPI is not installed! Please install it");
+		}
 
-		// noinspection DataFlowIssue
+		// Register remaining adapters
+		AdapterManager.onEnableAdapters(getServer());
+
 		getCommand("honeypot").setExecutor(new CommandManager());
-		logger.log("Loaded plugin");
+		getHoneypotLogger().info("Loaded plugin");
 
-		// Output the splash message
-		getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" +
-				" _____                         _\n" +
-				"|  |  |___ ___ ___ _ _ ___ ___| |_\n" +
-				"|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD +
-				"|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion()
-				+ "\n" + ChatColor.GOLD +
-				"                  |___|_|");
+		// When I save the file manually in VSCode it tends to format this section. If this looks weird, don't worry,
+		// it'll still look fine
+		getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + " _____                         _\n"
+				+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n" + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED
+				+ " TerrorByte\n" + ChatColor.GOLD + "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED
+				+ this.getDescription().getVersion() + "\n" + ChatColor.GOLD + "                  |___|_|");
 
 		if (isFolia()) {
 			getHoneypotLogger().warning(
-					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited, be wary when using it for now!");
+					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited and not actively tested, be wary when using it for now!");
 		}
 
-		// A small helper method to verify if the server version is supported by
-		// Honeypot. I've moved it to its own method because it's rather large
 		checkIfServerSupported();
 
 		// Check for any updates
@@ -158,10 +141,12 @@ public final class Honeypot extends JavaPlugin {
 
 					if (Integer.parseInt(latest.replace(".", "")) > Integer
 							.parseInt(this.getDescription().getVersion().replace(".", ""))) {
-						getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
-								+ " There is a new update available: " + latest
-								+ ". Please download for the latest features and security updates!");
-					} else {
+						getServer().getConsoleSender()
+								.sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
+										+ " There is a new update available: " + latest
+										+ ". Please download for the latest features and security updates!");
+					}
+					else {
 						getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + ChatColor.GREEN
 								+ " You are on the latest version of Honeypot!");
 					}
@@ -176,12 +161,13 @@ public final class Honeypot extends JavaPlugin {
 		getHoneypotLogger().info("Stopping the ghost checker task");
 		ghf.cancelTask();
 		CacheManager.clearCache();
-		logger.log("Shut down plugin");
+		getHoneypotLogger().info("Shut down plugin");
 		getHoneypotLogger().info("Successfully shutdown Honeypot. Bye for now!");
 	}
 
 	/**
 	 * Sets up the Permission hook for vault
+	 * @return True if Vault is registered as a permission provider
 	 */
 	@SuppressWarnings("java:S2696")
 	private boolean setupPermissions() {
@@ -194,8 +180,7 @@ public final class Honeypot extends JavaPlugin {
 	}
 
 	/**
-	 * Check the GitHub repo of the plugin to verify the version of Spigot we're
-	 * running on is supported
+	 * Check the GitHub repo of the plugin to verify the version of Spigot we're running on is supported
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static void checkIfServerSupported() {
@@ -206,39 +191,35 @@ public final class Honeypot extends JavaPlugin {
 
 		String pluginVersion = plugin.getDescription().getVersion();
 		// Check for any updates
-		new HoneypotSupportedVersions(plugin, pluginVersion)
-				.getSupportedVersions(value -> {
-					// Get the least supported and most supported server versions for this version
-					// of Honeypot
-					String[] lowerVersion = value.split("-")[0].split("\\.");
-					String[] upperVersion = value.split("-")[1].split("\\.");
+		new HoneypotSupportedVersions(plugin, pluginVersion).getSupportedVersions(value -> {
+			// Get the least supported and most supported server versions for this version
+			// of Honeypot
+			String[] lowerVersion = value.split("-")[0].split("\\.");
+			String[] upperVersion = value.split("-")[1].split("\\.");
 
-					int lowerMajorVer = Integer.parseInt(lowerVersion[0]);
-					int lowerMinorVer = Integer.parseInt(lowerVersion[1]);
-					int lowerRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
+			int lowerMajorVer = Integer.parseInt(lowerVersion[0]);
+			int lowerMinorVer = Integer.parseInt(lowerVersion[1]);
+			int lowerRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
 
-					int upperMajorVer = Integer.parseInt(upperVersion[1]);
-					int upperMinorVer = Integer.parseInt(upperVersion[1]);
-					int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
+			int upperMajorVer = Integer.parseInt(upperVersion[1]);
+			int upperMinorVer = Integer.parseInt(upperVersion[1]);
+			int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
 
-					// Check if the version the server is running is within the bounds of the
-					// supported versions
-					// We are doing this check dynamically because it allows us to verify and
-					// disable version check messages without updating the plugin code
-					// This means if a minor MC version rolls out and doesn't affect functionality
-					// to the plugin, we can update it on the GitHub side and server admins will not
-					// see an error message
-					if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer) &&
-							(serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer) &&
-							(serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
-						getHoneypotLogger().warning(
-								"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but some unusual behavior may occur, such as new blocks being processed strangely!");
-						getHoneypotLogger().warning(
-								"Honeypot " + pluginVersion + " supports server versions " + value);
-						logger.log(
-								"This version of honeypot is not guaranteed to work on this version of Minecraft. Unusual behavior may occur.");
-					}
-				});
+			// Check if the version the server is running is within the bounds of the
+			// supported versions
+			// This check is done because it allows the plugin to verify and
+			// disable version check messages without updating the plugin code
+			// This means if a minor MC version rolls out and doesn't affect functionality
+			// to the plugin, we can update it on the GitHub side and server admins will not
+			// see an error message
+			if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer)
+					&& (serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer)
+					&& (serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
+				getHoneypotLogger().warning(
+						"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but some unusual behavior may occur, such as new blocks being processed strangely!");
+				getHoneypotLogger().warning("Honeypot " + pluginVersion + " supports server versions " + value);
+			}
+		});
 
 	}
 
@@ -250,7 +231,8 @@ public final class Honeypot extends JavaPlugin {
 	public static boolean isFolia() {
 		try {
 			Class.forName("io.papermc.paper.threadedregions.RegionizedServerInitEvent");
-		} catch (ClassNotFoundException e) {
+		}
+		catch (ClassNotFoundException e) {
 			return false;
 		}
 		return true;
@@ -290,20 +272,18 @@ public final class Honeypot extends JavaPlugin {
 	}
 
 	/**
-	 * Retrieve the WorldGuard Util helper
+	 * Get the Behavior Registry
+	 * @return {@link BehaviorRegistry}
 	 */
-	public static WorldGuardUtil getWorldGuardUtil() {
-		return wgu;
+	public static BehaviorRegistry getRegistry() {
+		return registry;
 	}
 
 	/**
-	 * Retrieve the GriefPrevention Util helper
+	 * Get the Ghost Honeypot Fixer
+	 * @return {@link GhostHoneypotFixer}
 	 */
-	public static GriefPreventionUtil getGriefPreventionUtil() {
-		return gpu;
-	}
-
-	public static BehaviorRegistry getRegistry() {
-		return registry;
+	public static GhostHoneypotFixer getFixer() {
+		return ghf;
 	}
 }

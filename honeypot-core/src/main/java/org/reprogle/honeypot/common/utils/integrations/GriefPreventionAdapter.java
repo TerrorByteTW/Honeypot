@@ -26,7 +26,7 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 /**
  * A small helper class for utilizing GriefPrevention
  */
-public class GriefPreventionUtil {
+public class GriefPreventionAdapter {
 
 	/**
 	 * Check if the player has permission

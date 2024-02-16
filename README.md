@@ -56,10 +56,10 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
 Prerequisites:
 
-- Java 17 (You may compile with Java 18, but Java 17 is what Minecraft servers 1.17.1+ are required to use. I'd compile
+- Java 17 (You may compile with Java 18, but Java 17 is what Minecraft servers 1.18+ are required to use. I'd compile
   for that version since most servers will be using Java 17)
 - Maven 3.8.6+ (That is what I used for compiling this project, so I'd recommend just using that version at least. I do
-  know from prior experience that the maven packaged with package managers such as `apt` does _not_ function properly.)
+  know from prior experience that the maven installed via package managers such as `apt` does _not_ function properly.)
 
 1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that
    accordingly
@@ -68,7 +68,7 @@ Prerequisites:
 $ git clone https://github.com/TerrorByteTW/Honeypot.git
 ```
 
-2Install Dependencies, Compile & Package
+2. Install Dependencies, Compile & Package
 
 ```bash
 $ mvn install
@@ -95,5 +95,5 @@ etc. Please make sure you have another protection and rollback plugin to prevent
 to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I highly
 recommend CoreProtect and GriefPrevention, but if you have the money to spend, Lands is an awesome plugin as well.
 
-This plugin was also designed for Minecraft 1.17+ and is compiled using Java 17. If you are not running Java 17 on your
-server, this plugin is not for you.
+This plugin is currently written for Minecraft 1.18+ and is compiled using Java 17. If you are not running Java 17 on your
+server, or using Minecraft 1.17(.x) or earlier, this plugin is not for you.

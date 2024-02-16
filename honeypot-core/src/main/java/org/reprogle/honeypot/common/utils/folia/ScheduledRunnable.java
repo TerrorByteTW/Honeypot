@@ -14,7 +14,7 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.folia;
+package org.reprogle.honeypot.common.utils.folia;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -22,9 +22,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.concurrent.TimeUnit;
+import static org.reprogle.honeypot.common.utils.folia.Scheduler.FOLIA;
 
-import static org.reprogle.honeypot.folia.Scheduler.FOLIA;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("deprecation")
 public abstract class ScheduledRunnable implements Runnable {

@@ -33,14 +33,11 @@ import org.bukkit.entity.Player;
 /**
  * A small utility class for helping connect with WorldGuard
  */
-public class WorldGuardUtil {
+public class WorldGuardAdapter {
 	private StateFlag honeypotFlag;
 
-	/**
-	 * Sets up the hook for WorldGuard
-	 */
 	@SuppressWarnings("java:S2696")
-	public StateFlag setupWorldGuard() {
+	public WorldGuardAdapter() {
 		FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
 
 		try {
@@ -48,17 +45,14 @@ public class WorldGuardUtil {
 			registry.register(flag);
 
 			honeypotFlag = flag;
-			return honeypotFlag;
-		} catch (FlagConflictException e) {
+		}
+		catch (FlagConflictException e) {
 
 			Flag<?> existing = registry.get("allow-honeypots");
 			if (existing instanceof StateFlag) {
 				honeypotFlag = (StateFlag) existing;
-				return honeypotFlag;
 			}
 		}
-
-		return honeypotFlag;
 	}
 
 	/**
@@ -73,11 +67,9 @@ public class WorldGuardUtil {
 	/**
 	 * Check if the allow-honeypots flag is on
 	 *
-	 * @param player   The player initiating the action
-	 * @param location The location of the block being placed (It may be different
-	 *                 from the player location)
-	 * @return True if the action is allowed, false if the action isn't allowed OR if
-	 * WorldGuard support isn't enabled.
+	 * @param player The player initiating the action
+	 * @param location The location of the block being placed (It may be different from the player location)
+	 * @return True if the action is allowed, false if the action isn't allowed OR if WorldGuard support isn't enabled.
 	 */
 	public boolean isAllowed(Player player, Location location) {
 		LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);

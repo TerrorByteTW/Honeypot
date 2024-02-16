@@ -89,14 +89,12 @@ public class InventoryClickDragEventListener implements Listener {
 						.getBoolean("container-actions.only-trigger-on-withdrawal")) {
 					return;
 				}
+				event.setCancelled(true);
 
 				executeAction(player, block, inventory);
-				return;
-
 			}
 		}
 
-		event.setCancelled(false);
 	}
 
 	@SuppressWarnings({ "java:S3776" })
@@ -131,13 +129,11 @@ public class InventoryClickDragEventListener implements Listener {
 			if (!(player.hasPermission("honeypot.exempt")
 					|| player.hasPermission("honeypot.*") || player.isOp())) {
 
-				executeAction(player, block, inventory);
-				return;
+				event.setCancelled(true);
 
+				executeAction(player, block, inventory);
 			}
 		}
-
-		event.setCancelled(false);
 	}
 
 	private static void executeAction(Player player, Block block, Inventory inventory) {
