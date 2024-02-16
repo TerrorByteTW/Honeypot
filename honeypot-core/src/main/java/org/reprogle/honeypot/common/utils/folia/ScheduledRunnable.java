@@ -26,7 +26,6 @@ import static org.reprogle.honeypot.common.utils.folia.Scheduler.FOLIA;
 
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("deprecation")
 public abstract class ScheduledRunnable implements Runnable {
 
 	private Object task;

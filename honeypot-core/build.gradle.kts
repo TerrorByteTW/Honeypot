@@ -1,6 +1,8 @@
 group = "org.reprogle"
 version = "3.1.0"
 
+extra["platform"] = "spigot"
+
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 plugins {
@@ -31,10 +33,4 @@ dependencies {
     compileOnly(libs.worldguard)
     compileOnly(libs.griefprevention)
     compileOnly(libs.lands)
-}
-
-tasks.shadowJar {
-    archiveFileName = "honeypot-core${version}.jar"
-    relocate("dev.dejvokep.boostedyaml", "org.reprogle.honeypot.common.libs")
-    relocate("org.bstats", "org.reprogle.honeypot.common.libs")
 }

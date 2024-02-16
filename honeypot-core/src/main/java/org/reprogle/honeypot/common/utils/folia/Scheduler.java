@@ -24,8 +24,14 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings({ "deprecation" })
 public class Scheduler {
+
+	/**
+	 * Private constructor to hide implicit one
+	 */
+	Scheduler() {
+
+	}
 
 	public static final boolean FOLIA;
 
