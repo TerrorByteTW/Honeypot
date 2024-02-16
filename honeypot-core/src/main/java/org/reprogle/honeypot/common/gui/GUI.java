@@ -44,7 +44,7 @@ public class GUI {
 				if (inventory.getCurrentPage() > 0)
 					return new GUIButton(new GUIItemBuilder(
 							Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("previous-page-item")))
-							.name("&a&l← Previous Page")
+							.name("&a&l< Previous Page")
 							.lore("&aClick to move back to", "&apage " + inventory.getCurrentPage() + ".").build())
 							.withListener(event -> {
 								event.setCancelled(true);
@@ -64,7 +64,7 @@ public class GUI {
 				if (inventory.getCurrentPage() < inventory.getMaxPage() - 1)
 					return new GUIButton(new GUIItemBuilder(
 							Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("next-page-item")))
-							.name("&a&lNext Page →")
+							.name("&a&lNext Page >")
 							.lore("&aClick to move forward to", "&apage " + (inventory.getCurrentPage() + 2) + ".")
 							.build()).withListener(event -> {
 						event.setCancelled(true);
