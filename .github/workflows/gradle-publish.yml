@@ -23,8 +23,9 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: gradle
 
     - name: Publish package
-      run: ./gradlew publish
+      run: gradle publish
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
