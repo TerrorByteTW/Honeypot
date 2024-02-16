@@ -11,6 +11,11 @@ out/
 # Maven
 apache-maven-*/
 
+# Gradle
+build/
+gradle/wrapper
+.gradle/
+
 # Compiled class file
 *.class
 
@@ -114,8 +119,3 @@ buildNumber.properties
 
 # Common working directory
 run/
-
-# Gradle
-build
-gradle/
-.gradle/
