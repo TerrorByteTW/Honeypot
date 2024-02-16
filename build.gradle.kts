@@ -91,26 +91,25 @@ subprojects {
             }
         }
 
-    }
-
-    publishing {
-        repositories {
-            maven {
-                credentials {
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
+        publishing {
+            repositories {
+                maven {
+                    credentials {
+                        username = System.getenv("GITHUB_ACTOR")
+                        password = System.getenv("GITHUB_TOKEN")
+                    }
+                    url = uri("https://maven.pkg.github.com/TerrorByteTW/Honeypot")
                 }
-                url = uri("https://maven.pkg.github.com/TerrorByteTW/Honeypot")
             }
-        }
-        publications {
-            create<MavenPublication>("maven") {
-                val platform: String by project.extra
-                groupId = "${project.group}"
-                artifactId = "honeypot-${platform}"
-                version = "${project.version}"
-                println("Publishing package ${project.group}.honeypot-${platform}.${project.version}")
-                from(components["java"])
+            publications {
+                create<MavenPublication>("maven") {
+                    val platform: String by project.extra
+                    groupId = "${project.group}"
+                    artifactId = "honeypot-${platform}"
+                    version = "${project.version}"
+                    println("Publishing package ${project.group}.honeypot-${platform}.${project.version}")
+                    from(components["java"])
+                }
             }
         }
     }
