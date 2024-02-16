@@ -105,9 +105,10 @@ subprojects {
         }
         publications {
             create<MavenPublication>("maven") {
-                groupId = "${project.group}"
-                artifactId = project.name
-                version = "${project.version}"
+                val platform: String by project.extra
+                groupId = project.group
+                artifactId = "honeypot-${platform}"
+                version = project.version
                 from(components["java"])
             }
         }
