@@ -5,6 +5,7 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 plugins {
     java
+    `maven-publish`
     alias(libs.plugins.shadow)
     alias(libs.plugins.sonar)
 }
@@ -23,6 +24,11 @@ sonar {
 
 // This runs tasks for every subproject
 subprojects {
+
+    plugins.apply("java")
+    plugins.apply("maven-publish")
+    plugins.apply("com.github.johnrengelman.shadow")
+
     afterEvaluate {
 
         // Configure the Java plugin to output a javadoc jar and a sources jar
@@ -80,11 +86,31 @@ subprojects {
         gradle.taskGraph.whenReady {
             tasks.named("shadowJar") {
                 doFirst {
-                    if (!gradle.taskGraph.hasTask(":build")) throw GradleException("If you are running the shadowJar task directly, don't! You'll have problems. Please run ./gradlew to actually build the project properly.")
+                    if (!gradle.taskGraph.hasTask(":build") && !gradle.taskGraph.hasTask(":publish")) throw GradleException("If you are running the shadowJar task directly, don't! You'll have problems. Please run ./gradlew to actually build the project properly.")
                 }
             }
         }
 
+    }
+
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+                url = uri("https://maven.pkg.github.com/TerrorByteTW/Honeypot")
+            }
+        }
+        publications {
+            create<MavenPublication>("maven") {
+                groupId = "${project.group}"
+                artifactId = project.name
+                version = "${project.version}"
+                from(components["java"])
+            }
+        }
     }
 }
 

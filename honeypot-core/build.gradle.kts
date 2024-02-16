@@ -5,11 +5,6 @@ extra["platform"] = "spigot"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
-plugins {
-    java
-    alias(libs.plugins.shadow)
-}
-
 repositories {
     mavenCentral()
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
