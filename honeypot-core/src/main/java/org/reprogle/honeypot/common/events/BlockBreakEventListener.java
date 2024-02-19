@@ -50,7 +50,7 @@ public class BlockBreakEventListener implements Listener {
 	}
 
 	// Player block break event
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	@SuppressWarnings({ "java:S3776", "java:S1192" })
 	public static void blockBreakEvent(BlockBreakEvent event) {
 		// Check to see if the event is cancelled before doing any logic.
@@ -116,7 +116,7 @@ public class BlockBreakEventListener implements Listener {
 	// were broken due to breaking a
 	// supporting block, such as torches breaking due to
 	// the block they're on being broken
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	@SuppressWarnings("java:S1192")
 	public static void checkBlockBreakSideEffects(BlockBreakEvent event) {
 		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))

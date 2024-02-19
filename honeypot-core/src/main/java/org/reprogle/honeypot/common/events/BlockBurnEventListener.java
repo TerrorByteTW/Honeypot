@@ -35,7 +35,7 @@ public class BlockBurnEventListener implements Listener {
 
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void onBlockBurnEvent(BlockBurnEvent event) {
 		Block block = event.getBlock();
 

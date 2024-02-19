@@ -34,7 +34,7 @@ public class PlayerCommandPreprocessEventListener implements Listener {
 
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
 		if (event.getMessage().startsWith("/hpteleport")) {
 			event.setCancelled(true);

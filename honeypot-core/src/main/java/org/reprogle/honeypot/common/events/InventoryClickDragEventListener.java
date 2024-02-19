@@ -49,7 +49,7 @@ public class InventoryClickDragEventListener implements Listener {
 	}
 
 	@SuppressWarnings({ "java:S3776" })
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void inventoryClickEvent(InventoryClickEvent event) {
 		// Sanity checks to ensure the clicker is a Player and the holder is a Container
 		// that is NOT a custom one and is NOT their own inventory

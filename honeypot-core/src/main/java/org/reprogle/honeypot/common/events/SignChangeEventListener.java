@@ -17,7 +17,7 @@ public class SignChangeEventListener implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public static void onSignChangeEvent(SignChangeEvent event) {
         Block block = event.getBlock();
 

@@ -17,7 +17,7 @@ public class BlockFormEventListener implements Listener {
 
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void onBlockFormEvent(BlockFormEvent event) {
 		Block block = event.getBlock();
 

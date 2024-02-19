@@ -39,7 +39,7 @@ public class PistonExtendRetractListener implements Listener {
 	}
 
 	// Player block break event
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void pistonPushEvent(BlockPistonExtendEvent event) {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
@@ -57,7 +57,7 @@ public class PistonExtendRetractListener implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void pistonPullEvent(BlockPistonRetractEvent event) {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {

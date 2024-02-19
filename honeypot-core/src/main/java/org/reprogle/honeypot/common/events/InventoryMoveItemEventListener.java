@@ -35,26 +35,37 @@ public class InventoryMoveItemEventListener implements Listener {
 
 	}
 
-	@EventHandler(priority = EventPriority.LOW)
+	// We're suppressing warnings on java:S2589 because location and world can both
+	// equal null, but SonarLint thinks they can't
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	@SuppressWarnings("java:S2589")
 	public static void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
-		// Get the inventory type of the source block
 		InventoryType source = event.getSource().getType();
+		if (!source.equals(InventoryType.HOPPER)
+				&& !source.equals(InventoryType.DROPPER))
+			return;
 
-		// Get the location of the destination block, and the world. These require null checks
 		Location location = event.getDestination().getLocation();
-		if (location == null)
-			return;
-
 		World world = location.getWorld();
-		if (world == null)
+
+		if (location == null || world == null)
 			return;
 
-		Block block = world.getBlockAt(event.getDestination().getLocation());
+		Block targetBlock = world.getBlockAt(event.getDestination().getLocation());
+		Block sourceBlock = world.getBlockAt(event.getSource().getLocation());
 
-		// Check if the source was a Hopper or Dropper and if the destination is a Honeypot. If so, cancel the whole
+		boolean isSourceHoneypot = HoneypotBlockManager.getInstance().isHoneypotBlock(sourceBlock);
+		boolean isTargetHoneypot = HoneypotBlockManager.getInstance().isHoneypotBlock(targetBlock);
+
+		// We only care about hoppers and droppers, as these are the only two items that
+		// can interact with chests directly
+		if (isSourceHoneypot)
+			return;
+
+		// Check if the source was a Hopper or Dropper and if the destination is a
+		// Honeypot. If so, cancel the whole
 		// thing.
-		if ((source.equals(InventoryType.HOPPER) || source.equals(InventoryType.DROPPER))
-				&& HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
+		if (isTargetHoneypot) {
 			event.setCancelled(true);
 		}
 	}

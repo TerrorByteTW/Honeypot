@@ -116,8 +116,6 @@ public class SQLite extends Database {
 					.severe("SQLException occured while attempting to create tables if they don't exist: " + e);
 		}
 
-		initialize();
-
 	}
 
 }

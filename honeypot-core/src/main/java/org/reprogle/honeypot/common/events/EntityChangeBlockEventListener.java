@@ -37,7 +37,7 @@ public class EntityChangeBlockEventListener implements Listener {
 	}
 
 	// Enderman event
-	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void entityChangeBlockEvent(EntityChangeBlockEvent event) {
 
 		// If the entity grabbing the block is an enderman, if they are allowed to,

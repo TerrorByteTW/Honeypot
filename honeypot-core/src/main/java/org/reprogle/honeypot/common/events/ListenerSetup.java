@@ -43,14 +43,15 @@ public class ListenerSetup {
 
 		// All primary listners go here
 		final List<Listener> primaryListeners = new ArrayList<>(List.of(new BlockBreakEventListener(),
-				new BlockFromToEventListener(), new BlockBurnEventListener(), new EntityChangeBlockEventListener(),
+				new BlockBurnEventListener(), new EntityChangeBlockEventListener(),
 				new EntityExplodeEventListener(), new PistonExtendRetractListener(),
 				new InventoryMoveItemEventListener(), new StructureGrowEventListener(),
 				new PlayerCommandPreprocessEventListener(), new PlayerJoinEventListener()));
 
 		// All secondary listeners here
 		final List<Listener> secondaryListeners = new ArrayList<>(
-				List.of(new BlockFormEventListener(), new LeavesDecayEventListener(), new SignChangeEventListener()));
+				List.of(new BlockFormEventListener(), new LeavesDecayEventListener(), new SignChangeEventListener(),
+						new BlockFromToEventListener()));
 
 		// Initial registration of events
 		PluginManager manager = plugin.getServer().getPluginManager();
@@ -63,8 +64,7 @@ public class ListenerSetup {
 					HoneypotConfigManager.getPluginConfig().getBoolean("container-actions.use-inventory-click"))) {
 				Honeypot.getHoneypotLogger().info("Using inventory click for containers");
 				manager.registerEvents(new InventoryClickDragEventListener(), plugin);
-			}
-			else {
+			} else {
 				Honeypot.getHoneypotLogger().info("Using player interact for containers");
 				manager.registerEvents(new PlayerInteractEventListener(), plugin);
 			}
@@ -73,7 +73,7 @@ public class ListenerSetup {
 		// Register extra unnecessary events
 		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-extra-events"))) {
 			Honeypot.getHoneypotLogger().info(
-					"Extra events have been enabled. These shouldn't cause lag, but do note they may fire without player interaction necessary");
+					"Extra events have been enabled. Some of the events can be noisy, and may cause additional lag on low-performance hardward, such as budget server hosts. If you experience lag, disable these events, Honeypot can still function without them!");
 			secondaryListeners.forEach(event -> manager.registerEvents(event, plugin));
 		}
 	}

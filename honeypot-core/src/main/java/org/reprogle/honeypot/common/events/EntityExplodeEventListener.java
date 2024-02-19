@@ -45,7 +45,7 @@ public class EntityExplodeEventListener implements Listener {
 	}
 
 	// Explosion listener
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public static void entityExplodeEvent(EntityExplodeEvent event) {
 		// Get every block that would've been blown up
 		List<Block> destroyedBlocks = event.blockList();

@@ -17,7 +17,7 @@ public class LeavesDecayEventListener implements Listener {
 
     }
 
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public static void onLeavesDecayEvent(LeavesDecayEvent event) {
         Block block = event.getBlock();
 

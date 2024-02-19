@@ -62,11 +62,13 @@ public final class Honeypot extends JavaPlugin {
 			new Notify() };
 
 	/**
-	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard registers flags.
+	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
+	 * registers flags.
 	 */
 	@Override
 	@SuppressWarnings("java:S2696")
 	public void onLoad() {
+		// Registere adapters which must be registered on load
 		AdapterManager.onLoadAdapters(getServer());
 
 		registry = new BehaviorRegistry();
@@ -80,7 +82,8 @@ public final class Honeypot extends JavaPlugin {
 	}
 
 	/**
-	 * Enable method called by Bukkit. This is a little messy due to all the setup it has to do
+	 * Enable method called by Bukkit. This is a little messy due to all the setup
+	 * it has to do
 	 */
 	@Override
 	@SuppressWarnings({ "unused", "java:S2696" })
@@ -104,24 +107,22 @@ public final class Honeypot extends JavaPlugin {
 		// Setup Vault
 		if (!setupPermissions()) {
 			getHoneypotLogger().warning(CommandFeedback.getChatPrefix() + ChatColor.RED
-					+ " Vault is not installed, some features won't work. Some features won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
+					+ " Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/");
 		}
 
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			getHoneypotLogger().info("Hooking into Placeholder API!");
+			getHoneypotLogger().info("PlaceholderAPI is installed on this server, hooking into it...");
 			new PlaceholderAPIExpansion(this).register();
 		}
-		else {
-			getHoneypotLogger().info("PlaceholderAPI is not installed! Please install it");
-		}
 
-		// Register remaining adapters
+		// Register remaining adapters that can be registered on enable
 		AdapterManager.onEnableAdapters(getServer());
 
 		getCommand("honeypot").setExecutor(new CommandManager());
 		getHoneypotLogger().info("Loaded plugin");
 
-		// When I save the file manually in VSCode it tends to format this section. If this looks weird, don't worry,
+		// When I save the file manually in VSCode it tends to format this section. If
+		// this looks weird, don't worry,
 		// it'll still look fine
 		getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + " _____                         _\n"
 				+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n" + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED
@@ -145,8 +146,7 @@ public final class Honeypot extends JavaPlugin {
 								.sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
 										+ " There is a new update available: " + latest
 										+ ". Please download for the latest features and security updates!");
-					}
-					else {
+					} else {
 						getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + ChatColor.GREEN
 								+ " You are on the latest version of Honeypot!");
 					}
@@ -167,6 +167,7 @@ public final class Honeypot extends JavaPlugin {
 
 	/**
 	 * Sets up the Permission hook for vault
+	 * 
 	 * @return True if Vault is registered as a permission provider
 	 */
 	@SuppressWarnings("java:S2696")
@@ -180,7 +181,8 @@ public final class Honeypot extends JavaPlugin {
 	}
 
 	/**
-	 * Check the GitHub repo of the plugin to verify the version of Spigot we're running on is supported
+	 * Check the GitHub repo of the plugin to verify the version of Spigot we're
+	 * running on is supported
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static void checkIfServerSupported() {
@@ -231,8 +233,7 @@ public final class Honeypot extends JavaPlugin {
 	public static boolean isFolia() {
 		try {
 			Class.forName("io.papermc.paper.threadedregions.RegionizedServerInitEvent");
-		}
-		catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			return false;
 		}
 		return true;
@@ -273,6 +274,7 @@ public final class Honeypot extends JavaPlugin {
 
 	/**
 	 * Get the Behavior Registry
+	 * 
 	 * @return {@link BehaviorRegistry}
 	 */
 	public static BehaviorRegistry getRegistry() {
@@ -281,6 +283,7 @@ public final class Honeypot extends JavaPlugin {
 
 	/**
 	 * Get the Ghost Honeypot Fixer
+	 * 
 	 * @return {@link GhostHoneypotFixer}
 	 */
 	public static GhostHoneypotFixer getFixer() {

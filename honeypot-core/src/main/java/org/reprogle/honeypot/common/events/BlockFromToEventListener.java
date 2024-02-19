@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.common.events;
 
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -38,10 +39,14 @@ public class BlockFromToEventListener implements Listener {
 	 *
 	 * @param event The BlockFromToEvent, passed from Bukkit's event handler
 	 */
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
 	public static void blockFromToEvent(BlockFromToEvent event) {
+
+		if (event.getFace() == BlockFace.DOWN)
+			return;
+
 		Block toBlock = event.getToBlock();
-		if (HoneypotBlockManager.getInstance().isHoneypotBlock(toBlock)) {
+		if (HoneypotBlockManager.getInstance().isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
 			Honeypot.getHoneypotLogger().debug("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", "
 					+ toBlock.getY() + ", " + toBlock.getZ());
 			event.setCancelled(true);

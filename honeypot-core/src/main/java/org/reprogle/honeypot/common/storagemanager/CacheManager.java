@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A rudimentary caching utility to lessen dependency on databases used by Honeypot
+ * A rudimentary caching utility to lessen dependency on databases used by
+ * Honeypot
  */
 public class CacheManager {
 
@@ -50,9 +51,10 @@ public class CacheManager {
 	public static void addToCache(HoneypotBlockObject block) {
 		int cacheSize = HoneypotConfigManager.getPluginConfig().getInt("cache-size");
 
-		if (cacheSize <= 0) return;
+		if (cacheSize <= 0)
+			return;
 
-		if (cache.size() <= cacheSize && cache.size() <= 50) {
+		if (cache.size() <= cacheSize) {
 			cache.add(block);
 		} else {
 			cache.remove(0);
@@ -61,10 +63,12 @@ public class CacheManager {
 	}
 
 	/**
-	 * Removes a block from the cache. Returns an optional boolean if the Honeypot existed and was deleted or not
+	 * Removes a block from the cache. Returns an optional boolean if the Honeypot
+	 * existed and was deleted or not
 	 *
 	 * @param block The {@link HoneypotBlockObject} to remove
-	 * @return True if the removal was successful, false if not (Likely due to it not existing)
+	 * @return True if the removal was successful, false if not (Likely due to it
+	 *         not existing)
 	 */
 	public static boolean removeFromCache(HoneypotBlockObject block) {
 		for (HoneypotBlockObject b : cache) {
@@ -81,7 +85,8 @@ public class CacheManager {
 	 * Determines if the Honeypot is in the cache or not
 	 *
 	 * @param block The Honeypot to check if it's in cache
-	 * @return The {@link HoneypotBlockObject} if it's successfully found, null if not
+	 * @return The {@link HoneypotBlockObject} if it's successfully found, null if
+	 *         not
 	 */
 	public static HoneypotBlockObject isInCache(HoneypotBlockObject block) {
 		for (HoneypotBlockObject b : cache) {

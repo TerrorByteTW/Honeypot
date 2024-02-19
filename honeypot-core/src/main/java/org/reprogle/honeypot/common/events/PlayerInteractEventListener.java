@@ -45,7 +45,7 @@ public class PlayerInteractEventListener implements Listener {
 	}
 
 	// Player interact event
-	@EventHandler(priority = EventPriority.LOW)
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	@SuppressWarnings({ "unchecked", "java:S3776" })
 	public static void playerInteractEvent(PlayerInteractEvent event) {
 

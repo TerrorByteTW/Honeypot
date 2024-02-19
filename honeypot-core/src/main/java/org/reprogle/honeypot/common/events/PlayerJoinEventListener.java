@@ -39,7 +39,7 @@ public class PlayerJoinEventListener implements Listener {
 	}
 
 	// Player join event
-	@EventHandler(priority = EventPriority.LOWEST)
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	@SuppressWarnings("deprecation")
 	public static void playerJoinEvent(PlayerJoinEvent event) {
 		Player p = event.getPlayer();

@@ -83,8 +83,9 @@ public class HoneypotBlockManager {
 	 * @return true or false
 	 */
 	public boolean isHoneypotBlock(Block block) {
-		if (CacheManager.isInCache(new HoneypotBlockObject(block, null)) != null)
+		if (CacheManager.isInCache(new HoneypotBlockObject(block, null)) != null) {
 			return true;
+		}
 
 		Database db = new SQLite(Honeypot.plugin);
 		db.load();
