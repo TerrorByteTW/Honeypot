@@ -56,8 +56,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 		// Get block the player is looking at
 		if (p.getTargetBlockExact(5) != null) {
 			block = p.getTargetBlockExact(5);
-		}
-		else {
+		} else {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 			return;
 		}
@@ -82,21 +81,20 @@ public class HoneypotCreate implements HoneypotSubCommand {
 		}
 
 		// Check if the filter is enabled, and if so, if it's allowed
-		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks"))
-				|| Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")
-						&& (!isAllowedPerFilters(block)))) {
+		if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")
+				|| HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")
+						&& (!isAllowedPerFilters(block))) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("againstfilter"));
 			return;
 
 		}
 
 		// If the block already exists in the DB
-		if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(block))) {
+		if (HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
 			p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
 			// If the block doesn't exist
-		}
-		else {
+		} else {
 			if (args.length >= 2) {
 
 				// Fire HoneypotPreCreateEvent
@@ -111,12 +109,10 @@ public class HoneypotCreate implements HoneypotSubCommand {
 					if (!args[2].isEmpty() && HoneypotConfigManager.getHoneypotsConfig().contains(args[2])) {
 						HoneypotBlockManager.getInstance().createBlock(block, args[2]);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
-					}
-					else {
+					} else {
 						p.sendMessage(CommandFeedback.sendCommandFeedback("noexist"));
 					}
-				}
-				else {
+				} else {
 					HoneypotBlockManager.getInstance().createBlock(block, args[1]);
 					p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
 				}
@@ -125,8 +121,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 				HoneypotCreateEvent hce = new HoneypotCreateEvent(p, block);
 				Bukkit.getPluginManager().callEvent(hce);
 
-			}
-			else {
+			} else {
 				p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
 			}
 		}
@@ -168,7 +163,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 		List<String> allowedInventories = HoneypotConfigManager.getPluginConfig().getStringList("allowed-inventories");
 		boolean allowed = false;
 
-		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks"))) {
+		if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")) {
 			for (String blockType : allowedBlocks) {
 				assert block != null;
 				if (block.getType().name().equals(blockType)) {
@@ -178,7 +173,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 			}
 		}
 
-		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories"))) {
+		if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {
 			for (String blockType : allowedInventories) {
 				if (block.getType().name().equals(blockType)) {
 					allowed = true;
