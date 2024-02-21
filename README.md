@@ -4,8 +4,8 @@
     <a href="https://jitpack.io/#TerrorByteTW/Honeypot">
         <img alt="Release" src="https://jitpack.io/v/TerrorByteTW/Honeypot.svg">
     </a>
-    <a href="https://github.com/TerrorByteTW/Honeypot/actions/workflows/maven.yml">
-        <img alt="Java CI with Maven" src="https://github.com/TerrorByteTW/Honeypot/actions/workflows/maven.yml/badge.svg?branch=master">
+    <a href="https://github.com/TerrorByteTW/Honeypot/actions/workflows/gradle.yml">
+        <img alt="Java CI with Gradle" src="https://github.com/TerrorByteTW/Honeypot/actions/workflows/gradle.yml/badge.svg?branch=master">
     </a>
     <a href="https://sonarcloud.io/summary/new_code?id=TerrorByteTW_Honeypot">
         <img alt="Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=TerrorByteTW_Honeypot&metric=sqale_rating">
