@@ -49,6 +49,9 @@ permissions:
   honeypot.teleport:
     description: Allows for staff to teleport to Honeypot blocks within the GUI
     default: op
+  honeypot.debug:
+    description: Allows for the developer to enable debug mode and inspect PDC of honeypot blocks
+    default: op
   honeypot.*:
     description: Allows all Honeypot permissions
     default: op
@@ -64,3 +67,4 @@ permissions:
       honeypot.update: true
       honeypot.history: true
       honeypot.teleport: true
+      honeypot.debug: true

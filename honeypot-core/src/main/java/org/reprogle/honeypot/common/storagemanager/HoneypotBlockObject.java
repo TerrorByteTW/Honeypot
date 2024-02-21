@@ -174,4 +174,8 @@ public class HoneypotBlockObject implements PersistentDataType<String, HoneypotB
 		return new HoneypotBlockObject(strings[0], strings[1], strings[2]);
 	}
 
+	public String toString() {
+		return world + " " + coordinates + " " + action;
+	}
+
 }

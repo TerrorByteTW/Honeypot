@@ -18,8 +18,10 @@ package org.reprogle.honeypot.common.events;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -28,7 +30,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
+import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
@@ -120,5 +125,27 @@ public class PlayerInteractEventListener implements Listener {
 				+ ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
 
 		ActionHandler.handleCustomAction(action, block, event.getPlayer());
+	}
+
+	/**
+	 * This method is specifically for handling the debug functionality of Honeypot
+	 * 
+	 * @param event The event data being passed by the event handler
+	 */
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public static void debugInteractEvent(PlayerInteractEvent event) {
+		Player player = event.getPlayer();
+
+		if (player.getPersistentDataContainer().has(new NamespacedKey(Honeypot.plugin, "honeypot-debug-enabled"))
+				&& event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+			event.setCancelled(true);
+
+			HoneypotBlockObject block = DataStoreManager.getInstance().getHoneypotBlock(event.getClickedBlock());
+			if (block == null) {
+				player.sendMessage(CommandFeedback.getChatPrefix() + " Not a Honeypot, no PDC found");
+				return;
+			}
+			player.sendMessage(CommandFeedback.getChatPrefix() + " PDC contains: " + block.toString());
+		}
 	}
 }

@@ -117,6 +117,10 @@ respect-griefprevention: false
 # To enable the experimental PDC support change the value from "sqlite" to "pdc" (No quotes). Any other value will be ignored and the plugin will default to sqlite.
 storage-method: sqlite
 
+# This enables an experimental /honeypot debug command which will allow you to peer into PDC data for Honeypots. Useful only for the developer, so no need to enable it yourself
+# Changing this requires a restart, as this affects command registration at plugin load time
+enable-debug-mode: false
+
 ######################################################################
 #                           C R E D I T S                            #
 ######################################################################
