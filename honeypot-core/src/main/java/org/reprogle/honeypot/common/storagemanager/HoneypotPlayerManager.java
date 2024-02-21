@@ -26,10 +26,6 @@ public class HoneypotPlayerManager {
 
 	private static HoneypotPlayerManager instance = null;
 
-	private HoneypotPlayerManager() {
-		// This will be made private in the next version, hence why it's deprecated
-	}
-
 	/**
 	 * Returns the singleton instance of this class
 	 *
@@ -43,10 +39,11 @@ public class HoneypotPlayerManager {
 	}
 
 	/**
-	 * Create a honeypot block by calling the SQLite DB. In the future this will be a switch case statement to handle
+	 * Create a honeypot block by calling the SQLite DB. In the future this will be
+	 * a switch case statement to handle
 	 * multiple DB types
 	 *
-	 * @param player The Player object
+	 * @param player       The Player object
 	 * @param blocksBroken The amount of Blocks broken
 	 */
 	public void addPlayer(Player player, int blocksBroken) {
@@ -60,10 +57,12 @@ public class HoneypotPlayerManager {
 	}
 
 	/**
-	 * Set the number of blocks broken by the player by calling the SQLite setPlayerCount function. In the future this
-	 * will be a switch case statement to handle multiple DB types without changing code
+	 * Set the number of blocks broken by the player by calling the SQLite
+	 * setPlayerCount function. In the future this
+	 * will be a switch case statement to handle multiple DB types without changing
+	 * code
 	 *
-	 * @param player The Player object
+	 * @param player       The Player object
 	 * @param blocksBroken The amount of blocks broken by the player
 	 */
 	public void setPlayerCount(Player player, int blocksBroken) {
@@ -77,7 +76,8 @@ public class HoneypotPlayerManager {
 	}
 
 	/**
-	 * Gets the amount of Honeypots the player has broken. This is NOT the total, but rather the current amount until it
+	 * Gets the amount of Honeypots the player has broken. This is NOT the total,
+	 * but rather the current amount until it
 	 * loops to 0, based on the config
 	 *
 	 * @param player the Player object
@@ -92,7 +92,8 @@ public class HoneypotPlayerManager {
 	}
 
 	/**
-	 * Gets the amount of Honeypots the player has broken. This is NOT the total, but rather the current amount until it
+	 * Gets the amount of Honeypots the player has broken. This is NOT the total,
+	 * but rather the current amount until it
 	 * loops to 0, based on the config
 	 *
 	 * @param player the Player name

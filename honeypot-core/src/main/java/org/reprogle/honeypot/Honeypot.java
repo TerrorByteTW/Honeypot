@@ -106,7 +106,7 @@ public final class Honeypot extends JavaPlugin {
 
 		// Setup Vault
 		if (!setupPermissions()) {
-			getHoneypotLogger().warning(CommandFeedback.getChatPrefix() + ChatColor.RED
+			getHoneypotLogger().info(CommandFeedback.getChatPrefix() + ChatColor.RED
 					+ " Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/");
 		}
 

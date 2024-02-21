@@ -20,6 +20,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.storagemanager.queue.QueueManager;
@@ -466,7 +467,7 @@ public abstract class Database {
 			c = getSQLConnection();
 			ps = c.prepareStatement(DELETE + BLOCK_TABLE + ";");
 			qm.addToQueue(ps);
-
+			CacheManager.clearCache();
 		} catch (SQLException e) {
 			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on player table: " + e);
 		} finally {

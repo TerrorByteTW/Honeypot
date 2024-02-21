@@ -42,7 +42,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
 		if (args.length >= 2) {
 			switch (args[1].toLowerCase()) {
 				case "all" -> {
-					HoneypotBlockManager.getInstance().deleteAllHoneypotBlocks();
+					HoneypotBlockManager.getInstance().deleteAllHoneypotBlocks(p.getWorld());
 					p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
 				}
 
