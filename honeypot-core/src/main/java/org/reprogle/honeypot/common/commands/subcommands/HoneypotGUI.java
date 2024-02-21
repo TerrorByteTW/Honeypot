@@ -87,13 +87,12 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				String action = HoneypotConfigManager.getHoneypotsConfig().getString(type + ".type");
 
 				switch (action) {
-				case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
-				case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
-				case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
-				default -> item = new GUIItemBuilder(Material.PAPER);
+					case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
+					case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
+					case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
+					default -> item = new GUIItemBuilder(Material.PAPER);
 				}
-			}
-			else {
+			} else {
 				item = new GUIItemBuilder(Honeypot.getRegistry().getBehaviorProvider(type).getIcon());
 			}
 
@@ -117,15 +116,14 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIMenu allBlocksGUI = Honeypot.getGUI().create("Honeypots {currentPage}/{maxPage}", 3);
 
-		for (HoneypotBlockObject honeypotBlock : HoneypotBlockManager.getInstance().getAllHoneypots()) {
+		for (HoneypotBlockObject honeypotBlock : HoneypotBlockManager.getInstance().getAllHoneypots(p.getWorld())) {
 			GUIItemBuilder item;
 
 			if (Boolean.TRUE.equals(HoneypotConfigManager.getGuiConfig().getBoolean("display-button-as-honeypot"))) {
 				item = new GUIItemBuilder(honeypotBlock.getBlock().getType());
 				item.lore("Click to teleport to Honeypot");
 				item.name("Honeypot: " + honeypotBlock.getCoordinates());
-			}
-			else {
+			} else {
 				item = new GUIItemBuilder(
 						Material.getMaterial(HoneypotConfigManager.getGuiConfig().getString("default-gui-button")));
 				item.lore("Click to teleport to Honeypot");
@@ -138,8 +136,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				// In the future, we're going to make this nice and pretty. Until then, ew.
 				if (FOLIA) {
 					event.getWhoClicked().teleportAsync(honeypotBlock.getLocation().add(0.5, 1, 0.5));
-				}
-				else {
+				} else {
 					event.getWhoClicked().teleport(honeypotBlock.getLocation().add(0.5, 1, 0.5));
 				}
 				event.getWhoClicked().closeInventory();
@@ -207,7 +204,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 		GUIButton removeAllButton = new GUIButton(removeAllItem.build()).withListener((InventoryClickEvent event) -> {
 			event.getWhoClicked().closeInventory();
-			HoneypotBlockManager.getInstance().deleteAllHoneypotBlocks();
+			HoneypotBlockManager.getInstance().deleteAllHoneypotBlocks(p.getWorld());
 			p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
 		});
 
@@ -247,8 +244,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 					if (event.getWhoClicked().getTargetBlockExact(5) != null) {
 						block = event.getWhoClicked().getTargetBlockExact(5);
-					}
-					else {
+					} else {
 						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 						return;
 					}
@@ -261,8 +257,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 					if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(block))) {
 						HoneypotBlockManager.getInstance().deleteBlock(block);
 						p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
-					}
-					else {
+					} else {
 						event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
 					}
 				});
@@ -285,8 +280,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		// Get block the player is looking at
 		if (event.getWhoClicked().getTargetBlockExact(5) != null) {
 			block = event.getWhoClicked().getTargetBlockExact(5);
-		}
-		else {
+		} else {
 			event.getWhoClicked().closeInventory();
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
 			return;
@@ -322,7 +316,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 					.getList("allowed-inventories");
 			boolean allowed = false;
 
-			if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks"))) {
+			if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")) {
 				for (String blockType : allowedBlocks) {
 					if (block.getType().name().equals(blockType)) {
 						allowed = true;
@@ -331,7 +325,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 				}
 			}
 
-			if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories"))) {
+			if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {
 				for (String blockType : allowedInventories) {
 					if (block.getType().name().equals(blockType)) {
 						allowed = true;
@@ -347,13 +341,12 @@ public class HoneypotGUI implements HoneypotSubCommand {
 		}
 
 		event.getWhoClicked().closeInventory();
-		if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(block))) {
+		if (HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
 			event.getWhoClicked().sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
 
 			// If it does not have a honeypot tag or the honeypot tag does not equal 1,
 			// create one
-		}
-		else {
+		} else {
 
 			// Fire HoneypotPreCreateEvent
 			HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
@@ -464,8 +457,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 			if (potFound) {
 				p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
-			}
-			else {
+			} else {
 				p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
 			}
 		});

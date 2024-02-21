@@ -20,12 +20,15 @@ import com.google.common.base.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.persistence.PersistentDataAdapterContext;
+import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HoneypotBlockObject {
+public class HoneypotBlockObject implements PersistentDataType<String, HoneypotBlockObject> {
 
 	private final String coordinates;
 
@@ -131,8 +134,10 @@ public class HoneypotBlockObject {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof HoneypotBlockObject honeypot)) return false;
-		if (o == this) return true;
+		if (!(o instanceof HoneypotBlockObject honeypot))
+			return false;
+		if (o == this)
+			return true;
 
 		// Don't really care about the action since action doesn't determine a Honeypot
 		return honeypot.coordinates.equalsIgnoreCase(this.coordinates) && honeypot.world.equals(this.world);
@@ -141,6 +146,32 @@ public class HoneypotBlockObject {
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(coordinates, world, action);
+	}
+
+	// These methods are what allow HoneypotBlockObjects to directly be stored in
+	// PDC. They may or may not be used, but they are here as utilities
+
+	@Override
+	public @NotNull Class<String> getPrimitiveType() {
+		return String.class;
+	}
+
+	@Override
+	public @NotNull Class<HoneypotBlockObject> getComplexType() {
+		return HoneypotBlockObject.class;
+	}
+
+	@Override
+	public String toPrimitive(@NotNull HoneypotBlockObject complex,
+			@NotNull PersistentDataAdapterContext context) {
+		return world + ";;" + coordinates + ";;" + action;
+	}
+
+	@Override
+	public @NotNull HoneypotBlockObject fromPrimitive(String primitive,
+			@NotNull PersistentDataAdapterContext context) {
+		String[] strings = primitive.split(";;");
+		return new HoneypotBlockObject(strings[0], strings[1], strings[2]);
 	}
 
 }

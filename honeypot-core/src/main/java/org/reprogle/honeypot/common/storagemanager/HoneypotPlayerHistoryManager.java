@@ -34,10 +34,6 @@ public class HoneypotPlayerHistoryManager {
 
 	private static HoneypotPlayerHistoryManager instance = null;
 
-	private HoneypotPlayerHistoryManager() {
-		// This will be made private in the next version, hence why it's deprecated
-	}
-
 	/**
 	 * Returns the singleton instance of this class
 	 *

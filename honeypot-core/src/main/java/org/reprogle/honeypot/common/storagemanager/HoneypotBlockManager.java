@@ -16,20 +16,22 @@
 
 package org.reprogle.honeypot.common.storagemanager;
 
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 public class HoneypotBlockManager {
 
 	private static HoneypotBlockManager instance = null;
-
-	private HoneypotBlockManager() {
-		// This will be made private in the next version, hence why it's deprecated
-	}
+	private String storageMethod = null;
 
 	/**
 	 * Returns the singleton instance of this class
@@ -37,10 +39,20 @@ public class HoneypotBlockManager {
 	 * @return The {@link HoneypotBlockManager} instance
 	 */
 	public static synchronized HoneypotBlockManager getInstance() {
-		if (instance == null)
-			instance = new HoneypotBlockManager();
+		if (instance == null) {
+			String method = HoneypotConfigManager.getHoneypotsConfig().getString("storage-method");
+			instance = new HoneypotBlockManager(method.equals("pdc") ? "pdc" : "sqlite");
+		}
 
 		return instance;
+	}
+
+	private HoneypotBlockManager(String method) {
+		if (method.equalsIgnoreCase("pdc")) {
+			this.storageMethod = method;
+		} else {
+			this.storageMethod = "sqlite";
+		}
 	}
 
 	/**
@@ -50,12 +62,16 @@ public class HoneypotBlockManager {
 	 * @param action The action of the Honeypot
 	 */
 	public void createBlock(Block block, String action) {
-		Database db = new SQLite(Honeypot.plugin);
-		db.load();
+		if (storageMethod.equals("pdc")) {
+			DataStoreManager.getInstance().createHoneypotBlock(block, action);
+		} else {
+			Database db = new SQLite(Honeypot.plugin);
+			db.load();
 
-		db.createHoneypotBlock(block, action);
+			db.createHoneypotBlock(block, action);
+		}
+
 		CacheManager.addToCache(new HoneypotBlockObject(block, action));
-
 		Honeypot.getHoneypotLogger().debug("Created Honeypot block with action " + action + " at " + block.getX() + ", "
 				+ block.getY() + ", " + block.getZ());
 	}
@@ -66,12 +82,16 @@ public class HoneypotBlockManager {
 	 * @param block The Honeypot {@link Block} we're deleting
 	 */
 	public void deleteBlock(Block block) {
-		Database db = new SQLite(Honeypot.plugin);
-		db.load();
+		if (storageMethod.equals("pdc")) {
+			DataStoreManager.getInstance().deleteBlock(block);
+		} else {
+			Database db = new SQLite(Honeypot.plugin);
+			db.load();
 
-		db.removeHoneypotBlock(block);
+			db.removeHoneypotBlock(block);
+		}
+
 		CacheManager.removeFromCache(new HoneypotBlockObject(block, null));
-
 		Honeypot.getHoneypotLogger()
 				.debug("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
 	}
@@ -87,16 +107,27 @@ public class HoneypotBlockManager {
 			return true;
 		}
 
-		Database db = new SQLite(Honeypot.plugin);
-		db.load();
+		if (storageMethod.equals("pdc")) {
+			if (DataStoreManager.getInstance().isHoneypotBlock(block)) {
+				String action = getAction(block);
+				CacheManager.addToCache(new HoneypotBlockObject(block, action));
+				return true;
+			}
 
-		if (Boolean.TRUE.equals(db.isHoneypotBlock(block))) {
-			String action = getAction(block);
-			CacheManager.addToCache(new HoneypotBlockObject(block, action));
-			return true;
+			return false;
+		} else {
+			Database db = new SQLite(Honeypot.plugin);
+			db.load();
+
+			if (db.isHoneypotBlock(block)) {
+				String action = getAction(block);
+				CacheManager.addToCache(new HoneypotBlockObject(block, action));
+				return true;
+			}
+
+			return false;
 		}
 
-		return false;
 	}
 
 	/**
@@ -126,21 +157,31 @@ public class HoneypotBlockManager {
 		if (potential != null)
 			return potential.getAction();
 
-		Database db = new SQLite(Honeypot.plugin);
-		db.load();
+		if (storageMethod.equals("pdc")) {
+			return DataStoreManager.getInstance().getAction(block);
 
-		return db.getAction(block);
+		} else {
+			Database db = new SQLite(Honeypot.plugin);
+			db.load();
+			return db.getAction(block);
+		}
+
 	}
 
 	/**
 	 * Delete all Honeypots in the entire DB
 	 */
-	public void deleteAllHoneypotBlocks() {
-		Database db = new SQLite(Honeypot.plugin);
-		db.load();
+	public void deleteAllHoneypotBlocks(@Nullable World world) {
+		if (storageMethod.equals("pdc")) {
 
-		db.deleteAllBlocks();
-		CacheManager.clearCache();
+			DataStoreManager.getInstance().deleteAllHoneypotBlocks(world);
+
+		} else {
+			Database db = new SQLite(Honeypot.plugin);
+			db.load();
+
+			db.deleteAllBlocks();
+		}
 
 		Honeypot.getHoneypotLogger().debug("Deleted all Honeypot blocks!");
 	}
@@ -150,10 +191,14 @@ public class HoneypotBlockManager {
 	 *
 	 * @return An array list of all HoneypotBlockObjects
 	 */
-	public List<HoneypotBlockObject> getAllHoneypots() {
-		Database db = new SQLite(Honeypot.plugin);
-		db.load();
+	public List<HoneypotBlockObject> getAllHoneypots(@Nullable World world) {
+		if (storageMethod.equals("pdc")) {
+			return DataStoreManager.getInstance().getAllHoneypots(world);
+		} else {
+			Database db = new SQLite(Honeypot.plugin);
+			db.load();
 
-		return db.getAllHoneypots();
+			return db.getAllHoneypots();
+		}
 	}
 }

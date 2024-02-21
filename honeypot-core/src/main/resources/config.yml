@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 18
+file-version: 19
 
 # How many Honeypots to store in cache at any given time. The maximum size is 50, and anything larger than that is ignored.
 # Setting this to <=0 will disable caching
@@ -107,6 +107,15 @@ respect-griefprevention: false
 # WorldGuard will register a flag which can be used to toggle whether or not Honeypots are able to be created in a region
 # Lands will automatically deny building Honeypots in a claimed area. This is not changeable at the current time.
 # Please remember that existing Honeypots will still function normally if an area is claimed where Honeypots already are.
+
+######################################################################
+#                       E X P E R I M E N T A L                      #
+######################################################################
+
+# This is an experimental setting, testing PDC support for Honeypot. PDC is a Spigot API which allows for storing data directly in the NBT of certain objects
+# For now sqlite is the default method, but PDC hopefully will speed up the plugin by a ton.
+# To enable the experimental PDC support change the value from "sqlite" to "pdc" (No quotes). Any other value will be ignored and the plugin will default to sqlite.
+storage-method: sqlite
 
 ######################################################################
 #                           C R E D I T S                            #
