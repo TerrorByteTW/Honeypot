@@ -40,7 +40,7 @@ public class HoneypotBlockManager {
 	 */
 	public static synchronized HoneypotBlockManager getInstance() {
 		if (instance == null) {
-			String method = HoneypotConfigManager.getHoneypotsConfig().getString("storage-method");
+			String method = HoneypotConfigManager.getPluginConfig().getString("storage-method");
 			instance = new HoneypotBlockManager(method.equals("pdc") ? "pdc" : "sqlite");
 		}
 
