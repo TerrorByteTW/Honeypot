@@ -7,6 +7,7 @@ sonar = "4.4.1.3373"
 paper-api = "1.20.4-R0.1-SNAPSHOT"
 spigot-api = "1.20.4-R0.1-SNAPSHOT"
 folia-api = "1.20.2-R0.1-SNAPSHOT"
+spigui = "v1.3.1"
 
 worldguard = "7.1.0-SNAPSHOT"
 griefprevention = "16.18.1"
@@ -29,6 +30,7 @@ folia-api = { module = "dev.folia:folia-api", version.ref = "folia-api" }
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 griefprevention = { module = "com.github.TechFortress:GriefPrevention", version.ref = "griefprevention" }
 lands = { module = "com.github.angeschossen:LandsAPI", version.ref = "lands" }
+spigui = { module = "com.samjakob:SpiGUI", version.ref = "spigui" }
 
 vault = { module = "com.github.MilkBowl:VaultAPI", version.ref = "vault" }
 placeholder-api = { module = "me.clip:placeholderapi", version.ref = "placeholder-api" }

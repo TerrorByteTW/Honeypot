@@ -32,10 +32,11 @@ import org.bukkit.inventory.Inventory;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
-import org.reprogle.honeypot.common.gui.GUIMenu;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+
+import com.samjakob.spigui.menu.SGMenu;
 
 import java.util.List;
 import java.util.Objects;
@@ -56,7 +57,7 @@ public class InventoryClickDragEventListener implements Listener {
 		if (!(event.getWhoClicked() instanceof Player player))
 			return;
 		if (!(event.getInventory().getHolder() instanceof Container)
-				|| event.getInventory().getHolder() instanceof GUIMenu)
+				|| event.getInventory().getHolder() instanceof SGMenu)
 			return;
 		if (event.getSlotType() != SlotType.CONTAINER)
 			return;
@@ -105,7 +106,7 @@ public class InventoryClickDragEventListener implements Listener {
 		if (!(event.getWhoClicked() instanceof Player player))
 			return;
 		if (!(event.getInventory().getHolder() instanceof Container)
-				|| event.getInventory().getHolder() instanceof GUIMenu)
+				|| event.getInventory().getHolder() instanceof SGMenu)
 			return;
 		if (event.getInventory().getType().equals(InventoryType.PLAYER))
 			return;
