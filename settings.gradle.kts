@@ -1,2 +1,3 @@
 rootProject.name = "honeypot"
-include("honeypot-core")
+include("spigot")
+include("api")

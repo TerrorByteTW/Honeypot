@@ -17,6 +17,7 @@
 package org.reprogle.honeypot;
 
 import net.milkbowl.vault.permission.Permission;
+import com.samjakob.spigui.SpiGUI;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,7 +26,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.CommandManager;
 import org.reprogle.honeypot.common.events.ListenerSetup;
-import org.reprogle.honeypot.common.gui.GUI;
 import org.reprogle.honeypot.common.providers.BehaviorProcessor;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorRegistry;
@@ -43,7 +43,7 @@ public final class Honeypot extends JavaPlugin {
 
 	public static Honeypot plugin;
 
-	private static GUI gui;
+	private static SpiGUI gui;
 
 	private static HoneypotLogger logger;
 
@@ -89,7 +89,7 @@ public final class Honeypot extends JavaPlugin {
 	@SuppressWarnings({ "unused", "java:S2696" })
 	public void onEnable() {
 		plugin = this;
-		gui = new GUI(this);
+		gui = new SpiGUI(this);
 		logger = new HoneypotLogger();
 		registry.setInitialized(true);
 
@@ -257,9 +257,9 @@ public final class Honeypot extends JavaPlugin {
 	/**
 	 * Returns the GUI object of the plugin for GUI creation
 	 *
-	 * @return {@link GUI}
+	 * @return {@link com.samjakob.spigui.SpiGUI}
 	 */
-	public static GUI getGUI() {
+	public static SpiGUI getGUI() {
 		return gui;
 	}
 
