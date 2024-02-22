@@ -32,7 +32,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = "${group}"
-            artifactId = "api"
+            artifactId = "honeypot-api"
             version = "${version}"
 
             from(components["java"])
