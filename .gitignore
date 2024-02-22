@@ -13,7 +13,6 @@ apache-maven-*/
 
 # Gradle
 build/
-gradle/wrapper
 .gradle/
 
 # Compiled class file
