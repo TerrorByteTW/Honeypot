@@ -35,16 +35,15 @@ public record HoneypotSupportedVersions(Plugin plugin, String version) {
 	 */
 	public void getSupportedVersions(final Consumer<String> consumer) {
 		Scheduler.runTaskAsynchronously(this.plugin, () -> {
-			Honeypot.getHoneypotLogger().info("Checking for updates");
+			Honeypot.getHoneypotLogger().info("Checking if this server version is supported");
 			try (InputStream inputStream = new URL(
 					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version)
-							.openStream();
+					.openStream();
 					Scanner scanner = new Scanner(inputStream)) {
 				if (scanner.hasNext()) {
 					consumer.accept(scanner.next());
 				}
-			}
-			catch (IOException exception) {
+			} catch (IOException exception) {
 				Honeypot.getHoneypotLogger().info("Unable to check supported versions: " + exception.getMessage());
 			}
 		});

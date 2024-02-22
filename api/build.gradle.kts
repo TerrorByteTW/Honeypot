@@ -1,5 +1,5 @@
 group = "org.reprogle"
-version = "3.2.0"
+version = "3.2.1"
 
 extra["platform"] = "api"
 
@@ -36,6 +36,17 @@ publishing {
             version = "${version}"
 
             from(components["java"])
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GithubPackages"
+            url = uri("https://maven.pkg.github.com/TerrorByteTW/Honeypot")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
