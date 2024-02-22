@@ -26,6 +26,7 @@ sonar {
 subprojects {
     sonar {
         properties {
+            property("sonar.projectKey", "honeypot")
             property("sonar.organization", "terrorbytetw")
             property("sonar.host.url", "https://sonarcloud.io")
             property("sonar.gradle.skipCompile", true)
