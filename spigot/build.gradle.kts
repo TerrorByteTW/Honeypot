@@ -7,6 +7,7 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 plugins {
     java
+    `maven-publish`
     alias(libs.plugins.shadow)
     alias(libs.plugins.sonar)
 }

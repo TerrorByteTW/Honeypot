@@ -7,6 +7,7 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 
 plugins {
     java
+    `maven-publish`
 }
 
 repositories {
@@ -25,4 +26,16 @@ dependencies {
 tasks.withType<Jar> {
     val platform: String by project.extra
     archiveBaseName.set("honeypot-${platform}")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "${group}"
+            artifactId = "api"
+            version = "${version}"
+
+            from(components["java"])
+        }
+    }
 }
