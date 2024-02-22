@@ -24,8 +24,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # TODO: Fix this
-    # - name: Publish to GitHub Packages Apache Maven
-    #   run: mvn deploy -s $GITHUB_WORKSPACE/.github/settings.xml
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Publish to GitHub Packages Apache Maven
+      run: ./gradlew api:publish
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
