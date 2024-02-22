@@ -29,6 +29,7 @@ demo-everything:
     - "You can have more than one message in the broadcast field"
   messages:
     - "Bad player! You've been fined &4$1000&r for breaking Honeypots"
+  icon: HONEY_BLOCK
 
 demo-permission:
   permissions-add:
@@ -37,6 +38,7 @@ demo-permission:
     - essentials.kit
     - essentials.back
   messages: [ ]
+  icon: BARRIER
 
 demo-broadcast-only:
   broadcasts:
@@ -44,3 +46,4 @@ demo-broadcast-only:
     - "You can have more than one message in the broadcast field"
   messages:
     - "Shame on you, %player%, the whole server knows now."
+  icon: NOTE_BLOCK

@@ -84,13 +84,12 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			GUIItemBuilder item;
 
 			if (Honeypot.getRegistry().getBehaviorProvider(type) == null) {
-				String action = HoneypotConfigManager.getHoneypotsConfig().getString(type + ".type");
+				String action = HoneypotConfigManager.getHoneypotsConfig().getString(type + ".icon");
 
-				switch (action) {
-					case "command" -> item = new GUIItemBuilder(Material.COMMAND_BLOCK);
-					case "permission" -> item = new GUIItemBuilder(Material.TRIPWIRE_HOOK);
-					case "broadcast" -> item = new GUIItemBuilder(Material.BOOK);
-					default -> item = new GUIItemBuilder(Material.PAPER);
+				if (action != null && !action.equals("")) {
+					item = new GUIItemBuilder(Material.getMaterial(action));
+				} else {
+					item = new GUIItemBuilder(Material.PAPER);
 				}
 			} else {
 				item = new GUIItemBuilder(Honeypot.getRegistry().getBehaviorProvider(type).getIcon());
