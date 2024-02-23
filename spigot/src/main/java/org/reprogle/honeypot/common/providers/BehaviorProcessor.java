@@ -24,15 +24,18 @@ import org.reprogle.honeypot.Honeypot;
 public class BehaviorProcessor {
 
 	/**
-	 * This method calls the correct processor function, depending on if the type of the behavior provider is <code>BehaviorTypes.CUSTOM</code> or not
+	 * This method calls the correct processor function, depending on if the type of
+	 * the behavior provider is <code>BehaviorTypes.CUSTOM</code> or not
 	 *
 	 * @param behavior The behavior provider to process
 	 * @param p        The player to process against
-	 * @param block    The block that was involved in the event, may be null in some rare instances
+	 * @param block    The block that was involved in the event, may be null in some
+	 *                 rare instances
 	 * @return True if successful, false if not
 	 */
 	public boolean process(@NotNull BehaviorProvider behavior, Player p, Block block) {
-		if (Honeypot.getRegistry().isInitialized() && Honeypot.getRegistry().getBehaviorProvider(behavior.getProviderName()) != null) {
+		if (Honeypot.getRegistry().isInitialized()
+				&& Honeypot.getRegistry().getBehaviorProvider(behavior.getProviderName()) != null) {
 			return behavior.process(p, block);
 		}
 
