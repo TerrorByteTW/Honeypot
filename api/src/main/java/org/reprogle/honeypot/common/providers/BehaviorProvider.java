@@ -28,7 +28,7 @@ public abstract class BehaviorProvider {
 
 	protected final Material icon;
 
-	public BehaviorProvider() {
+	protected BehaviorProvider() {
 		this.providerName = getClass().getAnnotation(Behavior.class).name();
 		this.behaviorType = getClass().getAnnotation(Behavior.class).type();
 		this.icon = getClass().getAnnotation(Behavior.class).icon();
@@ -62,7 +62,8 @@ public abstract class BehaviorProvider {
 	}
 
 	/**
-	 * Override default equals function to provide comparison support to BehaviorProviders.
+	 * Override default equals function to provide comparison support to
+	 * BehaviorProviders.
 	 * Since BehaviorProviders must have unique names, this checks against name only
 	 *
 	 * @param o The object which we are checking equality against
@@ -70,8 +71,10 @@ public abstract class BehaviorProvider {
 	 */
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof BehaviorProvider behavior)) return false;
-		if (o == this) return true;
+		if (!(o instanceof BehaviorProvider behavior))
+			return false;
+		if (o == this)
+			return true;
 
 		// Don't really care about the type or icon since providerName must be unique
 		return behavior.getProviderName().equals(this.providerName);
@@ -85,9 +88,11 @@ public abstract class BehaviorProvider {
 	/**
 	 * A method to be executed when an action requires processing.
 	 *
-	 * @param p     The {@link org.bukkit.entity.Player} who the behavior provider will process against
+	 * @param p     The {@link org.bukkit.entity.Player} who the behavior provider
+	 *              will process against
 	 * @param block The block object belonging to the Honeypot.
-	 * @return Your behavior provider should return true if the processing is successful, otherwise return false.
+	 * @return Your behavior provider should return true if the processing is
+	 *         successful, otherwise return false.
 	 */
 	public abstract boolean process(Player p, Block block);
 }
