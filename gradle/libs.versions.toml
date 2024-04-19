@@ -1,7 +1,7 @@
 [versions]
 # Plugins
 shadow = "8.1.1"
-sonar = "4.4.1.3373"
+sonar = "5.0.0.4638"
 
 # Libraries
 paper-api = "1.20.4-R0.1-SNAPSHOT"
