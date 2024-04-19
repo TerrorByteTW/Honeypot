@@ -154,6 +154,9 @@ public class CommandManager implements TabExecutor {
 					HoneypotConfigManager.getHoneypotsConfig().reload();
 					HoneypotConfigManager.getHoneypotsConfig().save();
 
+					HoneypotConfigManager.getLanguageFile().reload();
+					HoneypotConfigManager.getLanguageFile().save();
+
 					Honeypot.plugin.getServer().getConsoleSender()
 							.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
 					return true;
