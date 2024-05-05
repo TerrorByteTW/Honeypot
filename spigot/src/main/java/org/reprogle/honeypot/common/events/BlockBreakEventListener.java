@@ -36,7 +36,7 @@ import org.reprogle.honeypot.common.utils.PhysicsUtil;
 
 public class BlockBreakEventListener implements Listener {
 
-	private static final String REMOVE_PERMISSION = "honeypot.break";
+	private static final String BREAK_PERMISSION = "honeypot.break";
 
 	private static final String WILDCARD_PERMISSION = "honeypot.*";
 
@@ -57,14 +57,16 @@ public class BlockBreakEventListener implements Listener {
 		// Ex: Creative mode player with Sword in hand
 		if (event.isCancelled())
 			return;
-		if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(event.getBlock()))) {
+		if (HoneypotBlockManager.getInstance().isHoneypotBlock(event.getBlock())) {
 			// Fire HoneypotPrePlayerBreakEvent
 			HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(event.getPlayer(), event.getBlock());
 			Bukkit.getPluginManager().callEvent(hppbe);
+			Honeypot.getHoneypotLogger().debug("Pre block break event is being called for " + event.getPlayer());
 
 			// Check if the event was cancelled. If it is, delete the block.
 			if (hppbe.isCancelled()) {
 				HoneypotBlockManager.getInstance().deleteBlock(event.getBlock());
+				Honeypot.getHoneypotLogger().debug("The event was cancelled, not continuing.");
 				return;
 			}
 
@@ -74,28 +76,29 @@ public class BlockBreakEventListener implements Listener {
 			// If Allow Player Destruction is true, the player has permissions, or is Op,
 			// flag the block for deletion from the DB
 			// Otherwise, set the BlockBreakEvent to cancelled
-			if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))
-					|| (event.getPlayer().hasPermission(REMOVE_PERMISSION)
-							|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
+			if (HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction")
+					|| event.getPlayer().hasPermission(BREAK_PERMISSION)
+					|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()) {
 				deleteBlock = true;
-			}
-			else {
+			} else {
 				event.setCancelled(true);
+				Honeypot.getHoneypotLogger().debug(
+						"The player who broke this block is either allowed to break it, or has some sort of permission. This Honeypot will be removed from the world");
 			}
 
 			// If blocks broken before action is less than or equal to 1, go to the break
 			// action.
 			// Otherwise, check if the player should have the action triggered
 			if (HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken") <= 1) {
-				// This is just a precaution to ensure that the player count is always less than 1 if the value in the
+				// This is just a precaution to ensure that the player count is always less than
+				// 1 if the value in the
 				// config is 1
-				if (HoneypotPlayerManager.getInstance().getCount(event.getPlayer()) > 1) {
-					HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), 0);
-				}
 
+				HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), 0);
+				Honeypot.getHoneypotLogger().debug("Action is being taken for this event.");
 				breakAction(event);
-			}
-			else {
+			} else {
+				Honeypot.getHoneypotLogger().debug("The break is just being counted, no action is taken yet");
 				countBreak(event);
 			}
 
@@ -119,9 +122,10 @@ public class BlockBreakEventListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	@SuppressWarnings("java:S1192")
 	public static void checkBlockBreakSideEffects(BlockBreakEvent event) {
-		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))
-				&& !(event.getPlayer().hasPermission(REMOVE_PERMISSION)
-						|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()))
+		if (!HoneypotConfigManager.getPluginConfig().getBoolean("allow-player-destruction"))
+			return;
+		if (!event.getPlayer().hasPermission(BREAK_PERMISSION)
+				&& !event.getPlayer().hasPermission(WILDCARD_PERMISSION) && !event.getPlayer().isOp())
 			return;
 
 		Block block = event.getBlock();
@@ -169,8 +173,8 @@ public class BlockBreakEventListener implements Listener {
 		Block block = event.getBlock();
 
 		// If the player isn't exempt, doesn't have permissions, and isn't Op
-		if (!(event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().hasPermission(REMOVE_PERMISSION)
-				|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp())) {
+		if (!event.getPlayer().hasPermission(EXEMPT_PERMISSION) && !event.getPlayer().hasPermission(BREAK_PERMISSION)
+				&& !event.getPlayer().hasPermission(WILDCARD_PERMISSION) && !event.getPlayer().isOp()) {
 
 			// Log the event in the history table
 			HoneypotPlayerHistoryManager.getInstance().addPlayerHistory(event.getPlayer(),
@@ -188,14 +192,12 @@ public class BlockBreakEventListener implements Listener {
 
 			// At this point we know the player has one of those permissions above. Now we
 			// need to figure out which
-		}
-		else if (event.getPlayer().hasPermission(REMOVE_PERMISSION)
+		} else if (event.getPlayer().hasPermission(BREAK_PERMISSION)
 				|| event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()) {
 			event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("staffbroke"));
 
 			// If it got to here, then they are exempt but can't break blocks anyway.
-		}
-		else {
+		} else {
 			event.setCancelled(true);
 			event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("exemptnobreak"));
 		}
@@ -206,7 +208,7 @@ public class BlockBreakEventListener implements Listener {
 		// Don't count the break if they are exempt, have the remove permission,
 		// wildcard permission, or are Op
 		if (event.getPlayer().hasPermission(EXEMPT_PERMISSION) || event.getPlayer().isOp()
-				|| event.getPlayer().hasPermission(REMOVE_PERMISSION)
+				|| event.getPlayer().hasPermission(BREAK_PERMISSION)
 				|| event.getPlayer().hasPermission(WILDCARD_PERMISSION))
 			return;
 
@@ -231,8 +233,7 @@ public class BlockBreakEventListener implements Listener {
 		if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
 			HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), 0);
 			breakAction(event);
-		}
-		else {
+		} else {
 			// Just count it
 			HoneypotPlayerManager.getInstance().setPlayerCount(event.getPlayer(), blocksBroken);
 		}
