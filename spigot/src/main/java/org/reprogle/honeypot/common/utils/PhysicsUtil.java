@@ -129,7 +129,8 @@ public class PhysicsUtil {
 			Material.FROGSPAWN,
 			Material.FROG_SPAWN_EGG,
 			Material.GLOW_LICHEN,
-			Material.SHORT_GRASS,
+			// I need to figure this out. Some versions it's called short_grass, some it's called grass, and in other's it doesn't exist :\
+			// Material.GRASS,
 			Material.GRAVEL,
 			Material.GRAY_BANNER,
 			Material.GRAY_CANDLE,
@@ -386,16 +387,22 @@ public class PhysicsUtil {
 			Material.YELLOW_BANNER);
 
 	/**
-	 * Get the list of blocks that have physics which can be placed on the sides of blocks (Trapdoors, as an example)
-	 * @return Blocks that break when the block they're on break, but can be placed on the side
+	 * Get the list of blocks that have physics which can be placed on the sides of
+	 * blocks (Trapdoors, as an example)
+	 * 
+	 * @return Blocks that break when the block they're on break, but can be placed
+	 *         on the side
 	 */
 	public static List<Material> getSidePhysics() {
 		return physicsSide;
 	}
 
 	/**
-	 * Get the list of blocks that have physics but can only be placed on top of blocks (Flowers, as an example)
-	 * @return Blocks that break when the block they're on break, but only can be placed on top
+	 * Get the list of blocks that have physics but can only be placed on top of
+	 * blocks (Flowers, as an example)
+	 * 
+	 * @return Blocks that break when the block they're on break, but only can be
+	 *         placed on top
 	 */
 	public static List<Material> getUpPhysics() {
 		return physicsUp;

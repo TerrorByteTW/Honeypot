@@ -24,6 +24,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("deprecation")
 public class Scheduler {
 
 	/**

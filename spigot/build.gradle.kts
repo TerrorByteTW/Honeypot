@@ -1,5 +1,5 @@
 group = "org.reprogle"
-version = "3.2.1"
+version = "3.2.2"
 
 extra["platform"] = "spigot"
 
