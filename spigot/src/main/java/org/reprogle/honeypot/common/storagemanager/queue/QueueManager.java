@@ -36,8 +36,7 @@ public class QueueManager {
 			// If an SQL query is added to the queue but the queue has more than one lined
 			// up, we need to go ahead and handle them all
 			while (queue.peek() != null) {
-				PreparedStatement ps = queue.poll();
-				try {
+				try (PreparedStatement ps = queue.poll()){
 					ps.executeUpdate();
 				} catch (SQLException e) {
 					e.printStackTrace();

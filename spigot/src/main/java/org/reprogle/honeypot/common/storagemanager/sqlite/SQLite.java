@@ -16,7 +16,9 @@
 
 package org.reprogle.honeypot.common.storagemanager.sqlite;
 
+import com.google.inject.Inject;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,19 +29,26 @@ import java.sql.Statement;
 
 public class SQLite extends Database {
 
+	private final Honeypot plugin;
+	private final HoneypotLogger logger;
+
 	/**
 	 * Create an SQLite object from the instance
 	 *
-	 * @param instance The instance of the plugin
+	 * @param plugin The instance of the plugin
+	 * @param logger The instance of the logger
 	 */
-	public SQLite(Honeypot instance) {
-		super(instance);
+	public SQLite(Honeypot plugin, HoneypotLogger logger) {
+		super(plugin, logger);
+		this.logger = logger;
+		this.plugin = plugin;
 	}
 
 	// The queries used to load the DB table. Only runs if the table doesn't exist.
 	private static final String SQLITE_CREATE_PLAYERS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
 			"`playerName` VARCHAR NOT NULL," +
 			"`blocksBroken` INT NOT NULL," +
+			"`type` VARCHAR NOT NULL," +
 			"PRIMARY KEY (`playerName`)" +
 			");";
 
@@ -68,17 +77,17 @@ public class SQLite extends Database {
 	 * @return Connection if the connection is valid, otherwise returns null
 	 */
 	public Connection getSQLConnection() {
-		File dataFolder = new File(Honeypot.plugin.getDataFolder(), "honeypot.db");
+		File dataFolder = new File(plugin.getDataFolder(), "honeypot.db");
 		if (!dataFolder.exists()) {
 			try {
 				boolean success = dataFolder.createNewFile();
 				if (success) {
-					Honeypot.getHoneypotLogger().info("Created data folder");
+					logger.info("Created data folder");
 				} else {
-					Honeypot.getHoneypotLogger().severe("Could not create data folder!");
+					logger.severe("Could not create data folder!");
 				}
 			} catch (IOException e) {
-				Honeypot.getHoneypotLogger().severe("Could not create honeypot.db file");
+				logger.severe("Could not create honeypot.db file");
 			}
 		}
 
@@ -91,11 +100,10 @@ public class SQLite extends Database {
 			return connection;
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("SQLite exception on initialize: " + e);
+			logger.severe("SQLite exception on initialize: " + e);
 		} catch (ClassNotFoundException e) {
-			Honeypot.getHoneypotLogger()
-					.severe("SQLite JDBC Library not found. Please install this on your PC to use SQLite: " + e);
-			Honeypot.plugin.getServer().getPluginManager().disablePlugin(Honeypot.plugin);
+			logger.severe("SQLite JDBC Library not found. Please install this on your PC to use SQLite: " + e);
+			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
 		return null;
@@ -112,8 +120,7 @@ public class SQLite extends Database {
 			s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
 			s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger()
-					.severe("SQLException occured while attempting to create tables if they don't exist: " + e);
+			logger.severe("SQLException occured while attempting to create tables if they don't exist: " + e);
 		}
 
 	}

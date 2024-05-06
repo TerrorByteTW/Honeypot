@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.utils;
 
+import com.google.inject.Inject;
 import org.bukkit.plugin.Plugin;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.utils.folia.Scheduler;
@@ -33,9 +34,9 @@ public record HoneypotSupportedVersions(Plugin plugin, String version) {
 	 *
 	 * @param consumer The consumer function
 	 */
-	public void getSupportedVersions(final Consumer<String> consumer) {
+	public void getSupportedVersions(final Consumer<String> consumer, HoneypotLogger logger) {
 		Scheduler.runTaskAsynchronously(this.plugin, () -> {
-			Honeypot.getHoneypotLogger().info("Checking if this server version is supported");
+			logger.info("Checking if this server version is supported");
 			try (InputStream inputStream = new URL(
 					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version)
 					.openStream();
@@ -44,7 +45,7 @@ public record HoneypotSupportedVersions(Plugin plugin, String version) {
 					consumer.accept(scanner.next());
 				}
 			} catch (IOException exception) {
-				Honeypot.getHoneypotLogger().info("Unable to check supported versions: " + exception.getMessage());
+				logger.info("Unable to check supported versions: " + exception.getMessage());
 			}
 		});
 	}

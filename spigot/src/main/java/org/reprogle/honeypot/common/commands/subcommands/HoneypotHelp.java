@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
@@ -26,6 +27,13 @@ import java.util.List;
 
 public class HoneypotHelp implements HoneypotSubCommand {
 
+	private final CommandFeedback commandFeedback;
+
+	@Inject
+	HoneypotHelp(CommandFeedback commandFeedback) {
+		this.commandFeedback = commandFeedback;
+	}
+
 	@Override
 	public String getName() {
 		return "help";
@@ -33,7 +41,7 @@ public class HoneypotHelp implements HoneypotSubCommand {
 
 	@Override
 	public void perform(Player p, String[] args) {
-		p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+		p.sendMessage(commandFeedback.sendCommandFeedback("usage"));
 
 	}
 

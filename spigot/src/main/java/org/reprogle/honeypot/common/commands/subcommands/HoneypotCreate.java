@@ -16,8 +16,10 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
@@ -39,6 +41,19 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 public class HoneypotCreate implements HoneypotSubCommand {
+	
+	private final CommandFeedback commandFeedback;
+	private final HoneypotConfigManager configManager;
+	private final HoneypotBlockManager blockManager;
+	private final AdapterManager adapterManager;
+
+	@Inject
+	HoneypotCreate(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotBlockManager blockManager, AdapterManager adapterManager) {
+		this.commandFeedback = commandFeedback;
+		this.configManager = configManager;
+		this.blockManager = blockManager;
+		this.adapterManager = adapterManager;
+	}
 
 	@Override
 	public String getName() {
@@ -49,49 +64,49 @@ public class HoneypotCreate implements HoneypotSubCommand {
 	@SuppressWarnings({ "java:S3776", "java:S1192", "java:S6541" })
 	public void perform(Player p, String[] args) {
 		Block block;
-		WorldGuardAdapter wga = AdapterManager.getWorldGuardAdapter();
-		GriefPreventionAdapter gpa = AdapterManager.getGriefPreventionAdapter();
-		LandsAdapter la = AdapterManager.getLandsAdapter();
+		WorldGuardAdapter wga = adapterManager.getWorldGuardAdapter();
+		GriefPreventionAdapter gpa = adapterManager.getGriefPreventionAdapter();
+		LandsAdapter la = adapterManager.getLandsAdapter();
 
 		// Get block the player is looking at
 		if (p.getTargetBlockExact(5) != null) {
 			block = p.getTargetBlockExact(5);
 		} else {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("notlookingatblock"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("notlookingatblock"));
 			return;
 		}
 
 		// Check if in a WorldGuard region and the flag is set to deny. If it is, don't
 		// bother continuing
 		if (wga != null && !wga.isAllowed(p, block.getLocation())) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("worldguard"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("worldguard"));
 			return;
 		}
 
 		// Check if in a GriefPrevention region
 		if (gpa != null && !gpa.isAllowed(p, block.getLocation())) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("griefprevention"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("griefprevention"));
 			return;
 		}
 
 		// Check if in a Lands region
-		if (la != null && !la.isAllowed(p, block.getLocation())) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("lands"));
+		if (la != null && !la.isAllowed(block.getLocation())) {
+			p.sendMessage(commandFeedback.sendCommandFeedback("lands"));
 			return;
 		}
 
 		// Check if the filter is enabled, and if so, if it's allowed
-		if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")
-				|| HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")
+		if (configManager.getPluginConfig().getBoolean("filters.blocks")
+				|| configManager.getPluginConfig().getBoolean("filters.inventories")
 						&& (!isAllowedPerFilters(block))) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("againstfilter"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("againstfilter"));
 			return;
 
 		}
 
 		// If the block already exists in the DB
-		if (HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("alreadyexists"));
+		if (blockManager.isHoneypotBlock(block)) {
+			p.sendMessage(commandFeedback.sendCommandFeedback("alreadyexists"));
 
 			// If the block doesn't exist
 		} else {
@@ -106,15 +121,15 @@ public class HoneypotCreate implements HoneypotSubCommand {
 					return;
 
 				if (args[1].equalsIgnoreCase("custom")) {
-					if (!args[2].isEmpty() && HoneypotConfigManager.getHoneypotsConfig().contains(args[2])) {
-						HoneypotBlockManager.getInstance().createBlock(block, args[2]);
-						p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+					if (!args[2].isEmpty() && configManager.getHoneypotsConfig().contains(args[2])) {
+						blockManager.createBlock(block, args[2]);
+						p.sendMessage(commandFeedback.sendCommandFeedback("success", true));
 					} else {
-						p.sendMessage(CommandFeedback.sendCommandFeedback("noexist"));
+						p.sendMessage(commandFeedback.sendCommandFeedback("noexist"));
 					}
 				} else {
-					HoneypotBlockManager.getInstance().createBlock(block, args[1]);
-					p.sendMessage(CommandFeedback.sendCommandFeedback("success", true));
+					blockManager.createBlock(block, args[1]);
+					p.sendMessage(commandFeedback.sendCommandFeedback("success", true));
 				}
 
 				// Fire HoneypotCreateEvent
@@ -122,7 +137,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 				Bukkit.getPluginManager().callEvent(hce);
 
 			} else {
-				p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("usage"));
 			}
 		}
 	}
@@ -143,7 +158,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 			map.forEach((providerName, provider) -> subcommands.add(providerName));
 
 			// Add all custom config actions to the subcommands list
-			Set<Object> keys = HoneypotConfigManager.getHoneypotsConfig().getKeys();
+			Set<Object> keys = configManager.getHoneypotsConfig().getKeys();
 			for (Object key : keys) {
 				subcommands.add(key.toString());
 			}
@@ -159,11 +174,11 @@ public class HoneypotCreate implements HoneypotSubCommand {
 	}
 
 	private boolean isAllowedPerFilters(Block block) {
-		List<String> allowedBlocks = HoneypotConfigManager.getPluginConfig().getStringList("allowed-blocks");
-		List<String> allowedInventories = HoneypotConfigManager.getPluginConfig().getStringList("allowed-inventories");
+		List<String> allowedBlocks = configManager.getPluginConfig().getStringList("allowed-blocks");
+		List<String> allowedInventories = configManager.getPluginConfig().getStringList("allowed-inventories");
 		boolean allowed = false;
 
-		if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.blocks")) {
+		if (configManager.getPluginConfig().getBoolean("filters.blocks")) {
 			for (String blockType : allowedBlocks) {
 				assert block != null;
 				if (block.getType().name().equals(blockType)) {
@@ -173,7 +188,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 			}
 		}
 
-		if (HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories")) {
+		if (configManager.getPluginConfig().getBoolean("filters.inventories")) {
 			for (String blockType : allowedInventories) {
 				if (block.getType().name().equals(blockType)) {
 					allowed = true;

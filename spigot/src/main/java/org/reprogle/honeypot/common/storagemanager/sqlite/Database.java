@@ -24,6 +24,7 @@ import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.storagemanager.queue.QueueManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,6 +41,7 @@ import java.util.List;
 @SuppressWarnings("java:S1192")
 public abstract class Database {
 
+	private final HoneypotLogger logger;
 	Honeypot plugin;
 
 	Connection connection;
@@ -67,8 +69,9 @@ public abstract class Database {
 	 *
 	 * @param instance The instance of the Honeypot plugin
 	 */
-	protected Database(Honeypot instance) {
+	protected Database(Honeypot instance, HoneypotLogger logger) {
 		plugin = instance;
+		this.logger = logger;
 	}
 
 	public abstract Connection getSQLConnection();
@@ -89,7 +92,7 @@ public abstract class Database {
 				rs.close();
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Failed to close SQL connection: " + e);
+			logger.severe("Failed to close SQL connection: " + e);
 		}
 	}
 
@@ -120,7 +123,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on block table: " + e);
+			logger.severe("Error while executing create SQL statement on block table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -128,7 +131,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -154,7 +157,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while remove executing SQL statement on block table: " + e);
+			logger.severe("Error while remove executing SQL statement on block table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -162,7 +165,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -195,7 +198,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing check SQL statement on block table: " + e);
+			logger.severe("Error while executing check SQL statement on block table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -205,7 +208,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 
@@ -240,7 +243,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing action SQL statement on block table: " + e);
+			logger.severe("Error while executing action SQL statement on block table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -250,7 +253,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 
@@ -280,7 +283,7 @@ public abstract class Database {
 
 			return blocks;
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing action SQL statement on block table: " + e);
+			logger.severe("Error while executing action SQL statement on block table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -290,7 +293,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 
@@ -321,7 +324,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe("Error while executing create SQL statement on player table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -329,7 +332,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -353,7 +356,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger()
+			logger
 					.severe("Error while executing count update SQL statement on player table: " + e);
 		} finally {
 			try {
@@ -362,7 +365,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -391,7 +394,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger()
+			logger
 					.severe("Error while executing count retrieval SQL statement on player table: " + e);
 		} finally {
 			try {
@@ -402,7 +405,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 
@@ -434,7 +437,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger()
+			logger
 					.severe("Error while executing count retrieval SQL statement on player table: " + e);
 		} finally {
 			try {
@@ -445,7 +448,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 
@@ -469,7 +472,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 			CacheManager.clearCache();
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe("Error while executing create SQL statement on player table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -477,7 +480,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -495,7 +498,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe("Error while executing create SQL statement on player table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -503,7 +506,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -521,7 +524,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe("Error while executing create SQL statement on player table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -529,7 +532,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -560,7 +563,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on history table: " + e);
+			logger.severe("Error while executing create SQL statement on history table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -568,7 +571,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}
@@ -600,7 +603,7 @@ public abstract class Database {
 			return history;
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing create SQL statement on history table: " + e);
+			logger.severe("Error while executing create SQL statement on history table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -608,7 +611,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 
@@ -644,7 +647,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("Error while executing SQL statement on block table: " + e);
+			logger.severe("Error while executing SQL statement on block table: " + e);
 		} finally {
 			try {
 				if (ps != null)
@@ -652,7 +655,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				Honeypot.getHoneypotLogger().severe(FAIL_TO_CLOSE + e);
+				logger.severe(FAIL_TO_CLOSE + e);
 			}
 		}
 	}

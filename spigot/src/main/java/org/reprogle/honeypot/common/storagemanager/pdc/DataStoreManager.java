@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.google.inject.Inject;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -11,28 +12,18 @@ import org.bukkit.persistence.PersistentDataType;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 @SuppressWarnings("java:S1192")
 public class DataStoreManager {
 
+    private final HoneypotLogger logger;
     Honeypot plugin;
 
-    private static DataStoreManager instance = null;
-
-    /**
-     * Returns the singleton instance of this class
-     *
-     * @return The {@link DataStoreManager} instance
-     */
-    public static synchronized DataStoreManager getInstance() {
-        if (instance == null)
-            instance = new DataStoreManager(Honeypot.plugin);
-
-        return instance;
-    }
-
-    public DataStoreManager(Honeypot instance) {
-        plugin = instance;
+    @Inject
+    public DataStoreManager(Honeypot plugin, HoneypotLogger logger) {
+        this.plugin = plugin;
+        this.logger = logger;
     }
 
     public void createHoneypotBlock(Block block, String action) {
@@ -74,7 +65,7 @@ public class DataStoreManager {
 
         CacheManager.clearCache();
 
-        Honeypot.getHoneypotLogger().debug("Deleted all Honeypot blocks!");
+        logger.debug("Deleted all Honeypot blocks!");
     }
 
     public List<HoneypotBlockObject> getAllHoneypots(World world) {

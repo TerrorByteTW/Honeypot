@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
@@ -25,6 +26,13 @@ import java.util.List;
 
 public class HoneypotList implements HoneypotSubCommand {
 
+	private final HoneypotGUI gui;
+
+	@Inject
+	public HoneypotList(HoneypotGUI gui) {
+		this.gui = gui;
+	}
+
 	@Override
 	public String getName() {
 		return "list";
@@ -32,7 +40,7 @@ public class HoneypotList implements HoneypotSubCommand {
 
 	@Override
 	public void perform(Player p, String[] args) {
-		HoneypotGUI.callAllHoneypotsInventory(p);
+		gui.callAllHoneypotsInventory(p);
 	}
 
 	@Override

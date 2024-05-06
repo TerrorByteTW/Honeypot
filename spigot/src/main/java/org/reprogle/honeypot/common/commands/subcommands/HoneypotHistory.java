@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -36,6 +37,18 @@ import java.util.List;
 @SuppressWarnings({ "java:S1192", "java:S3776", "deprecation" })
 public class HoneypotHistory implements HoneypotSubCommand {
 
+	private final CommandFeedback commandFeedback;
+	private final HoneypotConfigManager configManager;
+	private final HoneypotPlayerHistoryManager playerHistoryManager;
+
+	@Inject
+	public HoneypotHistory(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotPlayerHistoryManager playerHistoryManager) {
+		this.commandFeedback = commandFeedback;
+		this.configManager = configManager;
+		this.playerHistoryManager = playerHistoryManager;
+
+	}
+
 	@Override
 	public String getName() {
 		return "history";
@@ -47,23 +60,22 @@ public class HoneypotHistory implements HoneypotSubCommand {
 			Player argPlayer = Bukkit.getPlayer(args[2]);
 
 			if (argPlayer == null || !Bukkit.getPlayer(args[2]).isOnline()) {
-				p.sendMessage(CommandFeedback.sendCommandFeedback("notonline"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("notonline"));
 				return;
 			}
 
 			if (args[1].equalsIgnoreCase("query")) {
-				p.sendMessage(CommandFeedback.sendCommandFeedback("searching"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("searching"));
 
-				List<HoneypotPlayerHistoryObject> history = HoneypotPlayerHistoryManager.getInstance()
-						.getPlayerHistory(argPlayer);
-				int length = HoneypotConfigManager.getPluginConfig().getInt("history-length");
+				List<HoneypotPlayerHistoryObject> history = playerHistoryManager.getPlayerHistory(argPlayer);
+				int length = configManager.getPluginConfig().getInt("history-length");
 
 				if (history.size() > length) {
-					p.sendMessage(CommandFeedback.sendCommandFeedback("truncating"));
+					p.sendMessage(commandFeedback.sendCommandFeedback("truncating"));
 				}
 
 				if (history.isEmpty()) {
-					p.sendMessage(CommandFeedback.sendCommandFeedback("nohistory"));
+					p.sendMessage(commandFeedback.sendCommandFeedback("nohistory"));
 					return;
 				}
 
@@ -90,18 +102,18 @@ public class HoneypotHistory implements HoneypotSubCommand {
 
 			} else if (args[1].equalsIgnoreCase("delete")) {
 				if (args.length >= 4) {
-					HoneypotPlayerHistoryManager.getInstance().deletePlayerHistory(argPlayer,
+					playerHistoryManager.deletePlayerHistory(argPlayer,
 							Integer.parseInt(args[3]));
 				} else {
-					HoneypotPlayerHistoryManager.getInstance().deletePlayerHistory(argPlayer);
+					playerHistoryManager.deletePlayerHistory(argPlayer);
 				}
-				p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("success"));
 			}
 		} else if (args.length == 2 && args[1].equalsIgnoreCase("purge")) {
-			HoneypotPlayerHistoryManager.getInstance().deleteAllHistory();
-			p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
+			playerHistoryManager.deleteAllHistory();
+			p.sendMessage(commandFeedback.sendCommandFeedback("success"));
 		} else {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("usage"));
 		}
 
 	}

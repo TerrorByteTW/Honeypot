@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.providers.included;
 
+import com.google.inject.Inject;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -30,10 +31,13 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 @SuppressWarnings("deprecation")
 public class Ban extends BehaviorProvider {
 
+	@Inject
+	private CommandFeedback commandFeedback;
+
 	@Override
 	public boolean process(Player p, Block block) {
-		String banReason = CommandFeedback.sendCommandFeedback("ban");
-		String chatPrefix = CommandFeedback.getChatPrefix();
+		String banReason = commandFeedback.sendCommandFeedback("ban");
+		String chatPrefix = commandFeedback.getChatPrefix();
 
 		Bukkit.getBanList(BanList.Type.NAME).addBan(p.getName(), banReason, null,
 				chatPrefix);

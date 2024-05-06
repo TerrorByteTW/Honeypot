@@ -1,5 +1,5 @@
 group = "org.reprogle"
-version = "3.2.2"
+version = "3.3.0"
 
 extra["platform"] = "spigot"
 
@@ -37,6 +37,8 @@ dependencies {
     compileOnly(libs.worldguard)
     compileOnly(libs.griefprevention)
     compileOnly(libs.lands)
+
+    implementation(libs.guice)
 }
 
 java {
@@ -46,7 +48,7 @@ java {
 
 // This outputs the javadoc in an HTML format
 tasks.javadoc {
-    destinationDir = file("${buildDir}/docs/javadoc")
+    destinationDir = file("${layout.buildDirectory}/docs/javadoc")
 }
 
 // Configure the file output names of most files (Excluding shadow, which needs tweaking itself to avoid a "-all" being tagged onto it)

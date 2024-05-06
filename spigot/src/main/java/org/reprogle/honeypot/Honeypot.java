@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.milkbowl.vault.permission.Permission;
 import com.samjakob.spigui.SpiGUI;
 import org.bstats.bukkit.Metrics;
@@ -25,7 +27,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.CommandManager;
-import org.reprogle.honeypot.common.events.ListenerSetup;
+import org.reprogle.honeypot.common.events.Listeners;
 import org.reprogle.honeypot.common.providers.BehaviorProcessor;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorRegistry;
@@ -41,25 +43,20 @@ import org.reprogle.honeypot.common.utils.integrations.PlaceholderAPIExpansion;
 @SuppressWarnings({ "deprecation", "java:S1444", "java:S1104" })
 public final class Honeypot extends JavaPlugin {
 
-	public static Honeypot plugin;
-
 	private static SpiGUI gui;
-
-	private static HoneypotLogger logger;
-
 	private static Permission perms = null;
-
-	private static GhostHoneypotFixer ghf = null;
-
 	private static BehaviorRegistry registry = new BehaviorRegistry();
-
-	// Sonarlint doesn't know what it's talking about. We need to assign
-	// BehaviorProcessor in the onLoad() method, so it can't be final
-	@SuppressWarnings({ "java:S1444" })
 	public static BehaviorProcessor processor = null;
-
 	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[] { new Ban(), new Kick(), new Warn(),
 			new Notify() };
+	private HoneypotConfigManager configManager;
+
+	@Inject private AdapterManager adapterManager;
+    @Inject private Listeners listeners;
+	@Inject private CommandManager manager;
+	@Inject private HoneypotLogger logger;
+	@Inject private GhostHoneypotFixer ghf;
+	@Inject private CommandFeedback commandFeedback;
 
 	/**
 	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
@@ -68,8 +65,13 @@ public final class Honeypot extends JavaPlugin {
 	@Override
 	@SuppressWarnings("java:S2696")
 	public void onLoad() {
-		// Registere adapters which must be registered on load
-		AdapterManager.onLoadAdapters(getServer());
+		configManager = new HoneypotConfigManager();
+
+		HoneypotModule module = new HoneypotModule(this, configManager);
+		Injector injector = module.createInjector();
+		injector.injectMembers(this);
+		// Register adapters which must be registered on load
+		adapterManager.onLoadAdapters(getServer());
 
 		registry = new BehaviorRegistry();
 
@@ -88,25 +90,23 @@ public final class Honeypot extends JavaPlugin {
 	@Override
 	@SuppressWarnings({ "unused", "java:S2696" })
 	public void onEnable() {
-		plugin = this;
-		gui = new SpiGUI(this);
-		logger = new HoneypotLogger();
-		registry.setInitialized(true);
 
-		HoneypotConfigManager.setupConfig(this);
+		gui = new SpiGUI(this);
+		registry.setInitialized(true);
+		ghf.startTask();
+
+		configManager.setupConfig(this);
 
 		getHoneypotLogger().info("Successfully registered " + registry.size()
 				+ " behavior providers. Further registrations are now locked.");
 
 		// Load everything necessary for the plugin to work
 		Metrics metrics = new Metrics(this, 15425);
-		ListenerSetup.setupListeners(this);
-
-		ghf = new GhostHoneypotFixer();
+		listeners.setupListeners();
 
 		// Setup Vault
 		if (!setupPermissions()) {
-			getHoneypotLogger().info(CommandFeedback.getChatPrefix() + ChatColor.RED
+			getHoneypotLogger().info(commandFeedback.getChatPrefix() + ChatColor.RED
 					+ " Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/");
 		}
 
@@ -116,9 +116,10 @@ public final class Honeypot extends JavaPlugin {
 		}
 
 		// Register remaining adapters that can be registered on enable
-		AdapterManager.onEnableAdapters(getServer());
+		adapterManager.onEnableAdapters(getServer());
 
-		getCommand("honeypot").setExecutor(new CommandManager());
+		this.manager.configureCommands();
+		getCommand("honeypot").setExecutor(this.manager);
 		getHoneypotLogger().info("Loaded plugin");
 
 		// When I save the file manually in VSCode it tends to format this section. If
@@ -143,14 +144,14 @@ public final class Honeypot extends JavaPlugin {
 					if (Integer.parseInt(latest.replace(".", "")) > Integer
 							.parseInt(this.getDescription().getVersion().replace(".", ""))) {
 						getServer().getConsoleSender()
-								.sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
+								.sendMessage(commandFeedback.getChatPrefix() + ChatColor.RED
 										+ " There is a new update available: " + latest
 										+ ". Please download for the latest features and security updates!");
 					} else {
-						getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + ChatColor.GREEN
+						getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix() + ChatColor.GREEN
 								+ " You are on the latest version of Honeypot!");
 					}
-				});
+				}, logger);
 	}
 
 	/**
@@ -185,15 +186,15 @@ public final class Honeypot extends JavaPlugin {
 	 * running on is supported
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	public static void checkIfServerSupported() {
+	public void checkIfServerSupported() {
 		String[] serverVersion = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
 		int serverMajorVer = Integer.parseInt(serverVersion[0]);
 		int serverMinorVer = Integer.parseInt(serverVersion[1]);
 		int serverRevisionVer = serverVersion.length > 2 ? Integer.parseInt(serverVersion[2]) : 0;
 
-		String pluginVersion = plugin.getDescription().getVersion();
+		String pluginVersion = this.getDescription().getVersion();
 		// Check for any updates
-		new HoneypotSupportedVersions(plugin, pluginVersion).getSupportedVersions(value -> {
+		new HoneypotSupportedVersions(this, pluginVersion).getSupportedVersions(value -> {
 			// Get the least supported and most supported server versions for this version
 			// of Honeypot
 			String[] lowerVersion = value.split("-")[0].split("\\.");
@@ -221,7 +222,7 @@ public final class Honeypot extends JavaPlugin {
 						"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but some unusual behavior may occur, such as new blocks being processed strangely!");
 				getHoneypotLogger().warning("Honeypot " + pluginVersion + " supports server versions " + value);
 			}
-		});
+		}, logger);
 
 	}
 
@@ -268,7 +269,7 @@ public final class Honeypot extends JavaPlugin {
 	 *
 	 * @return {@link HoneypotLogger}
 	 */
-	public static HoneypotLogger getHoneypotLogger() {
+	public HoneypotLogger getHoneypotLogger() {
 		return logger;
 	}
 
@@ -279,14 +280,5 @@ public final class Honeypot extends JavaPlugin {
 	 */
 	public static BehaviorRegistry getRegistry() {
 		return registry;
-	}
-
-	/**
-	 * Get the Ghost Honeypot Fixer
-	 * 
-	 * @return {@link GhostHoneypotFixer}
-	 */
-	public static GhostHoneypotFixer getFixer() {
-		return ghf;
 	}
 }

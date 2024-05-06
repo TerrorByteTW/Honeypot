@@ -16,11 +16,13 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,23 +38,42 @@ import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 import java.util.Objects;
 
 public class PlayerInteractEventListener implements Listener {
 
+	private final Honeypot plugin;
+	private final HoneypotConfigManager configManager;
+	private final HoneypotBlockManager blockManager;
+	private final HoneypotLogger logger;
+	private final ActionHandler actionHandler;
+	private final DataStoreManager dataStoreManager;
+	private final CommandFeedback commandFeedback;
+
 	/**
 	 * Create a private constructor to hide the implicit one
 	 */
-	PlayerInteractEventListener() {
+	@Inject
+	PlayerInteractEventListener(Honeypot plugin, HoneypotConfigManager configManager, HoneypotBlockManager blockManager,
+			HoneypotLogger logger, ActionHandler actionHandler, DataStoreManager dataStoreManager,
+			CommandFeedback commandFeedback) {
+		this.plugin = plugin;
+		this.configManager = configManager;
+		this.blockManager = blockManager;
+		this.logger = logger;
+		this.actionHandler = actionHandler;
+		this.dataStoreManager = dataStoreManager;
+		this.commandFeedback = commandFeedback;
 
 	}
 
 	// Player interact event
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	@SuppressWarnings({ "unchecked", "java:S3776" })
-	public static void playerInteractEvent(PlayerInteractEvent event) {
+	public void playerInteractEvent(PlayerInteractEvent event) {
 
 		if (event.getPlayer().getTargetBlockExact(5) == null)
 			return;
@@ -64,8 +85,8 @@ public class PlayerInteractEventListener implements Listener {
 		// We want to filter on inventories upon opening, not just creation (Like in the
 		// HoneypotCreate class) because
 		// inventories can be both broken AND open :)
-		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("filters.inventories"))) {
-			List<String> allowedBlocks = (List<String>) HoneypotConfigManager.getPluginConfig()
+		if (configManager.getPluginConfig().getBoolean("filters.inventories")) {
+			List<String> allowedBlocks = (List<String>) configManager.getPluginConfig()
 					.getList("allowed-inventories");
 			boolean allowed = false;
 
@@ -84,8 +105,7 @@ public class PlayerInteractEventListener implements Listener {
 
 		try {
 			if (!Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getType().equals(Material.ENDER_CHEST)
-					&& Boolean.TRUE.equals(HoneypotBlockManager.getInstance()
-							.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5))))) {
+					&& blockManager.isHoneypotBlock(Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)))) {
 				// Fire HoneypotPrePlayerInteractEvent
 				HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(event.getPlayer(),
 						event.getClickedBlock());
@@ -96,8 +116,7 @@ public class PlayerInteractEventListener implements Listener {
 
 				if (!(event.getPlayer().hasPermission("honeypot.exempt")
 						|| event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
-					if (Boolean.FALSE.equals(
-							HoneypotConfigManager.getPluginConfig().getBoolean("always-allow-container-access")))
+					if (!configManager.getPluginConfig().getBoolean("always-allow-container-access"))
 						event.setCancelled(true);
 					executeAction(event);
 				}
@@ -113,18 +132,18 @@ public class PlayerInteractEventListener implements Listener {
 		}
 	}
 
-	private static void executeAction(PlayerInteractEvent event) {
+	private void executeAction(PlayerInteractEvent event) {
 
 		Block block = event.getPlayer().getTargetBlockExact(5);
 
 		assert block != null;
-		String action = HoneypotBlockManager.getInstance().getAction(block);
+		String action = blockManager.getAction(block);
 
 		assert action != null;
-		Honeypot.getHoneypotLogger().debug("PlayerInteractEvent being called for player: " + event.getPlayer().getName()
+		logger.debug("PlayerInteractEvent being called for player: " + event.getPlayer().getName()
 				+ ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
 
-		ActionHandler.handleCustomAction(action, block, event.getPlayer());
+		actionHandler.handleCustomAction(action, block, event.getPlayer());
 	}
 
 	/**
@@ -133,19 +152,19 @@ public class PlayerInteractEventListener implements Listener {
 	 * @param event The event data being passed by the event handler
 	 */
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public static void debugInteractEvent(PlayerInteractEvent event) {
+	public void debugInteractEvent(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 
-		if (player.getPersistentDataContainer().has(new NamespacedKey(Honeypot.plugin, "honeypot-debug-enabled"))
+		if (player.getPersistentDataContainer().has(new NamespacedKey(plugin, "honeypot-debug-enabled"))
 				&& event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 			event.setCancelled(true);
 
-			HoneypotBlockObject block = DataStoreManager.getInstance().getHoneypotBlock(event.getClickedBlock());
+			HoneypotBlockObject block = dataStoreManager.getHoneypotBlock(event.getClickedBlock());
 			if (block == null) {
-				player.sendMessage(CommandFeedback.getChatPrefix() + " Not a Honeypot, no PDC found");
+				player.sendMessage(commandFeedback.getChatPrefix() + " Not a Honeypot, no PDC found");
 				return;
 			}
-			player.sendMessage(CommandFeedback.getChatPrefix() + " PDC contains: " + block.toString());
+			player.sendMessage(commandFeedback.getChatPrefix() + " PDC contains: " + block.toString());
 		}
 	}
 }

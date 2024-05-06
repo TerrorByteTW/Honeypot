@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot.common.commands;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.subcommands.*;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
 import java.io.IOException;
@@ -36,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
+@Singleton
 public class CommandManager implements TabExecutor {
 
 	// Create an ArrayList of SubCommands called subcommands
@@ -43,23 +47,49 @@ public class CommandManager implements TabExecutor {
 
 	private final ArrayList<String> subcommandsNameOnly = new ArrayList<>();
 
+	private final Honeypot plugin;
+	private final HoneypotLogger logger;
+	private final CommandFeedback commandFeedback;
+	private final HoneypotConfigManager configManager;
+
+	@Inject private HoneypotCreate honeypotCreate;
+	@Inject private HoneypotRemove honeypotRemove;
+	@Inject private HoneypotReload honeypotReload;
+	@Inject private HoneypotLocate honeypotLocate;
+	@Inject private HoneypotGUI honeypotGUI;
+	@Inject private HoneypotHelp honeypotHelp;
+	@Inject private HoneypotInfo honeypotInfo;
+	@Inject private HoneypotHistory honeypotHistory;
+	@Inject private HoneypotList honeypotList;
+	@Inject private HoneypotDebug honeypotDebug;
+
 	/**
 	 * Registers all commands
 	 */
-	public CommandManager() {
-		subcommands.add(new HoneypotCreate());
-		subcommands.add(new HoneypotRemove());
-		subcommands.add(new HoneypotReload());
-		subcommands.add(new HoneypotLocate());
-		subcommands.add(new HoneypotGUI());
-		subcommands.add(new HoneypotHelp());
-		subcommands.add(new HoneypotInfo());
-		subcommands.add(new HoneypotHistory());
-		subcommands.add(new HoneypotList());
+	@Inject
+	public CommandManager(Honeypot plugin, HoneypotLogger logger, HoneypotConfigManager configManager, CommandFeedback commandFeedback) {
+		this.plugin = plugin;
+		this.logger = logger;
+		this.configManager = configManager;
+		this.commandFeedback = commandFeedback;
+	}
 
-		if (HoneypotConfigManager.getPluginConfig().getBoolean("enable-debug-mode")) {
-			subcommands.add(new HoneypotDebug());
+	public void configureCommands() {
+		subcommands.add(honeypotCreate);
+		subcommands.add(honeypotRemove);
+		subcommands.add(honeypotReload);
+		subcommands.add(honeypotLocate);
+		subcommands.add(honeypotGUI);
+		subcommands.add(honeypotHelp);
+		subcommands.add(honeypotInfo);
+		subcommands.add(honeypotHistory);
+		subcommands.add(honeypotList);
+
+		if (configManager.getPluginConfig().getBoolean("enable-debug-mode")) {
+			subcommands.add(honeypotDebug);
 		}
+
+		plugin.getLogger().info(subcommands.toString());
 
 		for (int i = 0; i < getSubcommands().size(); i++) {
 			subcommandsNameOnly.add(getSubcommands().get(i).getName());
@@ -95,7 +125,7 @@ public class CommandManager implements TabExecutor {
 		if (sender instanceof Player p) {
 
 			if (!(p.hasPermission("honeypot.commands") || p.hasPermission("honeypot.*") || p.isOp())) {
-				p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
 			}
 
 			// If it's a player, ensure there is at least 1 argument given
@@ -106,21 +136,20 @@ public class CommandManager implements TabExecutor {
 				for (HoneypotSubCommand subcommand : subcommands) {
 					if (args[0].equalsIgnoreCase(subcommand.getName())) {
 						try {
-							if (Boolean.FALSE.equals(checkPermissions(p, subcommand))) {
-								p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+							if (!checkPermissions(p, subcommand)) {
+								p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
 								return false;
 							}
 
 							subcommand.perform(p, args);
 							return true;
 						} catch (IOException e) {
-							Honeypot.getHoneypotLogger()
-									.severe("Error while running command " + args[0] + "! Full stack trace: " + e);
+							logger.severe("Error while running command " + args[0] + "! Full stack trace: " + e);
 						}
 					}
 				}
 
-				p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("usage"));
 			} else {
 				// If no subcommands are passed, open the GUI. This is done by looping through
 				// all the subcommands and
@@ -129,14 +158,14 @@ public class CommandManager implements TabExecutor {
 					if (subcommand.getName().equals("gui")) {
 						try {
 							if (!checkPermissions(p, subcommand)) {
-								p.sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+								p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
 								return false;
 							}
 
 							subcommand.perform(p, args);
 							return true;
 						} catch (IOException e) {
-							Honeypot.getHoneypotLogger().severe("Error while running command! Full stack trace: " + e);
+							logger.severe("Error while running command! Full stack trace: " + e);
 						}
 					}
 				}
@@ -145,35 +174,35 @@ public class CommandManager implements TabExecutor {
 		} else {
 			if (args.length > 0 && args[0].equals("reload")) {
 				try {
-					HoneypotConfigManager.getPluginConfig().reload();
-					HoneypotConfigManager.getPluginConfig().save();
+					configManager.getPluginConfig().reload();
+					configManager.getPluginConfig().save();
 
-					HoneypotConfigManager.getGuiConfig().reload();
-					HoneypotConfigManager.getGuiConfig().save();
+					configManager.getGuiConfig().reload();
+					configManager.getGuiConfig().save();
 
-					HoneypotConfigManager.getHoneypotsConfig().reload();
-					HoneypotConfigManager.getHoneypotsConfig().save();
+					configManager.getHoneypotsConfig().reload();
+					configManager.getHoneypotsConfig().save();
 
-					HoneypotConfigManager.getLanguageFile().reload();
-					HoneypotConfigManager.getLanguageFile().save();
+					configManager.getLanguageFile().reload();
+					configManager.getLanguageFile().save();
 
-					Honeypot.plugin.getServer().getConsoleSender()
-							.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
+					plugin.getServer().getConsoleSender()
+							.sendMessage(commandFeedback.sendCommandFeedback("reload"));
 					return true;
 				} catch (IOException e) {
-					Honeypot.getHoneypotLogger().severe("Could not reload honeypot config! Full stack trace: " + e);
+					logger.severe("Could not reload honeypot config! Full stack trace: " + e);
 				}
 			} else {
-				ConsoleCommandSender console = Honeypot.plugin.getServer().getConsoleSender();
+				ConsoleCommandSender console = plugin.getServer().getConsoleSender();
 				console.sendMessage(ChatColor.GOLD + "\n" + " _____                         _\n"
 						+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n" + "|     | . |   | -_| | | . | . |  _|    by"
 						+ ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD
 						+ "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED
-						+ Honeypot.plugin.getDescription().getVersion() + "\n" + ChatColor.GOLD
+						+ plugin.getDescription().getVersion() + "\n" + ChatColor.GOLD
 						+ "                  |___|_|");
 				console.sendMessage(
-						CommandFeedback.getChatPrefix() + " Honeypot running on Spigot version " + Bukkit.getVersion());
-				Honeypot.checkIfServerSupported();
+						commandFeedback.getChatPrefix() + " Honeypot running on Spigot version " + Bukkit.getVersion());
+				plugin.checkIfServerSupported();
 			}
 		}
 

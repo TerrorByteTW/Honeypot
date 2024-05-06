@@ -16,11 +16,14 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.common.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
 import java.io.IOException;
@@ -28,6 +31,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotReload implements HoneypotSubCommand {
+
+	private final HoneypotConfigManager configManager;
+	private final GhostHoneypotFixer fixer;
+	private final CommandFeedback commandFeedback;
+	private final Honeypot plugin;
+	private final HoneypotLogger logger;
+
+	@Inject
+	public HoneypotReload(Honeypot plugin, HoneypotConfigManager configManager, GhostHoneypotFixer fixer, CommandFeedback commandFeedback, HoneypotLogger logger) {
+		this.plugin = plugin;
+		this.configManager = configManager;
+		this.fixer = fixer;
+		this.commandFeedback = commandFeedback;
+		this.logger = logger;
+	}
+
 	@Override
 	public String getName() {
 		return "reload";
@@ -36,32 +55,31 @@ public class HoneypotReload implements HoneypotSubCommand {
 	@Override
 	public void perform(Player p, String[] args) {
 		try {
-			HoneypotConfigManager.getPluginConfig().reload();
-			HoneypotConfigManager.getPluginConfig().save();
+			configManager.getPluginConfig().reload();
+			configManager.getPluginConfig().save();
 
-			HoneypotConfigManager.getGuiConfig().reload();
-			HoneypotConfigManager.getGuiConfig().save();
+			configManager.getGuiConfig().reload();
+			configManager.getGuiConfig().save();
 
-			HoneypotConfigManager.getHoneypotsConfig().reload();
-			HoneypotConfigManager.getHoneypotsConfig().save();
+			configManager.getHoneypotsConfig().reload();
+			configManager.getHoneypotsConfig().save();
 
-			HoneypotConfigManager.getLanguageFile().reload();
-			HoneypotConfigManager.getLanguageFile().save();
+			configManager.getLanguageFile().reload();
+			configManager.getLanguageFile().save();
 
-			Honeypot.getFixer().cancelTask();
-			if (Boolean.TRUE
-					.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
-				Honeypot.getFixer().startTask();
+			fixer.cancelTask();
+			if (configManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable")) {
+				fixer.startTask();
 			}
 
-			p.sendMessage(CommandFeedback.sendCommandFeedback("reload"));
-			Honeypot.getHoneypotLogger().info("Honeypot has successfully been reloaded");
+			p.sendMessage(commandFeedback.sendCommandFeedback("reload"));
+			logger.info("Honeypot has successfully been reloaded");
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger().severe(
+			plugin.getLogger().severe(
 					"Could not load language file, disabling! Please alert the plugin author with the following info:"
 							+ e);
-			Honeypot.plugin.getServer().getPluginManager().disablePlugin(Honeypot.plugin);
+			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 	}
 

@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.utils;
 
+import com.google.inject.Singleton;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
 import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
@@ -32,7 +33,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class HoneypotConfigManager extends JavaPlugin {
+@Singleton
+public class HoneypotConfigManager {
 
 	private static YamlDocument config;
 
@@ -50,7 +52,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 	 * decoding the jar to get the files that way but that's suuuuper icky.
 	 * (https://www.spigotmc.org/threads/getresources-function.226318/ if anyone wants an example)
 	 */
-	private static final List<String> languages = Arrays.asList("en_US", "es_MX", "fr_FR", "ja_JP");
+	private final List<String> languages = Arrays.asList("en_US", "es_MX", "fr_FR", "ja_JP");
 
 	/**
 	 * Sets up the plugin config and saves it to private variables for use later. Will shut down the plugin if there are
@@ -59,9 +61,9 @@ public class HoneypotConfigManager extends JavaPlugin {
 	 * @param plugin The Honeypot Plugin object
 	 */
 	@SuppressWarnings({ "java:S1192", "java:S2629" })
-	public static void setupConfig(Plugin plugin) {
+	public void setupConfig(Plugin plugin) {
 
-		Honeypot.plugin.getLogger().info("Attempting to load all plugin config files...");
+		plugin.getLogger().info("Attempting to load all plugin config files...");
 		try {
 			config = YamlDocument.create(new File(plugin.getDataFolder(), "config.yml"),
 					plugin.getResource("config.yml"), GeneralSettings.DEFAULT,
@@ -73,7 +75,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 			config.save();
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger().severe(
+			plugin.getLogger().severe(
 					"Could not create/load plugin config, disabling! Please alert the plugin author with the following info: "
 							+ e);
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
@@ -89,7 +91,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 			guiConfig.save();
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger().severe(
+			plugin.getLogger().severe(
 					"Could not create/load GUI config, disabling! Please alert the plugin author with following info: "
 							+ e);
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
@@ -105,7 +107,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 			guiConfig.save();
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger().severe(
+			plugin.getLogger().severe(
 					"Could not create/load Honeypot config, disabling! Please alert the plugin author with following info: "
 							+ e);
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
@@ -113,8 +115,8 @@ public class HoneypotConfigManager extends JavaPlugin {
 
 		String language = config.getString("language");
 
-		if (!(languages.contains(language)) && Boolean.FALSE.equals(config.getBoolean("bypass-language-check"))) {
-			Honeypot.plugin.getLogger().warning("Language is currently set to " + language
+		if (!languages.contains(language) && !config.getBoolean("bypass-language-check")) {
+			plugin.getLogger().warning("Language is currently set to " + language
 					+ ". This language is currently not supported, defaulting to en_US.");
 			language = "en_US";
 		}
@@ -129,16 +131,16 @@ public class HoneypotConfigManager extends JavaPlugin {
 			languageFile.update();
 			languageFile.save();
 
-			Honeypot.plugin.getLogger().info("Language set to: " + language);
+			plugin.getLogger().info("Language set to: " + language);
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger().severe(
+			plugin.getLogger().severe(
 					"Could not load language file, disabling! Please alert the plugin author with the following info:"
 							+ e);
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
-		Honeypot.plugin.getLogger().info("All plugin config files successfully loaded");
+		plugin.getLogger().info("All plugin config files successfully loaded");
 
 	}
 
@@ -147,7 +149,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 	 *
 	 * @return The YamlDocument object for the main config
 	 */
-	public static YamlDocument getPluginConfig() {
+	public YamlDocument getPluginConfig() {
 		return config;
 	}
 
@@ -156,7 +158,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 	 *
 	 * @return The YamlDocument object for the GUI config
 	 */
-	public static YamlDocument getGuiConfig() {
+	public YamlDocument getGuiConfig() {
 		return guiConfig;
 	}
 
@@ -165,7 +167,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 	 *
 	 * @return The YamlDocument object for the custom Honeypots config
 	 */
-	public static YamlDocument getHoneypotsConfig() {
+	public YamlDocument getHoneypotsConfig() {
 		return honeypotsConfig;
 	}
 
@@ -173,7 +175,7 @@ public class HoneypotConfigManager extends JavaPlugin {
 	 * Returns the plugin Language file (All translations, essentially)
 	 * @return THe YamlDocument object for the currently loaded language
 	 */
-	public static YamlDocument getLanguageFile() {
+	public YamlDocument getLanguageFile() {
 		return languageFile;
 	}
 

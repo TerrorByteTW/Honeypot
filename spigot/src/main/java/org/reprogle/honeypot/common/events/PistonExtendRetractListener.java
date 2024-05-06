@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -26,25 +27,31 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 
 public class PistonExtendRetractListener implements Listener {
 
+	private final HoneypotBlockManager blockManager;
+	private final HoneypotLogger logger;
+
 	/**
 	 * Create private constructor to hide the implicit one
 	 */
-	PistonExtendRetractListener() {
-
+	@Inject
+	PistonExtendRetractListener(HoneypotBlockManager blockManager, HoneypotLogger logger) {
+		this.blockManager = blockManager;
+		this.logger = logger;
 	}
 
 	// Player block break event
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public static void pistonPushEvent(BlockPistonExtendEvent event) {
+	public void pistonPushEvent(BlockPistonExtendEvent event) {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
-			if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(b))) {
-				Honeypot.getHoneypotLogger().debug(
+			if (blockManager.isHoneypotBlock(b)) {
+				logger.debug(
 						"PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ());
 
 				// Fire HoneypotNonPlayerBreakEvent
@@ -58,11 +65,11 @@ public class PistonExtendRetractListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public static void pistonPullEvent(BlockPistonRetractEvent event) {
+	public void pistonPullEvent(BlockPistonRetractEvent event) {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
-			if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(b))) {
-				Honeypot.getHoneypotLogger().debug("PistonRetractEvent being called for Honeypot: " + b.getX() + ", "
+			if (blockManager.isHoneypotBlock(b)) {
+				logger.debug("PistonRetractEvent being called for Honeypot: " + b.getX() + ", "
 						+ b.getY() + ", " + b.getZ());
 
 				// Fire HoneypotNonPlayerBreakEvent

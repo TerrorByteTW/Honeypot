@@ -16,10 +16,12 @@
 
 package org.reprogle.honeypot.common.storagemanager;
 
+import com.google.inject.Inject;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 
@@ -32,18 +34,13 @@ import java.util.List;
  */
 public class HoneypotPlayerHistoryManager {
 
-	private static HoneypotPlayerHistoryManager instance = null;
+	private final Honeypot plugin;
+	private final HoneypotLogger logger;
 
-	/**
-	 * Returns the singleton instance of this class
-	 *
-	 * @return The {@link HoneypotPlayerHistoryManager} instance
-	 */
-	public static synchronized HoneypotPlayerHistoryManager getInstance() {
-		if (instance == null)
-			instance = new HoneypotPlayerHistoryManager();
-
-		return instance;
+	@Inject
+	public HoneypotPlayerHistoryManager(Honeypot plugin, HoneypotLogger logger) {
+		this.plugin = plugin;
+		this.logger = logger;
 	}
 
 	/**
@@ -54,12 +51,12 @@ public class HoneypotPlayerHistoryManager {
 	 */
 	public void addPlayerHistory(Player p, HoneypotBlockObject b) {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		db.addPlayerHistory(p, b);
 
-		Honeypot.getHoneypotLogger().debug("Added new history entry for player " + p.getName());
+		logger.debug("Added new history entry for player " + p.getName());
 	}
 
 	/**
@@ -70,7 +67,7 @@ public class HoneypotPlayerHistoryManager {
 	 */
 	public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		return db.retrieveHistory(p);
@@ -85,7 +82,7 @@ public class HoneypotPlayerHistoryManager {
 	 */
 	public void deletePlayerHistory(Player p, int... n) {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		if (n.length > 0) {
@@ -94,7 +91,7 @@ public class HoneypotPlayerHistoryManager {
 			db.deletePlayerHistory(p);
 		}
 
-		Honeypot.getHoneypotLogger().debug("Deleting player history for player " + p.getName());
+		logger.debug("Deleting player history for player " + p.getName());
 	}
 
 	/**
@@ -102,7 +99,7 @@ public class HoneypotPlayerHistoryManager {
 	 */
 	public void deleteAllHistory() {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		db.deleteAllHistory();

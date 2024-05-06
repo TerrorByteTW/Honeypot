@@ -16,26 +16,23 @@
 
 package org.reprogle.honeypot.common.storagemanager;
 
+import com.google.inject.Inject;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class HoneypotPlayerManager {
 
-	private static HoneypotPlayerManager instance = null;
+	private final Honeypot plugin;
+	private final HoneypotLogger logger;
 
-	/**
-	 * Returns the singleton instance of this class
-	 *
-	 * @return The {@link HoneypotPlayerManager} instance
-	 */
-	public static synchronized HoneypotPlayerManager getInstance() {
-		if (instance == null)
-			instance = new HoneypotPlayerManager();
-
-		return instance;
+	@Inject
+	public HoneypotPlayerManager(Honeypot plugin, HoneypotLogger logger) {
+		this.plugin = plugin;
+		this.logger = logger;
 	}
 
 	/**
@@ -48,12 +45,11 @@ public class HoneypotPlayerManager {
 	 */
 	public void addPlayer(Player player, int blocksBroken) {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		db.createHoneypotPlayer(player, blocksBroken);
-		Honeypot.getHoneypotLogger()
-				.info("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
+		logger.info("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
 	}
 
 	/**
@@ -67,11 +63,11 @@ public class HoneypotPlayerManager {
 	 */
 	public void setPlayerCount(Player player, int blocksBroken) {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		db.setPlayerCount(player, blocksBroken);
-		Honeypot.getHoneypotLogger().debug("Updated Honeypot player: " + player.getName() + ", UUID of: "
+		logger.debug("Updated Honeypot player: " + player.getName() + ", UUID of: "
 				+ player.getUniqueId() + ". New count: " + blocksBroken);
 	}
 
@@ -85,7 +81,7 @@ public class HoneypotPlayerManager {
 	 */
 	public int getCount(Player player) {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		return db.getCount(player);
@@ -101,7 +97,7 @@ public class HoneypotPlayerManager {
 	 */
 	public int getCount(OfflinePlayer player) {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		return db.getCount(player);
@@ -112,11 +108,11 @@ public class HoneypotPlayerManager {
 	 */
 	public void deleteAllHoneypotPlayers() {
 		Database db;
-		db = new SQLite(Honeypot.plugin);
+		db = new SQLite(plugin, logger);
 		db.load();
 
 		db.deleteAllPlayers();
-		Honeypot.getHoneypotLogger().debug("Deleted all Honeypot players from DB");
+		logger.debug("Deleted all Honeypot players from DB");
 	}
 
 }

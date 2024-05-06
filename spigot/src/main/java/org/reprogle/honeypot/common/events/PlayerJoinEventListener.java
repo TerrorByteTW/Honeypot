@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -27,37 +28,45 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotUpdateChecker;
 
 public class PlayerJoinEventListener implements Listener {
 
+	private final CommandFeedback commandFeedback;
+	private final HoneypotLogger logger;
+	private final Honeypot plugin;
+
 	/**
 	 * Create a private constructor to hide the implicit one
 	 */
-	PlayerJoinEventListener() {
-
+	@Inject
+	PlayerJoinEventListener(Honeypot plugin, CommandFeedback commandFeedback, HoneypotLogger logger) {
+		this.plugin = plugin;
+		this.commandFeedback = commandFeedback;
+		this.logger = logger;
 	}
 
 	// Player join event
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	@SuppressWarnings("deprecation")
-	public static void playerJoinEvent(PlayerJoinEvent event) {
+	public void playerJoinEvent(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
 
 		if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
-			new HoneypotUpdateChecker(Honeypot.plugin,
+			new HoneypotUpdateChecker(plugin,
 					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt").getVersion(latest -> {
 						if (Integer.parseInt(latest.replace(".", "")) > Integer
-								.parseInt(Honeypot.plugin.getDescription().getVersion().replace(".", ""))) {
+								.parseInt(plugin.getDescription().getVersion().replace(".", ""))) {
 							TextComponent message = new TextComponent(
-									CommandFeedback.sendCommandFeedback("updateavailable"));
+									commandFeedback.sendCommandFeedback("updateavailable"));
 							message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
 									"https://github.com/TerrorByteTW/Honeypot"));
 							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
 									new Text("Click me to download the latest update!")));
 							p.spigot().sendMessage(message);
 						}
-					});
+					}, logger);
 		}
 	}
 

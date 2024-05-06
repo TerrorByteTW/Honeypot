@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -31,26 +32,37 @@ import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EntityExplodeEventListener implements Listener {
 
+	private final HoneypotLogger logger;
+	private final HoneypotConfigManager configManager;
+	private final HoneypotBlockManager blockManager;
+	private final HoneypotPlayerHistoryManager playerHistoryManager;
+
 	/**
 	 * Create package constructor to hide implicit one
 	 */
-	EntityExplodeEventListener() {
-
+	@Inject
+	EntityExplodeEventListener(HoneypotLogger logger, HoneypotConfigManager configManager, HoneypotBlockManager blockManager,
+							   HoneypotPlayerHistoryManager playerHistoryManager) {
+		this.logger = logger;
+		this.configManager = configManager;
+		this.blockManager = blockManager;
+		this.playerHistoryManager = playerHistoryManager;
 	}
 
 	// Explosion listener
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public static void entityExplodeEvent(EntityExplodeEvent event) {
+	public void entityExplodeEvent(EntityExplodeEvent event) {
 		// Get every block that would've been blown up
 		List<Block> destroyedBlocks = event.blockList();
 		ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
-		boolean allowExplosions = HoneypotConfigManager.getPluginConfig().getBoolean("allow-explode");
+		boolean allowExplosions = configManager.getPluginConfig().getBoolean("allow-explode");
 		Entity e = event.getEntity();
 		Entity source = null;
 
@@ -62,15 +74,14 @@ public class EntityExplodeEventListener implements Listener {
 		// are allowed.
 		// If so, just delete the Honeypot. If not, cancel the explosion
 		for (Block block : destroyedBlocks) {
-			if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(block))) {
-				Honeypot.getHoneypotLogger()
-						.debug("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", "
+			if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(block))) {
+				logger.debug("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", "
 								+ block.getY() + ", " + block.getZ());
 
 				if (source instanceof Player) {
-					HoneypotPlayerHistoryManager.getInstance().addPlayerHistory((Player) source,
-							HoneypotBlockManager.getInstance().getHoneypotBlock(block));
-					Honeypot.getHoneypotLogger().debug(
+					playerHistoryManager.addPlayerHistory((Player) source,
+							blockManager.getHoneypotBlock(block));
+					logger.debug(
 							"EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: "
 									+ source.getName());
 
@@ -85,7 +96,7 @@ public class EntityExplodeEventListener implements Listener {
 				Bukkit.getPluginManager().callEvent(hnpbe);
 
 				if (allowExplosions) {
-					HoneypotBlockManager.getInstance().deleteBlock(block);
+					blockManager.deleteBlock(block);
 				} else {
 					foundHoneypotBlocks.add(block);
 				}

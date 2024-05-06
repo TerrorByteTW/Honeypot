@@ -1,5 +1,5 @@
 group = "org.reprogle"
-version = "3.2.2"
+version = "3.3.0"
 
 extra["platform"] = "api"
 
@@ -31,9 +31,9 @@ tasks.withType<Jar> {
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "${group}"
+            groupId = "$group"
             artifactId = "honeypot-api"
-            version = "${version}"
+            version = version
 
             from(components["java"])
         }
