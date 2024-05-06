@@ -16,21 +16,26 @@
 
 package org.reprogle.honeypot.common.storagemanager.sqlite;
 
-import com.google.inject.Inject;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.storagemanager.sqlite.patches.SQLitePatch;
+import org.reprogle.honeypot.common.storagemanager.sqlite.patches.UpdatePlayerHistoryTable00;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class SQLite extends Database {
 
 	private final Honeypot plugin;
 	private final HoneypotLogger logger;
+
+	// These two variables here are for handling patches to the database and also
+	private final List<SQLitePatch> patches = new ArrayList<>(List.of(new UpdatePlayerHistoryTable00()));
+	private final int DB_VERSION = 1;
 
 	/**
 	 * Create an SQLite object from the instance
@@ -45,14 +50,14 @@ public class SQLite extends Database {
 	}
 
 	// The queries used to load the DB table. Only runs if the table doesn't exist.
-	private static final String SQLITE_CREATE_PLAYERS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
+	private final String SQLITE_CREATE_PLAYERS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
 			"`playerName` VARCHAR NOT NULL," +
 			"`blocksBroken` INT NOT NULL," +
 			"`type` VARCHAR NOT NULL," +
 			"PRIMARY KEY (`playerName`)" +
 			");";
 
-	private static final String SQLITE_CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
+	private final String SQLITE_CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
 			"`coordinates` VARCHAR NOT NULL," +
 			"`worldName` VARCHAR NOT NULL," +
 			"`action` VARCHAR NOT NULL," +
@@ -61,7 +66,7 @@ public class SQLite extends Database {
 
 	// SQLite has this cool feature where if no primary key is provided, the primary
 	// key defaults to the rowid. Nifty!
-	private static final String SQLITE_CREATE_HISTORY_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_history (" +
+	private final String SQLITE_CREATE_HISTORY_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_history (" +
 			"`datetime` VARCHAR NOT NULL," +
 			"`playerName` varchar NOT NULL," +
 			"`playerUUID` VARCHAR NOT NULL," +
@@ -71,7 +76,7 @@ public class SQLite extends Database {
 			");";
 
 	/**
-	 * Get's the DB connection, also verifies if JDBC is installed. If it isn't
+	 * Gets the DB connection, also verifies if JDBC is installed. If it isn't
 	 * plugin is disabled as it can't function without it
 	 *
 	 * @return Connection if the connection is valid, otherwise returns null
@@ -119,8 +124,29 @@ public class SQLite extends Database {
 			s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
 			s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
 			s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
+
+			PreparedStatement ps = connection.prepareStatement("PRAGMA user_version;");
+			ResultSet rs = ps.executeQuery();
+			int userVersion = rs.getInt("user_version");
+
+			//TODO How do we make this run for people updating to this version of Honeypot, while still not running when user_pragma is 0?
+			// This logic only works on the very first run. It's annoying since 0 is the current version *and* default :\
+			if (userVersion < DB_VERSION && userVersion != 0) {
+				for (SQLitePatch patch : patches) {
+					patch.update(s, logger);
+				}
+			} else {
+				logger.debug("First time running, or DB version is higher than the version needed by the plugin. Likely the former.");
+				logger.debug("Because this is the first time running, we don't need to worry about applying any patches.");
+			}
+
+			// Set the user_version pragma to 1 to prevent further patches;
+			PreparedStatement pragmaStatement = connection.prepareStatement("PRAGMA user_version = ?;");
+			pragmaStatement.setInt(1, DB_VERSION);
+			pragmaStatement.executeUpdate();
+
 		} catch (SQLException e) {
-			logger.severe("SQLException occured while attempting to create tables if they don't exist: " + e);
+			logger.severe("SQLException occurred while attempting to create tables if they don't exist: " + e);
 		}
 
 	}
