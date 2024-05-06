@@ -13,7 +13,6 @@ apache-maven-*/
 
 # Gradle
 build/
-gradle/wrapper
 .gradle/
 
 # Compiled class file
@@ -26,7 +25,6 @@ gradle/wrapper
 *.ctxt
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear

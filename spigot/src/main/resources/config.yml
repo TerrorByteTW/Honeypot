@@ -1,0 +1,133 @@
+######################################################################
+#                 D A T A B A S E   S E T T I N G S                  #
+######################################################################
+
+# File verison (do NOT edit):
+file-version: 19
+
+# How many Honeypots to store in cache at any given time. The maximum size is 50, and anything larger than that is ignored.
+# Setting this to <=0 will disable caching
+# Please see https://github.com/TerrorByteTW/Honeypot/wiki#faq for more info. If you don't know what this is, leave it alone
+cache-size: 20
+
+######################################################################
+#                     P L U G I N   S E T T I N G S                  #
+######################################################################
+
+# This setting enables whether or not some potentially unnecessary events are enabled.
+# Leaving these off won't reduce functionality of Honeypot, but if enabled can trigger events to process without player interaction
+# A full list of events that are considered "extra" is here: https://github.com/TerrorByteTW/Honeypot/wiki/Extra-Events
+enable-extra-events: false
+
+# The number of honeypot blocks a player is allowed to break before any action is taken. Default is 1 (immediate action)
+blocks-broken-before-action-taken: 1
+
+# Allow players to break Honeypot blocks. If set to true, 
+# an action will *NOT* trigger until a player hits the blocks-broken-before-action-taken value
+# If you want action taken on all Honeypots, regardless if players can remove them or not, be sure to set blocks-broken-before-action-taken to 1
+# This behavior was changed in version 3.0.3, please open a ticket on the support Discord if you are confused or need assistance.
+allow-player-destruction: true
+
+# Allow honeypot blocks to be blown up (TnT, Creepers, Ghasts, etc.). Default is false
+allow-explode: false
+
+# Allow enderman to pick up Honeypot blocks. Default is false
+allow-enderman: false
+
+container-actions:
+  # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)
+  enable-container-actions: true
+  # If you want to use InventoryClickEvents instead of PlayerInteractEvent, set to true. Defaults to false
+  # InventoryClickEvents happen on interacting with the inventory, PlayerInteractEvent happens upon players attempting to open the inventory
+  use-inventory-click: false
+  # Only trigger actions if inventory clicks are set to true and items are taken. Defaults to true.
+  only-trigger-on-withdrawal: true
+
+# Enable players to still open inventories if container actions are enabled. Always true if use-inventory-click is true. Defaults to false
+always-allow-container-access: false
+
+# Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
+search-range: 5
+
+# Removes Honeypots from the DB if their cooresponding blocks no longer exists (e.g. are air). 
+# This used to require a restart to change, but now updates with /honeypot reload
+# enabled: Check for ghost pots periodically.
+# check-interval: How often to check for ghost pots, in MINUTES. 20 minutes = 1 Minecraft day.
+ghost-honeypot-checker:
+  enable: true
+  check-interval: 20
+
+# Enable more detailed logging, stored in a honeypot.log file in the Honeypot folder
+enable-logging: true
+
+######################################################################
+#                      C H A T   S E T T I N G S                     #
+######################################################################
+
+# Select your language. Current supported languages are: [en_US, es_MX, fr_FR, ja_JP]
+# Want to create your own translation? Visit here: https://github.com/TerrorByteTW/Honeypot/wiki/Translating-Honeypot
+language: en_US
+
+# If you're providing your own language file, set this to true. If you've incorrectly translated it, though, expect errors in console!
+# If you don't know what this is, leave it set to false
+bypass-language-check: false
+
+# The amount of history entries to return from the '/honeypot history query' command
+history-length: 5
+
+######################################################################
+#                     F I L T E R   S E T T I N G S                  #
+######################################################################
+
+# Enabling these filters will prevent staff from creating honeypot blocks that AREN'T in the respective list below.
+filters:
+  blocks: false
+  inventories: false
+
+# These filter inventory openings and creation of honeypot blocks on inventories. If the filter is enabled and a player tries to open an Honeypot block that has an inventory
+# not listed here, they will be allowed to open it without actions being taken. If they try to break the Honeypot, action WILL be taken (Unless block filters are enabled)
+allowed-inventories:
+  - CHEST
+  - FURNACE
+
+# This filter only prevents creation of these types of honeypots. If a honeypot has been previously created but is not a part of the filter, actions will still apply
+# This is to prevent honeypots from being created but not removed upon breaking
+allowed-blocks:
+  - DIAMOND_ORE
+
+######################################################################
+#                   3 R D  P A R T Y  S E T T I N G S                #
+######################################################################
+
+# Changing this setting to true will allow players to create Honeypots within GriefPrevention areas if they have build permission there. If they don't, Honeypot creation will be blocked
+# Changing this to false will always block Honeypot creation within GriefPrevention areas, even if they have permission to build there.
+respect-griefprevention: false
+
+# WorldGuard and Lands both have integrations with this plugin as well, however they do not have configurable settings.
+# WorldGuard will register a flag which can be used to toggle whether or not Honeypots are able to be created in a region
+# Lands will automatically deny building Honeypots in a claimed area. This is not changeable at the current time.
+# Please remember that existing Honeypots will still function normally if an area is claimed where Honeypots already are.
+
+######################################################################
+#                       E X P E R I M E N T A L                      #
+######################################################################
+
+# This is an experimental setting, testing PDC support for Honeypot. PDC is a Spigot API which allows for storing data directly in the NBT of certain objects
+# For now sqlite is the default method, but PDC hopefully will speed up the plugin by a ton.
+# To enable the experimental PDC support change the value from "sqlite" to "pdc" (No quotes). Any other value will be ignored and the plugin will default to sqlite.
+storage-method: sqlite
+
+# This enables an experimental /honeypot debug command which will allow you to peer into PDC data for Honeypots. Useful only for the developer, so no need to enable it yourself
+# Changing this requires a restart, as this affects command registration at plugin load time
+enable-debug-mode: false
+
+######################################################################
+#                           C R E D I T S                            #
+######################################################################
+# Credit where credit is due! If you contribute to Honeypot in any way, you'll get your name here
+# Code Contributions: TerrorByte, SandwichBtw (Build tools modernization)
+# Feature Contributions: MattVid#3488, Jammers, melaniebeedot
+# Translation Contributions: siyukatu#4489 (ja_JP)
+# Bug Reports: Casper#9647, siyukatu#4489, MattVid#3488
+# The next line is ignored, just a dummy value so the credits above get populated within the config!
+thank-you: true
