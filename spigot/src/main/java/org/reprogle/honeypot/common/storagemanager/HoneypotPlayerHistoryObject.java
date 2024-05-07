@@ -24,12 +24,13 @@ import org.bukkit.entity.Player;
  *
  * @see HoneypotPlayerHistoryManager
  */
-@SuppressWarnings("java:S116")
+@SuppressWarnings({"java:S116", "unused"})
 public class HoneypotPlayerHistoryObject {
 	private final String dateTime;
 	private final String player;
 	private final String UUID;
 	private final HoneypotBlockObject hbo;
+	private final String type;
 
 	/**
 	 * Constructor for creating a history entry
@@ -39,11 +40,12 @@ public class HoneypotPlayerHistoryObject {
 	 * @param UUID     The UUID of the player
 	 * @param hbo      The HoneypotBlockObject they broke
 	 */
-	public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, HoneypotBlockObject hbo) {
+	public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, HoneypotBlockObject hbo, String type) {
 		this.dateTime = dateTime;
 		this.player = player;
 		this.UUID = UUID;
 		this.hbo = hbo;
+		this.type = type;
 	}
 
 	/**
@@ -53,11 +55,12 @@ public class HoneypotPlayerHistoryObject {
 	 * @param player   The player object
 	 * @param hbo      The HoneypotBlockObject they broke
 	 */
-	public HoneypotPlayerHistoryObject(String dateTime, Player player, HoneypotBlockObject hbo) {
+	public HoneypotPlayerHistoryObject(String dateTime, Player player, HoneypotBlockObject hbo, String type) {
 		this.dateTime = dateTime;
 		this.player = player.getName();
 		this.UUID = player.getUniqueId().toString();
 		this.hbo = hbo;
+		this.type = type;
 	}
 
 	/**
@@ -95,6 +98,11 @@ public class HoneypotPlayerHistoryObject {
 	public HoneypotBlockObject getHoneypot() {
 		return hbo;
 	}
+
+	/**
+	 * Get the type of break
+	 */
+	public String getType() { return type; }
 
 
 }

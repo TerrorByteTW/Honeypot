@@ -89,8 +89,6 @@ public class CommandManager implements TabExecutor {
 			subcommands.add(honeypotDebug);
 		}
 
-		plugin.getLogger().info(subcommands.toString());
-
 		for (int i = 0; i < getSubcommands().size(); i++) {
 			subcommandsNameOnly.add(getSubcommands().get(i).getName());
 		}

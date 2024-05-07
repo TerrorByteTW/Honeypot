@@ -21,6 +21,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.reprogle.honeypot.Honeypot;
 
+// Return value can be used for other plugins that utilize Behavior Providers
+@SuppressWarnings("UnusedReturnValue")
 public class BehaviorProcessor {
 
 	/**

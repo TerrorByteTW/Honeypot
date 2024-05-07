@@ -31,32 +31,29 @@ import org.reprogle.honeypot.common.events.Listeners;
 import org.reprogle.honeypot.common.providers.BehaviorProcessor;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorRegistry;
-import org.reprogle.honeypot.common.providers.included.Ban;
-import org.reprogle.honeypot.common.providers.included.Kick;
-import org.reprogle.honeypot.common.providers.included.Notify;
-import org.reprogle.honeypot.common.providers.included.Warn;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.PlaceholderAPIExpansion;
 
+import java.util.Set;
+
 @SuppressWarnings({ "deprecation", "java:S1444", "java:S1104" })
 public final class Honeypot extends JavaPlugin {
+
+	@Inject private AdapterManager adapterManager;
+	@Inject private Listeners listeners;
+	@Inject private CommandManager manager;
+	@Inject private HoneypotLogger logger;
+	@Inject private GhostHoneypotFixer ghf;
+	@Inject private CommandFeedback commandFeedback;
+	@Inject private Set<BehaviorProvider> providers;
 
 	private static SpiGUI gui;
 	private static Permission perms = null;
 	private static BehaviorRegistry registry = new BehaviorRegistry();
 	public static BehaviorProcessor processor = null;
-	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[] { new Ban(), new Kick(), new Warn(),
-			new Notify() };
 	private HoneypotConfigManager configManager;
-
-	@Inject private AdapterManager adapterManager;
-    @Inject private Listeners listeners;
-	@Inject private CommandManager manager;
-	@Inject private HoneypotLogger logger;
-	@Inject private GhostHoneypotFixer ghf;
-	@Inject private CommandFeedback commandFeedback;
 
 	/**
 	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
@@ -75,7 +72,7 @@ public final class Honeypot extends JavaPlugin {
 
 		registry = new BehaviorRegistry();
 
-		for (BehaviorProvider behavior : builtInProviders) {
+		for (BehaviorProvider behavior : providers) {
 			registry.register(behavior);
 		}
 

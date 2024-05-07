@@ -41,16 +41,6 @@ dependencies {
     implementation(libs.guice)
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
-// This outputs the javadoc in an HTML format
-tasks.javadoc {
-    destinationDir = file("${layout.buildDirectory}/docs/javadoc")
-}
-
 // Configure the file output names of most files (Excluding shadow, which needs tweaking itself to avoid a "-all" being tagged onto it)
 tasks.withType<Jar> {
     val platform: String by project.extra

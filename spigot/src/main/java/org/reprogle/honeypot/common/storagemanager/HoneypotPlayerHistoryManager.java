@@ -49,12 +49,12 @@ public class HoneypotPlayerHistoryManager {
 	 * @param p The player to add
 	 * @param b The honeypot block they triggered
 	 */
-	public void addPlayerHistory(Player p, HoneypotBlockObject b) {
+	public void addPlayerHistory(Player p, HoneypotBlockObject b, String type) {
 		Database db;
 		db = new SQLite(plugin, logger);
 		db.load();
 
-		db.addPlayerHistory(p, b);
+		db.addPlayerHistory(p, b, type);
 
 		logger.debug("Added new history entry for player " + p.getName());
 	}

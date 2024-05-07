@@ -32,6 +32,7 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings({ "java:S1192", "java:S3776", "deprecation" })
@@ -72,12 +73,16 @@ public class HoneypotHistory implements HoneypotSubCommand {
 
 				if (history.size() > length) {
 					p.sendMessage(commandFeedback.sendCommandFeedback("truncating"));
+					history = history.subList(0, length);
 				}
 
 				if (history.isEmpty()) {
 					p.sendMessage(commandFeedback.sendCommandFeedback("nohistory"));
 					return;
 				}
+
+				// Reverse the history array so that it's in chronological order when sent to the player
+				Collections.reverse(history);
 
 				int limit = Math.min(history.size(), length);
 
@@ -97,6 +102,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
 
 					p.spigot().sendMessage(playerInfo);
 					p.sendMessage("Action: " + ChatColor.GOLD + history.get(i).getHoneypot().getAction());
+					p.sendMessage("Break type: " + ChatColor.GOLD + history.get(i).getType());
 					p.sendMessage(ChatColor.GOLD + "----------------------------------");
 				}
 
@@ -127,14 +133,12 @@ public class HoneypotHistory implements HoneypotSubCommand {
 			subcommands.add("delete");
 			subcommands.add("query");
 			subcommands.add("purge");
-			// If the args length is 3 and they passed a valid sub-subcommand (yikes), do
-			// this
+			// If the args length is 3, and they passed a valid sub-subcommand, do this
 		} else if (args.length == 3 && (args[1].equalsIgnoreCase("query") || args[1].equalsIgnoreCase("delete"))) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				subcommands.add(player.getName());
 			}
-			// If the args length is 4 and they typed delete, just give them a list of
-			// numbers
+			// If the args length is 4, and they typed delete, just give them a list of numbers
 		} else if (args.length == 4 && args[1].equalsIgnoreCase("delete")) {
 			for (int i = 1; i < 10; i++) {
 				subcommands.add(Integer.toString(i));

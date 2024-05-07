@@ -78,24 +78,6 @@ public abstract class Database {
 
 	public abstract void load();
 
-	/**
-	 * Close the DB connection
-	 *
-	 * @param ps The PreparedStatement
-	 * @param rs The ResultSet
-	 */
-	public void close(PreparedStatement ps, ResultSet rs) {
-		try {
-			if (ps != null)
-				ps.close();
-			if (rs != null)
-				rs.close();
-
-		} catch (SQLException e) {
-			logger.severe("Failed to close SQL connection: " + e);
-		}
-	}
-
 	/*****************************
 	 * * BLOCK METHODS * *
 	 *****************************/
@@ -547,19 +529,20 @@ public abstract class Database {
 	 * @param p     The player to add
 	 * @param block The HoneypotBlock to add
 	 */
-	public void addPlayerHistory(Player p, HoneypotBlockObject block) {
+	public void addPlayerHistory(Player p, HoneypotBlockObject block, String type) {
 		Connection c = null;
 		PreparedStatement ps = null;
 
 		try {
 			c = getSQLConnection();
 			ps = c.prepareStatement(INSERT_INTO + HISTORY_TABLE
-					+ " (datetime, playerName, playerUUID, coordinates, world, action) VALUES (DATETIME('now'), ?, ?, ?, ?, ?);");
+					+ " (datetime, playerName, playerUUID, coordinates, world, type, action) VALUES (DATETIME('now'), ?, ?, ?, ?, ?, ?);");
 			ps.setString(1, p.getName());
 			ps.setString(2, p.getUniqueId().toString());
 			ps.setString(3, block.getCoordinates());
 			ps.setString(4, block.getWorld());
-			ps.setString(5, block.getAction());
+			ps.setString(5, type);
+			ps.setString(6, block.getAction());
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
@@ -588,7 +571,7 @@ public abstract class Database {
 		ResultSet rs;
 		try {
 			c = getSQLConnection();
-			ps = c.prepareStatement(SELECT + HISTORY_TABLE + " WHERE playerUUID = ?;");
+			ps = c.prepareStatement(SELECT + HISTORY_TABLE + " WHERE playerUUID = ? ORDER BY datetime DESC;");
 			ps.setString(1, p.getUniqueId().toString());
 			rs = ps.executeQuery();
 
@@ -597,7 +580,7 @@ public abstract class Database {
 				HoneypotBlockObject hbo = new HoneypotBlockObject(rs.getString("world"), rs.getString("coordinates"),
 						rs.getString("action"));
 				history.add(new HoneypotPlayerHistoryObject(rs.getString("datetime"), rs.getString("playerName"),
-						rs.getString("playerUUID"), hbo));
+						rs.getString("playerUUID"), hbo, rs.getString("type")));
 			}
 
 			return history;

@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.common.commands;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import org.bukkit.ChatColor;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
@@ -24,17 +25,11 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import java.util.Objects;
 
 @SuppressWarnings("deprecation")
+@Singleton
 public class CommandFeedback {
 
-	private final HoneypotConfigManager configManager;
-
-	/**
-	 * Create private constructor to hide implicit one
-	 */
 	@Inject
-    public CommandFeedback(HoneypotConfigManager configManager) {
-		this.configManager = configManager;
-	}
+	private HoneypotConfigManager configManager;
 
 	/**
 	 * A helper class which helps to reduce boilerplate player.sendMessage code by

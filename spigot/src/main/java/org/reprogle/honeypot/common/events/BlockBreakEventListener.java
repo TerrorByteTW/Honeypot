@@ -180,7 +180,7 @@ public class BlockBreakEventListener implements Listener {
 
 			// Log the event in the history table
 			playerHistoryManager.addPlayerHistory(event.getPlayer(),
-					blockManager.getHoneypotBlock(event.getBlock()));
+					blockManager.getHoneypotBlock(event.getBlock()), "break");
 
 			// Grab the action from the block via the storage manager
 			String action = blockManager.getAction(block);
@@ -238,6 +238,9 @@ public class BlockBreakEventListener implements Listener {
 		} else {
 			// Just count it
 			playerManager.setPlayerCount(event.getPlayer(), blocksBroken);
+			// Log the event in the history table
+			playerHistoryManager.addPlayerHistory(event.getPlayer(),
+					blockManager.getHoneypotBlock(event.getBlock()), "prelimBreak");
 		}
 	}
 }
