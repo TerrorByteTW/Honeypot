@@ -29,7 +29,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.commands.subcommands.*;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
@@ -37,31 +36,20 @@ import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings("deprecation")
 @Singleton
 public class CommandManager implements TabExecutor {
 
-	// Create an ArrayList of SubCommands called subcommands
-	private final ArrayList<HoneypotSubCommand> subcommands = new ArrayList<>();
-
-	private final ArrayList<String> subcommandsNameOnly = new ArrayList<>();
+	// Inject all subcommands
+	@Inject private Set<HoneypotSubCommand> subcommands;
 
 	private final Honeypot plugin;
 	private final HoneypotLogger logger;
 	private final CommandFeedback commandFeedback;
 	private final HoneypotConfigManager configManager;
 
-	@Inject private HoneypotCreate honeypotCreate;
-	@Inject private HoneypotRemove honeypotRemove;
-	@Inject private HoneypotReload honeypotReload;
-	@Inject private HoneypotLocate honeypotLocate;
-	@Inject private HoneypotGUI honeypotGUI;
-	@Inject private HoneypotHelp honeypotHelp;
-	@Inject private HoneypotInfo honeypotInfo;
-	@Inject private HoneypotHistory honeypotHistory;
-	@Inject private HoneypotList honeypotList;
-	@Inject private HoneypotDebug honeypotDebug;
 
 	/**
 	 * Registers all commands
@@ -72,26 +60,6 @@ public class CommandManager implements TabExecutor {
 		this.logger = logger;
 		this.configManager = configManager;
 		this.commandFeedback = commandFeedback;
-	}
-
-	public void configureCommands() {
-		subcommands.add(honeypotCreate);
-		subcommands.add(honeypotRemove);
-		subcommands.add(honeypotReload);
-		subcommands.add(honeypotLocate);
-		subcommands.add(honeypotGUI);
-		subcommands.add(honeypotHelp);
-		subcommands.add(honeypotInfo);
-		subcommands.add(honeypotHistory);
-		subcommands.add(honeypotList);
-
-		if (configManager.getPluginConfig().getBoolean("enable-debug-mode")) {
-			subcommands.add(honeypotDebug);
-		}
-
-		for (int i = 0; i < getSubcommands().size(); i++) {
-			subcommandsNameOnly.add(getSubcommands().get(i).getName());
-		}
 	}
 
 	/**
@@ -210,9 +178,9 @@ public class CommandManager implements TabExecutor {
 	/**
 	 * Returns a list of all subcommands for tab completion
 	 *
-	 * @return List of all subcommands
+	 * @return Set of all subcommands
 	 */
-	public List<HoneypotSubCommand> getSubcommands() {
+	public Set<HoneypotSubCommand> getSubcommands() {
 		return subcommands;
 	}
 
@@ -247,7 +215,7 @@ public class CommandManager implements TabExecutor {
 				ArrayList<String> subcommandsTabComplete = new ArrayList<>();
 
 				// Copy each partial match to the subcommands list
-				StringUtil.copyPartialMatches(args[0], subcommandsNameOnly, subcommandsTabComplete);
+				StringUtil.copyPartialMatches(args[0], List.of(subcommands.stream().map(HoneypotSubCommand::getName).toArray(String[]::new)), subcommandsTabComplete);
 
 				return subcommandsTabComplete;
 			} else if (args.length >= 2) {

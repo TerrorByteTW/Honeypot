@@ -57,9 +57,6 @@ public class GhostHoneypotFixer {
 	 * Start a task to check for ghost honeypots every defined interval
 	 */
 	public void startTask() {
-		// Store the task, just in case we need it in the future. For now, it's unused
-		// so we're silencing unused warnings
-
 		task = Scheduler.runTaskTimer(plugin, () -> {
 			logger.info("Running ghost Honeypot checks...");
 			int removedPots = 0;
@@ -103,8 +100,7 @@ public class GhostHoneypotFixer {
 					 * in some instances (Such as if a Honeypot was set as a torch)
 					 */
 					if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
-						logger
-								.debug("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld()
+						logger.debug("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld()
 										+ ". Removing");
 						blockManager.deleteBlock(pot.getBlock());
 						removedPots++;

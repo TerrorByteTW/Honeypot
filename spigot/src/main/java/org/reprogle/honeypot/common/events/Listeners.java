@@ -32,7 +32,9 @@ public class Listeners {
 	private final HoneypotConfigManager configManager;
 	private final HoneypotLogger logger;
 
-	// Yay DI!
+	// Yay, DI!! Each event uses DI itself, and since Guice can't inject dependencies if we manually `new` it, we have to inject every single event here as well
+	// I'm new to Guice, so if there's a better way, *please* let me know!
+	// I'm thinking of using Guice's `MultiBinder` but I'm not quite sure if that's the best way to do it
 	@Inject BlockBreakEventListener blockBreakEventListener;
 	@Inject BlockBurnEventListener blockBurnEventListener;
 	@Inject EntityChangeBlockEventListener entityChangeBlockEventListener;
@@ -52,7 +54,7 @@ public class Listeners {
 	@Inject PlayerInteractEventListener playerInteractEventListener;
 
     /**
-	 * Create package listener to hide implicit one
+	 * Create the listener configurator
 	 */
 	@Inject
 	Listeners(Honeypot plugin, HoneypotConfigManager configManager, HoneypotLogger logger) {
@@ -66,7 +68,7 @@ public class Listeners {
 	 */
 	public void setupListeners() {
 
-		// All primary listners go here
+		// All primary listeners go here
 		final List<Listener> primaryListeners = new ArrayList<>(List.of(blockBreakEventListener,
 				blockBurnEventListener, entityChangeBlockEventListener,
 				entityExplodeEventListener, pistonExtendRetractListener,

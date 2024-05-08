@@ -35,7 +35,6 @@ public class AdapterManager {
             gpa = new GriefPreventionAdapter();
 
         if (server.getPluginManager().getPlugin("Lands") != null) {
-            server.getLogger().info(plugin.toString());
             la = new LandsAdapter(plugin);
         }
     }

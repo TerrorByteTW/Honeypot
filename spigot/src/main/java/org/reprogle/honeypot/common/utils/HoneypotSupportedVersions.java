@@ -16,9 +16,7 @@
 
 package org.reprogle.honeypot.common.utils;
 
-import com.google.inject.Inject;
 import org.bukkit.plugin.Plugin;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 import java.io.IOException;
@@ -45,7 +43,7 @@ public record HoneypotSupportedVersions(Plugin plugin, String version) {
 					consumer.accept(scanner.next());
 				}
 			} catch (IOException exception) {
-				logger.info("Unable to check supported versions: " + exception.getMessage());
+				logger.warning("Unable to check supported versions: " + exception.getMessage());
 			}
 		});
 	}

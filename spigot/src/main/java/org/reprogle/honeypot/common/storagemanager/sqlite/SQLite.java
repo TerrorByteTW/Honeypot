@@ -133,10 +133,13 @@ public class SQLite extends Database {
 			ResultSet rs = ps.executeQuery();
 			int userVersion = rs.getInt("user_version");
 
+			// Check if the DB needs an upgrade
+			logger.debug("Checking if DB needs upgrading");
 			boolean upgradeNecessary = checkIfUpgradeNecessary(connection, userVersion);
 
 			// If the plugin is being run for the first time
 			if (!upgradeNecessary) {
+				logger.debug("No upgrade necessary, first run or DB schema is up to date. Creating tables if they don't exist, otherwise skipping");
 				s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
 				s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
 				s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
@@ -175,19 +178,16 @@ public class SQLite extends Database {
 		boolean tablesExist;
 
 		alreadyInitialized = userVersion >= DB_VERSION;
-		logger.debug("alreadyInitialized is " + alreadyInitialized);
 
 		// Then we check if any tables exist at all in the DB
 		try {
 			PreparedStatement ps = connection.prepareStatement("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
 			ResultSet rs = ps.executeQuery();
 			tablesExist = rs.next();
-			logger.debug("tablesExist is " + tablesExist);
 		} catch (SQLException e) {
 			tablesExist = false;
 		}
 
-		logger.debug("Result is " + (!alreadyInitialized && tablesExist));
 		return (!alreadyInitialized && tablesExist);
 	}
 
