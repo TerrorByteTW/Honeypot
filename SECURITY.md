@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Generally speaking, Honeypot will be built on the current LTS version of Java *or* the minimum supported LTS version of Java for MC, whichever is *older*. Currently Honeypot is built on **Java 17**.
+Generally speaking, Honeypot will be built on the current LTS version of Java *or* the minimum supported LTS version of Java for MC, whichever is *older*. Currently, Honeypot is built on **Java 17**.
 
 Previously I had decided that Honeypot's most recent revision would get feature and security updates, and the previous minor version would get security updates, with anything older getting no support. I cannot support that any longer due to time constraints, so any updates to security will *only* be made in the latest version. There will be no backwards compatibility. As soon as an update is released, that becomes the only supported version. I may make exceptions to this, as I want my plugin accessible to everyone! However, I simply cannot support multiple versions at once. Thank you for understanding! ❤️
 
