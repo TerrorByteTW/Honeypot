@@ -19,9 +19,7 @@ package org.reprogle.honeypot.common.storagemanager;
 import com.google.inject.Inject;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
-import org.reprogle.honeypot.common.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
@@ -31,19 +29,19 @@ import javax.annotation.Nullable;
 
 public class HoneypotBlockManager {
 
-	private String storageMethod = null;
+	private final String storageMethod;
 
 	@Inject
 	private DataStoreManager dataStoreManager;
 
 	@Inject
-	private Honeypot plugin;
-	
-	@Inject
 	private HoneypotLogger logger;
 
 	@Inject
 	private CacheManager cacheManager;
+
+	@Inject
+	private SQLite db;
 	
 	public HoneypotBlockManager(String method) {
 		if (method.equalsIgnoreCase("pdc")) {
@@ -63,9 +61,6 @@ public class HoneypotBlockManager {
 		if (storageMethod.equals("pdc")) {
 			dataStoreManager.createHoneypotBlock(block, action);
 		} else {
-			Database db = new SQLite(plugin, logger);
-			db.load();
-
 			db.createHoneypotBlock(block, action);
 		}
 
@@ -83,9 +78,6 @@ public class HoneypotBlockManager {
 		if (storageMethod.equals("pdc")) {
 			dataStoreManager.deleteBlock(block);
 		} else {
-			Database db = new SQLite(plugin, logger);
-			db.load();
-
 			db.removeHoneypotBlock(block);
 		}
 
@@ -111,8 +103,6 @@ public class HoneypotBlockManager {
 				return true;
 			}
         } else {
-			Database db = new SQLite(plugin, logger);
-			db.load();
 
 			if (db.isHoneypotBlock(block)) {
 				String action = getAction(block);
@@ -133,7 +123,7 @@ public class HoneypotBlockManager {
 	 */
 	public HoneypotBlockObject getHoneypotBlock(Block block) {
 
-		if (Boolean.TRUE.equals(isHoneypotBlock(block)))
+		if (isHoneypotBlock(block))
 			return new HoneypotBlockObject(block, getAction(block));
 
 		return null;
@@ -156,8 +146,6 @@ public class HoneypotBlockManager {
 			return dataStoreManager.getAction(block);
 
 		} else {
-			Database db = new SQLite(plugin, logger);
-			db.load();
 			return db.getAction(block);
 		}
 
@@ -170,9 +158,6 @@ public class HoneypotBlockManager {
 		if (storageMethod.equals("pdc")) {
 			dataStoreManager.deleteAllHoneypotBlocks(world);
 		} else {
-			Database db = new SQLite(plugin, logger);
-			db.load();
-
 			db.deleteAllBlocks();
 		}
 
@@ -188,9 +173,6 @@ public class HoneypotBlockManager {
 		if (storageMethod.equals("pdc")) {
 			return dataStoreManager.getAllHoneypots(world);
 		} else {
-			Database db = new SQLite(plugin, logger);
-			db.load();
-
 			return db.getAllHoneypots();
 		}
 	}

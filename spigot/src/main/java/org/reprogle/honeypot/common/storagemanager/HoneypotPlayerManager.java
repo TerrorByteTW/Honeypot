@@ -19,20 +19,18 @@ package org.reprogle.honeypot.common.storagemanager;
 import com.google.inject.Inject;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class HoneypotPlayerManager {
 
-	private final Honeypot plugin;
 	private final HoneypotLogger logger;
+	private final SQLite db;
 
 	@Inject
-	public HoneypotPlayerManager(Honeypot plugin, HoneypotLogger logger) {
-		this.plugin = plugin;
+	public HoneypotPlayerManager(HoneypotLogger logger, SQLite db) {
 		this.logger = logger;
+		this.db = db;
 	}
 
 	/**
@@ -44,10 +42,6 @@ public class HoneypotPlayerManager {
 	 * @param blocksBroken The amount of Blocks broken
 	 */
 	public void addPlayer(Player player, int blocksBroken) {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		db.createHoneypotPlayer(player, blocksBroken);
 		logger.info("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId());
 	}
@@ -62,10 +56,6 @@ public class HoneypotPlayerManager {
 	 * @param blocksBroken The amount of blocks broken by the player
 	 */
 	public void setPlayerCount(Player player, int blocksBroken) {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		db.setPlayerCount(player, blocksBroken);
 		logger.debug("Updated Honeypot player: " + player.getName() + ", UUID of: "
 				+ player.getUniqueId() + ". New count: " + blocksBroken);
@@ -80,10 +70,6 @@ public class HoneypotPlayerManager {
 	 * @return The amount of Honeypot blocks the player has broken
 	 */
 	public int getCount(Player player) {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		return db.getCount(player);
 	}
 
@@ -96,10 +82,6 @@ public class HoneypotPlayerManager {
 	 * @return The amount of Honeypot blocks the player has broken
 	 */
 	public int getCount(OfflinePlayer player) {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		return db.getCount(player);
 	}
 
@@ -107,10 +89,6 @@ public class HoneypotPlayerManager {
 	 * Delete's all players in the DB
 	 */
 	public void deleteAllHoneypotPlayers() {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		db.deleteAllPlayers();
 		logger.debug("Deleted all Honeypot players from DB");
 	}

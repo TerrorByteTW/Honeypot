@@ -1,6 +1,7 @@
 package org.reprogle.honeypot.common.utils.integrations;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -12,15 +13,20 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 @SuppressWarnings({ "deprecation", "unused" })
+@Singleton
 public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
     private final Honeypot plugin;
-    @Inject private HoneypotPlayerManager playerManager;
-    @Inject private HoneypotConfigManager configManager;
-    @Inject private HoneypotLogger logger;
+    private final HoneypotPlayerManager playerManager;
+    private final HoneypotConfigManager configManager;
+    private final HoneypotLogger logger;
 
-    public PlaceholderAPIExpansion(Honeypot plugin) {
+    @Inject
+    public PlaceholderAPIExpansion(Honeypot plugin, HoneypotLogger logger, HoneypotPlayerManager playerManager, HoneypotConfigManager configManager) {
         this.plugin = plugin;
+        this.logger = logger;
+        this.playerManager = playerManager;
+        this.configManager = configManager;
     }
 
     @Override

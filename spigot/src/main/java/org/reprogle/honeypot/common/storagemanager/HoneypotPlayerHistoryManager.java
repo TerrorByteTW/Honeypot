@@ -18,8 +18,6 @@ package org.reprogle.honeypot.common.storagemanager;
 
 import com.google.inject.Inject;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.storagemanager.sqlite.Database;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
@@ -34,13 +32,13 @@ import java.util.List;
  */
 public class HoneypotPlayerHistoryManager {
 
-	private final Honeypot plugin;
 	private final HoneypotLogger logger;
+	private final SQLite db;
 
 	@Inject
-	public HoneypotPlayerHistoryManager(Honeypot plugin, HoneypotLogger logger) {
-		this.plugin = plugin;
+	public HoneypotPlayerHistoryManager(HoneypotLogger logger, SQLite db) {
 		this.logger = logger;
+		this.db = db;
 	}
 
 	/**
@@ -50,10 +48,6 @@ public class HoneypotPlayerHistoryManager {
 	 * @param b The honeypot block they triggered
 	 */
 	public void addPlayerHistory(Player p, HoneypotBlockObject b, String type) {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		db.addPlayerHistory(p, b, type);
 
 		logger.debug("Added new history entry for player " + p.getName());
@@ -66,10 +60,6 @@ public class HoneypotPlayerHistoryManager {
 	 * @return A list of all HoneypotPlayerHistory objects
 	 */
 	public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		return db.retrieveHistory(p);
 	}
 
@@ -81,10 +71,6 @@ public class HoneypotPlayerHistoryManager {
 	 * @param n Optional, the number of most recent rows
 	 */
 	public void deletePlayerHistory(Player p, int... n) {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		if (n.length > 0) {
 			db.deletePlayerHistory(p, n);
 		} else {
@@ -98,10 +84,6 @@ public class HoneypotPlayerHistoryManager {
 	 * A function to purge the entire history table
 	 */
 	public void deleteAllHistory() {
-		Database db;
-		db = new SQLite(plugin, logger);
-		db.load();
-
 		db.deleteAllHistory();
 	}
 

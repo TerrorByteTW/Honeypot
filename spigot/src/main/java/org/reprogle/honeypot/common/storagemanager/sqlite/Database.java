@@ -76,8 +76,6 @@ public abstract class Database {
 
 	public abstract Connection getSQLConnection();
 
-	public abstract void load();
-
 	/*****************************
 	 * * BLOCK METHODS * *
 	 *****************************/
@@ -536,7 +534,7 @@ public abstract class Database {
 		try {
 			c = getSQLConnection();
 			ps = c.prepareStatement(INSERT_INTO + HISTORY_TABLE
-					+ " (datetime, playerName, playerUUID, coordinates, world, type, action) VALUES (DATETIME('now'), ?, ?, ?, ?, ?, ?);");
+					+ " (datetime, playerName, playerUUID, coordinates, world, type, action) VALUES (DATETIME('now', 'localtime'), ?, ?, ?, ?, ?, ?);");
 			ps.setString(1, p.getName());
 			ps.setString(2, p.getUniqueId().toString());
 			ps.setString(3, block.getCoordinates());

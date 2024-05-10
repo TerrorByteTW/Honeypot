@@ -54,6 +54,7 @@ public final class Honeypot extends JavaPlugin {
 	@Inject private GhostHoneypotFixer ghf;
 	@Inject private CommandFeedback commandFeedback;
 	@Inject private Set<BehaviorProvider> providers;
+	@Inject private PlaceholderAPIExpansion placeholderAPIExpansion;
 
 	// These dependencies can't really be injected
 	private static SpiGUI gui;
@@ -120,7 +121,7 @@ public final class Honeypot extends JavaPlugin {
 		// Register PlaceholderAPI expansions with PlaceholderAPI
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
 			getHoneypotLogger().debug("PlaceholderAPI is installed on this server, hooking into it...");
-			new PlaceholderAPIExpansion(this).register();
+			placeholderAPIExpansion.register();
 		}
 
 		// Register remaining adapters that can be registered on enable

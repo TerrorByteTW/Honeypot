@@ -73,6 +73,7 @@ public class HoneypotModule extends AbstractModule {
 
         this.blockManager = new HoneypotBlockManager(configManager.getPluginConfig().getString("storage-method"));
         this.commandFeedback = new CommandFeedback();
+
     }
 
     public Injector createInjector() {

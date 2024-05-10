@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot.common.storagemanager.sqlite;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.SQLitePatch;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.UpdateHistoryTable00;
@@ -29,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("FieldCanBeLocal")
+@Singleton
 public class SQLite extends Database {
 
 	private final Honeypot plugin;
@@ -44,10 +47,52 @@ public class SQLite extends Database {
 	 * @param plugin The instance of the plugin
 	 * @param logger The instance of the logger
 	 */
+	@Inject
 	public SQLite(Honeypot plugin, HoneypotLogger logger) {
 		super(plugin, logger);
 		this.logger = logger;
 		this.plugin = plugin;
+
+		connection = getSQLConnection();
+		try (Statement s = connection.createStatement()) {
+			// Get the user_version of the database
+			PreparedStatement ps = connection.prepareStatement("PRAGMA user_version;");
+			ResultSet rs = ps.executeQuery();
+			int userVersion = rs.getInt("user_version");
+
+			// Check if the DB needs an upgrade
+			logger.debug("Checking if DB needs upgrading");
+			boolean upgradeNecessary = checkIfUpgradeNecessary(connection, userVersion);
+
+			// If the plugin is being run for the first time
+			if (!upgradeNecessary) {
+				logger.debug("No upgrade necessary, first run or DB schema is up to date. Creating tables if they don't exist, otherwise skipping");
+				s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
+				s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
+				s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
+			} else {
+				logger.debug("It appears the plugin DB needs patched, userVersion is " + userVersion + " and the current version is " + DB_VERSION + ". Let's apply patches now");
+
+				for (SQLitePatch patch : patches) {
+					// Only apply the patch if the current version of the DB is less than the version of the DB patch
+					if (userVersion < patch.patchedIn()) {
+						// Apply the patch
+						logger.debug("Applying patch '" + patch.getClass().getName() + "'");
+						patch.update(s, logger);
+					} else {
+						logger.debug("Patch '" + patch.getClass().getName() + "' version is " + patch.patchedIn() + " while the DB_VERSION is " + DB_VERSION + ". Skipping since this patch is not needed");
+					}
+				}
+
+				logger.debug("Finished applying patches");
+			}
+
+			// Set the user_version pragma to DB_VERSION to prevent further patches
+			s.executeUpdate(SET_PRAGMA);
+		} catch (SQLException e) {
+			logger.severe("SQLException occurred while creating SQLite connection: " + e.getMessage());
+			logger.severe("Full stack" + Arrays.toString(e.getStackTrace()));
+		}
 	}
 
 	// The queries used to load the DB table. Only runs if the table doesn't exist.
@@ -118,59 +163,9 @@ public class SQLite extends Database {
 	}
 
 	/**
-	 * Loads the DB.
-	 * This also checks three things:
-	 * 1) If the database has tables or not, indicating first time run and potentially meaning an upgrade is necessary
-	 * 2) If the database doesn't have an initial run table, indicating first time run
-	 * 3) If the user_pragma is below the current version, indicating patches are necessary
-	 */
-	@Override
-	public void load() {
-		connection = getSQLConnection();
-		try (Statement s = connection.createStatement()) {
-			// Get the user_version of the database
-			PreparedStatement ps = connection.prepareStatement("PRAGMA user_version;");
-			ResultSet rs = ps.executeQuery();
-			int userVersion = rs.getInt("user_version");
-
-			// Check if the DB needs an upgrade
-			logger.debug("Checking if DB needs upgrading");
-			boolean upgradeNecessary = checkIfUpgradeNecessary(connection, userVersion);
-
-			// If the plugin is being run for the first time
-			if (!upgradeNecessary) {
-				logger.debug("No upgrade necessary, first run or DB schema is up to date. Creating tables if they don't exist, otherwise skipping");
-				s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
-				s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
-				s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
-			} else {
-				logger.debug("It appears the plugin DB needs patched, userVersion is " + userVersion + " and the current version is " + DB_VERSION + ". Let's apply patches now");
-
-				for (SQLitePatch patch : patches) {
-					// Only apply the patch if the current version of the DB is less than the version of the DB patch
-					if (userVersion < patch.patchedIn()) {
-						// Apply the patch
-						logger.debug("Applying patch '" + patch.getClass().getName() + "'");
-						patch.update(s, logger);
-					} else {
-						logger.debug("Patch '" + patch.getClass().getName() + "' version is " + patch.patchedIn() + " while the DB_VERSION is " + DB_VERSION + ". Skipping since this patch is not needed");
-					}
-				}
-
-				logger.debug("Finished applying patches");
-			}
-
-			// Set the user_version pragma to 1 to prevent further patches
-			s.executeUpdate(SET_PRAGMA);
-		} catch (SQLException e) {
-			logger.severe("SQLException occurred while creating SQLite connection: " + e.getMessage());
-			logger.severe("Full stack" + Arrays.toString(e.getStackTrace()));
-		}
-	}
-
-	/**
 	 * Here we check if there are any tables in the DB. If there are, and checkIfInitialRun is false, then we know an upgrade is necessary.
 	 * @param connection The connection of the DB
+	 * @param userVersion The current version of the DB on disk
 	 * @return True if an upgrade is necessary
 	 */
 	public boolean checkIfUpgradeNecessary(Connection connection, int userVersion) {
