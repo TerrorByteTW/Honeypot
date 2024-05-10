@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.providers.included;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -31,10 +32,16 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 @SuppressWarnings("deprecation")
 public class Notify extends BehaviorProvider {
 
+	@Inject
+	private CommandFeedback commandFeedback;
+
+	@Inject
+	private Honeypot plugin;
+
 	@Override
 	public boolean process(Player p, Block block) {
 
-		String chatPrefix = CommandFeedback.getChatPrefix();
+		String chatPrefix = commandFeedback.getChatPrefix();
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (player.hasPermission("honeypot.notify") || player.hasPermission("honeypot.*")
@@ -46,7 +53,7 @@ public class Notify extends BehaviorProvider {
 			}
 		}
 
-		Honeypot.plugin.getServer().getConsoleSender().sendMessage(chatPrefix + " " + ChatColor.RED
+		plugin.getServer().getConsoleSender().sendMessage(chatPrefix + " " + ChatColor.RED
 				+ p.getName() + " was caught breaking a Honeypot block");
 
 		return true;

@@ -33,16 +33,16 @@ public record HoneypotUpdateChecker(Plugin plugin, String link) {
 	 *
 	 * @param consumer The consumer function
 	 */
-	public void getVersion(final Consumer<String> consumer) {
+	public void getVersion(final Consumer<String> consumer, HoneypotLogger logger) {
 		Scheduler.runTaskAsynchronously(this.plugin, () -> {
-			Honeypot.getHoneypotLogger().info("Checking for updates");
+			logger.info("Checking for updates");
 			try (InputStream inputStream = new URL(this.link).openStream();
 					Scanner scanner = new Scanner(inputStream)) {
 				if (scanner.hasNext()) {
 					consumer.accept(scanner.next());
 				}
 			} catch (IOException exception) {
-				Honeypot.getHoneypotLogger().info("Unable to check for updates" + exception.getMessage());
+				logger.info("Unable to check for updates" + exception.getMessage());
 			}
 		});
 	}

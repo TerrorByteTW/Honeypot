@@ -16,9 +16,11 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -35,6 +37,21 @@ import java.util.List;
 import java.util.Objects;
 
 public class HoneypotLocate implements HoneypotSubCommand {
+
+	private final Honeypot plugin;
+	private final HoneypotConfigManager configManager;
+	private final CommandFeedback commandFeedback;
+	private final HoneypotBlockManager blockManager;
+
+	@Inject
+	public HoneypotLocate(Honeypot plugin, HoneypotConfigManager configManager, CommandFeedback commandFeedback,
+						  HoneypotBlockManager blockManager) {
+		this.plugin = plugin;
+		this.configManager = configManager;
+		this.commandFeedback = commandFeedback;
+		this.blockManager = blockManager;
+	}
+
 	@Override
 	public String getName() {
 		return "locate";
@@ -42,7 +59,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
 
 	@Override
 	public void perform(Player p, String[] args) {
-		final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
+		final double radius = configManager.getPluginConfig().getDouble("search-range");
 		final double xCoord = p.getLocation().getX();
 		final double yCoord = p.getLocation().getY();
 		final double zCoord = p.getLocation().getZ();
@@ -59,7 +76,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
 					final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 					// If it is a honeypot do this
-					if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(b))) {
+					if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
 						potFound = true;
 
 						// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
@@ -77,7 +94,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
 						// After 5 seconds, remove the slime. Setting its health to 0 causes the death
 						// animation,
 						// removing it just makes it go away. Poof!
-						Scheduler.runTaskLater(Honeypot.plugin, slime::remove, 20L * 5, slime);
+						Scheduler.runTaskLater(plugin, slime::remove, 20L * 5, slime);
 					}
 				}
 			}
@@ -85,9 +102,9 @@ public class HoneypotLocate implements HoneypotSubCommand {
 
 		// Let the player know if a pot was found or not
 		if (potFound) {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("foundpot"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("foundpot"));
 		} else {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("nopotfound"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("nopotfound"));
 		}
 	}
 

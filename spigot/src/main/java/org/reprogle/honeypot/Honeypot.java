@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.milkbowl.vault.permission.Permission;
 import com.samjakob.spigui.SpiGUI;
 import org.bstats.bukkit.Metrics;
@@ -25,41 +27,41 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.CommandManager;
-import org.reprogle.honeypot.common.events.ListenerSetup;
+import org.reprogle.honeypot.common.events.Listeners;
 import org.reprogle.honeypot.common.providers.BehaviorProcessor;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorRegistry;
-import org.reprogle.honeypot.common.providers.included.Ban;
-import org.reprogle.honeypot.common.providers.included.Kick;
-import org.reprogle.honeypot.common.providers.included.Notify;
-import org.reprogle.honeypot.common.providers.included.Warn;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.PlaceholderAPIExpansion;
 
+import java.util.Set;
+
+/**
+ * Main method for Honeypot, this is what gets the ball rolling for everything this plugin does, including setting the command executor and registering events.
+ * The command manager actually registers what commands are available for use, see {@link CommandManager} for more info on that.
+ * This plugin also heavily relies on Dependency Injection using the Google Guice framework. The bindings for that are handled in the {@link HoneypotModule}
+ */
 @SuppressWarnings({ "deprecation", "java:S1444", "java:S1104" })
 public final class Honeypot extends JavaPlugin {
 
-	public static Honeypot plugin;
+	// These dependencies can (and should) be injected
+	@Inject private AdapterManager adapterManager;
+	@Inject private Listeners listeners;
+	@Inject private CommandManager manager;
+	@Inject private HoneypotLogger logger;
+	@Inject private GhostHoneypotFixer ghf;
+	@Inject private CommandFeedback commandFeedback;
+	@Inject private Set<BehaviorProvider> providers;
+	@Inject private PlaceholderAPIExpansion placeholderAPIExpansion;
 
+	// These dependencies can't really be injected
 	private static SpiGUI gui;
-
-	private static HoneypotLogger logger;
-
 	private static Permission perms = null;
-
-	private static GhostHoneypotFixer ghf = null;
-
 	private static BehaviorRegistry registry = new BehaviorRegistry();
-
-	// Sonarlint doesn't know what it's talking about. We need to assign
-	// BehaviorProcessor in the onLoad() method, so it can't be final
-	@SuppressWarnings({ "java:S1444" })
 	public static BehaviorProcessor processor = null;
-
-	private final BehaviorProvider[] builtInProviders = new BehaviorProvider[] { new Ban(), new Kick(), new Warn(),
-			new Notify() };
+	private HoneypotConfigManager configManager;
 
 	/**
 	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
@@ -68,12 +70,18 @@ public final class Honeypot extends JavaPlugin {
 	@Override
 	@SuppressWarnings("java:S2696")
 	public void onLoad() {
-		// Registere adapters which must be registered on load
-		AdapterManager.onLoadAdapters(getServer());
+		configManager = new HoneypotConfigManager();
+
+		// Create the Guice Injector
+		HoneypotModule module = new HoneypotModule(this, configManager);
+		Injector injector = module.createInjector();
+		injector.injectMembers(this);
+		// Register adapters which must be registered on load
+		adapterManager.onLoadAdapters(getServer());
 
 		registry = new BehaviorRegistry();
 
-		for (BehaviorProvider behavior : builtInProviders) {
+		for (BehaviorProvider behavior : providers) {
 			registry.register(behavior);
 		}
 
@@ -88,52 +96,55 @@ public final class Honeypot extends JavaPlugin {
 	@Override
 	@SuppressWarnings({ "unused", "java:S2696" })
 	public void onEnable() {
-		plugin = this;
-		gui = new SpiGUI(this);
-		logger = new HoneypotLogger();
-		registry.setInitialized(true);
 
-		HoneypotConfigManager.setupConfig(this);
+		// Initialize the SpiGUI object for UI, lock the registry, and start the Ghost Honeypot Fixer task
+		gui = new SpiGUI(this);
+		registry.setInitialized(true);
+		ghf.startTask();
+
+		// Set up the configs. This includes generating them if they don't exist and loading them.
+		configManager.setupConfig(this);
 
 		getHoneypotLogger().info("Successfully registered " + registry.size()
 				+ " behavior providers. Further registrations are now locked.");
 
-		// Load everything necessary for the plugin to work
+		// Start bstats and register event listeners
 		Metrics metrics = new Metrics(this, 15425);
-		ListenerSetup.setupListeners(this);
-
-		ghf = new GhostHoneypotFixer();
+		listeners.setupListeners();
 
 		// Setup Vault
 		if (!setupPermissions()) {
-			getHoneypotLogger().info(CommandFeedback.getChatPrefix() + ChatColor.RED
+			getHoneypotLogger().info(commandFeedback.getChatPrefix() + ChatColor.RED
 					+ " Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/");
 		}
 
+		// Register PlaceholderAPI expansions with PlaceholderAPI
 		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			getHoneypotLogger().info("PlaceholderAPI is installed on this server, hooking into it...");
-			new PlaceholderAPIExpansion(this).register();
+			getHoneypotLogger().debug("PlaceholderAPI is installed on this server, hooking into it...");
+			placeholderAPIExpansion.register();
 		}
 
 		// Register remaining adapters that can be registered on enable
-		AdapterManager.onEnableAdapters(getServer());
+		adapterManager.onEnableAdapters(getServer());
 
-		getCommand("honeypot").setExecutor(new CommandManager());
-		getHoneypotLogger().info("Loaded plugin");
+		// We know this will not be null due to it being registered in plugin.yml
+        //noinspection DataFlowIssue
+        getCommand("honeypot").setExecutor(this.manager);
 
-		// When I save the file manually in VSCode it tends to format this section. If
-		// this looks weird, don't worry,
-		// it'll still look fine
-		getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n" + " _____                         _\n"
-				+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n" + "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED
-				+ " TerrorByte\n" + ChatColor.GOLD + "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED
-				+ this.getDescription().getVersion() + "\n" + ChatColor.GOLD + "                  |___|_|");
+		getServer().getConsoleSender().sendMessage(ChatColor.GOLD + "\n"
+				+ " _____                         _\n"
+				+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n"
+				+ "|     | . |   | -_| | | . | . |  _|    by" + ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD
+				+ "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED + this.getDescription().getVersion() + "\n" + ChatColor.GOLD
+				+ "                  |___|_|");
 
 		if (isFolia()) {
 			getHoneypotLogger().warning(
-					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. Support for Folia is limited and not actively tested, be wary when using it for now!");
+					"YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. While Folia is fully working, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now!");
 		}
 
+		// Check the supported MC versions against the MC versions supported by this version of Honeypot
+		// That's a mouthful, isn't it?
 		checkIfServerSupported();
 
 		// Check for any updates
@@ -143,14 +154,14 @@ public final class Honeypot extends JavaPlugin {
 					if (Integer.parseInt(latest.replace(".", "")) > Integer
 							.parseInt(this.getDescription().getVersion().replace(".", ""))) {
 						getServer().getConsoleSender()
-								.sendMessage(CommandFeedback.getChatPrefix() + ChatColor.RED
+								.sendMessage(commandFeedback.getChatPrefix() + ChatColor.RED
 										+ " There is a new update available: " + latest
 										+ ". Please download for the latest features and security updates!");
 					} else {
-						getServer().getConsoleSender().sendMessage(CommandFeedback.getChatPrefix() + ChatColor.GREEN
+						getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix() + ChatColor.GREEN
 								+ " You are on the latest version of Honeypot!");
 					}
-				});
+				}, logger);
 	}
 
 	/**
@@ -185,15 +196,15 @@ public final class Honeypot extends JavaPlugin {
 	 * running on is supported
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	public static void checkIfServerSupported() {
+	public void checkIfServerSupported() {
 		String[] serverVersion = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
 		int serverMajorVer = Integer.parseInt(serverVersion[0]);
 		int serverMinorVer = Integer.parseInt(serverVersion[1]);
 		int serverRevisionVer = serverVersion.length > 2 ? Integer.parseInt(serverVersion[2]) : 0;
 
-		String pluginVersion = plugin.getDescription().getVersion();
+		String pluginVersion = this.getDescription().getVersion();
 		// Check for any updates
-		new HoneypotSupportedVersions(plugin, pluginVersion).getSupportedVersions(value -> {
+		new HoneypotSupportedVersions(this, pluginVersion).getSupportedVersions(value -> {
 			// Get the least supported and most supported server versions for this version
 			// of Honeypot
 			String[] lowerVersion = value.split("-")[0].split("\\.");
@@ -218,10 +229,10 @@ public final class Honeypot extends JavaPlugin {
 					&& (serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer)
 					&& (serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
 				getHoneypotLogger().warning(
-						"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but some unusual behavior may occur, such as new blocks being processed strangely!");
+						"Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but functionality is not guaranteed. If you experience any issues please report them to the developer.");
 				getHoneypotLogger().warning("Honeypot " + pluginVersion + " supports server versions " + value);
 			}
-		});
+		}, logger);
 
 	}
 
@@ -268,7 +279,7 @@ public final class Honeypot extends JavaPlugin {
 	 *
 	 * @return {@link HoneypotLogger}
 	 */
-	public static HoneypotLogger getHoneypotLogger() {
+	public HoneypotLogger getHoneypotLogger() {
 		return logger;
 	}
 
@@ -279,14 +290,5 @@ public final class Honeypot extends JavaPlugin {
 	 */
 	public static BehaviorRegistry getRegistry() {
 		return registry;
-	}
-
-	/**
-	 * Get the Ghost Honeypot Fixer
-	 * 
-	 * @return {@link GhostHoneypotFixer}
-	 */
-	public static GhostHoneypotFixer getFixer() {
-		return ghf;
 	}
 }

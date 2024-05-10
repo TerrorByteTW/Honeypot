@@ -1,28 +1,37 @@
 package org.reprogle.honeypot.common.utils.integrations;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 @SuppressWarnings({ "deprecation", "unused" })
+@Singleton
 public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
-    // Currently not needed, but here in case :)
     private final Honeypot plugin;
+    private final HoneypotPlayerManager playerManager;
+    private final HoneypotConfigManager configManager;
+    private final HoneypotLogger logger;
 
-    public PlaceholderAPIExpansion(Honeypot plugin) {
+    @Inject
+    public PlaceholderAPIExpansion(Honeypot plugin, HoneypotLogger logger, HoneypotPlayerManager playerManager, HoneypotConfigManager configManager) {
         this.plugin = plugin;
+        this.logger = logger;
+        this.playerManager = playerManager;
+        this.configManager = configManager;
     }
 
     @Override
     public @NotNull String getAuthor() {
-        return String.join(", ", Honeypot.plugin.getDescription().getAuthors());
+        return String.join(", ", plugin.getDescription().getAuthors());
     }
 
     @Override
@@ -32,7 +41,7 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return Honeypot.plugin.getDescription().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
     @Override
@@ -43,23 +52,23 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, @NotNull
     String params) {
-        Honeypot.getHoneypotLogger().debug("Param received was: " + params);
+        logger.debug("Param received was: " + params);
         if (params.equalsIgnoreCase("current_count_broken")) {
             if (player == null)
                 return null;
-            int count = HoneypotPlayerManager.getInstance().getCount(player);
+            int count = playerManager.getCount(player);
             return count < 0 ? "0" : String.valueOf(count);
         }
 
         if (params.startsWith("current_count_broken_")) {
             String playerName = params.split("current_count_broken_")[1];
             OfflinePlayer p = Bukkit.getOfflinePlayer(playerName);
-            int count = HoneypotPlayerManager.getInstance().getCount(p);
+            int count = playerManager.getCount(p);
             return count < 0 ? "0" : String.valueOf(count);
         }
 
         if (params.equalsIgnoreCase("breaks_before_action")) {
-            return String.valueOf(HoneypotConfigManager.getPluginConfig().getInt("blocks-broken-before-action-taken"));
+            return String.valueOf(configManager.getPluginConfig().getInt("blocks-broken-before-action-taken"));
         }
 
         return null;

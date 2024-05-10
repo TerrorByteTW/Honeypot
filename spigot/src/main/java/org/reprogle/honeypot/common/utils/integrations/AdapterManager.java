@@ -1,14 +1,21 @@
 package org.reprogle.honeypot.common.utils.integrations;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bukkit.Server;
+import org.reprogle.honeypot.Honeypot;
 
+@Singleton
 public class AdapterManager {
+
+    private final Honeypot plugin;
 
     /**
      * Private constructor to hide implicit one
      */
-    AdapterManager() {
-
+    @Inject
+    public AdapterManager(Honeypot plugin) {
+        this.plugin = plugin;
     }
 
     private static WorldGuardAdapter wga = null;
@@ -17,39 +24,39 @@ public class AdapterManager {
 
     private static LandsAdapter la = null;
 
-    public static void onLoadAdapters(Server server) {
+    public void onLoadAdapters(Server server) {
         if (server.getPluginManager().getPlugin("WorldGuard") != null) {
             wga = new WorldGuardAdapter();
         }
     }
 
-    public static void onEnableAdapters(Server server) {
+    public void onEnableAdapters(Server server) {
         if (server.getPluginManager().getPlugin("GriefPrevention") != null)
             gpa = new GriefPreventionAdapter();
 
         if (server.getPluginManager().getPlugin("Lands") != null) {
-            la = new LandsAdapter();
+            la = new LandsAdapter(plugin);
         }
     }
 
     /**
      * Retrieve the WorldGuard Adapter
      */
-    public static WorldGuardAdapter getWorldGuardAdapter() {
+    public WorldGuardAdapter getWorldGuardAdapter() {
         return wga;
     }
 
     /**
      * Retrieve the GriefPrevention Adapter
      */
-    public static GriefPreventionAdapter getGriefPreventionAdapter() {
+    public GriefPreventionAdapter getGriefPreventionAdapter() {
         return gpa;
     }
 
     /**
      * Retrieve the GriefPrevention Adapter
      */
-    public static LandsAdapter getLandsAdapter() {
+    public LandsAdapter getLandsAdapter() {
         return la;
     }
 

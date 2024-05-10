@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -31,10 +32,23 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings({ "java:S1192", "java:S3776", "deprecation" })
 public class HoneypotHistory implements HoneypotSubCommand {
+
+	private final CommandFeedback commandFeedback;
+	private final HoneypotConfigManager configManager;
+	private final HoneypotPlayerHistoryManager playerHistoryManager;
+
+	@Inject
+	public HoneypotHistory(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotPlayerHistoryManager playerHistoryManager) {
+		this.commandFeedback = commandFeedback;
+		this.configManager = configManager;
+		this.playerHistoryManager = playerHistoryManager;
+
+	}
 
 	@Override
 	public String getName() {
@@ -47,25 +61,28 @@ public class HoneypotHistory implements HoneypotSubCommand {
 			Player argPlayer = Bukkit.getPlayer(args[2]);
 
 			if (argPlayer == null || !Bukkit.getPlayer(args[2]).isOnline()) {
-				p.sendMessage(CommandFeedback.sendCommandFeedback("notonline"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("notonline"));
 				return;
 			}
 
 			if (args[1].equalsIgnoreCase("query")) {
-				p.sendMessage(CommandFeedback.sendCommandFeedback("searching"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("searching"));
 
-				List<HoneypotPlayerHistoryObject> history = HoneypotPlayerHistoryManager.getInstance()
-						.getPlayerHistory(argPlayer);
-				int length = HoneypotConfigManager.getPluginConfig().getInt("history-length");
+				List<HoneypotPlayerHistoryObject> history = playerHistoryManager.getPlayerHistory(argPlayer);
+				int length = configManager.getPluginConfig().getInt("history-length");
 
 				if (history.size() > length) {
-					p.sendMessage(CommandFeedback.sendCommandFeedback("truncating"));
+					p.sendMessage(commandFeedback.sendCommandFeedback("truncating"));
+					history = history.subList(0, length);
 				}
 
 				if (history.isEmpty()) {
-					p.sendMessage(CommandFeedback.sendCommandFeedback("nohistory"));
+					p.sendMessage(commandFeedback.sendCommandFeedback("nohistory"));
 					return;
 				}
+
+				// Reverse the history array so that it's in chronological order when sent to the player
+				Collections.reverse(history);
 
 				int limit = Math.min(history.size(), length);
 
@@ -85,23 +102,24 @@ public class HoneypotHistory implements HoneypotSubCommand {
 
 					p.spigot().sendMessage(playerInfo);
 					p.sendMessage("Action: " + ChatColor.GOLD + history.get(i).getHoneypot().getAction());
+					p.sendMessage("Break type: " + ChatColor.GOLD + history.get(i).getType());
 					p.sendMessage(ChatColor.GOLD + "----------------------------------");
 				}
 
 			} else if (args[1].equalsIgnoreCase("delete")) {
 				if (args.length >= 4) {
-					HoneypotPlayerHistoryManager.getInstance().deletePlayerHistory(argPlayer,
+					playerHistoryManager.deletePlayerHistory(argPlayer,
 							Integer.parseInt(args[3]));
 				} else {
-					HoneypotPlayerHistoryManager.getInstance().deletePlayerHistory(argPlayer);
+					playerHistoryManager.deletePlayerHistory(argPlayer);
 				}
-				p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("success"));
 			}
 		} else if (args.length == 2 && args[1].equalsIgnoreCase("purge")) {
-			HoneypotPlayerHistoryManager.getInstance().deleteAllHistory();
-			p.sendMessage(CommandFeedback.sendCommandFeedback("success"));
+			playerHistoryManager.deleteAllHistory();
+			p.sendMessage(commandFeedback.sendCommandFeedback("success"));
 		} else {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("usage"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("usage"));
 		}
 
 	}
@@ -115,14 +133,12 @@ public class HoneypotHistory implements HoneypotSubCommand {
 			subcommands.add("delete");
 			subcommands.add("query");
 			subcommands.add("purge");
-			// If the args length is 3 and they passed a valid sub-subcommand (yikes), do
-			// this
+			// If the args length is 3, and they passed a valid sub-subcommand, do this
 		} else if (args.length == 3 && (args[1].equalsIgnoreCase("query") || args[1].equalsIgnoreCase("delete"))) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				subcommands.add(player.getName());
 			}
-			// If the args length is 4 and they typed delete, just give them a list of
-			// numbers
+			// If the args length is 4, and they typed delete, just give them a list of numbers
 		} else if (args.length == 4 && args[1].equalsIgnoreCase("delete")) {
 			for (int i = 1; i < 10; i++) {
 				subcommands.add(Integer.toString(i));

@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,15 +28,20 @@ import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 public class PlayerCommandPreprocessEventListener implements Listener {
 
+	private final Honeypot plugin;
+	private final CommandFeedback commandFeedback;
+
 	/**
 	 * Create private constructor to hide the implicit one
 	 */
-	PlayerCommandPreprocessEventListener() {
-
+	@Inject
+	PlayerCommandPreprocessEventListener(Honeypot plugin, CommandFeedback commandFeedback) {
+		this.plugin = plugin;
+		this.commandFeedback = commandFeedback;
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public static void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
+	public void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
 		if (event.getMessage().startsWith("/hpteleport")) {
 			event.setCancelled(true);
 			if (event.getPlayer().hasPermission("honeypot.teleport")) {
@@ -43,11 +49,11 @@ public class PlayerCommandPreprocessEventListener implements Listener {
 				String processedCommand = rawCommand.replace("/hpteleport",
 						"minecraft:tp " + event.getPlayer().getName());
 
-				Scheduler.runTask(Honeypot.plugin,
+				Scheduler.runTask(plugin,
 						() -> Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand));
 			}
 			else {
-				event.getPlayer().sendMessage(CommandFeedback.sendCommandFeedback("nopermission"));
+				event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
 			}
 
 		}

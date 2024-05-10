@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.utils;
 
+import com.google.inject.Inject;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import me.clip.placeholderapi.PlaceholderAPI;
 
@@ -33,13 +34,23 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class ActionHandler {
 
-	private ActionHandler() {
+	private final Honeypot plugin;
+	private final HoneypotLogger logger;
+	private final HoneypotConfigManager configManager;
+	private final CommandFeedback commandFeedback;
+
+	@Inject
+	public ActionHandler(Honeypot plugin, HoneypotLogger logger, HoneypotConfigManager configManager, CommandFeedback commandFeedback) {
+		this.plugin = plugin;
+		this.logger = logger;
+		this.configManager = configManager;
+		this.commandFeedback = commandFeedback;
 	}
 
 	@SuppressWarnings({ "java:S3776", "java:S2629", "java:S1192", "java:S6541" })
-	public static void handleCustomAction(String action, Block block, Player player) {
+	public void handleCustomAction(String action, Block block, Player player) {
 
-		Honeypot.getHoneypotLogger().debug("Handling action " + action + " for player " + player.getName()
+		plugin.getHoneypotLogger().debug("Handling action " + action + " for player " + player.getName()
 				+ " at location " + block.getLocation());
 
 		// Behavior providers take higher precedence over custom config actions.
@@ -49,24 +60,13 @@ public class ActionHandler {
 		}
 
 		// Default path is likely due to custom actions. Run whatever the action was
-		YamlDocument config = HoneypotConfigManager.getHoneypotsConfig();
+		YamlDocument config = configManager.getHoneypotsConfig();
 		if (config.contains(action)) {
 			List<String> commands = config.getStringList(action + ".commands");
 			List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
 			List<String> permissionsRemove = config.getStringList(action + ".permissions-remove");
 			List<String> broadcasts = config.getStringList(action + ".broadcasts");
 			List<String> messages = config.getStringList(action + ".messages");
-
-			if (commands.isEmpty()) {
-				Honeypot.getHoneypotLogger()
-						.warning("Commands list is empty for Honeypot type " + action + "! Please verify config");
-				return;
-			}
-			if (commands.isEmpty()) {
-				Honeypot.getHoneypotLogger()
-						.warning("Commands list is empty for Honeypot type " + action + "! Please verify config");
-				return;
-			}
 
 			if (!commands.isEmpty()) {
 				for (String command : commands) {
@@ -75,7 +75,7 @@ public class ActionHandler {
 				}
 			}
 
-			if (!messages.isEmpty()) {
+            if (!messages.isEmpty()) {
 				for (String message : messages) {
 					player.sendMessage(formatMessage(message, block, player));
 				}
@@ -83,7 +83,7 @@ public class ActionHandler {
 
 			if (!broadcasts.isEmpty()) {
 				for (String broadcast : broadcasts) {
-					Honeypot.plugin.getServer().broadcastMessage(formatMessage(broadcast, block, player));
+					plugin.getServer().broadcastMessage(formatMessage(broadcast, block, player));
 				}
 			}
 
@@ -103,14 +103,12 @@ public class ActionHandler {
 			// I'd like to warn them if the tried to adjust permissions without vault. If vault is null and they
 			// *didn't* try to adjust permissions, then who cares?
 			else if (!permissionsAdd.isEmpty() || !permissionsRemove.isEmpty()) {
-				Honeypot.getHoneypotLogger().warning(CommandFeedback.getChatPrefix() + ChatColor.RED
-						+ " Vault is not installed, Honeypots that modify permissions won't work");
-				Honeypot.getHoneypotLogger().info(
-						"Vault is not installed. Permission Honeypots won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
+				logger.warning(commandFeedback.getChatPrefix() + ChatColor.RED
+						+ " Vault is not installed, Honeypots that modify permissions won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/");
 			}
 		}
 		else {
-			Honeypot.getHoneypotLogger().warning("A Honeypot tried to run using action: " + action
+			logger.warning("A Honeypot tried to run using action: " + action
 					+ ", but that action doesn't exist! Please verify your honeypots.yml config");
 		}
 	}

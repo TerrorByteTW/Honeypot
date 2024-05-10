@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.providers.included;
 
+import com.google.inject.Inject;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -28,9 +29,12 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 @SuppressWarnings("deprecation")
 public class Kick extends BehaviorProvider {
 
+	@Inject
+	private CommandFeedback commandFeedback;
+
 	@Override
 	public boolean process(Player p, Block block) {
-		p.kickPlayer(CommandFeedback.sendCommandFeedback("kick"));
+		p.kickPlayer(commandFeedback.sendCommandFeedback("kick"));
 
 		return true;
 	}

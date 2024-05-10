@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot.common.utils;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -27,15 +29,25 @@ import org.reprogle.honeypot.common.utils.folia.Scheduler;
 import java.util.List;
 
 @SuppressWarnings({ "java:S1604" })
+@Singleton
 public class GhostHoneypotFixer {
+	private final HoneypotConfigManager configManager;
+	private final HoneypotLogger logger;
+	private final HoneypotBlockManager blockManager;
+	private final Honeypot plugin;
 
 	// Create package constructor to hide implicit one
-	public GhostHoneypotFixer() {
+	@Inject
+	public GhostHoneypotFixer(Honeypot plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, HoneypotConfigManager configManager) {
+		this.plugin = plugin;
+		this.logger = logger;
+		this.blockManager = blockManager;
+		this.configManager = configManager;
+
 		// Start the GhostHoneypotFixer
-		if (Boolean.TRUE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable"))) {
-			Honeypot.getHoneypotLogger().info(
+		if (configManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable")) {
+			logger.info(
 					"Starting the ghost checker task! If you need to change the settings for this function, edit the config then do /honeypot reload");
-			this.startTask();
 		}
 	}
 
@@ -45,11 +57,8 @@ public class GhostHoneypotFixer {
 	 * Start a task to check for ghost honeypots every defined interval
 	 */
 	public void startTask() {
-		// Store the task, just in case we need it in the future. For now, it's unused
-		// so we're silencing unused warnings
-
-		task = Scheduler.runTaskTimer(Honeypot.plugin, () -> {
-			Honeypot.getHoneypotLogger().info("Running ghost Honeypot checks...");
+		task = Scheduler.runTaskTimer(plugin, () -> {
+			logger.info("Running ghost Honeypot checks...");
 			int removedPots = 0;
 			List<World> worlds = Bukkit.getWorlds();
 
@@ -59,7 +68,7 @@ public class GhostHoneypotFixer {
 			// necessary, but this is just temporary
 			// TODO: Make this loop better ^^^
 			for (World world : worlds) {
-				List<HoneypotBlockObject> pots = HoneypotBlockManager.getInstance().getAllHoneypots(world);
+				List<HoneypotBlockObject> pots = blockManager.getAllHoneypots(world);
 				for (HoneypotBlockObject pot : pots) {
 
 					Material block;
@@ -80,7 +89,7 @@ public class GhostHoneypotFixer {
 					try {
 						block = pot.getBlock().getType();
 					} catch (NullPointerException e) {
-						Honeypot.getHoneypotLogger().warning("Could not get the material for Honeypot at "
+						logger.warning("Could not get the material for Honeypot at "
 								+ pot.getCoordinates() + " because the world isn't loaded yet (Maybe running Folia?)");
 						continue;
 					}
@@ -91,18 +100,17 @@ public class GhostHoneypotFixer {
 					 * in some instances (Such as if a Honeypot was set as a torch)
 					 */
 					if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
-						Honeypot.getHoneypotLogger()
-								.debug("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld()
+						logger.debug("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld()
 										+ ". Removing");
-						HoneypotBlockManager.getInstance().deleteBlock(pot.getBlock());
+						blockManager.deleteBlock(pot.getBlock());
 						removedPots++;
 					}
 				}
 			}
 
-			Honeypot.getHoneypotLogger()
+			logger
 					.info("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
-		}, 0L, 20L * 60 * HoneypotConfigManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
+		}, 0L, 20L * 60 * configManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
 	}
 
 	/**

@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.providers.included;
 
+import com.google.inject.Inject;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -27,9 +28,12 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 @Behavior(type = BehaviorType.WARN, name = "warn", icon = Material.STONE_AXE)
 public class Warn extends BehaviorProvider {
 
+	@Inject
+	private CommandFeedback commandFeedback;
+
 	@Override
 	public boolean process(Player p, Block block) {
-		p.sendMessage(CommandFeedback.sendCommandFeedback("warn"));
+		p.sendMessage(commandFeedback.sendCommandFeedback("warn"));
 
 		return true;
 	}

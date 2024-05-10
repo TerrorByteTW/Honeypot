@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -28,18 +29,21 @@ import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 
 public class InventoryMoveItemEventListener implements Listener {
 
+	private HoneypotBlockManager blockManager;
+
 	/**
 	 * Create constructor to hide implicit one
 	 */
-	InventoryMoveItemEventListener() {
-
+	@Inject
+	InventoryMoveItemEventListener(HoneypotBlockManager blockManager) {
+		this.blockManager = blockManager;
 	}
 
 	// We're suppressing warnings on java:S2589 because location and world can both
 	// equal null, but SonarLint thinks they can't
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	@SuppressWarnings("java:S2589")
-	public static void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
+	public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
 		InventoryType source = event.getSource().getType();
 		if (!source.equals(InventoryType.HOPPER)
 				&& !source.equals(InventoryType.DROPPER))
@@ -54,8 +58,8 @@ public class InventoryMoveItemEventListener implements Listener {
 		Block targetBlock = world.getBlockAt(event.getDestination().getLocation());
 		Block sourceBlock = world.getBlockAt(event.getSource().getLocation());
 
-		boolean isSourceHoneypot = HoneypotBlockManager.getInstance().isHoneypotBlock(sourceBlock);
-		boolean isTargetHoneypot = HoneypotBlockManager.getInstance().isHoneypotBlock(targetBlock);
+		boolean isSourceHoneypot = blockManager.isHoneypotBlock(sourceBlock);
+		boolean isTargetHoneypot = blockManager.isHoneypotBlock(targetBlock);
 
 		// We only care about hoppers and droppers, as these are the only two items that
 		// can interact with chests directly

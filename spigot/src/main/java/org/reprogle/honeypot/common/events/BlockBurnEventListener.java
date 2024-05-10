@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -25,22 +26,26 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class BlockBurnEventListener implements Listener {
 
-	/**
-	 * Create package listener to hide implicit one
-	 */
-	BlockBurnEventListener() {
+	
+	private final HoneypotLogger logger;
+	private final HoneypotBlockManager blockManager;
 
+	@Inject
+	BlockBurnEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
+		this.logger = logger;
+		this.blockManager = blockManager;
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public static void onBlockBurnEvent(BlockBurnEvent event) {
+	public void onBlockBurnEvent(BlockBurnEvent event) {
 		Block block = event.getBlock();
 
-		if (HoneypotBlockManager.getInstance().isHoneypotBlock(block)) {
-			Honeypot.getHoneypotLogger().debug("BlockBurnEvent being called for Honeypot: " + block.getX() + ", "
+		if (blockManager.isHoneypotBlock(block)) {
+			logger.debug("BlockBurnEvent being called for Honeypot: " + block.getX() + ", "
 					+ block.getY() + ", " + block.getZ());
 			event.setCancelled(true);
 

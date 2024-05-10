@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
@@ -29,6 +30,15 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class HoneypotInfo implements HoneypotSubCommand {
 
+	private final Honeypot plugin;
+	private final CommandFeedback commandFeedback;
+
+	@Inject
+	public HoneypotInfo(Honeypot plugin, CommandFeedback commandFeedback) {
+		this.plugin = plugin;
+		this.commandFeedback = commandFeedback;
+	}
+
 	@Override
 	public String getName() {
 		return "info";
@@ -37,10 +47,10 @@ public class HoneypotInfo implements HoneypotSubCommand {
 	@Override
 	public void perform(Player p, String[] args) {
 		p.sendMessage(
-				CommandFeedback.getChatPrefix() + " Honeypot version " + Honeypot.plugin.getDescription().getVersion());
+				commandFeedback.getChatPrefix() + " Honeypot version " + plugin.getDescription().getVersion());
 
-		p.sendMessage(CommandFeedback.getChatPrefix() + " Running on " + Bukkit.getVersion());
-		Honeypot.checkIfServerSupported();
+		p.sendMessage(commandFeedback.getChatPrefix() + " Running on " + Bukkit.getVersion());
+		plugin.checkIfServerSupported();
 	}
 
 	@Override

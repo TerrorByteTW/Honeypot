@@ -16,7 +16,10 @@
 
 package org.reprogle.honeypot.common.storagemanager;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +28,16 @@ import java.util.List;
  * A rudimentary caching utility to lessen dependency on databases used by
  * Honeypot
  */
+@Singleton
 public class CacheManager {
 
 	private static final List<HoneypotBlockObject> cache = new ArrayList<>();
 
-	// Create constructor to hide implicit one
-	CacheManager() {
+	@Inject
+	private HoneypotConfigManager configManager;
 
-	}
+	@Inject
+	private HoneypotLogger logger;
 
 	/**
 	 * Gets the entire cache list for further processing if necessary
@@ -48,8 +53,8 @@ public class CacheManager {
 	 *
 	 * @param block The honeypot to add to cache
 	 */
-	public static void addToCache(HoneypotBlockObject block) {
-		int cacheSize = HoneypotConfigManager.getPluginConfig().getInt("cache-size");
+	public void addToCache(HoneypotBlockObject block) {
+		int cacheSize = configManager.getPluginConfig().getInt("cache-size");
 
 		if (cacheSize <= 0)
 			return;
@@ -70,7 +75,7 @@ public class CacheManager {
 	 * @return True if the removal was successful, false if not (Likely due to it
 	 *         not existing)
 	 */
-	public static boolean removeFromCache(HoneypotBlockObject block) {
+	public boolean removeFromCache(HoneypotBlockObject block) {
 		for (HoneypotBlockObject b : cache) {
 			if (block.equals(b)) {
 				cache.remove(b);
@@ -88,7 +93,7 @@ public class CacheManager {
 	 * @return The {@link HoneypotBlockObject} if it's successfully found, null if
 	 *         not
 	 */
-	public static HoneypotBlockObject isInCache(HoneypotBlockObject block) {
+	public HoneypotBlockObject isInCache(HoneypotBlockObject block) {
 		for (HoneypotBlockObject b : cache) {
 			if (block.equals(b)) {
 				return b;

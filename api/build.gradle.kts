@@ -1,5 +1,5 @@
 group = "org.reprogle"
-version = "3.2.2"
+version = "3.3.0"
 
 extra["platform"] = "api"
 
@@ -22,18 +22,26 @@ dependencies {
     compileOnly(libs.folia.api)
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 // Configure the file output names of most files (Excluding shadow, which needs tweaking itself to avoid a "-all" being tagged onto it)
 tasks.withType<Jar> {
     val platform: String by project.extra
     archiveBaseName.set("honeypot-${platform}")
 }
 
+tasks.javadoc {
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
-            groupId = "${group}"
+            groupId = "$group"
             artifactId = "honeypot-api"
-            version = "${version}"
+            version = version
 
             from(components["java"])
         }

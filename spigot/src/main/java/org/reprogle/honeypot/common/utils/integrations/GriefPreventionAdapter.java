@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.utils.integrations;
 
+import com.google.inject.Inject;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
@@ -27,6 +28,9 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
  * A small helper class for utilizing GriefPrevention
  */
 public class GriefPreventionAdapter {
+
+	@Inject
+	private HoneypotConfigManager configManager;
 
 	/**
 	 * Check if the player has permission
@@ -40,7 +44,7 @@ public class GriefPreventionAdapter {
 		Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
 
 		if (claim != null) {
-			if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("respect-griefprevention")))
+			if (!configManager.getPluginConfig().getBoolean("respect-griefprevention"))
 				return false;
 
 			return claim.checkPermission(player, ClaimPermission.Build, null) == null;

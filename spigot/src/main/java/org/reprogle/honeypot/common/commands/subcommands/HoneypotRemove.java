@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.google.inject.Inject;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -29,6 +30,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotRemove implements HoneypotSubCommand {
+
+	private final HoneypotConfigManager configManager;
+	private final HoneypotBlockManager blockManager;
+	private final CommandFeedback commandFeedback;
+
+	@Inject
+	public HoneypotRemove(HoneypotConfigManager configManager, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
+		this.configManager = configManager;
+		this.blockManager = blockManager;
+		this.commandFeedback = commandFeedback;
+	}
+
 	@Override
 	public String getName() {
 		return "remove";
@@ -42,12 +55,12 @@ public class HoneypotRemove implements HoneypotSubCommand {
 		if (args.length >= 2) {
 			switch (args[1].toLowerCase()) {
 				case "all" -> {
-					HoneypotBlockManager.getInstance().deleteAllHoneypotBlocks(p.getWorld());
-					p.sendMessage(CommandFeedback.sendCommandFeedback("deletedall"));
+					blockManager.deleteAllHoneypotBlocks(p.getWorld());
+					p.sendMessage(commandFeedback.sendCommandFeedback("deletedall"));
 				}
 
 				case "near" -> {
-					final double radius = HoneypotConfigManager.getPluginConfig().getDouble("search-range");
+					final double radius = configManager.getPluginConfig().getDouble("search-range");
 					final double xCoord = p.getLocation().getX();
 					final double yCoord = p.getLocation().getY();
 					final double zCoord = p.getLocation().getZ();
@@ -63,15 +76,15 @@ public class HoneypotRemove implements HoneypotSubCommand {
 								final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
 								// If it is a honeypot do this
-								if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(b))) {
-									HoneypotBlockManager.getInstance().deleteBlock(b);
+								if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
+									blockManager.deleteBlock(b);
 
 								}
 							}
 						}
 					}
 
-					p.sendMessage(CommandFeedback.sendCommandFeedback("deletednear"));
+					p.sendMessage(commandFeedback.sendCommandFeedback("deletednear"));
 				}
 
 				default -> potRemovalCheck(block, p);
@@ -96,11 +109,11 @@ public class HoneypotRemove implements HoneypotSubCommand {
 
 	private void potRemovalCheck(Block block, Player p) {
 		assert block != null;
-		if (Boolean.TRUE.equals(HoneypotBlockManager.getInstance().isHoneypotBlock(block))) {
-			HoneypotBlockManager.getInstance().deleteBlock(block);
-			p.sendMessage(CommandFeedback.sendCommandFeedback("success", false));
+		if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(block))) {
+			blockManager.deleteBlock(block);
+			p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
 		} else {
-			p.sendMessage(CommandFeedback.sendCommandFeedback("notapot"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("notapot"));
 		}
 	}
 

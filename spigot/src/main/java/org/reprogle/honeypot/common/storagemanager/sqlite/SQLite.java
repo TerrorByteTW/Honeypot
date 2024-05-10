@@ -16,34 +16,93 @@
 
 package org.reprogle.honeypot.common.storagemanager.sqlite;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.storagemanager.sqlite.patches.SQLitePatch;
+import org.reprogle.honeypot.common.storagemanager.sqlite.patches.UpdateHistoryTable00;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+@SuppressWarnings("FieldCanBeLocal")
+@Singleton
 public class SQLite extends Database {
+
+	private final Honeypot plugin;
+	private final HoneypotLogger logger;
+
+	// These two variables here are for handling patches to the database and also
+	private final List<SQLitePatch> patches = new ArrayList<>(List.of(new UpdateHistoryTable00()));
+	private final int DB_VERSION = 1;
 
 	/**
 	 * Create an SQLite object from the instance
 	 *
-	 * @param instance The instance of the plugin
+	 * @param plugin The instance of the plugin
+	 * @param logger The instance of the logger
 	 */
-	public SQLite(Honeypot instance) {
-		super(instance);
+	@Inject
+	public SQLite(Honeypot plugin, HoneypotLogger logger) {
+		super(plugin, logger);
+		this.logger = logger;
+		this.plugin = plugin;
+
+		connection = getSQLConnection();
+		try (Statement s = connection.createStatement()) {
+			// Get the user_version of the database
+			PreparedStatement ps = connection.prepareStatement("PRAGMA user_version;");
+			ResultSet rs = ps.executeQuery();
+			int userVersion = rs.getInt("user_version");
+
+			// Check if the DB needs an upgrade
+			logger.debug("Checking if DB needs upgrading");
+			boolean upgradeNecessary = checkIfUpgradeNecessary(connection, userVersion);
+
+			// If the plugin is being run for the first time
+			if (!upgradeNecessary) {
+				logger.debug("No upgrade necessary, first run or DB schema is up to date. Creating tables if they don't exist, otherwise skipping");
+				s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
+				s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
+				s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
+			} else {
+				logger.debug("It appears the plugin DB needs patched, userVersion is " + userVersion + " and the current version is " + DB_VERSION + ". Let's apply patches now");
+
+				for (SQLitePatch patch : patches) {
+					// Only apply the patch if the current version of the DB is less than the version of the DB patch
+					if (userVersion < patch.patchedIn()) {
+						// Apply the patch
+						logger.debug("Applying patch '" + patch.getClass().getName() + "'");
+						patch.update(s, logger);
+					} else {
+						logger.debug("Patch '" + patch.getClass().getName() + "' version is " + patch.patchedIn() + " while the DB_VERSION is " + DB_VERSION + ". Skipping since this patch is not needed");
+					}
+				}
+
+				logger.debug("Finished applying patches");
+			}
+
+			// Set the user_version pragma to DB_VERSION to prevent further patches
+			s.executeUpdate(SET_PRAGMA);
+		} catch (SQLException e) {
+			logger.severe("SQLException occurred while creating SQLite connection: " + e.getMessage());
+			logger.severe("Full stack" + Arrays.toString(e.getStackTrace()));
+		}
 	}
 
 	// The queries used to load the DB table. Only runs if the table doesn't exist.
-	private static final String SQLITE_CREATE_PLAYERS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
+	private final String SQLITE_CREATE_PLAYERS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_players (" +
 			"`playerName` VARCHAR NOT NULL," +
 			"`blocksBroken` INT NOT NULL," +
 			"PRIMARY KEY (`playerName`)" +
 			");";
 
-	private static final String SQLITE_CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
+	private final String SQLITE_CREATE_BLOCKS_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_blocks (" +
 			"`coordinates` VARCHAR NOT NULL," +
 			"`worldName` VARCHAR NOT NULL," +
 			"`action` VARCHAR NOT NULL," +
@@ -52,33 +111,36 @@ public class SQLite extends Database {
 
 	// SQLite has this cool feature where if no primary key is provided, the primary
 	// key defaults to the rowid. Nifty!
-	private static final String SQLITE_CREATE_HISTORY_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_history (" +
+	private final String SQLITE_CREATE_HISTORY_TABLE = "CREATE TABLE IF NOT EXISTS honeypot_history (" +
 			"`datetime` VARCHAR NOT NULL," +
 			"`playerName` varchar NOT NULL," +
 			"`playerUUID` VARCHAR NOT NULL," +
 			"`coordinates` VARCHAR NOT NULL," +
 			"`world` VARCHAR NOT NULL," +
+			"`type` VARCHAR NOT NULL," +
 			"`action` VARCHAR NOT NULL" +
 			");";
 
+	private final String SET_PRAGMA = "PRAGMA user_version = " + DB_VERSION + ";";
+
 	/**
-	 * Get's the DB connection, also verifies if JDBC is installed. If it isn't
+	 * Gets the DB connection, also verifies if JDBC is installed. If it isn't
 	 * plugin is disabled as it can't function without it
 	 *
 	 * @return Connection if the connection is valid, otherwise returns null
 	 */
 	public Connection getSQLConnection() {
-		File dataFolder = new File(Honeypot.plugin.getDataFolder(), "honeypot.db");
+		File dataFolder = new File(plugin.getDataFolder(), "honeypot.db");
 		if (!dataFolder.exists()) {
 			try {
 				boolean success = dataFolder.createNewFile();
 				if (success) {
-					Honeypot.getHoneypotLogger().info("Created data folder");
+					logger.info("Created data folder");
 				} else {
-					Honeypot.getHoneypotLogger().severe("Could not create data folder!");
+					logger.severe("Could not create data folder!");
 				}
 			} catch (IOException e) {
-				Honeypot.getHoneypotLogger().severe("Could not create honeypot.db file");
+				logger.severe("Could not create honeypot.db file");
 			}
 		}
 
@@ -91,31 +153,37 @@ public class SQLite extends Database {
 			return connection;
 
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger().severe("SQLite exception on initialize: " + e);
+			logger.severe("SQLite exception on initialize: " + e);
 		} catch (ClassNotFoundException e) {
-			Honeypot.getHoneypotLogger()
-					.severe("SQLite JDBC Library not found. Please install this on your PC to use SQLite: " + e);
-			Honeypot.plugin.getServer().getPluginManager().disablePlugin(Honeypot.plugin);
+			logger.severe("SQLite JDBC Library not found. Please install this on your PC to use SQLite: " + e);
+			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
 		return null;
 	}
 
 	/**
-	 * Loads the DB
+	 * Here we check if there are any tables in the DB. If there are, and checkIfInitialRun is false, then we know an upgrade is necessary.
+	 * @param connection The connection of the DB
+	 * @param userVersion The current version of the DB on disk
+	 * @return True if an upgrade is necessary
 	 */
-	@Override
-	public void load() {
-		connection = getSQLConnection();
-		try (Statement s = connection.createStatement()) {
-			s.executeUpdate(SQLITE_CREATE_PLAYERS_TABLE);
-			s.executeUpdate(SQLITE_CREATE_BLOCKS_TABLE);
-			s.executeUpdate(SQLITE_CREATE_HISTORY_TABLE);
+	public boolean checkIfUpgradeNecessary(Connection connection, int userVersion) {
+		boolean alreadyInitialized;
+		boolean tablesExist;
+
+		alreadyInitialized = userVersion >= DB_VERSION;
+
+		// Then we check if any tables exist at all in the DB
+		try {
+			PreparedStatement ps = connection.prepareStatement("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';");
+			ResultSet rs = ps.executeQuery();
+			tablesExist = rs.next();
 		} catch (SQLException e) {
-			Honeypot.getHoneypotLogger()
-					.severe("SQLException occured while attempting to create tables if they don't exist: " + e);
+			tablesExist = false;
 		}
 
+		return (!alreadyInitialized && tablesExist);
 	}
 
 }

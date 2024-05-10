@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot.common.commands;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import dev.dejvokep.boostedyaml.YamlDocument;
 import org.bukkit.ChatColor;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
@@ -23,14 +25,11 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import java.util.Objects;
 
 @SuppressWarnings("deprecation")
+@Singleton
 public class CommandFeedback {
 
-	/**
-	 * Create private constructor to hide implicit one
-	 */
-	private CommandFeedback() {
-
-	}
+	@Inject
+	private HoneypotConfigManager configManager;
 
 	/**
 	 * A helper class which helps to reduce boilerplate player.sendMessage code by
@@ -44,13 +43,13 @@ public class CommandFeedback {
 	 * @return The Feedback string
 	 */
 	@SuppressWarnings("java:S1192")
-	public static String sendCommandFeedback(String feedback, Boolean... success) {
+	public String sendCommandFeedback(String feedback, Boolean... success) {
 		String feedbackMessage;
 		String chatPrefix = getChatPrefix();
-		YamlDocument languageFile = HoneypotConfigManager.getLanguageFile();
+		YamlDocument languageFile = configManager.getLanguageFile();
 
 		switch (feedback.toLowerCase()) {
-			case "usage" -> feedbackMessage = ("\n \n \n \n \n \n-----------------------\n \n" + chatPrefix + " "
+			case "usage" -> feedbackMessage = ("\n \n \n \n \n \n-----------------------\n" + chatPrefix + " "
 					+ ChatColor.WHITE + "Need Help?\n" + "  " + "/honeypot " + ChatColor.GRAY + "create [block]\n"
 					+ "  "
 					+ ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" + "  "
@@ -58,7 +57,7 @@ public class CommandFeedback {
 					+ "/honeypot "
 					+ ChatColor.GRAY + "locate\n" + "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n"
 					+ "  "
-					+ ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "history [query | delete | purge] \n \n"
+					+ ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "history [query | delete | purge] \n"
 					+ ChatColor.WHITE + "-----------------------");
 
 			case "kick" -> feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
@@ -175,9 +174,9 @@ public class CommandFeedback {
 	 *
 	 * @return The chat prefix, preformatted with color and other modifiers
 	 */
-	public static String getChatPrefix() {
+	public String getChatPrefix() {
 		return ChatColor.translateAlternateColorCodes('&',
-				Objects.requireNonNull(HoneypotConfigManager.getLanguageFile().getString("prefix")));
+				Objects.requireNonNull(configManager.getLanguageFile().getString("prefix")));
 	}
 
 }

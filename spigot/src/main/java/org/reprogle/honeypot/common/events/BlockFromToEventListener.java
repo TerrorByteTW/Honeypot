@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.google.inject.Inject;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
@@ -24,14 +25,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class BlockFromToEventListener implements Listener {
+
+	private final HoneypotLogger logger;
+	private final HoneypotBlockManager blockManager;
 
 	/**
 	 * Create package listener to hide implicit one
 	 */
-	BlockFromToEventListener() {
-
+	@Inject
+	BlockFromToEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
+		this.logger = logger;
+		this.blockManager = blockManager;
 	}
 
 	/**
@@ -40,14 +47,14 @@ public class BlockFromToEventListener implements Listener {
 	 * @param event The BlockFromToEvent, passed from Bukkit's event handler
 	 */
 	@EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
-	public static void blockFromToEvent(BlockFromToEvent event) {
+	public void blockFromToEvent(BlockFromToEvent event) {
 
 		if (event.getFace() == BlockFace.DOWN)
 			return;
 
 		Block toBlock = event.getToBlock();
-		if (HoneypotBlockManager.getInstance().isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
-			Honeypot.getHoneypotLogger().debug("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", "
+		if (blockManager.isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
+			logger.debug("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", "
 					+ toBlock.getY() + ", " + toBlock.getZ());
 			event.setCancelled(true);
 		}

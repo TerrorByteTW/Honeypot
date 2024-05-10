@@ -1,7 +1,6 @@
 package org.reprogle.honeypot.common.utils.integrations;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 
 import me.angeschossen.lands.api.LandsIntegration;
@@ -16,18 +15,17 @@ public class LandsAdapter {
      * Construct the LandsIntegration. This constructor is because the LandsIntegration interface must be obtained prior
      * to utilizing the API
      */
-    public LandsAdapter() {
-        api = LandsIntegration.of(Honeypot.plugin);
+    public LandsAdapter(Honeypot plugin) {
+        api = LandsIntegration.of(plugin);
     }
 
     /**
      * Checks if a Honeypot is allowed to be placed at the location
-     * @param player The player who triggered the interaction
      * @param location The location of the block
      * @return True if the action is allowed (No lands claim surrounding it), false if not OR if the land is
      * unclaimed/lands is not integrated.
      */
-    public boolean isAllowed(Player player, Location location) {
+    public boolean isAllowed(Location location) {
         LandWorld world = api.getWorld(location.getWorld());
         if (world == null)
             return true;

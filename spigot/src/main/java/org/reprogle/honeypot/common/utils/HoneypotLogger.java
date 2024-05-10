@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot.common.utils;
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import org.reprogle.honeypot.Honeypot;
 
 import java.io.BufferedWriter;
@@ -27,20 +29,26 @@ import java.time.format.DateTimeFormatter;
 
 public class HoneypotLogger {
 
-	private File logFile;
+	private final HoneypotConfigManager configManager;
+	private final File logFile;
+	private final Honeypot plugin;
 
 	/**
 	 * Initialize the Honeypot logger and create it if it doesn't exist
 	 */
-	public HoneypotLogger() {
+	@Inject
+	public HoneypotLogger(@Named("HoneypotLogFile") File logFile, Honeypot plugin, HoneypotConfigManager configManager) {
+		this.logFile = logFile;
+		this.plugin = plugin;
+		this.configManager = configManager;
+
 		try {
-			logFile = new File(Honeypot.plugin.getDataFolder(), "honeypot.log");
 			if (logFile.createNewFile()) {
-				Honeypot.plugin.getLogger().info("Logs file created: " + logFile.getName());
+				plugin.getLogger().info("Logs file created: " + logFile.getName());
 			}
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger().severe("Could not create the honeypot.log file for logging!");
+			plugin.getLogger().severe("Could not create the honeypot.log file for logging!");
 		}
 	}
 
@@ -50,7 +58,7 @@ public class HoneypotLogger {
 	 * @param message The message to log
 	 */
 	public void debug(String message) {
-		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -58,7 +66,7 @@ public class HoneypotLogger {
 			bw.append("[").append(dtf.format(now)).append("] DEBUG: ").append(message).append("\n");
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger()
+			plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
@@ -69,8 +77,8 @@ public class HoneypotLogger {
 	 * @param message The message to log
 	 */
 	public void info(String message) {
-		Honeypot.plugin.getLogger().info(message);
-		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+		plugin.getLogger().info(message);
+		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -78,7 +86,7 @@ public class HoneypotLogger {
 			bw.append("[").append(dtf.format(now)).append("] INFO: ").append(message).append("\n");
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger()
+			plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
@@ -89,8 +97,8 @@ public class HoneypotLogger {
 	 * @param message The message to log
 	 */
 	public void warning(String message) {
-		Honeypot.plugin.getLogger().warning(message);
-		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+		plugin.getLogger().warning(message);
+		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -98,7 +106,7 @@ public class HoneypotLogger {
 			bw.append("[").append(dtf.format(now)).append("] WARNING: ").append(message).append("\n");
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger()
+			plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
@@ -109,8 +117,8 @@ public class HoneypotLogger {
 	 * @param message The message to log
 	 */
 	public void severe(String message) {
-		Honeypot.plugin.getLogger().severe(message);
-		if (Boolean.FALSE.equals(HoneypotConfigManager.getPluginConfig().getBoolean("enable-logging")))
+		plugin.getLogger().severe(message);
+		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -118,7 +126,7 @@ public class HoneypotLogger {
 			bw.append("[").append(dtf.format(now)).append("] SEVERE: ").append(message).append("\n");
 		}
 		catch (IOException e) {
-			Honeypot.plugin.getLogger()
+			plugin.getLogger()
 					.warning("An error occured while attempting to log to the honeypot.log file! " + e);
 		}
 	}
