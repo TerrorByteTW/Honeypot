@@ -4,25 +4,28 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.bukkit.Server;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 @Singleton
 public class AdapterManager {
 
     private final Honeypot plugin;
+    private final HoneypotConfigManager configManager;
 
     /**
      * Private constructor to hide implicit one
      */
     @Inject
-    public AdapterManager(Honeypot plugin) {
+    public AdapterManager(Honeypot plugin, HoneypotConfigManager configManager) {
+        this.configManager = configManager;
         this.plugin = plugin;
     }
 
-    private static WorldGuardAdapter wga = null;
+    private WorldGuardAdapter wga = null;
 
-    private static GriefPreventionAdapter gpa = null;
+    private GriefPreventionAdapter gpa = null;
 
-    private static LandsAdapter la = null;
+    private LandsAdapter la = null;
 
     public void onLoadAdapters(Server server) {
         if (server.getPluginManager().getPlugin("WorldGuard") != null) {
@@ -32,7 +35,7 @@ public class AdapterManager {
 
     public void onEnableAdapters(Server server) {
         if (server.getPluginManager().getPlugin("GriefPrevention") != null)
-            gpa = new GriefPreventionAdapter();
+            gpa = new GriefPreventionAdapter(configManager);
 
         if (server.getPluginManager().getPlugin("Lands") != null) {
             la = new LandsAdapter(plugin);

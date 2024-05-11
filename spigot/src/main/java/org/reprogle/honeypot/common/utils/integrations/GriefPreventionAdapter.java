@@ -29,8 +29,11 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
  */
 public class GriefPreventionAdapter {
 
-	@Inject
-	private HoneypotConfigManager configManager;
+	private final HoneypotConfigManager configManager;
+
+	protected GriefPreventionAdapter(HoneypotConfigManager configManager) {
+		this.configManager = configManager;
+	}
 
 	/**
 	 * Check if the player has permission
