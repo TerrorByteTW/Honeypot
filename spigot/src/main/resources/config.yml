@@ -127,7 +127,7 @@ enable-debug-mode: false
 # Credit where credit is due! If you contribute to Honeypot in any way, you'll get your name here
 # Code Contributions: TerrorByte, SandwichBtw (Build tools modernization)
 # Feature Contributions: MattVid#3488, Jammers, melaniebeedot
-# Translation Contributions: siyukatu#4489 (ja_JP)
+# Translation Contributions: siyukatu#4489 (ja_JP), HaHaWTH (zh_CN)
 # Bug Reports: Casper#9647, siyukatu#4489, MattVid#3488
 # The next line is ignored, just a dummy value so the credits above get populated within the config!
 thank-you: true
