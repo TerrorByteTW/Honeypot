@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 19
+file-version: 20
 
 # How many Honeypots to store in cache at any given time. The maximum size is 50, and anything larger than that is ignored.
 # Setting this to <=0 will disable caching
@@ -60,11 +60,20 @@ ghost-honeypot-checker:
 # Enable more detailed logging, stored in a honeypot.log file in the Honeypot folder
 enable-logging: true
 
+# Enable Discord Webhooks. This will send messages to Discord via your webhook URL if a Honeypot is broken and/or activated
+# Change "send-when" to "onbreak" when you want to be notified of all breaks (Including when action is taken).
+# Change it to "action" if you want to be notified of only actions taken
+# If none of these match. the default will be "action"
+discord:
+  enable: false
+  url: "https://www.example.com"
+  send-when: action
+
 ######################################################################
 #                      C H A T   S E T T I N G S                     #
 ######################################################################
 
-# Select your language. Current supported languages are: [en_US, es_MX, fr_FR, ja_JP]
+# Select your language. Current supported languages are: [en_US, es_MX, fr_FR, ja_JP, zh_CN]
 # Want to create your own translation? Visit here: https://github.com/TerrorByteTW/Honeypot/wiki/Translating-Honeypot
 language: en_US
 
