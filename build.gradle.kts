@@ -1,7 +1,7 @@
 group = "org.reprogle"
-version = "3.3.0"
+version = "3.3.2"
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 
 plugins {
     java

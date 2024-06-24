@@ -25,8 +25,6 @@ import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
 import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings.OptionSorting;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.reprogle.honeypot.Honeypot;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +50,7 @@ public class HoneypotConfigManager {
 	 * decoding the jar to get the files that way but that's suuuuper icky.
 	 * (https://www.spigotmc.org/threads/getresources-function.226318/ if anyone wants an example)
 	 */
-	private final List<String> languages = Arrays.asList("en_US", "es_MX", "fr_FR", "ja_JP");
+	private final List<String> languages = Arrays.asList("en_US", "es_MX", "fr_FR", "ja_JP", "zh_CN");
 
 	/**
 	 * Sets up the plugin config and saves it to private variables for use later. Will shut down the plugin if there are

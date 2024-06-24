@@ -1,5 +1,5 @@
 group = "org.reprogle"
-version = "3.3.0"
+version = "3.3.2"
 
 extra["platform"] = "api"
 

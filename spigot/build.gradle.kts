@@ -1,5 +1,5 @@
 group = "org.reprogle"
-version = "3.3.0"
+version = "3.3.2"
 
 extra["platform"] = "spigot"
 
@@ -39,6 +39,7 @@ dependencies {
     compileOnly(libs.lands)
 
     implementation(libs.guice)
+    implementation(libs.okhttp)
 }
 
 // Configure the file output names of most files (Excluding shadow, which needs tweaking itself to avoid a "-all" being tagged onto it)
