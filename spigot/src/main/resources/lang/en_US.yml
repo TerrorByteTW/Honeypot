@@ -1,4 +1,4 @@
-language-version: 4
+language-version: 5
 prefix: "&6[Honeypot]&r"
 kick-reason: "Kicked for breaking honeypot blocks. Don't grief!"
 ban-reason: "You have been banned for breaking honeypot blocks"
@@ -30,3 +30,7 @@ searching: "Searching, please wait..."
 truncating: "Trimming results per config settings..."
 not-online: "&cThis player is not online!"
 no-history: "No history found for this player!"
+migrate:
+  preconfirm: "This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are REQUIRED to restart your server afterwards for Honeypot to continue working. Enter \"/honeypot migrate confirm\" to continue"
+  confirm: "Migration is completed! Honeypot has been shutdown, please restart your server as soon as possible for this change to take effect. If you need to switch back, your DB has been left in tact."
+  failed: "You cannot migrate since you are already using PDC. If you need to migrate anyway, please contact the plugin developer for assistance! He's glad to help :)"

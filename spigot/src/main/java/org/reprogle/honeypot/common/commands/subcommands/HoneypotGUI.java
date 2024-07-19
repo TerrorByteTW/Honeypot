@@ -88,7 +88,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	@SuppressWarnings({ "java:S1192", "java:S1121" })
 	private void customHoneypotsInventory(Player p) {
-		SGMenu customHoneypotsGUI = Honeypot.getGUI().create("Custom Honeypot", 3);
+		SGMenu customHoneypotsGUI = plugin.getGUI().create("Custom Honeypot", 3);
 		List<String> types = new ArrayList<>();
 
 		Set<Object> keys = configManager.getHoneypotsConfig().getKeys();
@@ -96,14 +96,14 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			types.add(key.toString());
 		}
 
-		ConcurrentMap<String, BehaviorProvider> map = Honeypot.getRegistry().getBehaviorProviders();
+		ConcurrentMap<String, BehaviorProvider> map = plugin.getRegistry().getBehaviorProviders();
 		map.forEach((providerName, provider) -> types.add(providerName));
 
 		for (String type : types) {
 
 			ItemBuilder item;
 
-			if (Honeypot.getRegistry().getBehaviorProvider(type) == null) {
+			if (plugin.getRegistry().getBehaviorProvider(type) == null) {
 				String action = configManager.getHoneypotsConfig().getString(type + ".icon");
 
 				if (action != null && !action.isEmpty()) {
@@ -112,7 +112,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 					item = new ItemBuilder(Material.PAPER);
 				}
 			} else {
-				item = new ItemBuilder(Honeypot.getRegistry().getBehaviorProvider(type).getIcon());
+				item = new ItemBuilder(plugin.getRegistry().getBehaviorProvider(type).getIcon());
 			}
 
 			item.name(type);
@@ -133,7 +133,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			return;
 		}
 
-		SGMenu allBlocksGUI = Honeypot.getGUI().create("Honeypots {currentPage}/{maxPage}", 3);
+		SGMenu allBlocksGUI = plugin.getGUI().create("Honeypots {currentPage}/{maxPage}", 3);
 
 		for (HoneypotBlockObject honeypotBlock : blockManager.getAllHoneypots(p.getWorld())) {
 			ItemBuilder item;
@@ -172,7 +172,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			return;
 		}
 
-		SGMenu historyQueryGUI = Honeypot.getGUI().create("Query Player History", 3);
+		SGMenu historyQueryGUI = plugin.getGUI().create("Query Player History", 3);
 
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			ItemBuilder item;
@@ -205,7 +205,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 			return;
 		}
 
-		SGMenu removeGUI = Honeypot.getGUI().create("Remove Honeypots", 1);
+		SGMenu removeGUI = plugin.getGUI().create("Remove Honeypots", 1);
 
 		ItemBuilder removeAllItem = new ItemBuilder(Material
 				.getMaterial(configManager.getGuiConfig().getString("remove-buttons.remove-all-button")));
@@ -383,7 +383,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
 	@SuppressWarnings("java:S3776")
 	public SGMenu mainMenu(Player p) {
-		SGMenu mainMenu = Honeypot.getGUI().create("Honeypot Main Menu", 1);
+		SGMenu mainMenu = plugin.getGUI().create("Honeypot Main Menu", 1);
 		ItemBuilder createItem;
 		ItemBuilder removeItem;
 		ItemBuilder listItem;

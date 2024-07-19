@@ -1,4 +1,4 @@
-language-version: 4
+language-version: 5
 prefix: '&6[Honeypot]&r'
 kick-reason: あなたはハニーポットを破壊しました。これらの行為は許可されていません。
 ban-reason: あなたはハニーポットを破壊したためBANされました。
@@ -30,3 +30,7 @@ searching: 検索しています、しばらくお待ちください...
 truncating: 構成設定ごとに結果をトリミングしています...
 not-online: '&c指定されたプレイヤーはオフラインです'
 no-history: 指定されたプレイヤーの履歴が見つかりませんでした。
+migrate:
+  preconfirm: "This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are REQUIRED to restart your server afterwards for Honeypot to continue working. Enter \"/honeypot migrate confirm\" to continue"
+  confirm: "Migration is completed! Honeypot has been shutdown, please restart your server as soon as possible for this change to take effect. If you need to switch back, your DB has been left in tact."
+  failed: "You cannot migrate since you are already using PDC. If you need to migrate anyway, please contact the plugin developer for assistance! He's glad to help :)"

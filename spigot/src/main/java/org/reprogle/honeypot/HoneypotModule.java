@@ -25,9 +25,6 @@ public class HoneypotModule extends AbstractModule {
     private final HoneypotConfigManager configManager;
     private final CommandFeedback commandFeedback;
 
-    // If I'm correct, Guice will provide most of our dependencies via JIT Bindings. Is this a good idea?
-    // Not sure exactly, and it could be a performance hit if Guice is creating and injecting dependencies on the fly.
-    // We may explicitly define bindings here so Guice has to do less legwork, but it's working fine for now.
     @Override
     protected void configure() {
         // The lifeline of the entire DI system is the plugin object itself
@@ -73,7 +70,6 @@ public class HoneypotModule extends AbstractModule {
 
         this.blockManager = new HoneypotBlockManager(configManager.getPluginConfig().getString("storage-method"));
         this.commandFeedback = new CommandFeedback();
-
     }
 
     public Injector createInjector() {

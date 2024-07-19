@@ -25,6 +25,12 @@ import org.reprogle.honeypot.Honeypot;
 @SuppressWarnings("UnusedReturnValue")
 public class BehaviorProcessor {
 
+	private final Honeypot plugin;
+
+	public BehaviorProcessor(Honeypot plugin) {
+		this.plugin = plugin;
+	}
+
 	/**
 	 * This method calls the correct processor function, depending on if the type of
 	 * the behavior provider is <code>BehaviorTypes.CUSTOM</code> or not
@@ -36,8 +42,8 @@ public class BehaviorProcessor {
 	 * @return True if successful, false if not
 	 */
 	public boolean process(@NotNull BehaviorProvider behavior, Player p, Block block) {
-		if (Honeypot.getRegistry().isInitialized()
-				&& Honeypot.getRegistry().getBehaviorProvider(behavior.getProviderName()) != null) {
+		if (plugin.getRegistry().isInitialized()
+				&& plugin.getRegistry().getBehaviorProvider(behavior.getProviderName()) != null) {
 			return behavior.process(p, block);
 		}
 

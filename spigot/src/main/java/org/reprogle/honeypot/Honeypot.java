@@ -18,12 +18,10 @@ package org.reprogle.honeypot;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import net.milkbowl.vault.permission.Permission;
 import com.samjakob.spigui.SpiGUI;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.CommandManager;
@@ -34,8 +32,8 @@ import org.reprogle.honeypot.common.providers.BehaviorRegistry;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
-import org.reprogle.honeypot.common.utils.integrations.PlaceholderAPIExpansion;
 
+import javax.annotation.Nullable;
 import java.util.Set;
 
 /**
@@ -54,14 +52,14 @@ public final class Honeypot extends JavaPlugin {
 	@Inject private GhostHoneypotFixer ghf;
 	@Inject private CommandFeedback commandFeedback;
 	@Inject private Set<BehaviorProvider> providers;
-	@Inject private PlaceholderAPIExpansion placeholderAPIExpansion;
 
 	// These dependencies can't really be injected
 	private static SpiGUI gui;
-	private static Permission perms = null;
 	private static BehaviorRegistry registry = new BehaviorRegistry();
 	public static BehaviorProcessor processor = null;
 	private HoneypotConfigManager configManager;
+
+	private Injector injector;
 
 	/**
 	 * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
@@ -74,7 +72,7 @@ public final class Honeypot extends JavaPlugin {
 
 		// Create the Guice Injector
 		HoneypotModule module = new HoneypotModule(this, configManager);
-		Injector injector = module.createInjector();
+		injector = module.createInjector();
 		injector.injectMembers(this);
 		// Register adapters which must be registered on load
 		adapterManager.onLoadAdapters(getServer());
@@ -85,7 +83,7 @@ public final class Honeypot extends JavaPlugin {
 			registry.register(behavior);
 		}
 
-		processor = new BehaviorProcessor();
+		processor = new BehaviorProcessor(this);
 
 	}
 
@@ -102,27 +100,12 @@ public final class Honeypot extends JavaPlugin {
 		registry.setInitialized(true);
 		ghf.startTask();
 
-		// Set up the configs. This includes generating them if they don't exist and loading them.
-		configManager.setupConfig(this);
-
 		getHoneypotLogger().info("Successfully registered " + registry.size()
 				+ " behavior providers. Further registrations are now locked.");
 
 		// Start bstats and register event listeners
 		Metrics metrics = new Metrics(this, 15425);
 		listeners.setupListeners();
-
-		// Setup Vault
-		if (!setupPermissions()) {
-			getHoneypotLogger().info(commandFeedback.getChatPrefix() + ChatColor.RED
-					+ " Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/");
-		}
-
-		// Register PlaceholderAPI expansions with PlaceholderAPI
-		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			getHoneypotLogger().debug("PlaceholderAPI is installed on this server, hooking into it...");
-			placeholderAPIExpansion.register();
-		}
 
 		// Register remaining adapters that can be registered on enable
 		adapterManager.onEnableAdapters(getServer());
@@ -174,21 +157,6 @@ public final class Honeypot extends JavaPlugin {
 		CacheManager.clearCache();
 		getHoneypotLogger().info("Shut down plugin");
 		getHoneypotLogger().info("Successfully shutdown Honeypot. Bye for now!");
-	}
-
-	/**
-	 * Sets up the Permission hook for vault
-	 * 
-	 * @return True if Vault is registered as a permission provider
-	 */
-	@SuppressWarnings("java:S2696")
-	private boolean setupPermissions() {
-		if (getServer().getPluginManager().getPlugin("Vault") == null) {
-			return false;
-		}
-		RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
-		perms = rsp != null ? rsp.getProvider() : null;
-		return perms != null;
 	}
 
 	/**
@@ -257,12 +225,20 @@ public final class Honeypot extends JavaPlugin {
 	 */
 
 	/**
+	 * Returns the injector object from Guice, useful for dynamically creating objects on the fly
+	 * @return {@link Injector}
+	 */
+	public Injector getInjector() {
+		return injector;
+	}
+
+	/**
 	 * Returns the permission object for Vault
 	 *
-	 * @return Vault {@link Permission}
+	 * @return {@link AdapterManager}
 	 */
-	public static Permission getPermissions() {
-		return perms;
+	public AdapterManager getAdapterManager() {
+		return adapterManager;
 	}
 
 	/**
@@ -270,7 +246,7 @@ public final class Honeypot extends JavaPlugin {
 	 *
 	 * @return {@link com.samjakob.spigui.SpiGUI}
 	 */
-	public static SpiGUI getGUI() {
+	public SpiGUI getGUI() {
 		return gui;
 	}
 
@@ -288,7 +264,7 @@ public final class Honeypot extends JavaPlugin {
 	 * 
 	 * @return {@link BehaviorRegistry}
 	 */
-	public static BehaviorRegistry getRegistry() {
+	public BehaviorRegistry getRegistry() {
 		return registry;
 	}
 }

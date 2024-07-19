@@ -46,13 +46,15 @@ public class HoneypotCreate implements HoneypotSubCommand {
 	private final HoneypotConfigManager configManager;
 	private final HoneypotBlockManager blockManager;
 	private final AdapterManager adapterManager;
+	private final Honeypot plugin;
 
 	@Inject
-	HoneypotCreate(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotBlockManager blockManager, AdapterManager adapterManager) {
+	HoneypotCreate(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotBlockManager blockManager, AdapterManager adapterManager, Honeypot plugin) {
 		this.commandFeedback = commandFeedback;
 		this.configManager = configManager;
 		this.blockManager = blockManager;
 		this.adapterManager = adapterManager;
+		this.plugin = plugin;
 	}
 
 	@Override
@@ -154,7 +156,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 		if (args.length == 2) {
 			// Add all behavior providers to the subcommands list, including the built-in
 			// ones
-			ConcurrentMap<String, BehaviorProvider> map = Honeypot.getRegistry().getBehaviorProviders();
+			ConcurrentMap<String, BehaviorProvider> map = plugin.getRegistry().getBehaviorProviders();
 			map.forEach((providerName, provider) -> subcommands.add(providerName));
 
 			// Add all custom config actions to the subcommands list
