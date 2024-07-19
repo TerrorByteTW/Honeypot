@@ -57,6 +57,10 @@ public class HoneypotLocate implements HoneypotSubCommand {
 		return "locate";
 	}
 
+	/*
+	 * TODO - Add some sort of functionality to display all Honeypots within render distance. Not sure how to do that but I'll figure it out.
+	 *  Maybe consider integrating maps plugins? However, that would ruin the whole point of honeypot, to be secretive. I'll figure it out.
+	 */
 	@Override
 	public void perform(Player p, String[] args) {
 		final double radius = configManager.getPluginConfig().getDouble("search-range");

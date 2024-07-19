@@ -50,7 +50,6 @@ public class CommandManager implements TabExecutor {
 	private final CommandFeedback commandFeedback;
 	private final HoneypotConfigManager configManager;
 
-
 	/**
 	 * Registers all commands
 	 */

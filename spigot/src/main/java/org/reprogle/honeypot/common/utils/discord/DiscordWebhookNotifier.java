@@ -63,24 +63,7 @@ public class DiscordWebhookNotifier {
      * In the future this may be changed to a Future to allow receiving of a result.
      */
     public void send() {
-        String tempBody;
-
-        switch (webhookType) {
-            case ACTION:
-                tempBody = jsonTemplate.replace("%webhookType%", "Action Taken");
-                break;
-            case BREAK:
-                tempBody = jsonTemplate.replace("%webhookType%", "Block Broken");
-                break;
-            default:
-                tempBody = jsonTemplate.replace("%webhookType%", "Unknown");
-                break;
-        }
-
-        final String finalBody = tempBody.replace("%coordinates%", block.getX() + ", " + block.getY() + ", " + block.getZ())
-                .replace("%world%", "\\\"" + block.getWorld().getName() + "\\\"")
-                .replace("%player%", player.getName())
-                .replace("%UUID%", player.getUniqueId().toString());
+        final String finalBody = getBodyString();
 
         new Thread(() -> {
             RequestBody body = RequestBody.create(finalBody, MediaType.get("application/json"));
@@ -104,5 +87,17 @@ public class DiscordWebhookNotifier {
             });
         }).start();
 
+    }
+
+    private @NotNull String getBodyString() {
+        String tempBody = switch (webhookType) {
+            case ACTION -> jsonTemplate.replace("%webhookType%", "Action Taken");
+            case BREAK -> jsonTemplate.replace("%webhookType%", "Block Broken");
+        };
+
+        return tempBody.replace("%coordinates%", block.getX() + ", " + block.getY() + ", " + block.getZ())
+                .replace("%world%", "\\\"" + block.getWorld().getName() + "\\\"")
+                .replace("%player%", player.getName())
+                .replace("%UUID%", player.getUniqueId().toString());
     }
 }

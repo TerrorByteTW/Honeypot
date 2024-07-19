@@ -68,6 +68,7 @@ public class BlockBreakEventListener implements Listener {
         this.playerHistoryManager = playerHistoryManager;
         this.playerManager = playerManager;
     }
+    // TODO - Integration GriefPrevention to ensure action isn't taken when blocks broken are inside GP regions
 
     // Player block break event
     @EventHandler(priority = EventPriority.LOWEST)
@@ -86,7 +87,7 @@ public class BlockBreakEventListener implements Listener {
             // Check if the event was cancelled. If it is, delete the block.
             if (hppbe.isCancelled()) {
                 blockManager.deleteBlock(event.getBlock());
-                logger.debug("The event was cancelled, not continuing.");
+                logger.debug("The event for " + event.getPlayer() + " was cancelled, not continuing.");
                 return;
             }
 
@@ -189,9 +190,6 @@ public class BlockBreakEventListener implements Listener {
 
             // Run certain actions based on the action of the Honeypot Block
             assert action != null;
-            logger.debug("BlockBreakEvent being called for player: " + event.getPlayer().getName()
-                    + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action);
-
             actionHandler.handleCustomAction(action, block, event.getPlayer());
 
             sendWebhook(event);
@@ -243,6 +241,8 @@ public class BlockBreakEventListener implements Listener {
             // Log the event in the history table
             playerHistoryManager.addPlayerHistory(event.getPlayer(),
                     blockManager.getHoneypotBlock(event.getBlock()), "prelimBreak");
+            logger.debug("BlockBreakEvent being called for player: " + event.getPlayer().getName()
+                    + ", UUID of " + event.getPlayer().getUniqueId() + ".");
 
             sendWebhook(event);
         }
@@ -252,17 +252,7 @@ public class BlockBreakEventListener implements Listener {
         if (configManager.getPluginConfig().getBoolean("discord.enable")) {
             WebhookActionType actionType;
             String sendWhen = configManager.getPluginConfig().getString("discord.send-when");
-            switch (sendWhen) {
-                case "onbreak":
-                    actionType = WebhookActionType.BREAK;
-                    break;
-                case "action":
-                    actionType = WebhookActionType.ACTION;
-                    break;
-                default:
-                    actionType = WebhookActionType.ACTION;
-                    break;
-            }
+            actionType = sendWhen.equalsIgnoreCase("onbreak") ? WebhookActionType.BREAK : WebhookActionType.ACTION;
 
             new DiscordWebhookNotifier(actionType, configManager.getPluginConfig().getString("discord.url"), event.getBlock(), event.getPlayer(), logger).send();
         }

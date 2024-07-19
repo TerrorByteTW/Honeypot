@@ -53,6 +53,7 @@ public class HoneypotModule extends AbstractModule {
         subcommandBinder.addBinding().to(HoneypotInfo.class);
         subcommandBinder.addBinding().to(HoneypotHistory.class);
         subcommandBinder.addBinding().to(HoneypotList.class);
+        subcommandBinder.addBinding().to(HoneypotMigrate.class);
 
         // We only want this binding if debug for pdc is enabled
         if (configManager.getPluginConfig().getBoolean("enable-debug-mode")) {
