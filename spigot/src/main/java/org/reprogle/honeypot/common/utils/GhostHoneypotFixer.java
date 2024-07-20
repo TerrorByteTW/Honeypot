@@ -18,106 +18,103 @@ package org.reprogle.honeypot.common.utils;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.folia.Scheduler;
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 
 import java.util.List;
 
-@SuppressWarnings({ "java:S1604" })
+@SuppressWarnings({"java:S1604"})
 @Singleton
 public class GhostHoneypotFixer {
-	private final HoneypotConfigManager configManager;
-	private final HoneypotLogger logger;
-	private final HoneypotBlockManager blockManager;
-	private final Honeypot plugin;
+    private final HoneypotConfigManager configManager;
+    private final HoneypotLogger logger;
+    private final HoneypotBlockManager blockManager;
+    private final Honeypot plugin;
+    private ScheduledTask task;
 
-	// Create package constructor to hide implicit one
-	@Inject
-	public GhostHoneypotFixer(Honeypot plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, HoneypotConfigManager configManager) {
-		this.plugin = plugin;
-		this.logger = logger;
-		this.blockManager = blockManager;
-		this.configManager = configManager;
+    // Create package constructor to hide implicit one
+    @Inject
+    public GhostHoneypotFixer(Honeypot plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, HoneypotConfigManager configManager) {
+        this.plugin = plugin;
+        this.logger = logger;
+        this.blockManager = blockManager;
+        this.configManager = configManager;
 
-		// Start the GhostHoneypotFixer
-		if (configManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable")) {
-			logger.info(
-					"Starting the ghost checker task! If you need to change the settings for this function, edit the config then do /honeypot reload");
-		}
-	}
+        // Start the GhostHoneypotFixer
+        if (configManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable")) {
+            logger.info(
+                    Component.text("Starting the ghost checker task! If you need to change the settings for this function, edit the config then do /honeypot reload"));
+        }
+    }
 
-	private Scheduler.ScheduledTask task;
+    /**
+     * Start a task to check for ghost honeypots every defined interval
+     */
+    public void startTask() {
+        task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> {
+            logger.info(Component.text("Running ghost Honeypot checks..."));
+            int removedPots = 0;
+            List<World> worlds = Bukkit.getWorlds();
 
-	/**
-	 * Start a task to check for ghost honeypots every defined interval
-	 */
-	public void startTask() {
-		task = Scheduler.runTaskTimer(plugin, () -> {
-			logger.info("Running ghost Honeypot checks...");
-			int removedPots = 0;
-			List<World> worlds = Bukkit.getWorlds();
+            // Because Honeypots can now be on a per-world level when using PDC, we need to
+            // iterate through all worlds.
+            // There is a better way to do this since, if we're using SQLite this isn't
+            // necessary, but this is just temporary
+            // TODO: Make this loop better ^^^
+            for (World world : worlds) {
+                List<HoneypotBlockObject> pots = blockManager.getAllHoneypots(world);
+                for (HoneypotBlockObject pot : pots) {
 
-			// Because Honeypots can now be on a per-world level when using PDC, we need to
-			// iterate through all worlds.
-			// There is a better way to do this since, if we're using SQLite this isn't
-			// necessary, but this is just temporary
-			// TODO: Make this loop better ^^^
-			for (World world : worlds) {
-				List<HoneypotBlockObject> pots = blockManager.getAllHoneypots(world);
-				for (HoneypotBlockObject pot : pots) {
+                    Material block;
 
-					Material block;
+                    /*
+                     * This try/catch stems from Folia, where a region may not be ticking yet, or
+                     * even loaded, so the
+                     * getType() method returns an error. Remember, `pot` is a HoneypotBlockObject,
+                     * not a Block itself, so
+                     * #getBlock() may return null (Usually not, but it's possible) This is a place
+                     * we can improve, but for
+                     * now it's fine since I've never seen the error before prior to testing Folia.
+                     * Don't get me wrong, I
+                     * hate the mindset of "I haven't seen it break so it obviously won't" when
+                     * *clearly* the Spigot API
+                     * docs state that it *can* break, but I'm going to put a pin in it for now :)
+                     */
+                    try {
+                        block = pot.getBlock().getType();
+                    } catch (NullPointerException e) {
+                        logger.warning(Component.text("Could not get the material for Honeypot at " + pot.getCoordinates() + " because the world isn't loaded yet (Maybe running Folia?)"));
+                        continue;
+                    }
 
-					/*
-					 * This try/catch stems from Folia, where a region may not be ticking yet, or
-					 * even loaded, so the
-					 * getType() method returns an error. Remember, `pot` is a HoneypotBlockObject,
-					 * not a Block itself, so
-					 * #getBlock() may return null (Usually not, but it's possible) This is a place
-					 * we can improve, but for
-					 * now it's fine since I've never seen the error before prior to testing Folia.
-					 * Don't get me wrong, I
-					 * hate the mindset of "I haven't seen it break so it obviously won't" when
-					 * *clearly* the Spigot API
-					 * docs state that it *can* break, but I'm going to put a pin in it for now :)
-					 */
-					try {
-						block = pot.getBlock().getType();
-					} catch (NullPointerException e) {
-						logger.warning("Could not get the material for Honeypot at "
-								+ pot.getCoordinates() + " because the world isn't loaded yet (Maybe running Folia?)");
-						continue;
-					}
+                    /*
+                     * Check for water and lava in the event that BlockFromToEvent has been disabled
+                     * in config, meaning that water and lava may end up occupying Honeypot spaces
+                     * in some instances (Such as if a Honeypot was set as a torch)
+                     */
+                    if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
+                        logger.debug(Component.text("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld() + ". Removing"));
+                        blockManager.deleteBlock(pot.getBlock());
+                        removedPots++;
+                    }
+                }
+            }
 
-					/*
-					 * Check for water and lava in the event that BlockFromToEvent has been disabled
-					 * in config, meaning that water and lava may end up occupying Honeypot spaces
-					 * in some instances (Such as if a Honeypot was set as a torch)
-					 */
-					if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
-						logger.debug("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld()
-										+ ". Removing");
-						blockManager.deleteBlock(pot.getBlock());
-						removedPots++;
-					}
-				}
-			}
+            logger.info(Component.text("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots."));
+        }, 0L, 20L * 60 * configManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
+    }
 
-			logger
-					.info("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots.");
-		}, 0L, 20L * 60 * configManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
-	}
-
-	/**
-	 * Cancel the ghost honeypot task
-	 */
-	public void cancelTask() {
-		task.cancel();
-	}
+    /**
+     * Cancel the ghost honeypot task
+     */
+    public void cancelTask() {
+        task.cancel();
+    }
 
 }

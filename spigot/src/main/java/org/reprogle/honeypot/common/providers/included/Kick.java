@@ -34,7 +34,7 @@ public class Kick extends BehaviorProvider {
 
 	@Override
 	public boolean process(Player p, Block block) {
-		p.kickPlayer(commandFeedback.sendCommandFeedback("kick"));
+		p.kickPlayer(commandFeedback.sendCommandFeedback("kick-reason").toString());
 
 		return true;
 	}

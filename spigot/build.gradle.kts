@@ -24,7 +24,6 @@ repositories {
 
 dependencies {
     compileOnly(libs.paper.api)
-    compileOnly(libs.spigot.api)
     compileOnly(libs.folia.api)
 
     compileOnly(libs.vault)

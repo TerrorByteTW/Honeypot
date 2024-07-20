@@ -2,6 +2,8 @@ package org.reprogle.honeypot.common.utils.integrations;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
@@ -56,12 +58,12 @@ public class AdapterManager {
         if (server.getPluginManager().getPlugin("Vault") != null) {
             pa = new PermissionAdapter(plugin);
         } else {
-            plugin.getHoneypotLogger().info(commandFeedback.getChatPrefix() + ChatColor.RED
-                    + " Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/");
+            plugin.getHoneypotLogger().info(commandFeedback.getChatPrefix()
+                    .append(Component.text("Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/", NamedTextColor.RED)));
         }
 
         if (server.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-			plugin.getHoneypotLogger().debug("PlaceholderAPI is installed on this server, hooking into it");
+			plugin.getHoneypotLogger().debug(Component.text("PlaceholderAPI is installed on this server, hooking into it"));
             plugin.getInjector().getInstance(PlaceholderAPIExpansion.class).register();
 		}
     }

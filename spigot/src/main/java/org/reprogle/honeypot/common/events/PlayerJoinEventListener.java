@@ -17,10 +17,9 @@
 package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
+
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.event.HoverEventSource;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,43 +30,43 @@ import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotUpdateChecker;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+
 public class PlayerJoinEventListener implements Listener {
 
-	private final CommandFeedback commandFeedback;
-	private final HoneypotLogger logger;
-	private final Honeypot plugin;
+    private final CommandFeedback commandFeedback;
+    private final HoneypotLogger logger;
+    private final Honeypot plugin;
 
-	/**
-	 * Create a private constructor to hide the implicit one
-	 */
-	@Inject
-	PlayerJoinEventListener(Honeypot plugin, CommandFeedback commandFeedback, HoneypotLogger logger) {
-		this.plugin = plugin;
-		this.commandFeedback = commandFeedback;
-		this.logger = logger;
-	}
+    /**
+     * Create a private constructor to hide the implicit one
+     */
+    @Inject
+    PlayerJoinEventListener(Honeypot plugin, CommandFeedback commandFeedback, HoneypotLogger logger) {
+        this.plugin = plugin;
+        this.commandFeedback = commandFeedback;
+        this.logger = logger;
+    }
 
-	// Player join event
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	@SuppressWarnings("deprecation")
-	public void playerJoinEvent(PlayerJoinEvent event) {
-		Player p = event.getPlayer();
+    // Player join event
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void playerJoinEvent(PlayerJoinEvent event) {
+        Player p = event.getPlayer();
 
-		if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
-			new HoneypotUpdateChecker(plugin,
-					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt").getVersion(latest -> {
-						if (Integer.parseInt(latest.replace(".", "")) > Integer
-								.parseInt(plugin.getDescription().getVersion().replace(".", ""))) {
-							TextComponent message = new TextComponent(
-									commandFeedback.sendCommandFeedback("updateavailable"));
-							message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-									"https://github.com/TerrorByteTW/Honeypot"));
-							message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-									new Text("Click me to download the latest update!")));
-							p.spigot().sendMessage(message);
-						}
-					}, logger);
-		}
-	}
+        if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
+            new HoneypotUpdateChecker(plugin,
+                    "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt").getVersion(latest -> {
+                if (Integer.parseInt(latest.replace(".", "")) > Integer
+                        .parseInt(plugin.getPluginMeta().getVersion().replace(".", ""))) {
+                    Component message = commandFeedback.sendCommandFeedback("update-available")
+                            .clickEvent(ClickEvent.openUrl("https://github.com/TerrorByteTW/Honeypot"))
+                            .hoverEvent(HoverEvent.showText(Component.text("Click me to download the latest update!")));
+                    
+                    p.sendMessage(message);
+                }
+            }, logger);
+        }
+    }
 
 }

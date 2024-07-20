@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.storagemanager.sqlite;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -103,7 +104,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger.severe("Error while executing create SQL statement on block table: " + e);
+			logger.severe(Component.text("Error while executing create SQL statement on block table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -111,7 +112,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -137,7 +138,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger.severe("Error while remove executing SQL statement on block table: " + e);
+			logger.severe(Component.text("Error while remove executing SQL statement on block table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -145,7 +146,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -178,7 +179,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			logger.severe("Error while executing check SQL statement on block table: " + e);
+			logger.severe(Component.text("Error while executing check SQL statement on block table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -188,7 +189,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 
@@ -223,7 +224,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			logger.severe("Error while executing action SQL statement on block table: " + e);
+			logger.severe(Component.text("Error while executing action SQL statement on block table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -233,7 +234,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 
@@ -263,7 +264,7 @@ public abstract class Database {
 
 			return blocks;
 		} catch (SQLException e) {
-			logger.severe("Error while executing action SQL statement on block table: " + e);
+			logger.severe(Component.text("Error while executing action SQL statement on block table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -273,7 +274,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 
@@ -304,7 +305,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger.severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe(Component.text("Error while executing create SQL statement on player table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -312,7 +313,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -336,8 +337,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger
-					.severe("Error while executing count update SQL statement on player table: " + e);
+			logger.severe(Component.text("Error while executing count update SQL statement on player table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -345,7 +345,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -374,8 +374,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			logger
-					.severe("Error while executing count retrieval SQL statement on player table: " + e);
+			logger.severe(Component.text("Error while executing count retrieval SQL statement on player table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -385,7 +384,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 
@@ -417,8 +416,7 @@ public abstract class Database {
 				}
 			}
 		} catch (SQLException e) {
-			logger
-					.severe("Error while executing count retrieval SQL statement on player table: " + e);
+			logger.severe(Component.text("Error while executing count retrieval SQL statement on player table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -428,7 +426,7 @@ public abstract class Database {
 				if (rs != null)
 					rs.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 
@@ -452,7 +450,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 			CacheManager.clearCache();
 		} catch (SQLException e) {
-			logger.severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe(Component.text("Error while executing create SQL statement on player table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -460,7 +458,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -478,7 +476,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger.severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe(Component.text("Error while executing create SQL statement on player table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -486,7 +484,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -504,7 +502,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger.severe("Error while executing create SQL statement on player table: " + e);
+			logger.severe(Component.text("Error while executing create SQL statement on player table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -512,7 +510,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -544,7 +542,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger.severe("Error while executing create SQL statement on history table: " + e);
+			logger.severe(Component.text("Error while executing create SQL statement on history table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -552,7 +550,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}
@@ -584,7 +582,7 @@ public abstract class Database {
 			return history;
 
 		} catch (SQLException e) {
-			logger.severe("Error while executing create SQL statement on history table: " + e);
+			logger.severe(Component.text("Error while executing create SQL statement on history table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -592,7 +590,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 
@@ -628,7 +626,7 @@ public abstract class Database {
 			qm.addToQueue(ps);
 
 		} catch (SQLException e) {
-			logger.severe("Error while executing SQL statement on block table: " + e);
+			logger.severe(Component.text("Error while executing SQL statement on block table: " + e));
 		} finally {
 			try {
 				if (ps != null)
@@ -636,7 +634,7 @@ public abstract class Database {
 				if (c != null)
 					c.close();
 			} catch (SQLException e) {
-				logger.severe(FAIL_TO_CLOSE + e);
+				logger.severe(Component.text(FAIL_TO_CLOSE + e));
 			}
 		}
 	}

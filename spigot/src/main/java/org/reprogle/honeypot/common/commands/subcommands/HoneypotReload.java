@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
@@ -73,7 +74,7 @@ public class HoneypotReload implements HoneypotSubCommand {
 			}
 
 			p.sendMessage(commandFeedback.sendCommandFeedback("reload"));
-			logger.info("Honeypot has successfully been reloaded");
+			logger.info(Component.text("Honeypot has successfully been reloaded"));
 		}
 		catch (IOException e) {
 			plugin.getLogger().severe(

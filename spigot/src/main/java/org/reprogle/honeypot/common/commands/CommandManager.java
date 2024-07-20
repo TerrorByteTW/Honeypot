@@ -18,6 +18,7 @@ package org.reprogle.honeypot.common.commands;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@SuppressWarnings("deprecation")
 @Singleton
 public class CommandManager implements TabExecutor {
 
@@ -82,7 +82,6 @@ public class CommandManager implements TabExecutor {
 	 *         Defaults as false
 	 */
 	@Override
-	@SuppressWarnings({ "java:S3776", "java:S1192" })
 	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
 			@NotNull String[] args) {
 
@@ -90,7 +89,7 @@ public class CommandManager implements TabExecutor {
 		if (sender instanceof Player p) {
 
 			if (!(p.hasPermission("honeypot.commands") || p.hasPermission("honeypot.*") || p.isOp())) {
-				p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
 			}
 
 			// If it's a player, ensure there is at least 1 argument given
@@ -102,14 +101,14 @@ public class CommandManager implements TabExecutor {
 					if (args[0].equalsIgnoreCase(subcommand.getName())) {
 						try {
 							if (!checkPermissions(p, subcommand)) {
-								p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+								p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
 								return false;
 							}
 
 							subcommand.perform(p, args);
 							return true;
 						} catch (IOException e) {
-							logger.severe("Error while running command " + args[0] + "! Full stack trace: " + e);
+							logger.severe(Component.text("Error while running command " + args[0] + "! Full stack trace: " + e));
 						}
 					}
 				}
@@ -123,14 +122,14 @@ public class CommandManager implements TabExecutor {
 					if (subcommand.getName().equals("gui")) {
 						try {
 							if (!checkPermissions(p, subcommand)) {
-								p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+								p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
 								return false;
 							}
 
 							subcommand.perform(p, args);
 							return true;
 						} catch (IOException e) {
-							logger.severe("Error while running command! Full stack trace: " + e);
+							logger.severe(Component.text("Error while running command! Full stack trace: " + e));
 						}
 					}
 				}
@@ -155,16 +154,11 @@ public class CommandManager implements TabExecutor {
 							.sendMessage(commandFeedback.sendCommandFeedback("reload"));
 					return true;
 				} catch (IOException e) {
-					logger.severe("Could not reload honeypot config! Full stack trace: " + e);
+					logger.severe(Component.text("Could not reload honeypot config! Full stack trace: " + e));
 				}
 			} else {
 				ConsoleCommandSender console = plugin.getServer().getConsoleSender();
-				console.sendMessage(ChatColor.GOLD + "\n" + " _____                         _\n"
-						+ "|  |  |___ ___ ___ _ _ ___ ___| |_\n" + "|     | . |   | -_| | | . | . |  _|    by"
-						+ ChatColor.RED + " TerrorByte\n" + ChatColor.GOLD
-						+ "|__|__|___|_|_|___|_  |  _|___|_|      version " + ChatColor.RED
-						+ plugin.getDescription().getVersion() + "\n" + ChatColor.GOLD
-						+ "                  |___|_|");
+				console.sendMessage(commandFeedback.buildSplash(plugin));
 				console.sendMessage(
 						commandFeedback.getChatPrefix() + " Honeypot running on Spigot version " + Bukkit.getVersion());
 				plugin.checkIfServerSupported();

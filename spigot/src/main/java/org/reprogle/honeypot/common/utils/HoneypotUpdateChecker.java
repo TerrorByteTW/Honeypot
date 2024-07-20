@@ -16,9 +16,8 @@
 
 package org.reprogle.honeypot.common.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +33,7 @@ public record HoneypotUpdateChecker(Plugin plugin, String link) {
 	 * @param consumer The consumer function
 	 */
 	public void getVersion(final Consumer<String> consumer, HoneypotLogger logger) {
-		Scheduler.runTaskAsynchronously(this.plugin, () -> {
+		Bukkit.getAsyncScheduler().runNow(this.plugin, scheduledTask -> {
 			logger.info("Checking for updates");
 			try (InputStream inputStream = new URL(this.link).openStream();
 					Scanner scanner = new Scanner(inputStream)) {

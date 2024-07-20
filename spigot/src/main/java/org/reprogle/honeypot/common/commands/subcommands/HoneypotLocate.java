@@ -30,7 +30,6 @@ import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
-import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,8 +83,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
 						potFound = true;
 
 						// Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
-						// it inside the
-						// block
+						// it inside the block
 						Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(b.getWorld().getName()))
 								.spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
 						slime.setSize(2);
@@ -95,10 +93,9 @@ public class HoneypotLocate implements HoneypotSubCommand {
 						slime.setHealth(4.0);
 						slime.setInvisible(true);
 
-						// After 5 seconds, remove the slime. Setting its health to 0 causes the death
-						// animation,
-						// removing it just makes it go away. Poof!
-						Scheduler.runTaskLater(plugin, slime::remove, 20L * 5, slime);
+						// Remove the slime after 5 seconds
+						// If we kill it, a death animation plays and the slime splits and drops items
+						slime.getScheduler().runDelayed(plugin, scheduledTask -> slime.remove(), null, 20L * 5);
 					}
 				}
 			}
@@ -106,9 +103,9 @@ public class HoneypotLocate implements HoneypotSubCommand {
 
 		// Let the player know if a pot was found or not
 		if (potFound) {
-			p.sendMessage(commandFeedback.sendCommandFeedback("foundpot"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("found-pots"));
 		} else {
-			p.sendMessage(commandFeedback.sendCommandFeedback("nopotfound"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
 		}
 	}
 

@@ -198,12 +198,12 @@ public class BlockBreakEventListener implements Listener {
             // need to figure out which
         } else if (event.getPlayer().hasPermission(BREAK_PERMISSION)
                 || event.getPlayer().hasPermission(WILDCARD_PERMISSION) || event.getPlayer().isOp()) {
-            event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("staffbroke"));
+            event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("staff-broke"));
 
             // If it got to here, then they are exempt but can't break blocks anyway.
         } else {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("exemptnobreak"));
+            event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("exempt-no-break"));
         }
     }
 

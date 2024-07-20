@@ -31,97 +31,97 @@ import java.util.List;
 
 public class HoneypotRemove implements HoneypotSubCommand {
 
-	private final HoneypotConfigManager configManager;
-	private final HoneypotBlockManager blockManager;
-	private final CommandFeedback commandFeedback;
+    private final HoneypotConfigManager configManager;
+    private final HoneypotBlockManager blockManager;
+    private final CommandFeedback commandFeedback;
 
-	@Inject
-	public HoneypotRemove(HoneypotConfigManager configManager, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
-		this.configManager = configManager;
-		this.blockManager = blockManager;
-		this.commandFeedback = commandFeedback;
-	}
+    @Inject
+    public HoneypotRemove(HoneypotConfigManager configManager, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
+        this.configManager = configManager;
+        this.blockManager = blockManager;
+        this.commandFeedback = commandFeedback;
+    }
 
-	@Override
-	public String getName() {
-		return "remove";
-	}
+    @Override
+    public String getName() {
+        return "remove";
+    }
 
-	@Override
-	@SuppressWarnings("java:S3776")
-	public void perform(Player p, String[] args) {
-		Block block = p.getTargetBlockExact(5);
+    @Override
+    @SuppressWarnings("java:S3776")
+    public void perform(Player p, String[] args) {
+        Block block = p.getTargetBlockExact(5);
 
-		if (args.length >= 2) {
-			switch (args[1].toLowerCase()) {
-				case "all" -> {
-					blockManager.deleteAllHoneypotBlocks(p.getWorld());
-					p.sendMessage(commandFeedback.sendCommandFeedback("deletedall"));
-				}
+        if (args.length >= 2) {
+            switch (args[1].toLowerCase()) {
+                case "all" -> {
+                    blockManager.deleteAllHoneypotBlocks(p.getWorld());
+                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
+                }
 
-				case "near" -> {
-					final double radius = configManager.getPluginConfig().getDouble("search-range");
-					final double xCoord = p.getLocation().getX();
-					final double yCoord = p.getLocation().getY();
-					final double zCoord = p.getLocation().getZ();
+                case "near" -> {
+                    final double radius = configManager.getPluginConfig().getDouble("search-range");
+                    final double xCoord = p.getLocation().getX();
+                    final double yCoord = p.getLocation().getY();
+                    final double zCoord = p.getLocation().getZ();
 
-					// For every x value within radius
-					for (double x = xCoord - radius; x < xCoord + radius; x++) {
-						// For every y value within radius
-						for (double y = yCoord - radius; y < yCoord + radius; y++) {
-							// For every z value within radius
-							for (double z = zCoord - radius; z < zCoord + radius; z++) {
+                    // For every x value within radius
+                    for (double x = xCoord - radius; x < xCoord + radius; x++) {
+                        // For every y value within radius
+                        for (double y = yCoord - radius; y < yCoord + radius; y++) {
+                            // For every z value within radius
+                            for (double z = zCoord - radius; z < zCoord + radius; z++) {
 
-								// Check the block at coords x,y,z to see if it's a Honeypot
-								final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+                                // Check the block at coords x,y,z to see if it's a Honeypot
+                                final Block b = new Location(p.getWorld(), x, y, z).getBlock();
 
-								// If it is a honeypot do this
-								if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
-									blockManager.deleteBlock(b);
+                                // If it is a honeypot do this
+                                if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
+                                    blockManager.deleteBlock(b);
 
-								}
-							}
-						}
-					}
+                                }
+                            }
+                        }
+                    }
 
-					p.sendMessage(commandFeedback.sendCommandFeedback("deletednear"));
-				}
+                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));
+                }
 
-				default -> potRemovalCheck(block, p);
-			}
-		} else {
-			potRemovalCheck(block, p);
-		}
-	}
+                default -> potRemovalCheck(block, p);
+            }
+        } else {
+            potRemovalCheck(block, p);
+        }
+    }
 
-	@Override
-	public List<String> getSubcommands(Player p, String[] args) {
-		List<String> subcommands = new ArrayList<>();
+    @Override
+    public List<String> getSubcommands(Player p, String[] args) {
+        List<String> subcommands = new ArrayList<>();
 
-		if (args.length == 2) {
-			// Return all action types for the /honeypot create command
-			subcommands.add("all");
-			subcommands.add("near");
-		}
+        if (args.length == 2) {
+            // Return all action types for the /honeypot create command
+            subcommands.add("all");
+            subcommands.add("near");
+        }
 
-		return subcommands;
-	}
+        return subcommands;
+    }
 
-	private void potRemovalCheck(Block block, Player p) {
-		assert block != null;
-		if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(block))) {
-			blockManager.deleteBlock(block);
-			p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
-		} else {
-			p.sendMessage(commandFeedback.sendCommandFeedback("notapot"));
-		}
-	}
+    private void potRemovalCheck(Block block, Player p) {
+        assert block != null;
+        if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(block))) {
+            blockManager.deleteBlock(block);
+            p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
+        } else {
+            p.sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
+        }
+    }
 
-	@Override
-	public List<HoneypotPermission> getRequiredPermissions() {
-		List<HoneypotPermission> permissions = new ArrayList<>();
-		permissions.add(new HoneypotPermission("honeypot.remove"));
-		permissions.add(new HoneypotPermission("honeypot.break"));
-		return permissions;
-	}
+    @Override
+    public List<HoneypotPermission> getRequiredPermissions() {
+        List<HoneypotPermission> permissions = new ArrayList<>();
+        permissions.add(new HoneypotPermission("honeypot.remove"));
+        permissions.add(new HoneypotPermission("honeypot.break"));
+        return permissions;
+    }
 }

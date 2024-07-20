@@ -5,7 +5,6 @@ sonar = "5.0.0.4638"
 
 # Libraries
 paper-api = "1.20.4-R0.1-SNAPSHOT"
-spigot-api = "1.20.5-R0.1-SNAPSHOT"
 folia-api = "1.20.2-R0.1-SNAPSHOT"
 spigui = "v1.3.1"
 
@@ -27,7 +26,6 @@ sonar = { id = "org.sonarqube", version.ref = "sonar" }
 
 [libraries]
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
-spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot-api" }
 folia-api = { module = "dev.folia:folia-api", version.ref = "folia-api" }
 
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }

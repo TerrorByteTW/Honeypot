@@ -33,7 +33,7 @@ public class Warn extends BehaviorProvider {
 
 	@Override
 	public boolean process(Player p, Block block) {
-		p.sendMessage(commandFeedback.sendCommandFeedback("warn"));
+		p.sendMessage(commandFeedback.sendCommandFeedback("warn-reason"));
 
 		return true;
 	}

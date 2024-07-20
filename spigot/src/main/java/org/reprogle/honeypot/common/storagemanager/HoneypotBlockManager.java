@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.common.storagemanager;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
@@ -65,8 +66,7 @@ public class HoneypotBlockManager {
 		}
 
 		cacheManager.addToCache(new HoneypotBlockObject(block, action));
-		logger.debug("Created Honeypot block with action " + action + " at " + block.getX() + ", "
-				+ block.getY() + ", " + block.getZ());
+		logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class HoneypotBlockManager {
 		}
 
 		cacheManager.removeFromCache(new HoneypotBlockObject(block, null));
-		logger.debug("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ());
+		logger.debug(Component.text("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class HoneypotBlockManager {
 			db.deleteAllBlocks();
 		}
 
-		logger.debug("Deleted all Honeypot blocks!");
+		logger.debug(Component.text("Deleted all Honeypot blocks!"));
 	}
 
 	/**

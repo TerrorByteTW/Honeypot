@@ -74,7 +74,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 		if (p.getTargetBlockExact(5) != null) {
 			block = p.getTargetBlockExact(5);
 		} else {
-			p.sendMessage(commandFeedback.sendCommandFeedback("notlookingatblock"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("not-looking-at-block"));
 			return;
 		}
 
@@ -101,14 +101,14 @@ public class HoneypotCreate implements HoneypotSubCommand {
 		if (configManager.getPluginConfig().getBoolean("filters.blocks")
 				|| configManager.getPluginConfig().getBoolean("filters.inventories")
 						&& (!isAllowedPerFilters(block))) {
-			p.sendMessage(commandFeedback.sendCommandFeedback("againstfilter"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("against-filter"));
 			return;
 
 		}
 
 		// If the block already exists in the DB
 		if (blockManager.isHoneypotBlock(block)) {
-			p.sendMessage(commandFeedback.sendCommandFeedback("alreadyexists"));
+			p.sendMessage(commandFeedback.sendCommandFeedback("already-exists"));
 
 			// If the block doesn't exist
 		} else {
@@ -127,7 +127,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
 						blockManager.createBlock(block, args[2]);
 						p.sendMessage(commandFeedback.sendCommandFeedback("success", true));
 					} else {
-						p.sendMessage(commandFeedback.sendCommandFeedback("noexist"));
+						p.sendMessage(commandFeedback.sendCommandFeedback("no-exist"));
 					}
 				} else {
 					blockManager.createBlock(block, args[1]);

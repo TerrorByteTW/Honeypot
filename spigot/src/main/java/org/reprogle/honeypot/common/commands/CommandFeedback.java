@@ -19,7 +19,11 @@ package org.reprogle.honeypot.common.commands;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import dev.dejvokep.boostedyaml.YamlDocument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.ChatColor;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import java.util.Objects;
@@ -28,6 +32,7 @@ import java.util.Objects;
 @Singleton
 public class CommandFeedback {
 
+    public static MiniMessage mm = MiniMessage.miniMessage();
     @Inject
     private HoneypotConfigManager configManager;
 
@@ -43,135 +48,102 @@ public class CommandFeedback {
      * @return The Feedback string
      */
     @SuppressWarnings("java:S1192")
-    public String sendCommandFeedback(String feedback, Boolean... success) {
-        String feedbackMessage;
-        String chatPrefix = getChatPrefix();
+    public Component sendCommandFeedback(String feedback, Boolean... success) {
+        Component feedbackMessage;
+        Component chatPrefix = getChatPrefix();
         YamlDocument languageFile = configManager.getLanguageFile();
 
         switch (feedback.toLowerCase()) {
-            case "usage" -> feedbackMessage = ("\n \n \n \n \n \n-----------------------\n" + chatPrefix + " "
-                    + ChatColor.WHITE + "Need Help?\n" + "  " + "/honeypot " + ChatColor.GRAY + "create [block]\n"
-                    + "  "
-                    + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "remove (all | near) (optional)\n" + "  "
-                    + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "reload\n" + "  " + ChatColor.WHITE
-                    + "/honeypot "
-                    + ChatColor.GRAY + "locate\n" + "  " + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "gui\n"
-                    + "  "
-                    + ChatColor.WHITE + "/honeypot " + ChatColor.GRAY + "history [query | delete | purge] \n"
-                    + ChatColor.WHITE + "-----------------------");
-
-            case "kick" -> feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
-                    Objects.requireNonNull(languageFile.getString("kick-reason"), "Kick reason is null"));
-
-            case "ban" -> feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
-                    Objects.requireNonNull(languageFile.getString("ban-reason"), "Ban reason is null"));
-
-            case "warn" -> feedbackMessage = chatPrefix + " " + ChatColor.translateAlternateColorCodes('&',
-                    Objects.requireNonNull(languageFile.getString("warn-message"), "Warn message is null"));
-
-            case "alreadyexists" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("already-exists")));
+            case "usage" ->
+                    feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
+                            .append(chatPrefix).append(Component.text(" "))
+                            .append(Component.text("Need help?\n\n", NamedTextColor.WHITE))
+                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near) (optional)\n", NamedTextColor.GRAY))
+                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("reload\n", NamedTextColor.GRAY))
+                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("locate\n", NamedTextColor.GRAY))
+                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("gui\n", NamedTextColor.GRAY))
+                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("history [query | delete | purge] \n", NamedTextColor.GRAY))
+                            .append(Component.text("-----------------------", NamedTextColor.WHITE))
+                            .build();
 
             case "success" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = (chatPrefix + " "
-                            + ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.created")));
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("success.created")))
+                            .build();
 
                 } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = (chatPrefix + " "
-                            + ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.removed")));
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("success.removed")))
+                            .build();
 
                 } else {
-                    feedbackMessage = (chatPrefix + " "
-                            + ChatColor.translateAlternateColorCodes('&', languageFile.getString("success.default")));
-
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("success.default")))
+                            .build();
                 }
             }
 
-            case "notapot" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-a-honeypot")));
-
-            case "nopermission" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-permission")));
-
-            case "reload" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("reload")));
-
-            case "foundpot" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("found-pots")));
-
-            case "nopotfound" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-pots-found")));
-
-            case "updateavailable" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("update-available")));
-
-            case "againstfilter" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("against-filter")));
-
-            case "notlookingatblock" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-looking-at-block")));
-
-            case "noexist" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-exist")));
-
-            case "deletedall" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("deleted.all")));
-
-            case "deletednear" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("deleted.near")));
-
-            case "worldguard" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("worldguard")));
-
-            case "griefprevention" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("griefprevention")));
-
-            case "staffbroke" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("staff-broke")));
-
-            case "exemptnobreak" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("exempt-no-break")));
-
-            case "searching" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("searching")));
-
-            case "truncating" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("truncating")));
-
-            case "notonline" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("not-online")));
-
-            case "nohistory" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("no-history")));
-
-            case "lands" -> feedbackMessage = (chatPrefix + " "
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("lands")));
-
             case "debug" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = (chatPrefix + " "
-                            + "Debug mode has been enabled. Right click any block to check its PDC");
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text("Debug mode has been enabled. Right click any block to check its PDC"))
+                            .build();
 
                 } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = (chatPrefix + " "
-                            + "Debug mode has been disabled");
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text("Debug mode has been disabled"))
+                            .build();
                 } else {
-                    feedbackMessage = (chatPrefix + " "
-                            + "Debug mode is only useful while using PDC");
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text("Debug mode is only useful while using PDC"))
+                            .build();
                 }
             }
 
             case "migrate" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("migrate.confirm")));
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("migrate.confirm"))).build();
                 } else {
-                    feedbackMessage = (chatPrefix + " " + ChatColor.translateAlternateColorCodes('&', languageFile.getString("migrate.preconfirm")));
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("migrate.preconfirm"))).build();
                 }
             }
 
-            default -> feedbackMessage = (chatPrefix + " " + ChatColor.DARK_RED
-                    + ChatColor.translateAlternateColorCodes('&', languageFile.getString("unknown-error")));
+            case "deleted" -> {
+                if (success.length > 0 && success[0].equals(true)) {
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("deleted.all"))).build();
+                } else {
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("deleted.near"))).build();
+                }
+            }
+
+            default -> {
+                try {
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString(feedback.toLowerCase())))
+                            .build();
+                } catch (Exception e) {
+                    feedbackMessage = Component.text().append(chatPrefix)
+                            .append(Component.text(" "))
+                            .append(Component.text(languageFile.getString("unknown-error")))
+                            .build();
+                }
+            }
         }
         return feedbackMessage;
     }
@@ -181,9 +153,18 @@ public class CommandFeedback {
      *
      * @return The chat prefix, preformatted with color and other modifiers
      */
-    public String getChatPrefix() {
-        return ChatColor.translateAlternateColorCodes('&',
-                Objects.requireNonNull(configManager.getLanguageFile().getString("prefix")));
+    public Component getChatPrefix() {
+        return mm.deserialize(Objects.requireNonNull(configManager.getLanguageFile().getString("prefix")));
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    public Component buildSplash(Honeypot plugin) {
+        return Component.text().content("\n")
+                .append(Component.text(" _____                         _\n", NamedTextColor.GOLD))
+                .append(Component.text("|  |  |___ ___ ___ _ _ ___ ___| |_\n", NamedTextColor.GOLD))
+                .append(Component.text("|     | . |   | -_| | | . | . |  _|    by", NamedTextColor.GOLD).append(Component.text(" TerrorByte\n", NamedTextColor.RED)))
+                .append(Component.text("|__|__|___|_|_|___|_  |  _|___|_|      version ", NamedTextColor.GOLD).append(Component.text(plugin.getPluginMeta().getVersion() + "\n", NamedTextColor.RED)))
+                .append(Component.text("                  |___|_|")).build();
     }
 
 }

@@ -16,8 +16,8 @@
 
 package org.reprogle.honeypot.common.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
-import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +33,7 @@ public record HoneypotSupportedVersions(Plugin plugin, String version) {
 	 * @param consumer The consumer function
 	 */
 	public void getSupportedVersions(final Consumer<String> consumer, HoneypotLogger logger) {
-		Scheduler.runTaskAsynchronously(this.plugin, () -> {
+		Bukkit.getAsyncScheduler().runNow(this.plugin, scheduledTask -> {
 			logger.info("Checking if this server version is supported");
 			try (InputStream inputStream = new URL(
 					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version)

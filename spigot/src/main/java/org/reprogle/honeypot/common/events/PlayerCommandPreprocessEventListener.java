@@ -24,39 +24,37 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.utils.folia.Scheduler;
 
 public class PlayerCommandPreprocessEventListener implements Listener {
 
-	private final Honeypot plugin;
-	private final CommandFeedback commandFeedback;
+    private final Honeypot plugin;
+    private final CommandFeedback commandFeedback;
 
-	/**
-	 * Create private constructor to hide the implicit one
-	 */
-	@Inject
-	PlayerCommandPreprocessEventListener(Honeypot plugin, CommandFeedback commandFeedback) {
-		this.plugin = plugin;
-		this.commandFeedback = commandFeedback;
-	}
+    /**
+     * Create private constructor to hide the implicit one
+     */
+    @Inject
+    PlayerCommandPreprocessEventListener(Honeypot plugin, CommandFeedback commandFeedback) {
+        this.plugin = plugin;
+        this.commandFeedback = commandFeedback;
+    }
 
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
-		if (event.getMessage().startsWith("/hpteleport")) {
-			event.setCancelled(true);
-			if (event.getPlayer().hasPermission("honeypot.teleport")) {
-				String rawCommand = event.getMessage();
-				String processedCommand = rawCommand.replace("/hpteleport",
-						"minecraft:tp " + event.getPlayer().getName());
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void playerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
+        if (event.getMessage().startsWith("/hpteleport")) {
+            event.setCancelled(true);
+            if (event.getPlayer().hasPermission("honeypot.teleport")) {
+                String rawCommand = event.getMessage();
+                String processedCommand = rawCommand.replace("/hpteleport",
+                        "minecraft:tp " + event.getPlayer().getName());
 
-				Scheduler.runTask(plugin,
-						() -> Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand));
-			}
-			else {
-				event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
-			}
+                Bukkit.getGlobalRegionScheduler().run(plugin, scheduledTask ->
+                        Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), processedCommand));
+            } else {
+                event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+            }
 
-		}
-	}
+        }
+    }
 
 }

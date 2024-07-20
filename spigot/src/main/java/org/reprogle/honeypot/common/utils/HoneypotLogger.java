@@ -18,6 +18,7 @@ package org.reprogle.honeypot.common.utils;
 
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
+import net.kyori.adventure.text.Component;
 import org.reprogle.honeypot.Honeypot;
 
 import java.io.BufferedWriter;
@@ -57,13 +58,13 @@ public class HoneypotLogger {
 	 *
 	 * @param message The message to log
 	 */
-	public void debug(String message) {
+	public void debug(Component message) {
 		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
-			bw.append("[").append(dtf.format(now)).append("] DEBUG: ").append(message).append("\n");
+			bw.append("[").append(dtf.format(now)).append("] DEBUG: ").append(message.toString()).append("\n");
 		}
 		catch (IOException e) {
 			plugin.getLogger()
@@ -76,14 +77,14 @@ public class HoneypotLogger {
 	 *
 	 * @param message The message to log
 	 */
-	public void info(String message) {
-		plugin.getLogger().info(message);
+	public void info(Component message) {
+		plugin.getLogger().info(message.toString());
 		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
-			bw.append("[").append(dtf.format(now)).append("] INFO: ").append(message).append("\n");
+			bw.append("[").append(dtf.format(now)).append("] INFO: ").append(message.toString()).append("\n");
 		}
 		catch (IOException e) {
 			plugin.getLogger()
@@ -96,14 +97,14 @@ public class HoneypotLogger {
 	 *
 	 * @param message The message to log
 	 */
-	public void warning(String message) {
-		plugin.getLogger().warning(message);
+	public void warning(Component message) {
+		plugin.getLogger().warning(message.toString());
 		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
-			bw.append("[").append(dtf.format(now)).append("] WARNING: ").append(message).append("\n");
+			bw.append("[").append(dtf.format(now)).append("] WARNING: ").append(message.toString()).append("\n");
 		}
 		catch (IOException e) {
 			plugin.getLogger()
@@ -116,14 +117,14 @@ public class HoneypotLogger {
 	 *
 	 * @param message The message to log
 	 */
-	public void severe(String message) {
-		plugin.getLogger().severe(message);
+	public void severe(Component message) {
+		plugin.getLogger().severe(message.toString());
 		if (!configManager.getPluginConfig().getBoolean("enable-logging"))
 			return;
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 			LocalDateTime now = LocalDateTime.now();
-			bw.append("[").append(dtf.format(now)).append("] SEVERE: ").append(message).append("\n");
+			bw.append("[").append(dtf.format(now)).append("] SEVERE: ").append(message.toString()).append("\n");
 		}
 		catch (IOException e) {
 			plugin.getLogger()

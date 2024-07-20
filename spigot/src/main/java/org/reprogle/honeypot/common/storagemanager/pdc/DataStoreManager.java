@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -65,7 +66,7 @@ public class DataStoreManager {
 
         CacheManager.clearCache();
 
-        logger.debug("Deleted all Honeypot blocks!");
+        logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }
 
     public List<HoneypotBlockObject> getAllHoneypots(World world) {

@@ -61,7 +61,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
 			Player argPlayer = Bukkit.getPlayer(args[2]);
 
 			if (argPlayer == null || !Bukkit.getPlayer(args[2]).isOnline()) {
-				p.sendMessage(commandFeedback.sendCommandFeedback("notonline"));
+				p.sendMessage(commandFeedback.sendCommandFeedback("not-online"));
 				return;
 			}
 
@@ -77,7 +77,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
 				}
 
 				if (history.isEmpty()) {
-					p.sendMessage(commandFeedback.sendCommandFeedback("nohistory"));
+					p.sendMessage(commandFeedback.sendCommandFeedback("no-history"));
 					return;
 				}
 

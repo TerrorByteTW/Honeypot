@@ -36,8 +36,8 @@ public class Ban extends BehaviorProvider {
 
 	@Override
 	public boolean process(Player p, Block block) {
-		String banReason = commandFeedback.sendCommandFeedback("ban");
-		String chatPrefix = commandFeedback.getChatPrefix();
+		String banReason = commandFeedback.sendCommandFeedback("ban-reason").toString();
+		String chatPrefix = commandFeedback.getChatPrefix().toString();
 
 		Bukkit.getBanList(BanList.Type.NAME).addBan(p.getName(), banReason, null,
 				chatPrefix);
