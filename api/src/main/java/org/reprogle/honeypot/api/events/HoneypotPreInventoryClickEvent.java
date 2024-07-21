@@ -1,7 +1,8 @@
 /*
  * Honeypot is a tool for griefing auto-moderation
- * Copyright TerrorByte (c) 2022-2023
- * Copyright Honeypot Contributors (c) 2022-2023
+ *
+ * Copyright TerrorByte (c) 2024
+ * Copyright Honeypot Contributors (c) 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
