@@ -34,6 +34,7 @@ import javax.annotation.Nullable;
 public class HoneypotBlockManager {
 
     private final String storageMethod;
+    private final boolean locking;
 
     @Inject
     private DataStoreManager dataStoreManager;
@@ -47,12 +48,14 @@ public class HoneypotBlockManager {
     @Inject
     private SQLite db;
 
-    public HoneypotBlockManager(String method) {
+    public HoneypotBlockManager(String method, boolean locking) {
         if (method.equalsIgnoreCase("pdc")) {
             this.storageMethod = method;
         } else {
             this.storageMethod = "sqlite";
         }
+
+        this.locking = locking;
     }
 
     /**
@@ -62,7 +65,7 @@ public class HoneypotBlockManager {
      * @param action The action of the Honeypot
      */
     public void createBlock(Block block, String action) {
-        if (block instanceof Container) {
+        if (block instanceof Container && locking) {
             ((Container) block).setLock(UUID.randomUUID().toString());
         }
 
@@ -112,13 +115,18 @@ public class HoneypotBlockManager {
             if (dataStoreManager.isHoneypotBlock(block)) {
                 String action = getAction(block);
                 cacheManager.addToCache(new HoneypotBlockObject(block, action));
+                if (block instanceof Container && locking) {
+                    ((Container) block).setLock(UUID.randomUUID().toString());
+                }
                 return true;
             }
         } else {
-
             if (db.isHoneypotBlock(block)) {
                 String action = getAction(block);
                 cacheManager.addToCache(new HoneypotBlockObject(block, action));
+                if (block instanceof Container && locking) {
+                    ((Container) block).setLock(UUID.randomUUID().toString());
+                }
                 return true;
             }
 
