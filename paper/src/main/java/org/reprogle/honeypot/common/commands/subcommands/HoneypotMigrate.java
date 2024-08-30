@@ -62,7 +62,7 @@ public class HoneypotMigrate implements HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) throws IOException {
-        if (!configManager.getPluginConfig().getString("storage-method").equalsIgnoreCase("pdc")) {
+        if (configManager.getPluginConfig().getString("storage-method").equalsIgnoreCase("pdc")) {
             p.sendMessage(commandFeedback.sendCommandFeedback("migrate", false));
             return;
         }
@@ -91,6 +91,7 @@ public class HoneypotMigrate implements HoneypotSubCommand {
                 // Change the storage method to pdc and shutdown the plugin to prevent potential issues. The storage method is decided on server start,
                 // and absolutely cannot be changed in runtime due to it being injected everywhere via Guice.
                 configManager.getPluginConfig().set("storage-method", "pdc");
+                configManager.getPluginConfig().save();
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
             }
         }

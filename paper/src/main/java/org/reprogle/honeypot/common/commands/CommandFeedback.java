@@ -111,6 +111,10 @@ public class CommandFeedback {
                     feedbackMessage = Component.text().append(chatPrefix)
                             .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.confirm")))).build();
+                } else if (success.length > 0 && success[0].equals(false)) {
+                        feedbackMessage = Component.text().append(chatPrefix)
+                                .append(Component.text(" "))
+                                .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.failed")))).build();
                 } else {
                     feedbackMessage = Component.text().append(chatPrefix)
                             .append(Component.text(" "))
