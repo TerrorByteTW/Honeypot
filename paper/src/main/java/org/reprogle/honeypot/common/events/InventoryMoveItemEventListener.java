@@ -32,12 +32,10 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 public class InventoryMoveItemEventListener implements Listener {
 
     private final HoneypotBlockManager blockManager;
-    private final HoneypotConfigManager configManager;
 
     @Inject
-    InventoryMoveItemEventListener(HoneypotBlockManager blockManager, HoneypotConfigManager configManager) {
+    InventoryMoveItemEventListener(HoneypotBlockManager blockManager) {
         this.blockManager = blockManager;
-        this.configManager = configManager;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

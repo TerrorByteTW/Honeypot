@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
@@ -28,6 +29,7 @@ import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
@@ -65,8 +67,9 @@ public class HoneypotBlockManager {
      * @param action The action of the Honeypot
      */
     public void createBlock(Block block, String action) {
-        if (block instanceof Container && locking) {
-            ((Container) block).setLock(UUID.randomUUID().toString());
+        if (block.getState() instanceof Container blockState && locking) {
+            blockState.setLock("honeypot-" + UUID.randomUUID().toString());
+            blockState.update(true);
         }
 
         if (storageMethod.equals("pdc")) {
@@ -86,8 +89,9 @@ public class HoneypotBlockManager {
      */
     public void deleteBlock(Block block) {
         // Remove lock if it's a container
-        if (block instanceof Container) {
-            ((Container) block).setLock(null);
+        if (block.getState() instanceof Container blockState) {
+            blockState.setLock(null);
+            blockState.update(true);
         }
 
         if (storageMethod.equals("pdc")) {
@@ -107,29 +111,31 @@ public class HoneypotBlockManager {
      * @return true or false
      */
     public boolean isHoneypotBlock(Block block) {
-        if (cacheManager.isInCache(new HoneypotBlockObject(block, null)) != null) {
-            return true;
+//        if (cacheManager.isInCache(new HoneypotBlockObject(block, null)) != null) {
+//            return true;
+//        }
+
+        // This checks to see if the block is a container with a specific format. If that is the case, we know the block is a Honeypot and don't check PDC or SQLite. This string is too long for anvil's, so it's safe for use
+        if (block.getState() instanceof Container && locking) {
+            String lock = ((Container) block.getState()).getLock();
+
+            Pattern p = Pattern.compile("honeypot-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+            if (p.matcher(lock).matches()) {
+                // Add the block to the cache since we already know it's not due to the above checks
+                String action = getAction(block);
+                cacheManager.addToCache(new HoneypotBlockObject(block, action));
+                return true;
+            }
         }
 
-        if (storageMethod.equals("pdc")) {
-            if (dataStoreManager.isHoneypotBlock(block)) {
-                String action = getAction(block);
-                cacheManager.addToCache(new HoneypotBlockObject(block, action));
-                if (block instanceof Container && locking) {
-                    ((Container) block).setLock(UUID.randomUUID().toString());
-                }
-                return true;
+        if (storageMethod.equals("pdc") ? dataStoreManager.isHoneypotBlock(block) : db.isHoneypotBlock(block)) {
+            String action = getAction(block);
+            cacheManager.addToCache(new HoneypotBlockObject(block, action));
+            if (block.getState() instanceof Container blockState && locking) {
+                blockState.setLock("honeypot-" + UUID.randomUUID().toString());
+                blockState.update(true);
             }
-        } else {
-            if (db.isHoneypotBlock(block)) {
-                String action = getAction(block);
-                cacheManager.addToCache(new HoneypotBlockObject(block, action));
-                if (block instanceof Container && locking) {
-                    ((Container) block).setLock(UUID.randomUUID().toString());
-                }
-                return true;
-            }
-
+            return true;
         }
         return false;
 
@@ -174,12 +180,12 @@ public class HoneypotBlockManager {
     /**
      * Delete all Honeypots in the entire DB
      */
-    public void deleteAllHoneypotBlocks(@Nullable World world) {
+    public void deleteAllHoneypotBlocks(World world) {
         // Remove all locks from all container-based honeypots
         List<HoneypotBlockObject> blocks = this.getAllHoneypots(world);
         for (HoneypotBlockObject block : blocks) {
-            if (block.getBlock() instanceof Container) {
-                ((Container) block).setLock(null);
+            if (block.getBlock().getState() instanceof Container) {
+                ((Container) block.getBlock().getState()).setLock(null);
             }
         }
 

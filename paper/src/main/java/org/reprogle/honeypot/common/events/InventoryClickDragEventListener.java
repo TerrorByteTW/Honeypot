@@ -22,16 +22,14 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -42,6 +40,7 @@ import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import com.samjakob.spigui.menu.SGMenu;
+import org.reprogle.honeypot.common.utils.HoneypotInventory;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
@@ -76,14 +75,26 @@ public class InventoryClickDragEventListener implements Listener {
 
         if (block == null)
             return;
-        if (!(block instanceof Container))
+        if (!(block.getState() instanceof Container))
             return;
         if (!(event.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
             return;
+        if(event.getPlayer().isSneaking())
+            return;
+
+        BlockState blockState = block.getState();
 
         // Force the inventory to open if it's locked anyway, since the only purpose of the lock is to prevent hoppers and droppers from interacting with it
-        if (blockManager.isHoneypotBlock(block) && ((Container) block).isLocked()) {
-            event.getPlayer().openInventory(((Container) block).getInventory());
+        if (blockManager.isHoneypotBlock(block) && ((Container) blockState).isLocked()) {
+            Container container = (Container) blockState;
+            InventoryType inventoryType = container.getInventory().getType();
+
+            // Get the original title of the inventory, we're assuming it is just the block's material.
+            Component title = Component.text(container.getType().toString().substring(0, 1).toUpperCase() + container.getType().toString().substring(1).toLowerCase());
+            HoneypotInventory inventory = new HoneypotInventory(container);
+            Inventory dummyInventory = Bukkit.createInventory(inventory, inventoryType, title);
+
+            event.getPlayer().openInventory(dummyInventory);
         }
     }
 
@@ -170,6 +181,13 @@ public class InventoryClickDragEventListener implements Listener {
 
                 executeAction(player, block, inventory);
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getInventory().getHolder() != null && event.getInventory().getHolder() instanceof HoneypotInventory inventory) {
+            inventory.updateInventory(event.getInventory().getContents());
         }
     }
 
