@@ -24,6 +24,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -72,7 +73,7 @@ public class ActionHandler {
             if (!commands.isEmpty()) {
                 for (String command : commands) {
                     Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
-                            formatMessage(command, block, player, true).toString());
+                            PlainTextComponentSerializer.plainText().serialize(formatMessage(command, block, player, true)));
                 }
             }
 

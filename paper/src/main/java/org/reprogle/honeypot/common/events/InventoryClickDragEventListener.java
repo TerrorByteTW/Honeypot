@@ -33,6 +33,8 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
@@ -43,8 +45,7 @@ import com.samjakob.spigui.menu.SGMenu;
 import org.reprogle.honeypot.common.utils.HoneypotInventory;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class InventoryClickDragEventListener implements Listener {
 
@@ -57,45 +58,11 @@ public class InventoryClickDragEventListener implements Listener {
      * Create package constructor to hide implicit one
      */
     @Inject
-    InventoryClickDragEventListener(ActionHandler actionHandler, HoneypotBlockManager blockManager, HoneypotConfigManager configManager,
-                                    HoneypotLogger logger) {
+    InventoryClickDragEventListener(ActionHandler actionHandler, HoneypotBlockManager blockManager, HoneypotConfigManager configManager, HoneypotLogger logger) {
         this.actionHandler = actionHandler;
         this.blockManager = blockManager;
         this.configManager = configManager;
         this.logger = logger;
-    }
-
-    /**
-     * Small utility method to ensure locked Honeypots can still be opened
-     * @param event Event that was triggered
-     */
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void inventoryInteractEvent(PlayerInteractEvent event) {
-        Block block = event.getPlayer().getTargetBlockExact(5);
-
-        if (block == null)
-            return;
-        if (!(block.getState() instanceof Container))
-            return;
-        if (!(event.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
-            return;
-        if(event.getPlayer().isSneaking())
-            return;
-
-        BlockState blockState = block.getState();
-
-        // Force the inventory to open if it's locked anyway, since the only purpose of the lock is to prevent hoppers and droppers from interacting with it
-        if (blockManager.isHoneypotBlock(block) && ((Container) blockState).isLocked()) {
-            Container container = (Container) blockState;
-            InventoryType inventoryType = container.getInventory().getType();
-
-            // Get the original title of the inventory, we're assuming it is just the block's material.
-            Component title = Component.text(container.getType().toString().substring(0, 1).toUpperCase() + container.getType().toString().substring(1).toLowerCase());
-            HoneypotInventory inventory = new HoneypotInventory(container);
-            Inventory dummyInventory = Bukkit.createInventory(inventory, inventoryType, title);
-
-            event.getPlayer().openInventory(dummyInventory);
-        }
     }
 
     @SuppressWarnings({"java:S3776"})
@@ -103,39 +70,37 @@ public class InventoryClickDragEventListener implements Listener {
     public void inventoryClickEvent(InventoryClickEvent event) {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
-        if (!(event.getWhoClicked() instanceof Player player))
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getInventory().getHolder() instanceof Container || event.getInventory().getHolder() instanceof HoneypotInventory) || event.getInventory().getHolder() instanceof SGMenu)
             return;
-        if (!(event.getInventory().getHolder() instanceof Container)
-                || event.getInventory().getHolder() instanceof SGMenu)
-            return;
-        if (event.getSlotType() != SlotType.CONTAINER)
-            return;
-        if (event.getClickedInventory().getType().equals(InventoryType.PLAYER))
-            return;
+        if (event.getSlotType() != SlotType.CONTAINER) return;
+        if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
 
-        final Block block = ((Container) event.getClickedInventory().getHolder()).getBlock();
+        final Block block;
+
+        if (event.getInventory().getHolder() instanceof HoneypotInventory hpInventory) {
+            block = hpInventory.getInventory().getLocation().getBlock();
+        } else {
+            block = ((Container) event.getClickedInventory().getHolder()).getBlock();
+        }
+
         final Inventory inventory = event.getInventory();
 
-        if (!checkFilter(block))
-            return;
+        if (!checkFilter(block)) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST)
-                && Boolean.TRUE.equals(blockManager.isHoneypotBlock(Objects.requireNonNull(block)))) {
+        if (!block.getType().equals(Material.ENDER_CHEST) && Boolean.TRUE.equals(blockManager.isHoneypotBlock(Objects.requireNonNull(block)))) {
             // Fire HoneypotPreInventoryClickEvent
             HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             Bukkit.getPluginManager().callEvent(hpice);
 
-            if (hpice.isCancelled())
-                return;
+            if (hpice.isCancelled()) return;
 
-            if (!(player.hasPermission("honeypot.exempt")
-                    || player.hasPermission("honeypot.*") || player.isOp())) {
+            if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
 
                 // If the clicked slot is null, that means the slot didn't have something in it,
                 // whether the player placed something in that slot. slot == null
                 // corresponds to a click or place, not a take
-                if (inventory.getItem(event.getSlot()) == null && configManager.getPluginConfig()
-                        .getBoolean("container-actions.only-trigger-on-withdrawal")) {
+                if (inventory.getItem(event.getSlot()) == null && configManager.getPluginConfig().getBoolean("container-actions.only-trigger-on-withdrawal")) {
                     return;
                 }
                 event.setCancelled(true);
@@ -143,7 +108,6 @@ public class InventoryClickDragEventListener implements Listener {
                 executeAction(player, block, inventory);
             }
         }
-
     }
 
     @SuppressWarnings({"java:S3776"})
@@ -151,31 +115,24 @@ public class InventoryClickDragEventListener implements Listener {
     public void inventoryDragEvent(InventoryDragEvent event) {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
-        if (!(event.getWhoClicked() instanceof Player player))
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!(event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
             return;
-        if (!(event.getInventory().getHolder() instanceof Container)
-                || event.getInventory().getHolder() instanceof SGMenu)
-            return;
-        if (event.getInventory().getType().equals(InventoryType.PLAYER))
-            return;
+        if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
 
         final Block block = ((Container) event.getInventory().getHolder()).getBlock();
         final Inventory inventory = event.getInventory();
 
-        if (!checkFilter(block))
-            return;
+        if (!checkFilter(block)) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST)
-                && Boolean.TRUE.equals(blockManager.isHoneypotBlock(Objects.requireNonNull(block)))) {
+        if (!block.getType().equals(Material.ENDER_CHEST) && Boolean.TRUE.equals(blockManager.isHoneypotBlock(Objects.requireNonNull(block)))) {
             // Fire HoneypotPreInventoryClickEvent
             HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             Bukkit.getPluginManager().callEvent(hpice);
 
-            if (hpice.isCancelled())
-                return;
+            if (hpice.isCancelled()) return;
 
-            if (!(player.hasPermission("honeypot.exempt")
-                    || player.hasPermission("honeypot.*") || player.isOp())) {
+            if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
 
                 event.setCancelled(true);
 
@@ -184,23 +141,19 @@ public class InventoryClickDragEventListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getInventory().getHolder() != null && event.getInventory().getHolder() instanceof HoneypotInventory inventory) {
-            inventory.updateInventory(event.getInventory().getContents());
-        }
-    }
-
     private void executeAction(Player player, Block block, Inventory inventory) {
         String action = blockManager.getAction(block);
 
-        assert action != null;
+        if (action == null) {
+            logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            return;
+        }
+
         logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
 
         actionHandler.handleCustomAction(action, block, player);
 
-        HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player,
-                inventory);
+        HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player, inventory);
         Bukkit.getPluginManager().callEvent(hice);
 
     }
@@ -217,8 +170,7 @@ public class InventoryClickDragEventListener implements Listener {
         // HoneypotCreate class) because
         // inventories can be both broken AND open :)
         if (configManager.getPluginConfig().getBoolean("filters.inventories")) {
-            List<String> allowedBlocks = (List<String>) configManager.getPluginConfig()
-                    .getList("allowed-inventories");
+            List<String> allowedBlocks = (List<String>) configManager.getPluginConfig().getList("allowed-inventories");
 
             for (String blockType : allowedBlocks) {
                 if (Objects.requireNonNull(block).getType().name().equals(blockType)) {

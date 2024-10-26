@@ -21,7 +21,6 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
@@ -68,7 +67,7 @@ public class HoneypotBlockManager {
      */
     public void createBlock(Block block, String action) {
         if (block.getState() instanceof Container blockState && locking) {
-            blockState.setLock("honeypot-" + UUID.randomUUID().toString());
+            blockState.setLock("honeypot-container-" + UUID.randomUUID());
             blockState.update(true);
         }
 
@@ -121,8 +120,9 @@ public class HoneypotBlockManager {
 
             Pattern p = Pattern.compile("honeypot-[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
             if (p.matcher(lock).matches()) {
-                // Add the block to the cache since we already know it's not due to the above checks
                 String action = getAction(block);
+
+                // Add the block to the cache since we already know it's not due to the above checks
                 cacheManager.addToCache(new HoneypotBlockObject(block, action));
                 return true;
             }
@@ -132,7 +132,7 @@ public class HoneypotBlockManager {
             String action = getAction(block);
             cacheManager.addToCache(new HoneypotBlockObject(block, action));
             if (block.getState() instanceof Container blockState && locking) {
-                blockState.setLock("honeypot-" + UUID.randomUUID().toString());
+                blockState.setLock("honeypot-container-" + UUID.randomUUID());
                 blockState.update(true);
             }
             return true;
@@ -168,13 +168,21 @@ public class HoneypotBlockManager {
         if (potential != null)
             return potential.getAction();
 
-        if (storageMethod.equals("pdc")) {
-            return dataStoreManager.getAction(block);
+        try {
+            if (storageMethod.equals("pdc")) {
+                return dataStoreManager.getAction(block);
 
-        } else {
-            return db.getAction(block);
+            } else {
+                return db.getAction(block);
+            }
+        } catch (Exception e) {
+            logger.warning(Component.text("No action found for block, " +
+                            "this is likely due to a container being created using the special lock format. " +
+                            "This is only possible with commands, as Anvil's are not able to support strings that long." +
+                            "Honeypot assumes these are Honeypots for performance. This can be safely ignored, but you need to investigate the block at: ")
+                    .append((Component.text(block.getX() + ", " + block.getY() + ", " + block.getZ()))));
+            return null;
         }
-
     }
 
     /**
@@ -203,7 +211,7 @@ public class HoneypotBlockManager {
      *
      * @return An array list of all HoneypotBlockObjects
      */
-    public List<HoneypotBlockObject> getAllHoneypots(@Nullable World world) {
+    public List<HoneypotBlockObject> getAllHoneypots(World world) {
         if (storageMethod.equals("pdc")) {
             return dataStoreManager.getAllHoneypots(world);
         } else {

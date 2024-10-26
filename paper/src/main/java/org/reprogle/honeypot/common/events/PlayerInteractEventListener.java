@@ -78,14 +78,16 @@ public class PlayerInteractEventListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     @SuppressWarnings({"unchecked"})
     public void playerInteractEvent(PlayerInteractEvent event) {
-        if (event.getPlayer().getTargetBlockExact(5) == null)
+        Player player = event.getPlayer();
+
+        if (player.getTargetBlockExact(5) == null)
             return;
-        if (!(event.getPlayer().getTargetBlockExact(5).getState() instanceof Container))
+        if (!(player.getTargetBlockExact(5).getState() instanceof Container))
             return;
         if (!(event.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
             return;
 
-        Block block = event.getPlayer().getTargetBlockExact(5);
+        Block block = player.getTargetBlockExact(5);
 
         // We want to filter on inventories upon opening, not just creation (Like in the
         // HoneypotCreate class) because
@@ -113,26 +115,26 @@ public class PlayerInteractEventListener implements Listener {
                     && blockManager.isHoneypotBlock(Objects.requireNonNull(block))) {
 
                 // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
-                if (!adapterManager.checkAllAdapters(event.getPlayer(), Objects.requireNonNull(event.getPlayer().getTargetBlockExact(5)).getLocation())) {
+                if (!adapterManager.checkAllAdapters(player, Objects.requireNonNull(player.getTargetBlockExact(5)).getLocation())) {
                     return;
                 }
 
                 // Fire HoneypotPrePlayerInteractEvent
-                HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(event.getPlayer(),
+                HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(player,
                         event.getClickedBlock());
                 Bukkit.getPluginManager().callEvent(hppie);
 
                 if (hppie.isCancelled())
                     return;
 
-                if (!(event.getPlayer().hasPermission("honeypot.exempt")
-                        || event.getPlayer().hasPermission("honeypot.*") || event.getPlayer().isOp())) {
+                if (!(player.hasPermission("honeypot.exempt")
+                        || player.hasPermission("honeypot.*") || player.isOp())) {
                     if (!configManager.getPluginConfig().getBoolean("always-allow-container-access"))
                         event.setCancelled(true);
                     executeAction(event);
                 }
 
-                HoneypotPlayerInteractEvent hpie = new HoneypotPlayerInteractEvent(event.getPlayer(),
+                HoneypotPlayerInteractEvent hpie = new HoneypotPlayerInteractEvent(player,
                         event.getClickedBlock());
                 Bukkit.getPluginManager().callEvent(hpie);
             }
@@ -145,15 +147,20 @@ public class PlayerInteractEventListener implements Listener {
 
     private void executeAction(PlayerInteractEvent event) {
 
-        Block block = event.getPlayer().getTargetBlockExact(5);
+        Player player = event.getPlayer();
+        Block block = player.getTargetBlockExact(5);
 
         assert block != null;
         String action = blockManager.getAction(block);
 
-        assert action != null;
-        logger.debug(Component.text("PlayerInteractEvent being called for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId() + ". Action is: " + action));
+        if (action == null) {
+            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            return;
+        }
 
-        actionHandler.handleCustomAction(action, block, event.getPlayer());
+        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
+
+        actionHandler.handleCustomAction(action, block, player);
     }
 
     /**

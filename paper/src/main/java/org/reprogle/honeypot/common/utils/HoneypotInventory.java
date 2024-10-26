@@ -17,24 +17,11 @@
 
 package org.reprogle.honeypot.common.utils;
 
-import org.bukkit.block.Container;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class HoneypotInventory implements InventoryHolder {
-    private final Container container;
-    private final Inventory dummyInventory;
-
-    /**
-     * Create a new Honeypot Inventory
-     * @param container The container that will "own" this inventory
-     */
-    public HoneypotInventory(Container container) {
-        this.container = container;
-        this.dummyInventory = container.getInventory();
-    }
+public record HoneypotInventory(Inventory inventory) implements InventoryHolder {
 
     /**
      * Get the inventory of the block
@@ -42,25 +29,6 @@ public class HoneypotInventory implements InventoryHolder {
      */
     @Override
     public @NotNull Inventory getInventory() {
-        return dummyInventory;
-    }
-
-    /**
-     * Updates the inventory, optionally forcefully
-     * @param force True to update the inventory by force
-     * @return True if the update was successful, false if not
-     */
-    public boolean updateInventory(boolean force, ItemStack[] itemStacks) {
-        container.getInventory().setContents(itemStacks);
-        return container.update(force);
-    }
-
-    /**
-     * Updates the inventory forcefully
-     *
-     * @return True if the inventory was updated, false if not
-     */
-    public boolean updateInventory(ItemStack[] itemStacks) {
-        return updateInventory(true, itemStacks);
+        return inventory;
     }
 }

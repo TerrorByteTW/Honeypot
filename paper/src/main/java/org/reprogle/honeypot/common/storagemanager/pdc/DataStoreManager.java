@@ -58,7 +58,7 @@ public class DataStoreManager {
 
     public NamespacedKey formatKey(Block block) {
         String coordinates = block.getX() + "_" + block.getY() + "_" + block.getZ();
-        return new NamespacedKey(plugin, "honeypot-" + coordinates);
+        return new NamespacedKey(plugin, "honeypot-container-" + coordinates);
     }
 
     public HoneypotBlockObject getHoneypotBlock(Block block) {
@@ -77,7 +77,7 @@ public class DataStoreManager {
         Set<NamespacedKey> keys = world.getPersistentDataContainer().getKeys();
 
         for (NamespacedKey key : keys) {
-            if (key.toString().startsWith("honeypot-"))
+            if (key.toString().startsWith("honeypot-container-"))
                 world.getPersistentDataContainer().remove(key);
         }
 
@@ -91,8 +91,8 @@ public class DataStoreManager {
         Set<NamespacedKey> keys = world.getPersistentDataContainer().getKeys();
 
         for (NamespacedKey key : keys) {
-            if (key.toString().startsWith("honeypot-")) {
-                String coordinatesRaw = key.toString().split("honeypot-")[1];
+            if (key.toString().startsWith("honeypot-container-")) {
+                String coordinatesRaw = key.toString().split("honeypot-container-")[1];
                 String coordinates = coordinatesRaw.replace("_", ", ");
 
                 blocks.add(new HoneypotBlockObject(world.getName(), coordinates,

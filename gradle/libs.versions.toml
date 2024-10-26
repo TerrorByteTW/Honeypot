@@ -1,6 +1,6 @@
 [versions]
 # Plugins
-shadow = "8.1.1"
+shadow = "8.3.3"
 sonar = "5.0.0.4638"
 
 # Libraries
@@ -21,7 +21,7 @@ guice = '7.0.0'
 okhttp = '4.12.0'
 
 [plugins]
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 sonar = { id = "org.sonarqube", version.ref = "sonar" }
 
 [libraries]
