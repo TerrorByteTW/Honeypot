@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -29,11 +28,16 @@ import org.bukkit.block.Block;
 import org.bukkit.persistence.PersistentDataType;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.Storage;
+import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
+import javax.annotation.Nullable;
+
 @SuppressWarnings("java:S1192")
-public class DataStoreManager {
+@Storage(name = "pdc")
+public class DataStoreManager extends StorageProvider {
 
     private final HoneypotLogger logger;
     Honeypot plugin;
@@ -48,7 +52,7 @@ public class DataStoreManager {
         block.getWorld().getPersistentDataContainer().set(formatKey(block), PersistentDataType.STRING, action);
     }
 
-    public void deleteBlock(Block block) {
+    public void removeHoneypotBlock(Block block) {
         block.getWorld().getPersistentDataContainer().remove(formatKey(block));
     }
 
@@ -73,7 +77,7 @@ public class DataStoreManager {
         return block.getWorld().getPersistentDataContainer().get(formatKey(block), PersistentDataType.STRING);
     }
 
-    public void deleteAllHoneypotBlocks(World world) {
+    public void deleteAllHoneypotBlocks(@Nullable World world) {
         Set<NamespacedKey> keys = world.getPersistentDataContainer().getKeys();
 
         for (NamespacedKey key : keys) {

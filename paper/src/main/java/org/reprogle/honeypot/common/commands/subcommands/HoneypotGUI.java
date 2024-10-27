@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -38,7 +37,7 @@ import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -97,14 +96,14 @@ public class HoneypotGUI implements HoneypotSubCommand {
             types.add(key.toString());
         }
 
-        ConcurrentMap<String, BehaviorProvider> map = plugin.getRegistry().getBehaviorProviders();
+        ConcurrentMap<String, BehaviorProvider> map = plugin.getBehaviorRegistry().getBehaviorProviders();
         map.forEach((providerName, provider) -> types.add(providerName));
 
         for (String type : types) {
 
             ItemBuilder item;
 
-            if (plugin.getRegistry().getBehaviorProvider(type) == null) {
+            if (plugin.getBehaviorRegistry().getBehaviorProvider(type) == null) {
                 String action = configManager.getHoneypotsConfig().getString(type + ".icon");
 
                 if (action != null && !action.isEmpty()) {
@@ -113,7 +112,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                     item = new ItemBuilder(Material.PAPER);
                 }
             } else {
-                item = new ItemBuilder(plugin.getRegistry().getBehaviorProvider(type).getIcon());
+                item = new ItemBuilder(plugin.getBehaviorRegistry().getBehaviorProvider(type).getIcon());
             }
 
             item.name(type);

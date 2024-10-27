@@ -3,12 +3,12 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 23
+file-version: 24
 
 # How many Honeypots to store in cache at any given time.
 # Caching Honeypots stores Honeypot data in-memory, reducing PDC/SQLite queries when breaking Honeypots to retrieve information.
 # Setting this to <= 0 will disable caching, slightly decreasing memory usage slightly but also *very* slightly increasing tick times
-# Please see https://github.com/TerrorByteTW/Honeypot/wiki#faq for more info. If you don't know what this is, leave it alone
+# If you are unsure of what this is, leave it alone. You may also open a ticket in Discord for assistance.
 cache-size: 100
 
 ######################################################################
@@ -24,9 +24,8 @@ enable-extra-events: false
 blocks-broken-before-action-taken: 1
 
 # Allow players to break Honeypot blocks. If set to true, 
-# an action will *NOT* trigger until a player hits the blocks-broken-before-action-taken value
+# an action will *NOT* trigger until a player hits the blocks-broken-before-action-taken value, and the Honeypot will be silently removed (Since it was broken, obvi)
 # If you want action taken on all Honeypots, regardless if players can remove them or not, be sure to set blocks-broken-before-action-taken to 1
-# This behavior was changed in version 3.0.3, please open a ticket on the support Discord if you are confused or need assistance.
 allow-player-destruction: true
 
 # Allow honeypot blocks to be blown up (TnT, Creepers, Ghasts, etc.). Default is false
@@ -41,16 +40,18 @@ container-actions:
   # If you want to use InventoryClickEvents instead of PlayerInteractEvent, set to true. Defaults to false
   # InventoryClickEvents happen on interacting with the inventory, PlayerInteractEvent happens upon players attempting to open the inventory
   use-inventory-click: false
-  # Only trigger actions if inventory clicks are set to true and items are taken. Defaults to true.
+  # Only trigger actions if inventory clicks are set to true and items are taken. This allows players to still deposit items into a Honeypot inventory. Defaults to true.
   only-trigger-on-withdrawal: true
 
 # Enable players to still open inventories if container actions are enabled. Always true if use-inventory-click is true. Defaults to false
+# Essentially what this means is, if use-inventory-click is false and enable-container-actions are true, then a Honeypot will trigger upon opening the inventory,
+# but the inventory will still open and the player can still take or leave items.
 always-allow-container-access: false
 
 # Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
 search-range: 5
 
-# Removes Honeypots from the DB if their cooresponding blocks no longer exists (e.g. are air). 
+# Removes Honeypots from storage if their corresponding blocks no longer exists (e.g. are air).
 # This used to require a restart to change, but now updates with /honeypot reload
 # enabled: Check for ghost pots periodically.
 # check-interval: How often to check for ghost pots, in MINUTES. 20 minutes = 1 Minecraft day.
@@ -127,9 +128,10 @@ respect-griefprevention: false
 # To enable the experimental PDC support change the value from "sqlite" to "pdc" (No quotes). Any other value will be ignored and the plugin will default to sqlite.
 storage-method: sqlite
 
-# This enables an experimental /honeypot debug command which will allow you to peer into PDC data for Honeypots. Useful only for the developer, so no need to enable it yourself
-# Changing this requires a restart, as this affects command registration at plugin load time
-enable-debug-mode: false
+# This is an experimental setting which enables the ability for a third-party storage manager to be used with Honeypot. This is not recommended for most users.
+# Developers can create their own storage manager to store Honeypot data in if they don't like SQLite or PDC. This allows things like MySQL, H2, PostgreSQL, etc. to be added later on
+# If you are a developer and want to use this, please refer to the wiki. Defaults to false.
+allow-third-party-storage-managers: false
 
 ######################################################################
 #                           C R E D I T S                            #

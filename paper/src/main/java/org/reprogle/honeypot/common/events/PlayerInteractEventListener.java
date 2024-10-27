@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -21,10 +20,8 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
-import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,7 +33,6 @@ import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
@@ -161,27 +157,5 @@ public class PlayerInteractEventListener implements Listener {
         logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
 
         actionHandler.handleCustomAction(action, block, player);
-    }
-
-    /**
-     * This method is specifically for handling the debug functionality of Honeypot
-     *
-     * @param event The event data being passed by the event handler
-     */
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void debugInteractEvent(PlayerInteractEvent event) {
-        Player player = event.getPlayer();
-
-        if (player.getPersistentDataContainer().has(new NamespacedKey(plugin, "honeypot-debug-enabled"))
-                && event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            event.setCancelled(true);
-
-            HoneypotBlockObject block = dataStoreManager.getHoneypotBlock(event.getClickedBlock());
-            if (block == null) {
-                player.sendMessage(commandFeedback.getChatPrefix() + " Not a Honeypot, no PDC found");
-                return;
-            }
-            player.sendMessage(commandFeedback.getChatPrefix() + " PDC contains: " + block);
-        }
     }
 }

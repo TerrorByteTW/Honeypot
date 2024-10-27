@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -32,6 +31,8 @@ import org.reprogle.honeypot.common.providers.BehaviorProcessor;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorRegistry;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
+import org.reprogle.honeypot.common.storagemanager.StorageManagerRegistry;
+import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
@@ -46,9 +47,11 @@ import java.util.Set;
 public final class Honeypot extends JavaPlugin {
 
     public static BehaviorProcessor processor = null;
+    public static StorageProvider storageProvider = null;
     // These dependencies can't really be injected
     private static SpiGUI gui;
-    private static BehaviorRegistry registry = new BehaviorRegistry();
+    private static BehaviorRegistry behaviorRegistry = new BehaviorRegistry();
+    private static StorageManagerRegistry storageManagerRegistry = new StorageManagerRegistry();
     // These dependencies can (and should) be injected
     @Inject
     private AdapterManager adapterManager;
@@ -63,7 +66,10 @@ public final class Honeypot extends JavaPlugin {
     @Inject
     private CommandFeedback commandFeedback;
     @Inject
-    private Set<BehaviorProvider> providers;
+    private Set<BehaviorProvider> behaviorProviders;
+    @Inject
+    private Set<StorageProvider> storageProviders;
+
     private Injector injector;
 
     /**
@@ -97,14 +103,30 @@ public final class Honeypot extends JavaPlugin {
         // Register adapters which must be registered on load
         adapterManager.onLoadAdapters(getServer());
 
-        registry = new BehaviorRegistry();
+        behaviorRegistry = new BehaviorRegistry();
+        storageManagerRegistry = new StorageManagerRegistry();
 
-        for (BehaviorProvider behavior : providers) {
-            registry.register(behavior);
+        for (BehaviorProvider behavior : behaviorProviders) {
+            behaviorRegistry.register(behavior);
+        }
+
+        for (StorageProvider provider : storageProviders) {
+            storageManagerRegistry.register(provider);
         }
 
         processor = new BehaviorProcessor(this);
+        String storageMethod = configManager.getPluginConfig().getString("storage-method");
+        if (!storageMethod.equals("sqlite") && !storageMethod.equals("pdc") && !configManager.getPluginConfig().getBoolean("allow-third-party-storage-managers")) {
+            logger.severe(commandFeedback.sendCommandFeedback("storage-providers-not-enabled"));
+            this.getServer().getPluginManager().disablePlugin(this);
+        }
 
+        if (storageManagerRegistry.getStorageProvider(storageMethod) != null) {
+            storageProvider = storageManagerRegistry.getStorageProvider(storageMethod);
+        } else {
+            logger.severe(commandFeedback.sendCommandFeedback("invalid-storage-provider").replaceText(builder -> builder.matchLiteral("%s").replacement(storageMethod)));
+            this.getServer().getPluginManager().disablePlugin(this);
+        }
     }
 
     /**
@@ -116,10 +138,11 @@ public final class Honeypot extends JavaPlugin {
 
         // Initialize the SpiGUI object for UI, lock the registry, and start the Ghost Honeypot Fixer task
         gui = new SpiGUI(this);
-        registry.setInitialized(true);
+        behaviorRegistry.setInitialized(true);
+        storageManagerRegistry.setInitialzed(true);
         ghf.startTask();
 
-        getHoneypotLogger().info(Component.text("Successfully registered " + registry.size()
+        getHoneypotLogger().info(Component.text("Successfully registered " + behaviorRegistry.size()
                 + " behavior providers. Further registrations are now locked."));
 
         // Start bstats and register event listeners
@@ -261,7 +284,16 @@ public final class Honeypot extends JavaPlugin {
      *
      * @return {@link BehaviorRegistry}
      */
-    public BehaviorRegistry getRegistry() {
-        return registry;
+    public BehaviorRegistry getBehaviorRegistry() {
+        return behaviorRegistry;
+    }
+
+    /**
+     * Get the Behavior Registry
+     *
+     * @return {@link BehaviorRegistry}
+     */
+    public StorageManagerRegistry storageManagerRegistry() {
+        return storageManagerRegistry;
     }
 }

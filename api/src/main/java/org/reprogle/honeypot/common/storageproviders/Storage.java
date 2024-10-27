@@ -14,23 +14,24 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.utils;
+package org.reprogle.honeypot.common.storageproviders;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * A class used for writing and managing permissions better. This class does not
- * yet have the ability to handle exlusivity, but I'm working on that. I've put
- * the permissions in a class to add features later
+ * An annotation to mark a class as a {@link Storage}
  */
-public record HoneypotPermission(String permission) {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Storage {
 
-	/**
-	 * Get the string of the permission required
-	 *
-	 * @return Permission string
-	 */
-	@Override
-	public String permission() {
-		return permission;
-	}
-
+    /**
+     * The name of the storage manager. Each storage manager must provide a unique name
+     *
+     * @return The name of the {@link Storage}
+     */
+    String name();
 }

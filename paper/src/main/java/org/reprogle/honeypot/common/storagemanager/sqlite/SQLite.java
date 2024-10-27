@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -24,6 +23,8 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.ConvertToSpatialIndexing01;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.SQLitePatch;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.UpdateHistoryTable00;
+import org.reprogle.honeypot.common.storageproviders.Storage;
+import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("FieldCanBeLocal")
+@Storage(name = "sqlite")
 @Singleton
 public class SQLite extends Database {
 

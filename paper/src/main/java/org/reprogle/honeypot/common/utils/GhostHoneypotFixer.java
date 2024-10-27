@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -25,8 +24,8 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 
 import java.util.List;
 

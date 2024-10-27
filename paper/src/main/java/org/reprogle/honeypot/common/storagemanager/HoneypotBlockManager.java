@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -21,40 +20,19 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
-import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
-import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nullable;
 
 public class HoneypotBlockManager {
-
-    private final String storageMethod;
-
-    @Inject
-    private DataStoreManager dataStoreManager;
 
     @Inject
     private HoneypotLogger logger;
 
     @Inject
     private CacheManager cacheManager;
-
-    @Inject
-    private SQLite db;
-
-    public HoneypotBlockManager(String method) {
-        if (method.equalsIgnoreCase("pdc")) {
-            this.storageMethod = method;
-        } else {
-            this.storageMethod = "sqlite";
-        }
-    }
 
     /**
      * Create a Honeypot {@link Block} and add it to the DB
@@ -63,11 +41,7 @@ public class HoneypotBlockManager {
      * @param action The action of the Honeypot
      */
     public void createBlock(Block block, String action) {
-        if (storageMethod.equals("pdc")) {
-            dataStoreManager.createHoneypotBlock(block, action);
-        } else {
-            db.createHoneypotBlock(block, action);
-        }
+        Honeypot.storageProvider.createHoneypotBlock(block, action);
 
         cacheManager.addToCache(new HoneypotBlockObject(block, action));
         logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
@@ -79,11 +53,7 @@ public class HoneypotBlockManager {
      * @param block The Honeypot {@link Block} we're deleting
      */
     public void deleteBlock(Block block) {
-        if (storageMethod.equals("pdc")) {
-            dataStoreManager.deleteBlock(block);
-        } else {
-            db.removeHoneypotBlock(block);
-        }
+        Honeypot.storageProvider.removeHoneypotBlock(block);
 
         cacheManager.removeFromCache(new HoneypotBlockObject(block, null));
         logger.debug(Component.text("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
@@ -100,7 +70,7 @@ public class HoneypotBlockManager {
             return true;
         }
 
-        if (storageMethod.equals("pdc") ? dataStoreManager.isHoneypotBlock(block) : db.isHoneypotBlock(block)) {
+        if (Honeypot.storageProvider.isHoneypotBlock(block)) {
             String action = getAction(block);
             cacheManager.addToCache(new HoneypotBlockObject(block, action));
             return true;
@@ -137,12 +107,7 @@ public class HoneypotBlockManager {
             return potential.getAction();
 
         try {
-            if (storageMethod.equals("pdc")) {
-                return dataStoreManager.getAction(block);
-
-            } else {
-                return db.getAction(block);
-            }
+            return Honeypot.storageProvider.getAction(block);
         } catch (Exception e) {
             logger.warning(Component.text("No action found for block, " +
                             "this is likely due to a container being created using the special lock format. " +
@@ -157,12 +122,7 @@ public class HoneypotBlockManager {
      * Delete all Honeypots in the entire DB
      */
     public void deleteAllHoneypotBlocks(World world) {
-        if (storageMethod.equals("pdc")) {
-            dataStoreManager.deleteAllHoneypotBlocks(world);
-        } else {
-            db.deleteAllBlocks();
-        }
-
+        Honeypot.storageProvider.deleteAllHoneypotBlocks(world);
         logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }
 
@@ -172,10 +132,8 @@ public class HoneypotBlockManager {
      * @return An array list of all HoneypotBlockObjects
      */
     public List<HoneypotBlockObject> getAllHoneypots(World world) {
-        if (storageMethod.equals("pdc")) {
-            return dataStoreManager.getAllHoneypots(world);
-        } else {
-            return db.getAllHoneypots();
-        }
+        return Honeypot.storageProvider.getAllHoneypots(world);
     }
+
+
 }

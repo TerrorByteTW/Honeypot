@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -30,7 +29,9 @@ import org.reprogle.honeypot.common.providers.included.Ban;
 import org.reprogle.honeypot.common.providers.included.Kick;
 import org.reprogle.honeypot.common.providers.included.Notify;
 import org.reprogle.honeypot.common.providers.included.Warn;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
+import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import java.io.File;
@@ -38,9 +39,16 @@ import java.io.File;
 public class HoneypotModule extends AbstractModule {
 
     private final Honeypot plugin;
-    private final HoneypotBlockManager blockManager;
     private final HoneypotConfigManager configManager;
     private final CommandFeedback commandFeedback;
+
+    public HoneypotModule(Honeypot plugin, HoneypotConfigManager configManager) {
+        this.plugin = plugin;
+        this.configManager = configManager;
+        configManager.setupConfig(plugin);
+
+        this.commandFeedback = new CommandFeedback();
+    }
 
     @Override
     protected void configure() {
@@ -49,16 +57,17 @@ public class HoneypotModule extends AbstractModule {
         bind(HoneypotConfigManager.class).toInstance(configManager);
         bind(CommandFeedback.class).toInstance(commandFeedback);
 
-        // We need a HoneypotBlockManager tied to a specific instance since that instance has specific settings based on configuration.
-        bind(HoneypotBlockManager.class).toInstance(blockManager);
-
         // Bind all the behavior providers
         Multibinder<BehaviorProvider> behaviorBinder = Multibinder.newSetBinder(binder(), BehaviorProvider.class);
         behaviorBinder.addBinding().to(Ban.class);
         behaviorBinder.addBinding().to(Warn.class);
         behaviorBinder.addBinding().to(Kick.class);
         behaviorBinder.addBinding().to(Notify.class);
-        
+
+        Multibinder<StorageProvider> storageBinder = Multibinder.newSetBinder(binder(), StorageProvider.class);
+        storageBinder.addBinding().to(SQLite.class);
+        storageBinder.addBinding().to(DataStoreManager.class);
+
         // Bind all commands
         Multibinder<HoneypotSubCommand> subcommandBinder = Multibinder.newSetBinder(binder(), HoneypotSubCommand.class);
         subcommandBinder.addBinding().to(HoneypotCreate.class);
@@ -72,22 +81,8 @@ public class HoneypotModule extends AbstractModule {
         subcommandBinder.addBinding().to(HoneypotList.class);
         subcommandBinder.addBinding().to(HoneypotMigrate.class);
 
-        // We only want this binding if debug for pdc is enabled
-        if (configManager.getPluginConfig().getBoolean("enable-debug-mode")) {
-            subcommandBinder.addBinding().to(HoneypotDebug.class);
-        }
-
         // Not really necessary but cool and I'm learning :P
         bind(File.class).annotatedWith(Names.named("HoneypotLogFile")).toInstance(new File(plugin.getDataFolder(), "honeypot.log"));
-    }
-
-    public HoneypotModule(Honeypot plugin, HoneypotConfigManager configManager) {
-        this.plugin = plugin;
-        this.configManager = configManager;
-        configManager.setupConfig(plugin);
-
-        this.blockManager = new HoneypotBlockManager(configManager.getPluginConfig().getString("storage-method"));
-        this.commandFeedback = new CommandFeedback();
     }
 
     public Injector createInjector() {

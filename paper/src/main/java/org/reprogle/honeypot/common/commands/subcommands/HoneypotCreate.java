@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -156,7 +155,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
         if (args.length == 2) {
             // Add all behavior providers to the subcommands list, including the built-in
             // ones
-            ConcurrentMap<String, BehaviorProvider> map = plugin.getRegistry().getBehaviorProviders();
+            ConcurrentMap<String, BehaviorProvider> map = plugin.getBehaviorRegistry().getBehaviorProviders();
             map.forEach((providerName, provider) -> subcommands.add(providerName));
 
             // Add all custom config actions to the subcommands list

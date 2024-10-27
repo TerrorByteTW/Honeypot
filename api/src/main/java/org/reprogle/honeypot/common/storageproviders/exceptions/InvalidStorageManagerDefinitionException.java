@@ -14,23 +14,10 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.utils;
+package org.reprogle.honeypot.common.storageproviders.exceptions;
 
-/**
- * A class used for writing and managing permissions better. This class does not
- * yet have the ability to handle exlusivity, but I'm working on that. I've put
- * the permissions in a class to add features later
- */
-public record HoneypotPermission(String permission) {
-
-	/**
-	 * Get the string of the permission required
-	 *
-	 * @return Permission string
-	 */
-	@Override
-	public String permission() {
-		return permission;
-	}
-
+public class InvalidStorageManagerDefinitionException extends RuntimeException {
+    public InvalidStorageManagerDefinitionException(String message) {
+        super(message);
+    }
 }

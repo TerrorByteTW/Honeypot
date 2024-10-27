@@ -1,8 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte (c) 2024
- * Copyright Honeypot Contributors (c) 2024
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -18,16 +17,20 @@
 package org.reprogle.honeypot.common.storagemanager.sqlite;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockObject;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.storagemanager.queue.QueueManager;
+import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
+import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,7 +44,7 @@ import java.util.List;
  * Honeypot. Be careful when editing!
  */
 @SuppressWarnings("java:S1192")
-public abstract class Database {
+public abstract class Database extends StorageProvider {
 
     private static final String PLAYER_TABLE = "honeypot_players";
     private static final String BLOCK_TABLE = "honeypot_blocks";
@@ -266,11 +269,107 @@ public abstract class Database {
     }
 
     /**
+     * Returns a single honeypot block object
+     * @param block The block to convert
+     * @return A HoneypotBlockObject
+     */
+    public HoneypotBlockObject getHoneypotBlock(Block block) {
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement("SELECT honeypot_index.x_min, honeypot_index.y_min, honeypot_index.z_min, " +
+                    "honeypot_blocks.world, honeypot_blocks.action FROM honeypot_index JOIN honeypot_blocks ON honeypot_index.id = honeypot_blocks.id "
+                    + WHERE + ";");
+            //noinspection DuplicatedCode
+            ps.setString(1, Integer.toString(block.getX()));
+            ps.setString(2, Integer.toString(block.getX()));
+            ps.setString(3, Integer.toString(block.getY()));
+            ps.setString(4, Integer.toString(block.getY()));
+            ps.setString(5, Integer.toString(block.getZ()));
+            ps.setString(6, Integer.toString(block.getZ()));
+            ps.setString(7, block.getWorld().getName());
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                return new HoneypotBlockObject(rs.getString("world"), rs.getInt("x_min"),
+                        rs.getInt("y_min"), rs.getInt("z_min"), rs.getString("action"));
+            }
+        } catch (SQLException e) {
+            logger.severe(Component.text("Error while executing action SQL statement on block table: " + e));
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (c != null)
+                    c.close();
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException e) {
+                logger.severe(Component.text(FAIL_TO_CLOSE + e));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns a single honeypot block object
+     * @param location The location to start searching from
+     * @param radius The radius to search in
+     * @return A HoneypotBlockObject
+     */
+    public List<HoneypotBlockObject> getNearbyHoneypots(Location location, int radius) {
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            c = getSQLConnection();
+            ps = c.prepareStatement("SELECT honeypot_index.x_min, honeypot_index.y_min, honeypot_index.z_min, " +
+                    "honeypot_blocks.world, honeypot_blocks.action FROM honeypot_index JOIN honeypot_blocks ON honeypot_index.id = honeypot_blocks.id "
+                    + WHERE + ";");
+            //noinspection DuplicatedCode
+            ps.setString(1, Integer.toString(location.getBlockX() - radius));
+            ps.setString(2, Integer.toString(location.getBlockX() + radius));
+            ps.setString(3, Integer.toString(location.getBlockY() - radius));
+            ps.setString(4, Integer.toString(location.getBlockY() + radius));
+            ps.setString(5, Integer.toString(location.getBlockZ() - radius));
+            ps.setString(6, Integer.toString(location.getBlockZ() + radius));
+            ps.setString(7, location.getWorld().getName());
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                return new HoneypotBlockObject(rs.getString("world"), rs.getInt("x_min"),
+                        rs.getInt("y_min"), rs.getInt("z_min"), rs.getString("action"));
+            }
+        } catch (SQLException e) {
+            logger.severe(Component.text("Error while executing action SQL statement on block table: " + e));
+        } finally {
+            try {
+                if (ps != null)
+                    ps.close();
+                if (c != null)
+                    c.close();
+                if (rs != null)
+                    rs.close();
+            } catch (SQLException e) {
+                logger.severe(Component.text(FAIL_TO_CLOSE + e));
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get all the Honeypot blocks in the DB
      *
+     * @param world The world to get the blocks from. We actually ignore this here, it just exists because of the interface
      * @return A list of HoneypotBlockObjects from the DB
      */
-    public List<HoneypotBlockObject> getAllHoneypots() {
+    public List<HoneypotBlockObject> getAllHoneypots(@Nullable World world) {
         ArrayList<HoneypotBlockObject> blocks = new ArrayList<>();
         Connection c = null;
         PreparedStatement ps = null;
@@ -463,8 +562,9 @@ public abstract class Database {
 
     /**
      * Delete's all blocks in the DB
+     * @param world The world to delete blocks from. We actually ignore this here, it just exists because of the interface
      */
-    public void deleteAllBlocks() {
+    public void deleteAllHoneypotBlocks(@Nullable World world) {
         Connection c = null;
         PreparedStatement ps = null;
 
