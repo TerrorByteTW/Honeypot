@@ -62,7 +62,7 @@ idea {
 }
 
 tasks.register("thankYou") {
-    doLast{
+    doLast {
         println("\n\n\n\n\n\n\n\n\n\n\n\n====================================================================================================================================================")
         println("Thanks for downloading Honeypot! If you enjoy the project, consider rating it on one of the many sites I release on, or give it a star on GitHub.")
         println("Your compiled jar files are located in honeypot-{platform}/build/libs. Be sure to grab the jar file for the version you're actually planning to use!")
@@ -72,6 +72,17 @@ tasks.register("thankYou") {
 
 tasks.build {
     finalizedBy("thankYou")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+            from(components["java"])
+        }
+    }
 }
 
 defaultTasks("build")

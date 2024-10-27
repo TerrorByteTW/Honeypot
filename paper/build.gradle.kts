@@ -65,7 +65,7 @@ tasks.withType<Jar> {
 
 // Build script for ensuring that everything is done correctly 
 tasks.named("build") {
-    dependsOn("processResources", "shadowJar", "javadoc", "copyJarToServer")
+    dependsOn("processResources", "shadowJar", "javadoc")
 }
 
 // Replaces the version number in the plugin.yml by expanding all variables to project properties
@@ -83,13 +83,4 @@ tasks.shadowJar {
     relocate("dev.dejvokep.boostedyaml", "org.reprogle.honeypot.common.libs.boostedyaml")
     relocate("org.bstats", "org.reprogle.honeypot.common.libs.bstats")
     relocate("com.samjakob", "org.reprogle.honeypot.common.libs.spigui")
-}
-
-tasks.register("copyJarToServer") {
-    doLast {
-        copy {
-            from("build/libs/honeypot-paper-${version}.jar")
-            into("/home/nate/Documents/Development Projects/Honeypot Development/Server/plugins")
-        }
-    }
 }
