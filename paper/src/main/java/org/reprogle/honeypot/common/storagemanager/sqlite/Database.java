@@ -55,9 +55,9 @@ public abstract class Database extends StorageProvider {
     private static final String FAIL_TO_CLOSE = "Failed to close SQLite connection: ";
     private static final String DELETE = "DELETE FROM ";
     private static final String INSERT_INTO = "INSERT INTO ";
-    private static final String WHERE = " WHERE x_min <= ? AND x_max >= ? " +
-            "AND y_min <= ? AND y_max >= ? " +
-            "AND z_min <= ? AND z_max >= ? " +
+    private static final String WHERE = " WHERE x_min >= ? AND x_max <= ? " +
+            "AND y_min >= ? AND y_max <= ? " +
+            "AND z_min >= ? AND z_max <= ? " +
             "AND world = ?";
     private final HoneypotLogger logger;
     Honeypot plugin;
@@ -325,26 +325,37 @@ public abstract class Database extends StorageProvider {
         Connection c = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
+        List<HoneypotBlockObject> blocks = new ArrayList<>();
 
         try {
             c = getSQLConnection();
             ps = c.prepareStatement("SELECT honeypot_index.x_min, honeypot_index.y_min, honeypot_index.z_min, " +
                     "honeypot_blocks.world, honeypot_blocks.action FROM honeypot_index JOIN honeypot_blocks ON honeypot_index.id = honeypot_blocks.id "
                     + WHERE + ";");
-            //noinspection DuplicatedCode
-            ps.setString(1, Integer.toString(location.getBlockX() - radius));
-            ps.setString(2, Integer.toString(location.getBlockX() + radius));
-            ps.setString(3, Integer.toString(location.getBlockY() - radius));
-            ps.setString(4, Integer.toString(location.getBlockY() + radius));
-            ps.setString(5, Integer.toString(location.getBlockZ() - radius));
-            ps.setString(6, Integer.toString(location.getBlockZ() + radius));
+
+            // This handles the case where any given direction is negative, because in that case we'd need to flip the min and max values
+            int xMin = Math.min(location.getBlockX() - radius, location.getBlockX() + radius);
+            int xMax = Math.max(location.getBlockX() - radius, location.getBlockX() + radius);
+            int yMin = Math.min(location.getBlockY() - radius, location.getBlockY() + radius);
+            int yMax = Math.max(location.getBlockY() - radius, location.getBlockY() + radius);
+            int zMin = Math.min(location.getBlockZ() - radius, location.getBlockZ() + radius);
+            int zMax = Math.max(location.getBlockZ() - radius, location.getBlockZ() + radius);
+
+            ps.setString(1, Integer.toString(xMin));
+            ps.setString(2, Integer.toString(xMax));
+            ps.setString(3, Integer.toString(yMin));
+            ps.setString(4, Integer.toString(yMax));
+            ps.setString(5, Integer.toString(zMin));
+            ps.setString(6, Integer.toString(zMax));
             ps.setString(7, location.getWorld().getName());
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                return new HoneypotBlockObject(rs.getString("world"), rs.getInt("x_min"),
-                        rs.getInt("y_min"), rs.getInt("z_min"), rs.getString("action"));
+                blocks.add(new HoneypotBlockObject(rs.getString("world"), rs.getInt("x_min"),
+                        rs.getInt("y_min"), rs.getInt("z_min"), rs.getString("action")));
             }
+
+            return blocks;
         } catch (SQLException e) {
             logger.severe(Component.text("Error while executing action SQL statement on block table: " + e));
         } finally {

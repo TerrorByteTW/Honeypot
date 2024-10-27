@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -81,7 +82,7 @@ public class DataStoreManager extends StorageProvider {
         Set<NamespacedKey> keys = world.getPersistentDataContainer().getKeys();
 
         for (NamespacedKey key : keys) {
-            if (key.toString().startsWith("honeypot-container-"))
+            if (key.getKey().startsWith("honeypot-container-"))
                 world.getPersistentDataContainer().remove(key);
         }
 
@@ -95,8 +96,8 @@ public class DataStoreManager extends StorageProvider {
         Set<NamespacedKey> keys = world.getPersistentDataContainer().getKeys();
 
         for (NamespacedKey key : keys) {
-            if (key.toString().startsWith("honeypot-container-")) {
-                String coordinatesRaw = key.toString().split("honeypot-container-")[1];
+            if (key.getKey().startsWith("honeypot-container-")) {
+                String coordinatesRaw = key.getKey().split("honeypot-container-")[1];
                 String coordinates = coordinatesRaw.replace("_", ", ");
 
                 blocks.add(new HoneypotBlockObject(world.getName(), coordinates,
@@ -105,5 +106,17 @@ public class DataStoreManager extends StorageProvider {
         }
 
         return blocks;
+    }
+
+    public List<HoneypotBlockObject> getNearbyHoneypots(Location location, int radius) {
+        List<HoneypotBlockObject> honeypots = new ArrayList<>();
+
+        for (HoneypotBlockObject honeypot : getAllHoneypots(location.getWorld())) {
+            if (honeypot.getLocation().distance(location) <= radius) {
+                honeypots.add(honeypot);
+            }
+        }
+
+        return honeypots;
     }
 }

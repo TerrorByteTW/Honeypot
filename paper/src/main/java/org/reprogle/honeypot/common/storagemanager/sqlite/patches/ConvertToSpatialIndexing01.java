@@ -66,7 +66,7 @@ public class ConvertToSpatialIndexing01 implements SQLitePatch {
                         coords[0] + ", " + coords[0] + ", " +
                         coords[1] + ", " + coords[1] + ", " +
                         coords[2] + ", " + coords[2] + ");");
-                s.executeUpdate("INSERT INTO new_honeypot_data (id, world, action) VALUES (last_insert_rowid(),\"" + block.getWorld() + "\",\"" + block.getAction() + "\");");
+                s.executeUpdate("INSERT INTO new_honeypot_data (id, world, action) VALUES (last_insert_rowid(),'" + block.getWorld() + "','" + block.getAction() + "');");
             }
 
             s.executeUpdate(DROP_OLD_HONEYPOT_DATA);

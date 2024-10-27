@@ -28,6 +28,7 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
@@ -62,54 +63,36 @@ public class HoneypotLocate implements HoneypotSubCommand {
      */
     @Override
     public void perform(Player p, String[] args) {
-        double radius;
+        int radius;
         if (args.length == 2) {
             try {
                 radius = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 p.sendMessage(commandFeedback.sendCommandFeedback("invalid-radius"));
-                radius = configManager.getPluginConfig().getDouble("search-range");
+                radius = configManager.getPluginConfig().getInt("search-range");
             }
         } else {
-            radius = configManager.getPluginConfig().getDouble("search-range");
+            radius = configManager.getPluginConfig().getInt("search-range");
         }
 
-        final double xCoord = p.getLocation().getX();
-        final double yCoord = p.getLocation().getY();
-        final double zCoord = p.getLocation().getZ();
         boolean potFound = false;
 
-        // For every x value within radius
-        for (double x = xCoord - radius; x < xCoord + radius; x++) {
-            // For every y value within radius
-            for (double y = yCoord - radius; y < yCoord + radius; y++) {
-                // For every z value within radius
-                for (double z = zCoord - radius; z < zCoord + radius; z++) {
+        List<HoneypotBlockObject> honeypots = Honeypot.storageProvider.getNearbyHoneypots(p.getLocation(), radius);
+        if (!honeypots.isEmpty()) potFound = true;
 
-                    // Check the block at coords x,y,z to see if it's a Honeypot
-                    final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+        for (HoneypotBlockObject honeypot : honeypots) {
+            Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(honeypot.getBlock().getWorld().getName()))
+                    .spawnEntity(honeypot.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
+            slime.setSize(2);
+            slime.setAI(false);
+            slime.setGlowing(true);
+            slime.setInvulnerable(true);
+            slime.setHealth(4.0);
+            slime.setInvisible(true);
 
-                    // If it is a honeypot do this
-                    if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
-                        potFound = true;
-
-                        // Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
-                        // it inside the block
-                        Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(b.getWorld().getName()))
-                                .spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
-                        slime.setSize(2);
-                        slime.setAI(false);
-                        slime.setGlowing(true);
-                        slime.setInvulnerable(true);
-                        slime.setHealth(4.0);
-                        slime.setInvisible(true);
-
-                        // Remove the slime after 5 seconds
-                        // If we kill it, a death animation plays and the slime splits and drops items
-                        slime.getScheduler().runDelayed(plugin, scheduledTask -> slime.remove(), null, 20L * 5);
-                    }
-                }
-            }
+            // Remove the slime after 5 seconds
+            // If we kill it, a death animation plays and the slime splits and drops items
+            slime.getScheduler().runDelayed(plugin, scheduledTask -> slime.remove(), null, 20L * 5);
         }
 
         // Let the player know if a pot was found or not
