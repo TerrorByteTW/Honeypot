@@ -23,30 +23,33 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
 public record HoneypotSupportedVersions(Plugin plugin, String version) {
 
-	/**
-	 * Gets the supported server versions for the current version of the plugin
-	 *
-	 * @param consumer The consumer function
-	 */
-	public void getSupportedVersions(final Consumer<String> consumer, HoneypotLogger logger) {
-		Bukkit.getAsyncScheduler().runNow(this.plugin, scheduledTask -> {
-			logger.info(Component.text("Checking if this server version is supported"));
-			try (InputStream inputStream = new URL(
-					"https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version)
-					.openStream();
-					Scanner scanner = new Scanner(inputStream)) {
-				if (scanner.hasNext()) {
-					consumer.accept(scanner.next());
-				}
-			} catch (IOException exception) {
-				logger.warning(Component.text("Unable to check supported versions: " + exception.getMessage()));
-			}
-		});
-	}
+    /**
+     * Gets the supported server versions for the current version of the plugin
+     *
+     * @param consumer The consumer function
+     */
+    public void getSupportedVersions(final Consumer<String> consumer, HoneypotLogger logger) {
+        Bukkit.getAsyncScheduler().runNow(this.plugin, scheduledTask -> {
+            logger.info(Component.text("Checking if this server version is supported"));
+            try (InputStream inputStream = new URI(
+                    "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version)
+                    .toURL()
+                    .openStream();
+                 Scanner scanner = new Scanner(inputStream)) {
+                if (scanner.hasNext()) {
+                    consumer.accept(scanner.next());
+                }
+            } catch (IOException | URISyntaxException exception) {
+                logger.warning(Component.text("Unable to check supported versions: " + exception.getMessage()));
+            }
+        });
+    }
 }

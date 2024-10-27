@@ -20,50 +20,54 @@ package org.reprogle.honeypot.common.storagemanager.queue;
 import java.util.*;
 
 public class ListenableQueue<E> extends AbstractQueue<E> {
-	interface Listener<E> {
-		void onElementAdded(E element);
-	}
+    private static final Object lock = new Object();
+    private final Queue<E> delegate;
+    private final List<Listener<E>> listeners = new ArrayList<>();
 
-	private final Queue<E> delegate;
-	private final List<Listener<E>> listeners = new ArrayList<>();
+    public ListenableQueue(Queue<E> delegate) {
+        this.delegate = delegate;
+    }
 
-	public ListenableQueue(Queue<E> delegate) {
-		this.delegate = delegate;
-	}
+    public ListenableQueue<E> registerListener(Listener<E> listener) {
+        listeners.add(listener);
+        return this;
+    }
 
-	public ListenableQueue<E> registerListener(Listener<E> listener) {
-		listeners.add(listener);
-		return this;
-	}
+    @Override
+    public boolean offer(E e) {
+        if (delegate.offer(e)) {
+            synchronized (lock) {
+                lock.notify();
+                listeners.forEach(listener -> listener.onElementAdded(e));
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	@Override
-	public boolean offer(E e) {
-		if (delegate.offer(e)) {
-			listeners.forEach(listener -> listener.onElementAdded(e));
-			return true;
-		} else {
-			return false;
-		}
-	}
+    @Override
+    public E poll() {
+        return delegate.poll();
+    }
 
-	@Override
-	public E poll() {
-		return delegate.poll();
-	}
+    @Override
+    public E peek() {
+        return delegate.peek();
+    }
 
-	@Override
-	public E peek() {
-		return delegate.peek();
-	}
+    @Override
+    public int size() {
+        return delegate.size();
+    }
 
-	@Override
-	public int size() {
-		return delegate.size();
-	}
+    @Override
+    public Iterator<E> iterator() {
+        return delegate.iterator();
+    }
 
-	@Override
-	public Iterator<E> iterator() {
-		return delegate.iterator();
-	}
+    interface Listener<E> {
+        void onElementAdded(E element);
+    }
 
 }

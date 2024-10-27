@@ -86,7 +86,7 @@ public class HoneypotModule extends AbstractModule {
         this.configManager = configManager;
         configManager.setupConfig(plugin);
 
-        this.blockManager = new HoneypotBlockManager(configManager.getPluginConfig().getString("storage-method"), configManager.getPluginConfig().getBoolean("lock-containers"));
+        this.blockManager = new HoneypotBlockManager(configManager.getPluginConfig().getString("storage-method"));
         this.commandFeedback = new CommandFeedback();
     }
 

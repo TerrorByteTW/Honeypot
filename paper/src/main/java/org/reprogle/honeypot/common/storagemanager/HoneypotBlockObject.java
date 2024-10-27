@@ -31,152 +31,143 @@ import java.util.regex.Pattern;
 
 public class HoneypotBlockObject implements PersistentDataType<String, HoneypotBlockObject> {
 
-	private final String coordinates;
+    private final String coordinates;
 
-	private final String world;
+    private final String world;
 
-	private final String action;
+    private final String action;
 
-	/**
-	 * Create a HoneypotBlockObject
-	 *
-	 * @param block  The Block object of the Honeypot
-	 * @param action The action of the Honeypot
-	 */
-	public HoneypotBlockObject(Block block, String action) {
-		this.coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
-		this.world = block.getWorld().getName();
-		this.action = action;
-	}
+    /**
+     * Create a HoneypotBlockObject
+     *
+     * @param block  The Block object of the Honeypot
+     * @param action The action of the Honeypot
+     */
+    public HoneypotBlockObject(Block block, String action) {
+        this.coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
+        this.world = block.getWorld().getName();
+        this.action = action;
+    }
 
-	/**
-	 * Used for GUI, create a Honeypot based off of strings and not Block objects
-	 *
-	 * @param worldName   The world the block is in
-	 * @param coordinates The coordinates of the block
-	 * @param action      The action of the Honeypot
-	 */
-	public HoneypotBlockObject(String worldName, String coordinates, String action) {
-		this.coordinates = coordinates;
-		this.world = worldName;
-		this.action = action;
-	}
+    /**
+     * Used for GUI, create a Honeypot based off of strings and not Block objects
+     *
+     * @param worldName   The world the block is in
+     * @param coordinates The coordinates of the block
+     * @param action      The action of the Honeypot
+     */
+    public HoneypotBlockObject(String worldName, String coordinates, String action) {
+        this.coordinates = coordinates;
+        this.world = worldName;
+        this.action = action;
+    }
 
-	/**
-	 * Get the String formatted coordinates of the Honeypot
-	 *
-	 * @return Coordinates
-	 */
-	public String getCoordinates() {
-		return coordinates;
-	}
+    /**
+     * Used for Database, create a Honeypot based off of individual coordinates and not one big string
+     *
+     * @param worldName   The world the block is in
+     * @param x           The x coordinate of the block
+     * @param y           The y coordinate of the block
+     * @param z           The z coordinate of the block
+     * @param action      The action of the Honeypot
+     */
+    public HoneypotBlockObject(String worldName, int x, int y, int z, String action) {
+        this.coordinates = String.join(", ", Integer.toString(x), Integer.toString(y), Integer.toString(z));
+        this.world = worldName;
+        this.action = action;
+    }
 
-	/**
-	 * Get the Location object of the Honeypot
-	 *
-	 * @return Location
-	 */
-	public Location getLocation() {
-		Pattern pattern = Pattern.compile("-?\\d+");
-		Matcher matcher = pattern.matcher(coordinates);
-		ArrayList<String> coords = new ArrayList<>();
+    /**
+     * Get the String formatted coordinates of the Honeypot
+     *
+     * @return Coordinates
+     */
+    public String getCoordinates() {
+        return coordinates;
+    }
 
-		while (matcher.find()) {
-			String coord = matcher.group();
-			coords.add(coord);
-		}
+    /**
+     * Get the Location object of the Honeypot
+     *
+     * @return Location
+     */
+    public Location getLocation() {
+        String[] coords = coordinates.split(", ");
+        return new Location(Bukkit.getWorld(world), Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
+    }
 
-		int x = Integer.parseInt(coords.get(0));
-		int y = Integer.parseInt(coords.get(1));
-		int z = Integer.parseInt(coords.get(2));
+    /**
+     * Get the action of the Honeypot
+     *
+     * @return action
+     */
+    public String getAction() {
+        return action;
+    }
 
-		return new Location(Bukkit.getWorld(world), x, y, z);
-	}
+    /**
+     * Get the world of the Honeypot
+     *
+     * @return world
+     */
+    public String getWorld() {
+        return world;
+    }
 
-	/**
-	 * Get the action of the Honeypot
-	 *
-	 * @return action
-	 */
-	public String getAction() {
-		return action;
-	}
+    /**
+     * Get the Block object of the Honeypot
+     *
+     * @return Honeypot Block object
+     */
+    public Block getBlock() {
+        String[] coords = coordinates.split(", ");
+        return Bukkit.getWorld(world).getBlockAt(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
+    }
 
-	/**
-	 * Get the world of the Honeypot
-	 *
-	 * @return world
-	 */
-	public String getWorld() {
-		return world;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HoneypotBlockObject honeypot))
+            return false;
+        if (o == this)
+            return true;
 
-	/**
-	 * Get the Block object of the Honeypot
-	 *
-	 * @return Honeypot Block object
-	 */
-	public Block getBlock() {
-		Pattern pattern = Pattern.compile("-?\\d+");
-		Matcher matcher = pattern.matcher(coordinates);
-		ArrayList<String> coords = new ArrayList<>();
+        // Don't really care about the action since action doesn't determine a Honeypot
+        return honeypot.coordinates.equalsIgnoreCase(this.coordinates) && honeypot.world.equals(this.world);
+    }
 
-		while (matcher.find()) {
-			String coord = matcher.group();
-			coords.add(coord);
-		}
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(coordinates, world, action);
+    }
 
-		int x = Integer.parseInt(coords.get(0));
-		int y = Integer.parseInt(coords.get(1));
-		int z = Integer.parseInt(coords.get(2));
+    // These methods are what allow HoneypotBlockObjects to directly be stored in
+    // PDC. They may or may not be used, but they are here as utilities
 
-		return Bukkit.getWorld(world).getBlockAt(x, y, z);
-	}
+    @Override
+    public @NotNull Class<String> getPrimitiveType() {
+        return String.class;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (!(o instanceof HoneypotBlockObject honeypot))
-			return false;
-		if (o == this)
-			return true;
+    @Override
+    public @NotNull Class<HoneypotBlockObject> getComplexType() {
+        return HoneypotBlockObject.class;
+    }
 
-		// Don't really care about the action since action doesn't determine a Honeypot
-		return honeypot.coordinates.equalsIgnoreCase(this.coordinates) && honeypot.world.equals(this.world);
-	}
+    @Override
+    public String toPrimitive(@NotNull HoneypotBlockObject complex,
+                              @NotNull PersistentDataAdapterContext context) {
+        return world + ";;" + coordinates + ";;" + action;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(coordinates, world, action);
-	}
+    @Override
+    public @NotNull HoneypotBlockObject fromPrimitive(String primitive,
+                                                      @NotNull PersistentDataAdapterContext context) {
+        String[] strings = primitive.split(";;");
+        return new HoneypotBlockObject(strings[0], strings[1], strings[2]);
+    }
 
-	// These methods are what allow HoneypotBlockObjects to directly be stored in
-	// PDC. They may or may not be used, but they are here as utilities
-
-	@Override
-	public @NotNull Class<String> getPrimitiveType() {
-		return String.class;
-	}
-
-	@Override
-	public @NotNull Class<HoneypotBlockObject> getComplexType() {
-		return HoneypotBlockObject.class;
-	}
-
-	@Override
-	public String toPrimitive(@NotNull HoneypotBlockObject complex,
-			@NotNull PersistentDataAdapterContext context) {
-		return world + ";;" + coordinates + ";;" + action;
-	}
-
-	@Override
-	public @NotNull HoneypotBlockObject fromPrimitive(String primitive,
-			@NotNull PersistentDataAdapterContext context) {
-		String[] strings = primitive.split(";;");
-		return new HoneypotBlockObject(strings[0], strings[1], strings[2]);
-	}
-
-	public String toString() {
-		return world + " " + coordinates + " " + action;
-	}
+    public String toString() {
+        return world + " " + coordinates + " " + action;
+    }
 
 }

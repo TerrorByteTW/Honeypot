@@ -23,6 +23,8 @@ import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Scanner;
 import java.util.function.Consumer;
@@ -37,12 +39,12 @@ public record HoneypotUpdateChecker(Plugin plugin, String link) {
 	public void getVersion(final Consumer<String> consumer, HoneypotLogger logger) {
 		Bukkit.getAsyncScheduler().runNow(this.plugin, scheduledTask -> {
 			logger.info(Component.text("Checking for updates"));
-			try (InputStream inputStream = new URL(this.link).openStream();
-					Scanner scanner = new Scanner(inputStream)) {
+			try (InputStream inputStream = new URI(this.link).toURL().openStream();
+				 Scanner scanner = new Scanner(inputStream)) {
 				if (scanner.hasNext()) {
 					consumer.accept(scanner.next());
 				}
-			} catch (IOException exception) {
+			} catch (IOException | URISyntaxException exception) {
 				logger.info(Component.text("Unable to check for updates" + exception.getMessage()));
 			}
 		});

@@ -67,7 +67,8 @@ public class GhostHoneypotFixer {
             // iterate through all worlds.
             // There is a better way to do this since, if we're using SQLite this isn't
             // necessary, but this is just temporary
-            // TODO: Make this loop better ^^^
+            // TODO: Make this loop better (10/26/24 No better permanent fix like a temporary solution.
+            //  Git blame says I made this change on 2/20/2024, almost a year ago. I'll get around to it eventually) ^^^
             for (World world : worlds) {
                 List<HoneypotBlockObject> pots = blockManager.getAllHoneypots(world);
                 for (HoneypotBlockObject pot : pots) {

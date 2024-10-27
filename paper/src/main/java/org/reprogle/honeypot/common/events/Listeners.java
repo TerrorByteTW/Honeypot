@@ -68,8 +68,6 @@ public class Listeners {
     @Inject
     InventoryClickDragEventListener inventoryClickDragEventListener;
     @Inject
-    HoneypotInventoryHandlers honeypotInventoryHandlers;
-    @Inject
     PlayerInteractEventListener playerInteractEventListener;
 
     /**
@@ -108,7 +106,6 @@ public class Listeners {
             if (configManager.getPluginConfig().getBoolean("container-actions.use-inventory-click")) {
                 logger.info(Component.text("Using inventory click for containers"));
                 manager.registerEvents(inventoryClickDragEventListener, plugin);
-                manager.registerEvents(honeypotInventoryHandlers, plugin);
             } else {
                 logger.info(Component.text("Using player interact for containers"));
                 manager.registerEvents(playerInteractEventListener, plugin);

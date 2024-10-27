@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -40,10 +41,12 @@ public class InventoryMoveItemEventListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
-        InventoryType source = event.getSource().getType();
-        if (!source.equals(InventoryType.HOPPER)
-                && !source.equals(InventoryType.DROPPER))
+        // We only care if the initiator is a dropper or hopper, meaning a dropper or hopper started the item move (Either a pull or a push)
+        if (event.getInitiator().getType() != InventoryType.HOPPER && event.getInitiator().getType() != InventoryType.DROPPER)
             return;
+
+        Location sourceLocation = event.getSource().getLocation();
+        if (sourceLocation == null) return;
 
         Location destinationLocation = event.getDestination().getLocation();
         if (destinationLocation == null) return;
@@ -51,23 +54,13 @@ public class InventoryMoveItemEventListener implements Listener {
         World world = destinationLocation.getWorld();
         if (world == null) return;
 
-        Location sourceLocation = event.getSource().getLocation();
-        if (sourceLocation == null) return;
-
         Block targetBlock = world.getBlockAt(destinationLocation);
         Block sourceBlock = world.getBlockAt(sourceLocation);
 
         boolean isSourceHoneypot = blockManager.isHoneypotBlock(sourceBlock);
         boolean isTargetHoneypot = blockManager.isHoneypotBlock(targetBlock);
 
-        // We only care about hoppers and droppers, as these are the only two items that
-        // can interact with chests directly
-        if (isSourceHoneypot) return;
-
-        // Check if the source was a Hopper or Dropper and if the destination is a
-        // Honeypot. If so, cancel the whole
-        // thing.
-        if (isTargetHoneypot) event.setCancelled(true);
+        // Check if the source or target is a Honeypot. If so, cancel the whole thing.
+        if (isSourceHoneypot || isTargetHoneypot) event.setCancelled(true);
     }
-
 }

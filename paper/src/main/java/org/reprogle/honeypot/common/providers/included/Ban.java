@@ -18,6 +18,7 @@
 package org.reprogle.honeypot.common.providers.included;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -32,18 +33,18 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 @SuppressWarnings("deprecation")
 public class Ban extends BehaviorProvider {
 
-	@Inject
-	private CommandFeedback commandFeedback;
+    @Inject
+    private CommandFeedback commandFeedback;
 
-	@Override
-	public boolean process(Player p, Block block) {
-		String banReason = commandFeedback.sendCommandFeedback("ban-reason").toString();
-		String chatPrefix = commandFeedback.getChatPrefix().toString();
+    @Override
+    public boolean process(Player p, Block block) {
+        String banReason = PlainTextComponentSerializer.plainText().serialize(commandFeedback.sendCommandFeedback("ban-reason"));
+        String chatPrefix = PlainTextComponentSerializer.plainText().serialize(commandFeedback.getChatPrefix());
 
-		Bukkit.getBanList(BanList.Type.NAME).addBan(p.getName(), banReason, null,
-				chatPrefix);
-		p.kickPlayer(banReason);
+        Bukkit.getBanList(BanList.Type.NAME).addBan(p.getName(), banReason, null,
+                chatPrefix);
+        p.kickPlayer(banReason);
 
-		return true;
-	}
+        return true;
+    }
 }

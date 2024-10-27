@@ -20,6 +20,7 @@ package org.reprogle.honeypot.common.storagemanager.sqlite.patches;
 import net.kyori.adventure.text.Component;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -30,8 +31,9 @@ public class UpdateHistoryTable00 implements SQLitePatch {
     private final String UPDATE_PLAYER_TABLE_00 = "ALTER TABLE honeypot_history ADD `type` " +
             "VARCHAR NOT NULL default 'prelimBreak';";
 
-    public void update(Statement statement, HoneypotLogger logger) throws SQLException {
+    public void update(Connection connection, HoneypotLogger logger) throws SQLException {
         try {
+            Statement statement = connection.createStatement();
             statement.executeUpdate(UPDATE_PLAYER_TABLE_00);
         } catch (SQLException e) {
             logger.debug(Component.text("Altering table honeypot_history to add `type` column failed. "

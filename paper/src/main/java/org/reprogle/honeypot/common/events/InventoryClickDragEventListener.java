@@ -22,19 +22,14 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
@@ -42,7 +37,6 @@ import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import com.samjakob.spigui.menu.SGMenu;
-import org.reprogle.honeypot.common.utils.HoneypotInventory;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.*;
@@ -71,18 +65,12 @@ public class InventoryClickDragEventListener implements Listener {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getInventory().getHolder() instanceof Container || event.getInventory().getHolder() instanceof HoneypotInventory) || event.getInventory().getHolder() instanceof SGMenu)
+        if (!(event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
             return;
         if (event.getSlotType() != SlotType.CONTAINER) return;
         if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
-
-        final Block block;
-
-        if (event.getInventory().getHolder() instanceof HoneypotInventory hpInventory) {
-            block = hpInventory.getInventory().getLocation().getBlock();
-        } else {
-            block = ((Container) event.getClickedInventory().getHolder()).getBlock();
-        }
+        final Block block = ((Container) event.getClickedInventory().getHolder()).getBlock();
+        if (!blockManager.isHoneypotBlock(block)) return;
 
         final Inventory inventory = event.getInventory();
 

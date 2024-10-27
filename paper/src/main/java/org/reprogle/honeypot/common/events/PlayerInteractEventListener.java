@@ -181,7 +181,7 @@ public class PlayerInteractEventListener implements Listener {
                 player.sendMessage(commandFeedback.getChatPrefix() + " Not a Honeypot, no PDC found");
                 return;
             }
-            player.sendMessage(commandFeedback.getChatPrefix() + " PDC contains: " + block.toString());
+            player.sendMessage(commandFeedback.getChatPrefix() + " PDC contains: " + block);
         }
     }
 }

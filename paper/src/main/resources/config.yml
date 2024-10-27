@@ -3,13 +3,13 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 22
+file-version: 23
 
 # How many Honeypots to store in cache at any given time.
 # Caching Honeypots stores Honeypot data in-memory, reducing PDC/SQLite queries when breaking Honeypots to retrieve information.
 # Setting this to <= 0 will disable caching, slightly decreasing memory usage slightly but also *very* slightly increasing tick times
 # Please see https://github.com/TerrorByteTW/Honeypot/wiki#faq for more info. If you don't know what this is, leave it alone
-cache-size: 20
+cache-size: 100
 
 ######################################################################
 #                     P L U G I N   S E T T I N G S                  #
@@ -34,13 +34,6 @@ allow-explode: false
 
 # Allow enderman to pick up Honeypot blocks. Default is false
 allow-enderman: false
-
-# A new experimental option that is highly recommended if using SQLite still. This option will lock all newly created Honeypots if they are containers
-# Locked containers in Minecraft cannot be opened or interacted with (No pushing into or pulling from)
-# Enabling this setting will proactively lock unlocked Honeypots if something attempts to pull from or push into them
-# Locked Honeypots containers can still be accessed for use with use-inventory-click since the plugin will force them to open
-# Defaults to false
-lock-containers: false
 
 container-actions:
   # Enable actions when a player opens any container (excluding entity containers like Donkeys and Villagers)

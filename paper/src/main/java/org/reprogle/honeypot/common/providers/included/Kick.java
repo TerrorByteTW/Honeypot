@@ -18,6 +18,7 @@
 package org.reprogle.honeypot.common.providers.included;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -35,7 +36,7 @@ public class Kick extends BehaviorProvider {
 
 	@Override
 	public boolean process(Player p, Block block) {
-		p.kickPlayer(commandFeedback.sendCommandFeedback("kick-reason").toString());
+		p.kickPlayer(PlainTextComponentSerializer.plainText().serialize(commandFeedback.sendCommandFeedback("kick-reason")));
 
 		return true;
 	}
