@@ -31,7 +31,6 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 import net.kyori.adventure.text.Component;
 
 @Behavior(type = BehaviorType.NOTIFY, name = "notify", icon = Material.BEACON)
-@SuppressWarnings("deprecation")
 public class Notify extends BehaviorProvider {
 
     @Inject

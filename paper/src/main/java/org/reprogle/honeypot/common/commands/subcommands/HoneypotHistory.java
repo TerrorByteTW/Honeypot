@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SuppressWarnings({"java:S1192", "java:S3776", "deprecation"})
+@SuppressWarnings({"java:S1192", "java:S3776"})
 public class HoneypotHistory implements HoneypotSubCommand {
 
     private final CommandFeedback commandFeedback;
