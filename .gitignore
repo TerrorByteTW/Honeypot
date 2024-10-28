@@ -1,6 +1,9 @@
 # User-specific stuff
 .idea/
 
+# Minecraft testing server
+Server/
+
 *.iml
 *.ipr
 *.iws

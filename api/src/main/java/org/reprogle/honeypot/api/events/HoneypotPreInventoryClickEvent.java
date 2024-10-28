@@ -1,7 +1,7 @@
 /*
- * Honeypot is a tool for griefing auto-moderation
- * Copyright TerrorByte (c) 2022-2023
- * Copyright Honeypot Contributors (c) 2022-2023
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
+ *
+ * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
  *
  * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
  * as published by the Mozilla under the Mozilla Foundation.
@@ -22,6 +22,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event that is triggered when a player triggers a Honeypot via interacting with its container inventory.
@@ -56,7 +57,7 @@ public class HoneypotPreInventoryClickEvent extends Event implements Cancellable
 	 * @return HandlerList
 	 */
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return HANDLERS;
 	}
 

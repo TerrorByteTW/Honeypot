@@ -1,19 +1,19 @@
 #!/bin/sh
 
 #
-# Copyright © 2015-2021 the original authors.
+# Honeypot is a plugin written for Paper which assists with griefing auto-moderation
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
 #
-#      https://www.apache.org/licenses/LICENSE-2.0
+# This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
+# as published by the Mozilla under the Mozilla Foundation.
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+# without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
+# warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
+# See the MPL 2.0 license for more details.
+#
+# For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
 #
 
 ##############################################################################
