@@ -14,10 +14,12 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.providers;
+package org.reprogle.honeypot;
 
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
+import org.reprogle.honeypot.common.providers.Behavior;
+import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.exceptions.BehaviorConflictException;
 import org.reprogle.honeypot.common.providers.exceptions.InvalidBehaviorDefinitionException;
 

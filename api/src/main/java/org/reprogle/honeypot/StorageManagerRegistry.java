@@ -14,11 +14,10 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.storagemanager;
+package org.reprogle.honeypot;
 
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
-import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.storageproviders.Storage;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.storageproviders.exceptions.InvalidStorageManagerDefinitionException;

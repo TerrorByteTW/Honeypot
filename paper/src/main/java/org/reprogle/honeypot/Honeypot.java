@@ -29,9 +29,7 @@ import org.reprogle.honeypot.common.commands.CommandManager;
 import org.reprogle.honeypot.common.events.Listeners;
 import org.reprogle.honeypot.common.providers.BehaviorProcessor;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
-import org.reprogle.honeypot.common.providers.BehaviorRegistry;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
-import org.reprogle.honeypot.common.storagemanager.StorageManagerRegistry;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -50,8 +48,8 @@ public final class Honeypot extends JavaPlugin {
     public static StorageProvider storageProvider = null;
     // These dependencies can't really be injected
     private static SpiGUI gui;
-    private static BehaviorRegistry behaviorRegistry = new BehaviorRegistry();
-    private static StorageManagerRegistry storageManagerRegistry = new StorageManagerRegistry();
+    private static BehaviorRegistry behaviorRegistry = Registry.getBehaviorRegistry();
+    private static StorageManagerRegistry storageManagerRegistry = Registry.getStorageManagerRegistry();
     // These dependencies can (and should) be injected
     @Inject
     private AdapterManager adapterManager;
