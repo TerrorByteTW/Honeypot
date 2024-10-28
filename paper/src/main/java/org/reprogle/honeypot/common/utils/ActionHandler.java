@@ -27,6 +27,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.honeypot.BehaviorProcessor;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 
@@ -56,7 +57,7 @@ public class ActionHandler {
 
         // Behavior providers take higher precedence over custom config actions.
         if (plugin.getBehaviorRegistry().getBehaviorProvider(action) != null) {
-            Honeypot.processor.process(plugin.getBehaviorRegistry().getBehaviorProvider(action), player, block);
+            BehaviorProcessor.process(plugin.getBehaviorRegistry().getBehaviorProvider(action), player, block);
             return;
         }
 

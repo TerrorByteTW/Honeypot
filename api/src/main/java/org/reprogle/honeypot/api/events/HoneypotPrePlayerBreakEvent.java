@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event that is triggered before a Honeypot is broken.
@@ -55,7 +56,7 @@ public class HoneypotPrePlayerBreakEvent extends Event implements Cancellable {
      * @return HandlerList
      */
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 

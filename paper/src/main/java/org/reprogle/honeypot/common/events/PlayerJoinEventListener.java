@@ -19,7 +19,6 @@ package org.reprogle.honeypot.common.events;
 import com.google.inject.Inject;
 
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.event.HoverEventSource;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

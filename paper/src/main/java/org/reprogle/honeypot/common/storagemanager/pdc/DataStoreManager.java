@@ -30,18 +30,18 @@ import org.bukkit.persistence.PersistentDataType;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.storageproviders.Storage;
+import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import javax.annotation.Nullable;
 
 @SuppressWarnings("java:S1192")
-@Storage(name = "pdc")
+@HoneypotStore(name = "pdc")
 public class DataStoreManager extends StorageProvider {
 
+    final Honeypot plugin;
     private final HoneypotLogger logger;
-    Honeypot plugin;
 
     @Inject
     public DataStoreManager(Honeypot plugin, HoneypotLogger logger) {

@@ -22,16 +22,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * An annotation to mark a class as a {@link Storage}
+ * An annotation to mark a class as a {@link HoneypotStore}
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Storage {
+public @interface HoneypotStore {
 
     /**
      * The name of the storage manager. Each storage manager must provide a unique name
      *
-     * @return The name of the {@link Storage}
+     * @return The name of the {@link HoneypotStore}
      */
     String name();
 }

@@ -18,7 +18,7 @@ package org.reprogle.honeypot;
 
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
-import org.reprogle.honeypot.common.storageproviders.Storage;
+import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.storageproviders.exceptions.InvalidStorageManagerDefinitionException;
 import org.reprogle.honeypot.common.storageproviders.exceptions.StorageManagerConflictException;
@@ -26,7 +26,7 @@ import org.reprogle.honeypot.common.storageproviders.exceptions.StorageManagerCo
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
-public class StorageManagerRegistry {
+public class HoneypotStoreRegistry {
     protected final ConcurrentMap<String, StorageProvider> storageProviders = Maps.newConcurrentMap();
     private final Object lock = new Object();
     private boolean initialzed = false;
@@ -56,7 +56,7 @@ public class StorageManagerRegistry {
     @SuppressWarnings("UnusedReturnValue")
     private StorageProvider forceRegister(StorageProvider provider) throws InvalidStorageManagerDefinitionException, StorageManagerConflictException {
         synchronized (lock) {
-            if (!provider.getClass().isAnnotationPresent(Storage.class))
+            if (!provider.getClass().isAnnotationPresent(HoneypotStore.class))
                 throw new InvalidStorageManagerDefinitionException("Storage manager " + provider.getClass().getName().toLowerCase() + " is improperly defined, and therefore cannot be registered. Please contact the author of the plugin attempting to register this provider");
 
             if (storageProviders.containsKey(provider.getProviderName().toLowerCase())) {

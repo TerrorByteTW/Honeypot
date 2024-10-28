@@ -30,7 +30,7 @@ public class UpdateHistoryTable00 implements SQLitePatch {
     private final String UPDATE_PLAYER_TABLE_00 = "ALTER TABLE honeypot_history ADD `type` " +
             "VARCHAR NOT NULL default 'prelimBreak';";
 
-    public void update(Connection connection, HoneypotLogger logger) throws SQLException {
+    public void update(Connection connection, HoneypotLogger logger) {
         try {
             Statement statement = connection.createStatement();
             statement.executeUpdate(UPDATE_PLAYER_TABLE_00);

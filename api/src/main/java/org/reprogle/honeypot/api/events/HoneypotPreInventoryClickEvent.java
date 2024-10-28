@@ -22,6 +22,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event that is triggered when a player triggers a Honeypot via interacting with its container inventory.
@@ -56,7 +57,7 @@ public class HoneypotPreInventoryClickEvent extends Event implements Cancellable
 	 * @return HandlerList
 	 */
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return HANDLERS;
 	}
 

@@ -16,7 +16,6 @@
 
 package org.reprogle.honeypot.common.utils.integrations;
 
-import com.google.inject.Inject;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;

@@ -149,8 +149,8 @@ public class HoneypotBlockObject implements PersistentDataType<String, HoneypotB
     }
 
     @Override
-    public String toPrimitive(@NotNull HoneypotBlockObject complex,
-                              @NotNull PersistentDataAdapterContext context) {
+    public @NotNull String toPrimitive(@NotNull HoneypotBlockObject complex,
+                                                @NotNull PersistentDataAdapterContext context) {
         return world + ";;" + coordinates + ";;" + action;
     }
 

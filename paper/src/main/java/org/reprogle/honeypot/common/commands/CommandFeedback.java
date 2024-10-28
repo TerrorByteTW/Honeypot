@@ -30,7 +30,7 @@ import java.util.Objects;
 @Singleton
 public class CommandFeedback {
 
-    public static MiniMessage mm = MiniMessage.miniMessage();
+    public static final MiniMessage mm = MiniMessage.miniMessage();
     @Inject
     private HoneypotConfigManager configManager;
 

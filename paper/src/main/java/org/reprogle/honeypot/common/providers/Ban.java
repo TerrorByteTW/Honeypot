@@ -14,7 +14,7 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.providers.included;
+package org.reprogle.honeypot.common.providers;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -24,9 +24,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.providers.Behavior;
-import org.reprogle.honeypot.common.providers.BehaviorProvider;
-import org.reprogle.honeypot.common.providers.BehaviorType;
 
 @Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER)
 @SuppressWarnings("deprecation")

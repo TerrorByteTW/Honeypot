@@ -1,7 +1,7 @@
 [versions]
 # Plugins
 shadow = "8.3.3"
-sonar = "5.0.0.4638"
+sonar = "5.1.0.4882"
 
 # Libraries
 paper-api = "1.20.4-R0.1-SNAPSHOT"
@@ -14,7 +14,7 @@ lands = "6.44.6"
 
 vault = "1.7.1"
 placeholder-api = "2.11.5"
-boosted-yaml = "1.3.5"
+boosted-yaml = "1.3.7"
 bstats = "3.1.0"
 
 guice = '7.0.0'

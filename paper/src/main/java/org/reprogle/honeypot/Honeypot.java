@@ -27,7 +27,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.CommandManager;
 import org.reprogle.honeypot.common.events.Listeners;
-import org.reprogle.honeypot.common.providers.BehaviorProcessor;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
@@ -43,13 +42,11 @@ import java.util.Set;
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class Honeypot extends JavaPlugin {
-
     public static BehaviorProcessor processor = null;
-    public static StorageProvider storageProvider = null;
     // These dependencies can't really be injected
     private static SpiGUI gui;
     private static BehaviorRegistry behaviorRegistry = Registry.getBehaviorRegistry();
-    private static StorageManagerRegistry storageManagerRegistry = Registry.getStorageManagerRegistry();
+    private static HoneypotStoreRegistry honeypotStoreRegistry = Registry.getStorageManagerRegistry();
     // These dependencies can (and should) be injected
     @Inject
     private AdapterManager adapterManager;
@@ -102,25 +99,24 @@ public final class Honeypot extends JavaPlugin {
         adapterManager.onLoadAdapters(getServer());
 
         behaviorRegistry = new BehaviorRegistry();
-        storageManagerRegistry = new StorageManagerRegistry();
+        honeypotStoreRegistry = new HoneypotStoreRegistry();
 
         for (BehaviorProvider behavior : behaviorProviders) {
             behaviorRegistry.register(behavior);
         }
 
         for (StorageProvider provider : storageProviders) {
-            storageManagerRegistry.register(provider);
+            honeypotStoreRegistry.register(provider);
         }
 
-        processor = new BehaviorProcessor(this);
         String storageMethod = configManager.getPluginConfig().getString("storage-method");
         if (!storageMethod.equals("sqlite") && !storageMethod.equals("pdc") && !configManager.getPluginConfig().getBoolean("allow-third-party-storage-managers")) {
             logger.severe(commandFeedback.sendCommandFeedback("storage-providers-not-enabled"));
             this.getServer().getPluginManager().disablePlugin(this);
         }
 
-        if (storageManagerRegistry.getStorageProvider(storageMethod) != null) {
-            storageProvider = storageManagerRegistry.getStorageProvider(storageMethod);
+        if (honeypotStoreRegistry.getStorageProvider(storageMethod) != null) {
+            Registry.setStorageProvider(honeypotStoreRegistry.getStorageProvider(storageMethod));
         } else {
             logger.severe(commandFeedback.sendCommandFeedback("invalid-storage-provider").replaceText(builder -> builder.matchLiteral("%s").replacement(storageMethod)));
             this.getServer().getPluginManager().disablePlugin(this);
@@ -137,7 +133,7 @@ public final class Honeypot extends JavaPlugin {
         // Initialize the SpiGUI object for UI, lock the registry, and start the Ghost Honeypot Fixer task
         gui = new SpiGUI(this);
         behaviorRegistry.setInitialized(true);
-        storageManagerRegistry.setInitialzed(true);
+        honeypotStoreRegistry.setInitialzed(true);
         ghf.startTask();
 
         getHoneypotLogger().info(Component.text("Successfully registered " + behaviorRegistry.size()
@@ -284,14 +280,5 @@ public final class Honeypot extends JavaPlugin {
      */
     public BehaviorRegistry getBehaviorRegistry() {
         return behaviorRegistry;
-    }
-
-    /**
-     * Get the Behavior Registry
-     *
-     * @return {@link BehaviorRegistry}
-     */
-    public StorageManagerRegistry storageManagerRegistry() {
-        return storageManagerRegistry;
     }
 }

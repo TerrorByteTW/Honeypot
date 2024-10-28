@@ -23,8 +23,7 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.ConvertToSpatialIndexing01;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.SQLitePatch;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.UpdateHistoryTable00;
-import org.reprogle.honeypot.common.storageproviders.Storage;
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
+import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.File;
@@ -35,7 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("FieldCanBeLocal")
-@Storage(name = "sqlite")
+@HoneypotStore(name = "sqlite")
 @Singleton
 public class SQLite extends Database {
 

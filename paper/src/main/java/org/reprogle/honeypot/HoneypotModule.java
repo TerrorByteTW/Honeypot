@@ -25,7 +25,7 @@ import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.commands.subcommands.*;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
-import org.reprogle.honeypot.common.providers.included.Ban;
+import org.reprogle.honeypot.common.providers.Ban;
 import org.reprogle.honeypot.common.providers.included.Kick;
 import org.reprogle.honeypot.common.providers.included.Notify;
 import org.reprogle.honeypot.common.providers.included.Warn;

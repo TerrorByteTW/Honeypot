@@ -28,43 +28,43 @@ import java.util.LinkedList;
  */
 public class QueueManager {
 
-	ListenableQueue<PreparedStatement> queue = new ListenableQueue<>(new LinkedList<>());
-	private static QueueManager instance = null;
+    private static QueueManager instance = null;
+    final ListenableQueue<PreparedStatement> queue = new ListenableQueue<>(new LinkedList<>());
 
-	private QueueManager() {
-		queue.registerListener(element -> {
-			// If an SQL query is added to the queue but the queue has more than one lined
-			// up, we need to go ahead and handle them all
-			while (queue.peek() != null) {
-				try (PreparedStatement ps = queue.poll()){
-					ps.executeUpdate();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+    private QueueManager() {
+        queue.registerListener(element -> {
+            // If an SQL query is added to the queue but the queue has more than one lined
+            // up, we need to go ahead and handle them all
+            while (queue.peek() != null) {
+                try (PreparedStatement ps = queue.poll()) {
+                    ps.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
-	/**
-	 * Returns the QueueManager instance
-	 *
-	 * @return {@link QueueManager}
-	 */
-	public static synchronized QueueManager getInstance() {
-		if (instance == null)
-			instance = new QueueManager();
+    /**
+     * Returns the QueueManager instance
+     *
+     * @return {@link QueueManager}
+     */
+    public static synchronized QueueManager getInstance() {
+        if (instance == null)
+            instance = new QueueManager();
 
-		return instance;
-	}
+        return instance;
+    }
 
-	/**
-	 * A simple function that adds a PreparedStatement to the queue.
-	 *
-	 * @param ps A prepared statement to add to the queue
-	 * @return True if successfully added, false if not
-	 */
-	public boolean addToQueue(PreparedStatement ps) {
-		return queue.offer(ps);
-	}
+    /**
+     * A simple function that adds a PreparedStatement to the queue.
+     *
+     * @param ps A prepared statement to add to the queue
+     * @return True if successfully added, false if not
+     */
+    public boolean addToQueue(PreparedStatement ps) {
+        return queue.offer(ps);
+    }
 
 }

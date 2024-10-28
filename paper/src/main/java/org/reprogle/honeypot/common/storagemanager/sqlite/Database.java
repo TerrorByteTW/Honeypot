@@ -59,10 +59,10 @@ public abstract class Database extends StorageProvider {
             "AND y_min >= ? AND y_max <= ? " +
             "AND z_min >= ? AND z_max <= ? " +
             "AND world = ?";
+    final Honeypot plugin;
+    final QueueManager qm = QueueManager.getInstance();
     private final HoneypotLogger logger;
-    Honeypot plugin;
     Connection connection;
-    QueueManager qm = QueueManager.getInstance();
 
     /**
      * Create a Database object
@@ -293,7 +293,7 @@ public abstract class Database extends StorageProvider {
             ps.setString(7, block.getWorld().getName());
             rs = ps.executeQuery();
 
-            while (rs.next()) {
+            if (rs.next()) {
                 return new HoneypotBlockObject(rs.getString("world"), rs.getInt("x_min"),
                         rs.getInt("y_min"), rs.getInt("z_min"), rs.getString("action"));
             }

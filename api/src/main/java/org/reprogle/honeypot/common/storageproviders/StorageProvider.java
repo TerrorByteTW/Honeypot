@@ -28,7 +28,7 @@ public abstract class StorageProvider {
     private final String providerName;
 
     protected StorageProvider() {
-        this.providerName = getClass().getAnnotation(Storage.class).name();
+        this.providerName = getClass().getAnnotation(HoneypotStore.class).name();
     }
 
     public String getProviderName() {

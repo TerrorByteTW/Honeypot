@@ -63,7 +63,7 @@ public class CacheManager {
 		if (cache.size() <= cacheSize) {
 			cache.add(block);
 		} else {
-			cache.remove(0);
+			cache.removeFirst();
 			cache.add(block);
 		}
 	}

@@ -16,9 +16,12 @@
 
 package org.reprogle.honeypot;
 
+import org.reprogle.honeypot.common.storageproviders.StorageProvider;
+
 public class Registry {
     private static BehaviorRegistry behaviorRegistry = new BehaviorRegistry();
-    private static StorageManagerRegistry storageManagerRegistry = new StorageManagerRegistry();
+    private static HoneypotStoreRegistry honeypotStoreRegistry = new HoneypotStoreRegistry();
+    private static StorageProvider provider = null;
 
     public static BehaviorRegistry getBehaviorRegistry() {
         return behaviorRegistry;
@@ -28,11 +31,19 @@ public class Registry {
         Registry.behaviorRegistry = behaviorRegistry;
     }
 
-    public static StorageManagerRegistry getStorageManagerRegistry() {
-        return storageManagerRegistry;
+    public static HoneypotStoreRegistry getStorageManagerRegistry() {
+        return honeypotStoreRegistry;
     }
 
-    public static void setStorageManagerRegistry(StorageManagerRegistry storageManagerRegistry) {
-        Registry.storageManagerRegistry = storageManagerRegistry;
+    public static void setStorageManagerRegistry(HoneypotStoreRegistry honeypotStoreRegistry) {
+        Registry.honeypotStoreRegistry = honeypotStoreRegistry;
+    }
+
+    public static StorageProvider getStorageProvider() {
+        return provider;
+    }
+
+    public static void setStorageProvider(StorageProvider provider) {
+        Registry.provider = provider;
     }
 }

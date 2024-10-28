@@ -20,14 +20,12 @@ import com.google.inject.Inject;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 public class InventoryMoveItemEventListener implements Listener {
 

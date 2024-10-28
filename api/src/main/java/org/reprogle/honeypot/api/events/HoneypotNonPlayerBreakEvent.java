@@ -19,6 +19,7 @@ package org.reprogle.honeypot.api.events;
 import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event that is triggered after a Honeypot is edited by a non-player object.
@@ -52,7 +53,7 @@ public class HoneypotNonPlayerBreakEvent extends Event {
      * @return HandlerList
      */
     @Override
-    public HandlerList getHandlers() {
+    public @NotNull HandlerList getHandlers() {
         return HANDLERS;
     }
 

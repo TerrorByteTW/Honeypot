@@ -44,29 +44,23 @@ import java.util.Objects;
 
 public class PlayerInteractEventListener implements Listener {
 
-    private final Honeypot plugin;
     private final HoneypotConfigManager configManager;
     private final HoneypotBlockManager blockManager;
     private final HoneypotLogger logger;
     private final ActionHandler actionHandler;
-    private final DataStoreManager dataStoreManager;
-    private final CommandFeedback commandFeedback;
     private final AdapterManager adapterManager;
 
     /**
      * Create a private constructor to hide the implicit one
      */
     @Inject
-    PlayerInteractEventListener(Honeypot plugin, HoneypotConfigManager configManager, HoneypotBlockManager blockManager,
-                                HoneypotLogger logger, ActionHandler actionHandler, DataStoreManager dataStoreManager,
-                                CommandFeedback commandFeedback, AdapterManager adapterManager) {
-        this.plugin = plugin;
+    PlayerInteractEventListener(HoneypotConfigManager configManager, HoneypotBlockManager blockManager,
+                                HoneypotLogger logger, ActionHandler actionHandler,
+                                AdapterManager adapterManager) {
         this.configManager = configManager;
         this.blockManager = blockManager;
         this.logger = logger;
         this.actionHandler = actionHandler;
-        this.dataStoreManager = dataStoreManager;
-        this.commandFeedback = commandFeedback;
         this.adapterManager = adapterManager;
     }
 

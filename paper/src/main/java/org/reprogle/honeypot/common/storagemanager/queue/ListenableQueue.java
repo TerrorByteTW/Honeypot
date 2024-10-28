@@ -16,6 +16,8 @@
 
 package org.reprogle.honeypot.common.storagemanager.queue;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 public class ListenableQueue<E> extends AbstractQueue<E> {
@@ -60,6 +62,7 @@ public class ListenableQueue<E> extends AbstractQueue<E> {
         return delegate.size();
     }
 
+    @NotNull
     @Override
     public Iterator<E> iterator() {
         return delegate.iterator();

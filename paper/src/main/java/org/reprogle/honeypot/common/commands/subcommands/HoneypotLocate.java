@@ -18,13 +18,11 @@ package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.command.Command;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
@@ -41,15 +39,12 @@ public class HoneypotLocate implements HoneypotSubCommand {
     private final Honeypot plugin;
     private final HoneypotConfigManager configManager;
     private final CommandFeedback commandFeedback;
-    private final HoneypotBlockManager blockManager;
 
     @Inject
-    public HoneypotLocate(Honeypot plugin, HoneypotConfigManager configManager, CommandFeedback commandFeedback,
-                          HoneypotBlockManager blockManager) {
+    public HoneypotLocate(Honeypot plugin, HoneypotConfigManager configManager, CommandFeedback commandFeedback) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.commandFeedback = commandFeedback;
-        this.blockManager = blockManager;
     }
 
     @Override
@@ -77,7 +72,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
 
         boolean potFound = false;
 
-        List<HoneypotBlockObject> honeypots = Honeypot.storageProvider.getNearbyHoneypots(p.getLocation(), radius);
+        List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
         if (!honeypots.isEmpty()) potFound = true;
 
         for (HoneypotBlockObject honeypot : honeypots) {

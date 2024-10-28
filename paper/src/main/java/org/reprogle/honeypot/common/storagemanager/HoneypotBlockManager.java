@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
@@ -41,7 +41,7 @@ public class HoneypotBlockManager {
      * @param action The action of the Honeypot
      */
     public void createBlock(Block block, String action) {
-        Honeypot.storageProvider.createHoneypotBlock(block, action);
+        Registry.getStorageProvider().createHoneypotBlock(block, action);
 
         cacheManager.addToCache(new HoneypotBlockObject(block, action));
         logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
@@ -53,7 +53,7 @@ public class HoneypotBlockManager {
      * @param block The Honeypot {@link Block} we're deleting
      */
     public void deleteBlock(Block block) {
-        Honeypot.storageProvider.removeHoneypotBlock(block);
+        Registry.getStorageProvider().removeHoneypotBlock(block);
 
         cacheManager.removeFromCache(new HoneypotBlockObject(block, null));
         logger.debug(Component.text("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
@@ -70,7 +70,7 @@ public class HoneypotBlockManager {
             return true;
         }
 
-        if (Honeypot.storageProvider.isHoneypotBlock(block)) {
+        if (Registry.getStorageProvider().isHoneypotBlock(block)) {
             String action = getAction(block);
             cacheManager.addToCache(new HoneypotBlockObject(block, action));
             return true;
@@ -107,7 +107,7 @@ public class HoneypotBlockManager {
             return potential.getAction();
 
         try {
-            return Honeypot.storageProvider.getAction(block);
+            return Registry.getStorageProvider().getAction(block);
         } catch (Exception e) {
             logger.warning(Component.text("No action found for block, " +
                             "this is likely due to a container being created using the special lock format. " +
@@ -122,7 +122,7 @@ public class HoneypotBlockManager {
      * Delete all Honeypots in the entire DB
      */
     public void deleteAllHoneypotBlocks(World world) {
-        Honeypot.storageProvider.deleteAllHoneypotBlocks(world);
+        Registry.getStorageProvider().deleteAllHoneypotBlocks(world);
         logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }
 
@@ -132,7 +132,7 @@ public class HoneypotBlockManager {
      * @return An array list of all HoneypotBlockObjects
      */
     public List<HoneypotBlockObject> getAllHoneypots(World world) {
-        return Honeypot.storageProvider.getAllHoneypots(world);
+        return Registry.getStorageProvider().getAllHoneypots(world);
     }
 
 

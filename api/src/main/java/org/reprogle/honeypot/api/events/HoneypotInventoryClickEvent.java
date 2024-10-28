@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Event that is triggered after a player triggers a container action
@@ -52,7 +53,7 @@ public class HoneypotInventoryClickEvent extends Event {
 	 * @return HandlerList
 	 */
 	@Override
-	public HandlerList getHandlers() {
+	public @NotNull HandlerList getHandlers() {
 		return HANDLERS;
 	}
 
