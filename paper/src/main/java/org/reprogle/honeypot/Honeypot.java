@@ -1,15 +1,15 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
+ * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
  *
- * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
- * as published by the Mozilla under the Mozilla Foundation.
+ * This program is free software: You can redistribute it and/or modify it under
+ *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
  *
  * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
- * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
- * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
- * See the MPL 2.0 license for more details.
+ * without warranty of any kind, either expressed, implied, or statutory, including,
+ * without limitation, warranties that the Covered Software is free of defects, merchantable,
+ * fit for a particular purpose or non-infringing. See the MPL 2.0 license for more details.
  *
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
@@ -23,6 +23,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.CommandManager;
@@ -33,6 +34,7 @@ import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
+import javax.naming.ConfigurationException;
 import java.util.Set;
 
 /**
@@ -42,11 +44,8 @@ import java.util.Set;
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class Honeypot extends JavaPlugin {
-    public static BehaviorProcessor processor = null;
     // These dependencies can't really be injected
     private static SpiGUI gui;
-    private static BehaviorRegistry behaviorRegistry = Registry.getBehaviorRegistry();
-    private static HoneypotStoreRegistry honeypotStoreRegistry = Registry.getStorageManagerRegistry();
     // These dependencies can (and should) be injected
     @Inject
     private AdapterManager adapterManager;
@@ -64,6 +63,8 @@ public final class Honeypot extends JavaPlugin {
     private Set<BehaviorProvider> behaviorProviders;
     @Inject
     private Set<StorageProvider> storageProviders;
+    @Inject
+    private HoneypotConfigManager configManager;
 
     private Injector injector;
 
@@ -98,28 +99,12 @@ public final class Honeypot extends JavaPlugin {
         // Register adapters which must be registered on load
         adapterManager.onLoadAdapters(getServer());
 
-        behaviorRegistry = new BehaviorRegistry();
-        honeypotStoreRegistry = new HoneypotStoreRegistry();
-
         for (BehaviorProvider behavior : behaviorProviders) {
-            behaviorRegistry.register(behavior);
+            Registry.getBehaviorRegistry().register(behavior);
         }
 
         for (StorageProvider provider : storageProviders) {
-            honeypotStoreRegistry.register(provider);
-        }
-
-        String storageMethod = configManager.getPluginConfig().getString("storage-method");
-        if (!storageMethod.equals("sqlite") && !storageMethod.equals("pdc") && !configManager.getPluginConfig().getBoolean("allow-third-party-storage-managers")) {
-            logger.severe(commandFeedback.sendCommandFeedback("storage-providers-not-enabled"));
-            this.getServer().getPluginManager().disablePlugin(this);
-        }
-
-        if (honeypotStoreRegistry.getStorageProvider(storageMethod) != null) {
-            Registry.setStorageProvider(honeypotStoreRegistry.getStorageProvider(storageMethod));
-        } else {
-            logger.severe(commandFeedback.sendCommandFeedback("invalid-storage-provider").replaceText(builder -> builder.matchLiteral("%s").replacement(storageMethod)));
-            this.getServer().getPluginManager().disablePlugin(this);
+            Registry.getStorageManagerRegistry().register(provider);
         }
     }
 
@@ -127,17 +112,36 @@ public final class Honeypot extends JavaPlugin {
      * Enable method called by Bukkit. This is a little messy due to all the setup
      * it has to do
      */
+    @lombok.SneakyThrows
     @Override
     public void onEnable() {
 
         // Initialize the SpiGUI object for UI, lock the registry, and start the Ghost Honeypot Fixer task
         gui = new SpiGUI(this);
-        behaviorRegistry.setInitialized(true);
-        honeypotStoreRegistry.setInitialzed(true);
+        Registry.getBehaviorRegistry().setInitialized(true);
+        Registry.getStorageManagerRegistry().setInitialzed(true);
         ghf.startTask();
 
-        getHoneypotLogger().info(Component.text("Successfully registered " + behaviorRegistry.size()
+        String storageMethod = configManager.getPluginConfig().getString("storage-method");
+        if (!storageMethod.equals("sqlite") && !storageMethod.equals("pdc") && !configManager.getPluginConfig().getBoolean("allow-third-party-storage-managers")) {
+            this.getServer().getPluginManager().disablePlugin(this);
+            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. YOUR CONFIGURATION IS INVALID, CHECK IT BEFORE REPORTING TO THE DEVELOPER!"));
+            throw new ConfigurationException(configManager.getLanguageFile().getString("storage-providers-not-enabled"));
+        }
+
+        if (Registry.getStorageManagerRegistry().getStorageProvider(storageMethod) != null) {
+            Registry.setStorageProvider(Registry.getStorageManagerRegistry().getStorageProvider(storageMethod));
+        } else {
+            this.getServer().getPluginManager().disablePlugin(this);
+            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. THE STORAGE PROVIDER IS NOT CORRECTLY DEFINED, CHECK WITH THE DEVELOPER OF THE PROVIDER!"));
+            throw new ConfigurationException(configManager.getLanguageFile().getString("invalid-storage-provider").replace("%s", storageMethod));
+        }
+
+        getHoneypotLogger().info(Component.text("Successfully registered " + Registry.getBehaviorRegistry().size()
                 + " behavior providers. Further registrations are now locked."));
+
+        getHoneypotLogger().info(Component.text(Registry.getStorageManagerRegistry().size()
+                + " storage providers have been registered, the one Honeypot is configured to use is: " + Registry.getStorageProvider().getProviderName() + ". Further registrations are now locked, but the provider can be changed at any time by doing /honeypot reload."));
 
         // Start bstats and register event listeners
         new Metrics(this, 15425);
@@ -271,14 +275,5 @@ public final class Honeypot extends JavaPlugin {
      */
     public HoneypotLogger getHoneypotLogger() {
         return logger;
-    }
-
-    /**
-     * Get the Behavior Registry
-     *
-     * @return {@link BehaviorRegistry}
-     */
-    public BehaviorRegistry getBehaviorRegistry() {
-        return behaviorRegistry;
     }
 }

@@ -3,7 +3,7 @@ version: '${project.version}'
 author: TerrorByte
 description: Creates honeypot blocks designed to prevent griefing on your server
 main: org.reprogle.honeypot.Honeypot
-api-version: 1.18
+api-version: 1.20
 load: STARTUP
 folia-supported: true
 softdepend: [ Vault, WorldGuard, GriefPrevention, Lands, PlaceholderAPI ]
@@ -49,9 +49,6 @@ permissions:
   honeypot.teleport:
     description: Allows for staff to teleport to Honeypot blocks within the GUI
     default: op
-  honeypot.debug:
-    description: Allows for the developer to enable debug mode and inspect PDC of honeypot blocks
-    default: op
   honeypot.migrate:
     description: Allows migration from SQLite to PDC
     default: op
@@ -70,5 +67,4 @@ permissions:
       honeypot.update: true
       honeypot.history: true
       honeypot.teleport: true
-      honeypot.debug: true
       honeypot.migrate: true

@@ -1,15 +1,15 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright TerrorByte & Honeypot Contributors (c) 2022 - 2024
+ * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
  *
- * This program is free software: You can redistribute it and/or modify it under the terms of the Mozilla Public License 2.0
- * as published by the Mozilla under the Mozilla Foundation.
+ * This program is free software: You can redistribute it and/or modify it under
+ *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
  *
  * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
- * without warranty of any kind, either expressed, implied, or statutory, including, without limitation,
- * warranties that the Covered Software is free of defects, merchantable, fit for a particular purpose or non-infringing.
- * See the MPL 2.0 license for more details.
+ * without warranty of any kind, either expressed, implied, or statutory, including,
+ * without limitation, warranties that the Covered Software is free of defects, merchantable,
+ * fit for a particular purpose or non-infringing. See the MPL 2.0 license for more details.
  *
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
@@ -32,6 +32,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
+import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
@@ -96,23 +97,23 @@ public class HoneypotGUI implements HoneypotSubCommand {
             types.add(key.toString());
         }
 
-        ConcurrentMap<String, BehaviorProvider> map = plugin.getBehaviorRegistry().getBehaviorProviders();
+        ConcurrentMap<String, BehaviorProvider> map = Registry.getBehaviorRegistry().getBehaviorProviders();
         map.forEach((providerName, provider) -> types.add(providerName));
 
         for (String type : types) {
 
             ItemBuilder item;
 
-            if (plugin.getBehaviorRegistry().getBehaviorProvider(type) == null) {
+            if (Registry.getBehaviorRegistry().getBehaviorProvider(type) == null) {
                 String action = configManager.getHoneypotsConfig().getString(type + ".icon");
 
                 if (action != null && !action.isEmpty()) {
-                    item = new ItemBuilder(Material.getMaterial(action));
+                    item = new ItemBuilder(safeGetMaterial(action));
                 } else {
                     item = new ItemBuilder(Material.PAPER);
                 }
             } else {
-                item = new ItemBuilder(plugin.getBehaviorRegistry().getBehaviorProvider(type).getIcon());
+                item = new ItemBuilder(Registry.getBehaviorRegistry().getBehaviorProvider(type).getIcon());
             }
 
             item.name(type);
@@ -142,7 +143,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                 item = new ItemBuilder(honeypotBlock.getBlock().getType());
             } else {
                 item = new ItemBuilder(
-                        Material.getMaterial(configManager.getGuiConfig().getString("default-gui-button")));
+                        safeGetMaterial(configManager.getGuiConfig().getString("default-gui-button")));
             }
             item.lore("Click to teleport to Honeypot");
             item.name("Honeypot: " + honeypotBlock.getCoordinates());
@@ -387,23 +388,23 @@ public class HoneypotGUI implements HoneypotSubCommand {
         ItemBuilder historyItem;
 
         createItem = new ItemBuilder(
-                Material.getMaterial(configManager.getGuiConfig().getString("main-buttons.create-button")));
+                safeGetMaterial(configManager.getGuiConfig().getString("main-buttons.create-button")));
         createItem.name("Create a Honeypot");
 
         removeItem = new ItemBuilder(
-                Material.getMaterial(configManager.getGuiConfig().getString("main-buttons.remove-button")));
+                safeGetMaterial(configManager.getGuiConfig().getString("main-buttons.remove-button")));
         removeItem.name("Remove a Honeypot");
 
         listItem = new ItemBuilder(
-                Material.getMaterial(configManager.getGuiConfig().getString("main-buttons.list-button")));
+                safeGetMaterial(configManager.getGuiConfig().getString("main-buttons.list-button")));
         listItem.name("List all Honeypots");
 
         locateItem = new ItemBuilder(
-                Material.getMaterial(configManager.getGuiConfig().getString("main-buttons.locate-button")));
+                safeGetMaterial(configManager.getGuiConfig().getString("main-buttons.locate-button")));
         locateItem.name("Locate nearby Honeypots");
 
         historyItem = new ItemBuilder(
-                Material.getMaterial(configManager.getGuiConfig().getString("main-buttons.history-button")));
+                safeGetMaterial(configManager.getGuiConfig().getString("main-buttons.history-button")));
         historyItem.name("Query player history");
 
         SGButton createButton = new SGButton(createItem.build())
@@ -499,6 +500,11 @@ public class HoneypotGUI implements HoneypotSubCommand {
         List<HoneypotPermission> permissions = new ArrayList<>();
         permissions.add(new HoneypotPermission("honeypot.gui"));
         return permissions;
+    }
+
+    private Material safeGetMaterial(String materialName) {
+        Material material = Material.getMaterial(materialName);
+        return material != null ? material : Material.PAPER;
     }
 
     public void callAllHoneypotsInventory(Player p) {
