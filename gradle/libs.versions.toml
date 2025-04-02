@@ -1,6 +1,6 @@
 [versions]
 # Plugins
-shadow = "8.3.3"
+shadow = "8.3.4"
 sonar = "5.1.0.4882"
 lombok = "8.10.2"
 
