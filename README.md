@@ -36,10 +36,7 @@ Honeypot is in a weird state currently. I'm working on it "actively", but "activ
 My personal life and work life have gotten exponentially busier over the past several months, and while I'd love to put more time into Honeypot and other projects,
 I just don't have the ability to do so. If there is an important bug report or security vulnerability found, I'll make time to fix it, but features are slower to develop.
 
-I'm also working on a huge update, 3.4.0, which is a massive improvement to the plugin but also changed pretty much every. single. file. in the project. This means it takes
-more time to test and more time to validate. Plus, certain features are giving me massive problems that I'm having difficulty fixing.
-
-For now, consider Honeypot active, but don't expect commits very often. I'll do my best to support it as best as possible!
+For now, consider Honeypot "active", but don't expect commits very often. I'll do my best to support it as best as possible!
 
 ## Why was Honeypot created?
 
@@ -49,7 +46,7 @@ Honeypot plugins were popularized back in the early days of Minecraft servers bu
 lack of customization, updates, or difficulty to configure, setup, and/or maintain. This plugin was designed to be
 simple, lightweight, and easy to use for staff and admins.
 
-**View a demo here (Just a smidge outdated 😅)**
+**View a demo here (*Very* outdated 😅)**
 
 [![Honeypot Demo](https://img.youtube.com/vi/M58d5X3NpP0/0.jpg)](https://www.youtube.com/watch?v=M58d5X3NpP0)
 

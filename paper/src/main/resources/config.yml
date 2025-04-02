@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 24
+file-version: 25
 
 # How many Honeypots to store in cache at any given time.
 # Caching Honeypots stores Honeypot data in-memory, reducing PDC/SQLite queries when breaking Honeypots to retrieve information.
@@ -125,7 +125,9 @@ respect-griefprevention: false
 
 # This is an experimental setting, testing PDC support for Honeypot. PDC is a Spigot API which allows for storing data directly in the NBT of certain objects
 # For now sqlite is the default method, but PDC hopefully will speed up the plugin by a ton.
-# To enable the experimental PDC support change the value from "sqlite" to "pdc" (No quotes). Any other value will be ignored and the plugin will default to sqlite.
+# To enable the experimental PDC support change the value from "sqlite" to "pdc" (No quotes).
+# If you have a custom storage provider, set its name (The author of the provider should give this to you) here and enable third party providers.
+# Believe it or not, this *can* be changed on the fly with /honeypot reload! As long as the storage provider was registered on startup, you can switch between them at any time.
 storage-method: sqlite
 
 # This is an experimental setting which enables the ability for a third-party storage manager to be used with Honeypot. This is not recommended for most users.
