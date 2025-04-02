@@ -66,84 +66,76 @@ public class CommandFeedback {
 
             case "success" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.created"))))
-                            .build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.created"))));
 
                 } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.removed"))))
-                            .build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.removed"))));
 
                 } else {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.default"))))
-                            .build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.default"))));
                 }
             }
 
             case "debug" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text("Debug mode has been enabled. Right click any block to check its PDC"))
-                            .build();
+                            .append(Component.text("Debug mode has been enabled. Right click any block to check its PDC"));
 
                 } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text("Debug mode has been disabled"))
-                            .build();
+                            .append(Component.text("Debug mode has been disabled"));
                 } else {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text("Debug mode is only useful while using PDC"))
-                            .build();
+                            .append(Component.text("Debug mode is only useful while using PDC"));
                 }
             }
 
             case "migrate" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.confirm")))).build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.confirm"))));
                 } else if (success.length > 0 && success[0].equals(false)) {
-                        feedbackMessage = Component.text().append(chatPrefix)
+                        feedbackMessage = chatPrefix
                                 .append(Component.text(" "))
-                                .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.failed")))).build();
+                                .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.failed"))));
                 } else {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.preconfirm")))).build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.preconfirm"))));
                 }
             }
 
             case "deleted" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.all")))).build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.all"))));
                 } else {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.near")))).build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.near"))));
                 }
             }
 
             default -> {
                 try {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString(feedback.toLowerCase()))))
-                            .build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString(feedback.toLowerCase()))));
                 } catch (Exception e) {
-                    feedbackMessage = Component.text().append(chatPrefix)
+                    feedbackMessage = chatPrefix
                             .append(Component.text(" "))
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("unknown-error"))))
-                            .build();
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("unknown-error"))));
                 }
             }
         }
