@@ -1,5 +1,7 @@
 # Honeypot Anti-Grief 🍯🚫
 
+### [An important update to Honeypot](https://github.com/TerrorByteTW/Honeypot/issues/209)
+
 <p align="center">
     <a href="https://jitpack.io/#TerrorByteTW/Honeypot">
         <img alt="Release" src="https://jitpack.io/v/TerrorByteTW/Honeypot.svg">
