@@ -30,13 +30,13 @@
 
 ***
 
-## Current development status: It's Complicated 😅
+## Current development status: Paused 🚫
 
-Honeypot is in a weird state currently. I'm working on it "actively", but "actively" means I work hard on it but with long breaks of time in between.
-My personal life and work life have gotten exponentially busier over the past several months, and while I'd love to put more time into Honeypot and other projects,
-I just don't have the ability to do so. If there is an important bug report or security vulnerability found, I'll make time to fix it, but features are slower to develop.
+I didn't really want to do this, but I'm pausing Development on Honeypot and will only work it when I have time and actually want to. My very limited freetime is spent working 
+on projects I want to work on, and Honeypot just don't fall into this category anymore. I work a full-time job, my personal life is extremely hectic, and I also don't play Minecraft 
+anymore. While I'd love to put more time into Honeypot and other projects, I just don't have the ability to do so. 
 
-For now, consider Honeypot "active", but don't expect commits very often. I'll do my best to support it as best as possible!
+If there is an important bug report or security vulnerability found, I'll make time to fix it, but features are slower to develop. I can't guarantee Honeypot will work on the latest version of MC either. I'm open to accepting PRs or additional maintainers.
 
 ## Why was Honeypot created?
 
