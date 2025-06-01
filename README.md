@@ -32,11 +32,9 @@
 
 ***
 
-## Current development status: Paused 🚫
+## Current development status: Hobby Project ✅
 
-I didn't really want to do this, but I'm pausing Development on Honeypot and will only work it when I have time and actually want to. My very limited freetime is spent working 
-on projects I want to work on, and Honeypot just don't fall into this category anymore. I work a full-time job, my personal life is extremely hectic, and I also don't play Minecraft 
-anymore. While I'd love to put more time into Honeypot and other projects, I just don't have the ability to do so. 
+Honeypot used to be something I worked on all the time. However, with my life and interests changing, I've decided to convert this to more of a "hobby project" I'll support whenever I want. See [this issue](https://github.com/TerrorByteTW/Honeypot/issues/209) for a more detailed explanation.
 
 If there is an important bug report or security vulnerability found, I'll make time to fix it, but features are slower to develop. I can't guarantee Honeypot will work on the latest version of MC either. I'm open to accepting PRs or additional maintainers.
 
