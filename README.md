@@ -9,9 +9,6 @@
     <a href="https://github.com/TerrorByteTW/Honeypot/actions/workflows/gradle.yml">
         <img alt="Java CI with Gradle" src="https://github.com/TerrorByteTW/Honeypot/actions/workflows/gradle.yml/badge.svg?branch=master">
     </a>
-    <a href="https://sonarcloud.io/summary/new_code?id=TerrorByteTW_Honeypot">
-        <img alt="Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=TerrorByteTW_Honeypot&metric=sqale_rating">
-    </a>
 </p>
 
 
