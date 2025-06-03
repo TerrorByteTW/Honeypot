@@ -68,8 +68,9 @@ public class InventoryClickDragEventListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
             return;
-        if (event.getSlotType() != SlotType.CONTAINER) return;
+        if (!EnumSet.of(SlotType.CONTAINER, SlotType.CRAFTING, SlotType.FUEL, SlotType.RESULT).contains(event.getSlotType())) return;
         if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
+
         final Block block = getBlock(event.getClickedInventory().getHolder());
         if (!blockManager.isHoneypotBlock(block)) return;
 
