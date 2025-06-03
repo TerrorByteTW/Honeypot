@@ -22,6 +22,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,6 +30,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
@@ -64,18 +66,18 @@ public class InventoryClickDragEventListener implements Listener {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
+        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
             return;
         if (event.getSlotType() != SlotType.CONTAINER) return;
         if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
-        final Block block = ((Container) event.getClickedInventory().getHolder()).getBlock();
+        final Block block = getBlock(event.getClickedInventory().getHolder());
         if (!blockManager.isHoneypotBlock(block)) return;
 
         final Inventory inventory = event.getInventory();
 
         if (!checkFilter(block)) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST) && Boolean.TRUE.equals(blockManager.isHoneypotBlock(Objects.requireNonNull(block)))) {
+        if (!block.getType().equals(Material.ENDER_CHEST) && blockManager.isHoneypotBlock(Objects.requireNonNull(block))) {
             // Fire HoneypotPreInventoryClickEvent
             HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             Bukkit.getPluginManager().callEvent(hpice);
@@ -107,12 +109,12 @@ public class InventoryClickDragEventListener implements Listener {
             return;
         if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
 
-        final Block block = ((Container) event.getInventory().getHolder()).getBlock();
+        final Block block = getBlock(event.getInventory().getHolder());
         final Inventory inventory = event.getInventory();
 
         if (!checkFilter(block)) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST) && Boolean.TRUE.equals(blockManager.isHoneypotBlock(Objects.requireNonNull(block)))) {
+        if (!block.getType().equals(Material.ENDER_CHEST) && blockManager.isHoneypotBlock(Objects.requireNonNull(block))) {
             // Fire HoneypotPreInventoryClickEvent
             HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             Bukkit.getPluginManager().callEvent(hpice);
@@ -126,6 +128,17 @@ public class InventoryClickDragEventListener implements Listener {
                 executeAction(player, block, inventory);
             }
         }
+    }
+
+    private Block getBlock(InventoryHolder holder) {
+        if (holder instanceof DoubleChest chest) {
+            // Return the left block if it is a honeypot block
+            // Otherwise always return the right side
+            final Block left = ((Container) chest.getLeftSide()).getBlock();
+            if (blockManager.isHoneypotBlock(left)) return left;
+            return ((Container) chest.getRightSide()).getBlock();
+        }
+        return ((Container) holder).getBlock();
     }
 
     private void executeAction(Player player, Block block, Inventory inventory) {
