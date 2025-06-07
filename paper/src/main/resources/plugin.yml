@@ -11,7 +11,10 @@ commands:
   honeypot:
     description: Creates or deletes a honeypot block
     aliases: [ hp ]
-
+libraries:
+  - dev.dejvokep:boosted-yaml:1.3.7
+  - com.google.inject:guice:7.0.0
+  - com.squareup.okhttp3:okhttp:4.12.0
 permissions:
   honeypot.gui:
     description: Allows a user to use the Honeypot GUI
