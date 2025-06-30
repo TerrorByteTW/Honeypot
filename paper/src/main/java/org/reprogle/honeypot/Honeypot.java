@@ -213,7 +213,7 @@ public final class Honeypot extends JavaPlugin {
             int lowerMinorVer = Integer.parseInt(lowerVersion[1]);
             int lowerRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
 
-            int upperMajorVer = Integer.parseInt(upperVersion[1]);
+            int upperMajorVer = Integer.parseInt(upperVersion[0]);
             int upperMinorVer = Integer.parseInt(upperVersion[1]);
             int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
 
