@@ -1,5 +1,5 @@
-language-version: 4
-prefix: "<gold>[Honeypot]<reset>"
+language-version: 5
+prefix: '<gold>[Honeypot]<reset> '
 kick-reason: "Coup de pied pour avoir cassé des blocs de pot de miel. Ne chagrine pas !"
 ban-reason: "Vous avez été banni pour avoir cassé des blocs de pot de miel"
 warn-reason: "S'il vous plaît, ne construisez pas de chagrin !"

@@ -17,12 +17,13 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
@@ -60,28 +61,16 @@ public class HoneypotRemove implements HoneypotSubCommand {
                 }
 
                 case "near" -> {
-                    final double radius = configManager.getPluginConfig().getDouble("search-range");
-                    final double xCoord = p.getLocation().getX();
-                    final double yCoord = p.getLocation().getY();
-                    final double zCoord = p.getLocation().getZ();
+                    final int radius = configManager.getPluginConfig().getInt("search-range");
+                    List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
 
-                    // For every x value within radius
-                    for (double x = xCoord - radius; x < xCoord + radius; x++) {
-                        // For every y value within radius
-                        for (double y = yCoord - radius; y < yCoord + radius; y++) {
-                            // For every z value within radius
-                            for (double z = zCoord - radius; z < zCoord + radius; z++) {
+                    if (honeypots.isEmpty()) {
+                        p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
+                        return;
+                    }
 
-                                // Check the block at coords x,y,z to see if it's a Honeypot
-                                final Block b = new Location(p.getWorld(), x, y, z).getBlock();
-
-                                // If it is a honeypot do this
-                                if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
-                                    blockManager.deleteBlock(b);
-
-                                }
-                            }
-                        }
+                    for (HoneypotBlockObject honeypot : honeypots) {
+                        blockManager.deleteBlock(honeypot.getBlock());
                     }
 
                     p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));

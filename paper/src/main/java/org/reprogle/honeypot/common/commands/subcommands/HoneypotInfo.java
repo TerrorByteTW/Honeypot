@@ -47,7 +47,7 @@ public class HoneypotInfo implements HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) {
-        p.sendMessage(commandFeedback.getChatPrefix().append(Component.text(" Honeypot version " + plugin.getDescription().getVersion())));
+        p.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Honeypot version " + plugin.getDescription().getVersion())));
 
         p.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion())));
         plugin.checkIfServerSupported();

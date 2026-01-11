@@ -14,19 +14,23 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.providers;
+package org.reprogle.honeypot.common.providers.included;
 
 import com.google.inject.Inject;
+import io.papermc.paper.ban.BanListType;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.providers.Behavior;
+import org.reprogle.honeypot.common.providers.BehaviorProvider;
+import org.reprogle.honeypot.common.providers.BehaviorType;
+
+import java.util.Date;
 
 @Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER)
-@SuppressWarnings("deprecation")
 public class Ban extends BehaviorProvider {
 
     @Inject
@@ -37,9 +41,8 @@ public class Ban extends BehaviorProvider {
         String banReason = PlainTextComponentSerializer.plainText().serialize(commandFeedback.sendCommandFeedback("ban-reason"));
         String chatPrefix = PlainTextComponentSerializer.plainText().serialize(commandFeedback.getChatPrefix());
 
-        Bukkit.getBanList(BanList.Type.NAME).addBan(p.getName(), banReason, null,
-                chatPrefix);
-        p.kickPlayer(banReason);
+        Bukkit.getBanList(BanListType.PROFILE).addBan(p.getPlayerProfile(), banReason, (Date) null, chatPrefix);
+        p.kick(commandFeedback.sendCommandFeedback("ban-reason"));
 
         return true;
     }

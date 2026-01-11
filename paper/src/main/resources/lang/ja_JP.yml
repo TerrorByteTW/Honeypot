@@ -1,5 +1,5 @@
-language-version: 5
-prefix: "<gold>[Honeypot]<reset>"
+language-version: 6
+prefix: '<gold>[Honeypot]<reset> '
 kick-reason: あなたはハニーポットを破壊しました。これらの行為は許可されていません。
 ban-reason: あなたはハニーポットを破壊したためBANされました。
 warn-reason: そのブロックを破壊しないでください。

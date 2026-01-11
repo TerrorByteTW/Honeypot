@@ -1,5 +1,5 @@
-language-version: 5
-prefix: "<gold>[Honeypot]<reset>"
+language-version: 6
+prefix: '<gold>[Honeypot]<reset> '
 kick-reason: "Pateado por romper bloques de honeypot. ¡No te apenes!"
 ban-reason: "Has sido baneado por romper bloques de honeypot"
 warn-reason: "¡Por favor, no se acumule el dolor!"

@@ -1,5 +1,5 @@
-language-version: 5
-prefix: "<gold>[Honeypot]<reset>"
+language-version: 6
+prefix: '<gold>[Honeypot]<reset> '
 kick-reason: "你因破坏蜜罐方块被踢出, 请勿破坏!"
 ban-reason: "你因破坏蜜罐方块被封禁!"
 warn-reason: "请勿破坏建筑!"

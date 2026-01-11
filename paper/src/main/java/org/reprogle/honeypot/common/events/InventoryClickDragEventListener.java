@@ -30,7 +30,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
@@ -40,7 +39,9 @@ import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import com.samjakob.spigui.menu.SGMenu;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 
 public class InventoryClickDragEventListener implements Listener {
 
@@ -66,12 +67,15 @@ public class InventoryClickDragEventListener implements Listener {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
+        // Because for some reason DoubleChest is its own class and does not implement Container. It only implements InventoryHolder :|
         if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
             return;
-        if (!EnumSet.of(SlotType.CONTAINER, SlotType.CRAFTING, SlotType.FUEL, SlotType.RESULT).contains(event.getSlotType())) return;
+        // Support weird slot types that may bypass the checks
+        if (!EnumSet.of(SlotType.CONTAINER, SlotType.CRAFTING, SlotType.FUEL, SlotType.RESULT).contains(event.getSlotType()))
+            return;
         if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
 
-        final Block block = getBlock(event.getClickedInventory().getHolder());
+        final Block block = ((Container) event.getClickedInventory().getHolder()).getBlock();
         if (!blockManager.isHoneypotBlock(block)) return;
 
         final Inventory inventory = event.getInventory();
@@ -106,11 +110,12 @@ public class InventoryClickDragEventListener implements Listener {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!(event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
+        // Because for some reason DoubleChest is its own class and does not implement Container. It only implements InventoryHolder :|
+        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
             return;
         if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
 
-        final Block block = getBlock(event.getInventory().getHolder());
+        final Block block = ((Container) event.getInventory().getHolder()).getBlock();
         final Inventory inventory = event.getInventory();
 
         if (!checkFilter(block)) return;
@@ -129,17 +134,6 @@ public class InventoryClickDragEventListener implements Listener {
                 executeAction(player, block, inventory);
             }
         }
-    }
-
-    private Block getBlock(InventoryHolder holder) {
-        if (holder instanceof DoubleChest chest) {
-            // Return the left block if it is a honeypot block
-            // Otherwise always return the right side
-            final Block left = ((Container) chest.getLeftSide()).getBlock();
-            if (blockManager.isHoneypotBlock(left)) return left;
-            return ((Container) chest.getRightSide()).getBlock();
-        }
-        return ((Container) holder).getBlock();
     }
 
     private void executeAction(Player player, Block block, Inventory inventory) {

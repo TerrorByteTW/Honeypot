@@ -67,11 +67,7 @@ public class DataStoreManager extends StorageProvider {
     }
 
     public HoneypotBlockObject getHoneypotBlock(Block block) {
-
-        if (Boolean.TRUE.equals(isHoneypotBlock(block)))
-            return new HoneypotBlockObject(block, getAction(block));
-
-        return null;
+        return isHoneypotBlock(block) ? new HoneypotBlockObject(block, getAction(block)) : null;
     }
 
     public String getAction(Block block) {

@@ -188,7 +188,7 @@ public class CommandManager implements TabExecutor {
             } else {
                 ConsoleCommandSender console = plugin.getServer().getConsoleSender();
                 console.sendMessage(commandFeedback.buildSplash(plugin));
-                console.sendMessage(commandFeedback.getChatPrefix().append(Component.text(" Honeypot running on Paper version " + Bukkit.getVersion())));
+                console.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Honeypot running on Paper version " + Bukkit.getVersion())));
                 plugin.checkIfServerSupported();
             }
         }

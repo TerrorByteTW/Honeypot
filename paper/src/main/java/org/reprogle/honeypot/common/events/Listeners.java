@@ -51,8 +51,6 @@ public class Listeners {
     @Inject
     StructureGrowEventListener structureGrowEventListener;
     @Inject
-    PlayerCommandPreprocessEventListener playerCommandPreprocessEventListener;
-    @Inject
     PlayerJoinEventListener playerJoinEventListener;
 
     @Inject
@@ -89,7 +87,7 @@ public class Listeners {
                 blockBurnEventListener, entityChangeBlockEventListener,
                 entityExplodeEventListener, pistonExtendRetractListener,
                 inventoryMoveItemEventListener, structureGrowEventListener,
-                playerCommandPreprocessEventListener, playerJoinEventListener));
+                playerJoinEventListener));
 
         // All secondary listeners here
         final List<Listener> secondaryListeners = new ArrayList<>(

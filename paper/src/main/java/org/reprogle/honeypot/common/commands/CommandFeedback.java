@@ -54,7 +54,7 @@ public class CommandFeedback {
         switch (feedback.toLowerCase()) {
             case "usage" ->
                     feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
-                            .append(chatPrefix).append(Component.text(" "))
+                            .append(chatPrefix)
                             .append(Component.text("Need help?\n\n", NamedTextColor.WHITE))
                             .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near) (optional)\n", NamedTextColor.GRAY))
                             .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("reload\n", NamedTextColor.GRAY))
@@ -67,17 +67,14 @@ public class CommandFeedback {
             case "success" -> {
                 if (success.length > 0 && success[0].equals(true)) {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("success.created"))));
 
                 } else if (success.length > 0 && success[0].equals(false)) {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("success.removed"))));
 
                 } else {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("success.default"))));
                 }
             }
@@ -85,16 +82,13 @@ public class CommandFeedback {
             case "debug" -> {
                 if (success.length > 0 && success[0].equals(true)) {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text("Debug mode has been enabled. Right click any block to check its PDC"));
 
                 } else if (success.length > 0 && success[0].equals(false)) {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text("Debug mode has been disabled"));
                 } else {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text("Debug mode is only useful while using PDC"));
                 }
             }
@@ -102,15 +96,12 @@ public class CommandFeedback {
             case "migrate" -> {
                 if (success.length > 0 && success[0].equals(true)) {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.confirm"))));
                 } else if (success.length > 0 && success[0].equals(false)) {
-                        feedbackMessage = chatPrefix
-                                .append(Component.text(" "))
-                                .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.failed"))));
+                    feedbackMessage = chatPrefix
+                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.failed"))));
                 } else {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.preconfirm"))));
                 }
             }
@@ -118,11 +109,9 @@ public class CommandFeedback {
             case "deleted" -> {
                 if (success.length > 0 && success[0].equals(true)) {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.all"))));
                 } else {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.near"))));
                 }
             }
@@ -130,11 +119,9 @@ public class CommandFeedback {
             default -> {
                 try {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString(feedback.toLowerCase()))));
                 } catch (Exception e) {
                     feedbackMessage = chatPrefix
-                            .append(Component.text(" "))
                             .append(Component.text().append(mm.deserialize(languageFile.getString("unknown-error"))));
                 }
             }

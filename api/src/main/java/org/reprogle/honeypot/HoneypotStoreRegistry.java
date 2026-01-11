@@ -29,19 +29,19 @@ import java.util.logging.Logger;
 public class HoneypotStoreRegistry {
     protected final ConcurrentMap<String, StorageProvider> storageProviders = Maps.newConcurrentMap();
     private final Object lock = new Object();
-    private boolean initialzed = false;
+    private boolean initialized = false;
 
     public boolean isInitialized() {
-        return this.initialzed;
+        return this.initialized;
     }
 
-    public void setInitialzed(boolean initialzed) {
-        this.initialzed = initialzed;
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
     }
 
     public void register(@NotNull StorageProvider storageProvider) {
         synchronized (lock) {
-            if (initialzed)
+            if (initialized)
                 throw new IllegalStateException("New storage providers cannot be registered at this time");
 
             try {
