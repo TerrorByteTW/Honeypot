@@ -18,6 +18,7 @@ package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -82,7 +83,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
             slime.setAI(false);
             slime.setGlowing(true);
             slime.setInvulnerable(true);
-            slime.setHealth(4.0);
+            slime.setHealth(slime.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
             slime.setInvisible(true);
 
             // Remove the slime after 5 seconds

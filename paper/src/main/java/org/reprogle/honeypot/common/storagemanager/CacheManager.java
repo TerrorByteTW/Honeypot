@@ -18,6 +18,7 @@ package org.reprogle.honeypot.common.storagemanager;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import lombok.Getter;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
@@ -32,6 +33,7 @@ import java.util.List;
 @Singleton
 public class CacheManager {
 
+    @Getter
 	private static final List<HoneypotBlockObject> cache = new ArrayList<>();
 
 	@Inject
@@ -39,15 +41,6 @@ public class CacheManager {
 
 	@Inject
 	private HoneypotLogger logger;
-
-	/**
-	 * Gets the entire cache list for further processing if necessary
-	 *
-	 * @return The List of {@link HoneypotBlockObject} in the cache
-	 */
-	public static List<HoneypotBlockObject> getCache() {
-		return cache;
-	}
 
 	/**
 	 * Adds a {@link HoneypotBlockObject} to the cache

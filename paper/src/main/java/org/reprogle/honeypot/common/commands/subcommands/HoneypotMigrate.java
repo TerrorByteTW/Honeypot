@@ -70,7 +70,7 @@ public class HoneypotMigrate implements HoneypotSubCommand {
         } else if (args.length >= 2) {
             if (args[1].equalsIgnoreCase("confirm")) {
                 logger.severe(commandFeedback.getChatPrefix()
-                        .append(Component.text(" " + p.getName() + " has started migrating Honeypot to PDC!!! "))
+                        .append(Component.text(p.getName() + " has started migrating Honeypot to PDC!!! "))
                         .append(Component.text("They were warned that this will cause Honeypot to shutdown afterwards. If you heavily rely on Honeypot, PLEASE restart ASAP!")));
 
                 // Get all worlds in the server, since PDC works on a per-world basis

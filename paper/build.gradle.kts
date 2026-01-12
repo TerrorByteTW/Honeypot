@@ -15,7 +15,7 @@
  */
 
 group = "org.reprogle"
-version = "3.4.1"
+version = "3.5.0"
 
 extra["platform"] = "paper"
 
@@ -44,7 +44,7 @@ dependencies {
 
     compileOnly(libs.vault)
     compileOnly(libs.placeholder.api)
-    implementation(libs.boosted.yaml)
+    compileOnly(libs.boosted.yaml)
     implementation(libs.bstats)
     implementation(libs.spigui)
     implementation(project(":api"))
@@ -53,8 +53,8 @@ dependencies {
     compileOnly(libs.griefprevention)
     compileOnly(libs.lands)
 
-    implementation(libs.guice)
-    implementation(libs.okhttp)
+    compileOnly(libs.guice)
+    compileOnly(libs.okhttp)
 }
 
 // Configure the file output names of most files (Excluding shadow, which needs tweaking itself to avoid a "-all" being tagged onto it)
@@ -80,7 +80,6 @@ tasks.shadowJar {
     val platform: String by project.extra
     archiveBaseName.set("honeypot-${platform}")
     archiveClassifier.set("")
-    relocate("dev.dejvokep.boostedyaml", "org.reprogle.honeypot.common.libs.boostedyaml")
     relocate("org.bstats", "org.reprogle.honeypot.common.libs.bstats")
     relocate("com.samjakob", "org.reprogle.honeypot.common.libs.spigui")
 }

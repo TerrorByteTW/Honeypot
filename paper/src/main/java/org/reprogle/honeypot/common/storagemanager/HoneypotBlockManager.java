@@ -20,11 +20,20 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Bed;
+import org.bukkit.block.data.type.Door;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class HoneypotBlockManager {
 
@@ -53,7 +62,14 @@ public class HoneypotBlockManager {
      * @param block The Honeypot {@link Block} we're deleting
      */
     public void deleteBlock(Block block) {
-        Registry.getStorageProvider().removeHoneypotBlock(block);
+        // Since the delete method may also be called on the wrong "half" of a block, we should use the same logical block resolver to obtain the "real" honeypot block
+        Optional<Block> matched = resolveLogicalBlocks(block)
+                .filter(b -> Registry.getStorageProvider().isHoneypotBlock(b))
+                .findFirst();
+
+        if (matched.isEmpty()) return;
+
+        Registry.getStorageProvider().removeHoneypotBlock(matched.get());
 
         cacheManager.removeFromCache(new HoneypotBlockObject(block, null));
         logger.debug(Component.text("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
@@ -70,14 +86,58 @@ public class HoneypotBlockManager {
             return true;
         }
 
-        if (Registry.getStorageProvider().isHoneypotBlock(block)) {
-            String action = getAction(block);
-            cacheManager.addToCache(new HoneypotBlockObject(block, action));
-            return true;
-        }
-        return false;
+        Optional<Block> matched = resolveLogicalBlocks(block)
+                .filter(b -> Registry.getStorageProvider().isHoneypotBlock(b))
+                .findFirst();
 
+        if (matched.isEmpty()) return false;
+
+        String action = getAction(matched.get());
+        cacheManager.addToCache(new HoneypotBlockObject(block, action));
+        return true;
     }
+
+    /**
+     * Small helper function to determine if a block is a Double Chest, Bed, or Door (The most common things in MC that are "2-blocks big").
+     * This omits uncommon blocks such as Pitcher Plants and Tall Grass, and will also not gracefully handle things like tall sugarcane or cactus.
+     * This is a future improvement.
+     *
+     * @param block The block to resolve
+     * @return A stream of one or more resolved blocks
+     */
+    private Stream<Block> resolveLogicalBlocks(Block block) {
+        // Double chest
+        if (block.getState() instanceof Chest chest
+                && chest.getInventory().getHolder() instanceof DoubleChest dc) {
+            return Stream.of(
+                    ((Chest) dc.getLeftSide()).getBlock(),
+                    ((Chest) dc.getRightSide()).getBlock()
+            );
+        }
+
+        BlockData data = block.getBlockData();
+
+        // Bed (head + foot)
+        if (data instanceof Bed bed) {
+            BlockFace facing = bed.getFacing();
+            Block other = (bed.getPart() == Bed.Part.FOOT)
+                    ? block.getRelative(facing)
+                    : block.getRelative(facing.getOppositeFace());
+            return Stream.of(block, other);
+        }
+
+        // Door (top + bottom)
+        if (data instanceof Door door) {
+            Block other = (door.getHalf() == Bisected.Half.BOTTOM)
+                    ? block.getRelative(BlockFace.UP)
+                    : block.getRelative(BlockFace.DOWN);
+            return Stream.of(block, other);
+        }
+
+        // Default: just the block itself
+        return Stream.of(block);
+    }
+
 
     /**
      * Get the Honeypot Block object from Cache or the DB

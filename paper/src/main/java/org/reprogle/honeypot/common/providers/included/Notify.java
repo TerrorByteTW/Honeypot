@@ -47,8 +47,7 @@ public class Notify extends BehaviorProvider {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (player.hasPermission("honeypot.notify") || player.hasPermission("honeypot.*")
                     || player.isOp()) {
-                player.sendMessage(chatPrefix.append(Component.text(" "))
-                        .append(Component.text(p.getName(), NamedTextColor.RED))
+                player.sendMessage(chatPrefix.append(Component.text(p.getName(), NamedTextColor.RED))
                         .append(Component.text(" was caught breaking a Honeypot block at x=" + block.getX()))
                         .append(Component.text(", y=" + block.getY()))
                         .append(Component.text(", z=" + block.getZ()))
@@ -57,9 +56,8 @@ public class Notify extends BehaviorProvider {
             }
         }
 
-        plugin.getServer().getConsoleSender().sendMessage(chatPrefix.append(Component.text(" ")
-                .append(Component.text(p.getName(), NamedTextColor.RED))
-                .append(Component.text(" was caught breaking a Honeypot block")))
+        plugin.getServer().getConsoleSender().sendMessage(chatPrefix.append(Component.text(p.getName(), NamedTextColor.RED))
+                .append(Component.text(" was caught breaking a Honeypot block"))
         );
 
         return true;

@@ -106,7 +106,7 @@ public class ActionHandler {
             // I'd like to warn them if the tried to adjust permissions without vault. If vault is null and they
             // *didn't* try to adjust permissions, then who cares?
             else if (!permissionsAdd.isEmpty() || !permissionsRemove.isEmpty()) {
-                logger.warning(commandFeedback.getChatPrefix().append(Component.text(" Vault is not installed, Honeypots that modify permissions won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/", NamedTextColor.RED)));
+                logger.warning(commandFeedback.getChatPrefix().append(Component.text("Vault is not installed, Honeypots that modify permissions won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/", NamedTextColor.RED)));
             }
         } else {
             logger.warning(Component.text("A Honeypot tried to run using action: " + action + ", but that action doesn't exist! Please verify your honeypots.yml config"));
@@ -123,6 +123,6 @@ public class ActionHandler {
         if (plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null)
             formattedString = PlaceholderAPI.setPlaceholders(player, formattedString);
 
-        return command ? Component.text(formattedString) : Component.text(mm.deserialize(formattedString).toString());
+        return command ? Component.text(formattedString) : Component.text().append(mm.deserialize(formattedString)).build();
     }
 }

@@ -21,8 +21,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -30,7 +30,6 @@ import org.bukkit.entity.Slime;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
@@ -224,28 +223,16 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
         SGButton removeNearButton = new SGButton(removeNearItem.build()).withListener((InventoryClickEvent event) -> {
             event.getWhoClicked().closeInventory();
-            final double radius = configManager.getPluginConfig().getDouble("search-range");
-            final double xCoord = p.getLocation().getX();
-            final double yCoord = p.getLocation().getY();
-            final double zCoord = p.getLocation().getZ();
+            final int radius = configManager.getPluginConfig().getInt("search-range");
+            List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
 
-            // For every x value within radius
-            for (double x = xCoord - radius; x < xCoord + radius; x++) {
-                // For every y value within radius
-                for (double y = yCoord - radius; y < yCoord + radius; y++) {
-                    // For every z value within radius
-                    for (double z = zCoord - radius; z < zCoord + radius; z++) {
+            if (honeypots.isEmpty()) {
+                p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
+                return;
+            }
 
-                        // Check the block at coords x,y,z to see if it's a Honeypot
-                        final Block b = new Location(p.getWorld(), x, y, z).getBlock();
-
-                        // If it is a honeypot do this
-                        if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
-                            blockManager.deleteBlock(b);
-
-                        }
-                    }
-                }
+            for (HoneypotBlockObject honeypot : honeypots) {
+                blockManager.deleteBlock(honeypot.getBlock());
             }
 
             p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));
@@ -423,52 +410,29 @@ public class HoneypotGUI implements HoneypotSubCommand {
                 return;
             }
 
-            final double radius = configManager.getPluginConfig().getDouble("search-range");
-            final double xCoord = p.getLocation().getX();
-            final double yCoord = p.getLocation().getY();
-            final double zCoord = p.getLocation().getZ();
+            final int radius = configManager.getPluginConfig().getInt("search-range");
+
             boolean potFound = false;
 
-            // For every x value within radius
-            for (double x = xCoord - radius; x < xCoord + radius; x++) {
-                // For every y value within radius
-                for (double y = yCoord - radius; y < yCoord + radius; y++) {
-                    // For every z value within radius
-                    for (double z = zCoord - radius; z < zCoord + radius; z++) {
+            List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+            if (!honeypots.isEmpty()) potFound = true;
 
-                        // Check the block at coords x,y,z to see if it's a Honeypot
-                        final Block b = new Location(p.getWorld(), x, y, z).getBlock();
+            for (HoneypotBlockObject honeypot : honeypots) {
+                Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(honeypot.getBlock().getWorld().getName()))
+                        .spawnEntity(honeypot.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
+                slime.setSize(2);
+                slime.setAI(false);
+                slime.setGlowing(true);
+                slime.setInvulnerable(true);
+                slime.setHealth(slime.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                slime.setInvisible(true);
 
-                        // If it is a honeypot do this
-                        if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(b))) {
-                            potFound = true;
-
-                            // Create a dumb, invisible, invulnerable, block-sized glowing slime and spawn
-                            // it inside the block
-                            Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(b.getWorld().getName()))
-                                    .spawnEntity(b.getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
-                            slime.setSize(2);
-                            slime.setAI(false);
-                            slime.setGlowing(true);
-                            slime.setInvulnerable(true);
-                            slime.setHealth(1000.0);
-                            slime.setInvisible(true);
-
-                            // After 5 seconds, remove the slime. Setting its health to 0 causes the death
-                            // animation, removing it just makes it go away. Poof!
-                            new BukkitRunnable() {
-
-                                @Override
-                                public void run() {
-                                    slime.remove();
-                                }
-                            }.runTaskLater(plugin, 20L * 5);
-                            // 20 ticks in 1 second * 5 seconds equals 100 ticks
-                        }
-                    }
-                }
+                // Remove the slime after 5 seconds
+                // If we kill it, a death animation plays and the slime splits and drops items
+                slime.getScheduler().runDelayed(plugin, scheduledTask -> slime.remove(), null, 20L * 5);
             }
 
+            // Let the player know if a pot was found or not
             if (potFound) {
                 p.sendMessage(commandFeedback.sendCommandFeedback("found-pots"));
             } else {

@@ -17,13 +17,16 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
@@ -93,19 +96,18 @@ public class HoneypotHistory implements HoneypotSubCommand {
                                     .append(Component.text(" ]-------", NamedTextColor.GOLD))
                     );
 
+                    Location location = history.get(i).getHoneypot().getLocation();
 
                     Component playerInfo = Component.text("Player: ").color(NamedTextColor.GOLD)
                             .append(Component.text(history.get(i).getPlayer(), NamedTextColor.WHITE))
                             .append(Component.text(" @ ", NamedTextColor.WHITE))
                             .append(Component.text(history.get(i).getHoneypot().getWorld() + " ", NamedTextColor.GOLD))
-                            .append(Component.text(history.get(i).getHoneypot().getCoordinates(), NamedTextColor.WHITE));
-
-                    playerInfo.clickEvent(ClickEvent.runCommand("/hpteleport "
-                            + (history.get(i).getHoneypot().getLocation().getX() + 0.5) + " "
-                            + (history.get(i).getHoneypot().getLocation().getY() + 1) + " "
-                            + (history.get(i).getHoneypot().getLocation().getZ() + 0.5)));
-
-                    playerInfo.hoverEvent(HoverEvent.showText(Component.text("Click to teleport").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)));
+                            .append(Component.text(history.get(i).getHoneypot().getCoordinates(), NamedTextColor.WHITE))
+                            .clickEvent(ClickEvent.callback((Audience audience) -> {
+                                Player player = (Player) audience;
+                                player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                            }))
+                            .hoverEvent(HoverEvent.showText(Component.text("Click to teleport").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)));
 
                     p.sendMessage(playerInfo);
                     p.sendMessage(Component.text("Action: ").append(Component.text(history.get(i).getHoneypot().getAction(), NamedTextColor.GOLD)));

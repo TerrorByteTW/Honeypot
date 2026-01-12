@@ -27,16 +27,15 @@ import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
 @Behavior(type = BehaviorType.KICK, name = "kick", icon = Material.LEATHER_BOOTS)
-@SuppressWarnings("deprecation")
 public class Kick extends BehaviorProvider {
 
-	@Inject
-	private CommandFeedback commandFeedback;
+    @Inject
+    private CommandFeedback commandFeedback;
 
-	@Override
-	public boolean process(Player p, Block block) {
-		p.kickPlayer(PlainTextComponentSerializer.plainText().serialize(commandFeedback.sendCommandFeedback("kick-reason")));
+    @Override
+    public boolean process(Player p, Block block) {
+        p.kick(commandFeedback.sendCommandFeedback("kick-reason"));
 
-		return true;
-	}
+        return true;
+    }
 }

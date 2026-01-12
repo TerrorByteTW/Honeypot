@@ -23,7 +23,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.CommandManager;
@@ -69,20 +68,6 @@ public final class Honeypot extends JavaPlugin {
     private Injector injector;
 
     /**
-     * Check if the server is running on the experimental Folia software.
-     *
-     * @return True if Folia, false if anything else
-     */
-    public static boolean isFolia() {
-        try {
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServerInitEvent");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
-    /**
      * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
      * registers flags.
      */
@@ -119,7 +104,7 @@ public final class Honeypot extends JavaPlugin {
         // Initialize the SpiGUI object for UI, lock the registry, and start the Ghost Honeypot Fixer task
         gui = new SpiGUI(this);
         Registry.getBehaviorRegistry().setInitialized(true);
-        Registry.getStorageManagerRegistry().setInitialzed(true);
+        Registry.getStorageManagerRegistry().setInitialized(true);
         ghf.startTask();
 
         String storageMethod = configManager.getPluginConfig().getString("storage-method");
@@ -158,7 +143,7 @@ public final class Honeypot extends JavaPlugin {
 
         if (isFolia()) {
             getHoneypotLogger().warning(
-                    Component.text("YOU ARE RUNNING ON FOLIA, AN EXPERIMENTAL SOFTWARE!!! It is assumed you know what you're doing, since this software can only be obtained via manually building it. While Folia is fully working, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now!"));
+                    Component.text("Welcome to Folia!!!! It is assumed you know what you're doing, since Folia is not yet standard. While Honeypot can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
         }
 
         // Check the supported MC versions against the MC versions supported by this version of Honeypot
@@ -174,7 +159,7 @@ public final class Honeypot extends JavaPlugin {
                         getServer().getConsoleSender()
                                 .sendMessage(commandFeedback.getChatPrefix().append(Component.text("There is a new update available: " + latest + ". Download for the latest features and performance improvements!", NamedTextColor.RED)));
                     } else {
-                        getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text(" You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
+                        getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text("You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
                     }
                 }, logger);
     }
@@ -213,7 +198,7 @@ public final class Honeypot extends JavaPlugin {
             int lowerMinorVer = Integer.parseInt(lowerVersion[1]);
             int lowerRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
 
-            int upperMajorVer = Integer.parseInt(upperVersion[1]);
+            int upperMajorVer = Integer.parseInt(upperVersion[0]);
             int upperMinorVer = Integer.parseInt(upperVersion[1]);
             int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
 
@@ -275,5 +260,9 @@ public final class Honeypot extends JavaPlugin {
      */
     public HoneypotLogger getHoneypotLogger() {
         return logger;
+    }
+
+    private boolean isFolia() {
+        return Bukkit.getServer().getName().startsWith("Folia");
     }
 }

@@ -16,9 +16,6 @@
     <a href="https://modrinth.com/plugin/honeypot">
         <img alt="Modrinth" src="https://img.shields.io/badge/Download%20at-Modrinth-brightgreen?style=for-the-badge&logo=modrinth">
     </a>
-    <a href="https://polymart.org/resource/honeypot-anti-grief.2756">
-        <img alt="Polymart" src="https://img.shields.io/badge/Download%20At-Polymart-%2303a092?style=for-the-badge">
-    </a>
     <a href="https://hangar.papermc.io/TerrorByte/Honeypot">
         <img alt="Hangar" src="https://img.shields.io/badge/Download%20At-Hangar-%23f29f22?style=for-the-badge">
     </a>
@@ -53,9 +50,8 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
 Prerequisites:
 
-- Java 17 (You may compile with Java 18, but Java 17 is what Minecraft servers 1.18+ are required to use. I'd compile
-  for that version since most servers will be using Java 17)
-- Gradle 8.0.2+ (I use 8.6 as of writing this, but from testing I know at least 8.0.2+ works)
+- Java 21 (Minecraft versions 1.20.5+ require Java 21, so the plugin is built on that. I use JetBrains JVM 21 since it makes it a little easier to work with when debugging in IntelliJ)
+- Gradle 8.6
 
 1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that
    accordingly
@@ -73,7 +69,7 @@ $ ./gradlew build
 ## Developers
 
 If you are looking to develop using the Honeypot API,
-please [see the Wiki](https://github.com/TerrorByteTW/Honeypot/wiki/Developing-plugins-using-the-Honeypot-API)!
+please [see the Wiki](https://terrorbytetw.github.io/Honeypot-Docs/adding-functionality.html)!
 
 ## Credits 🎬
 

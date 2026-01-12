@@ -7,11 +7,14 @@ api-version: 1.20
 load: STARTUP
 folia-supported: true
 softdepend: [ Vault, WorldGuard, GriefPrevention, Lands, PlaceholderAPI ]
+libraries:
+  - dev.dejvokep:boosted-yaml:1.3.7
+  - com.google.inject:guice:7.0.0
+  - com.squareup.okhttp3:okhttp:4.12.0
 commands:
   honeypot:
     description: Creates or deletes a honeypot block
     aliases: [ hp ]
-
 permissions:
   honeypot.gui:
     description: Allows a user to use the Honeypot GUI
