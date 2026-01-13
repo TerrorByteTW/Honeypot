@@ -25,7 +25,6 @@ plugins {
     java
     `maven-publish`
     alias(libs.plugins.shadow)
-    alias(libs.plugins.sonar)
     alias(libs.plugins.lombok)
 }
 
