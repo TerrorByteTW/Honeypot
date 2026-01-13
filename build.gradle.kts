@@ -23,33 +23,11 @@ plugins {
     java
     `maven-publish`
     alias(libs.plugins.shadow)
-    alias(libs.plugins.sonar)
     idea
 }
 
 repositories {
     mavenCentral()
-}
-
-sonar {
-    properties {
-        property("sonar.projectKey", "honeypot")
-        property("sonar.organization", "terrorbytetw")
-        property("sonar.host.url", "https://sonarcloud.io")
-        property("sonar.gradle.skipCompile", true)
-    }
-}
-
-// This runs tasks for every subproject
-subprojects {
-    sonar {
-        properties {
-            property("sonar.projectKey", "honeypot")
-            property("sonar.organization", "terrorbytetw")
-            property("sonar.host.url", "https://sonarcloud.io")
-            property("sonar.gradle.skipCompile", true)
-        }
-    }
 }
 
 idea {

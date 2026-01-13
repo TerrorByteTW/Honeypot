@@ -40,9 +40,9 @@ Honeypot plugins were popularized back in the early days of Minecraft servers bu
 lack of customization, updates, or difficulty to configure, setup, and/or maintain. This plugin was designed to be
 simple, lightweight, and easy to use for staff and admins.
 
-**View a demo here (*Very* outdated 😅)**
+**View a demo here (Up to date as of Honeypot v3.5.0!)**
 
-[![Honeypot Demo](https://img.youtube.com/vi/M58d5X3NpP0/0.jpg)](https://www.youtube.com/watch?v=M58d5X3NpP0)
+[![Honeypot Demo](https://img.youtube.com/vi/mdFpaOktBuM/0.jpg)](https://www.youtube.com/watch?v=mdFpaOktBuM)
 
 Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
@@ -50,8 +50,8 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
 Prerequisites:
 
-- Java 21 (Minecraft versions 1.20.5+ require Java 21, so the plugin is built on that. I use JetBrains JVM 21 since it makes it a little easier to work with when debugging in IntelliJ)
-- Gradle 8.6
+- Java 21
+- Gradle 9.3
 
 1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that
    accordingly
