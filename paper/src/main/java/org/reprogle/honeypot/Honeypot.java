@@ -189,10 +189,14 @@ public final class Honeypot extends JavaPlugin {
         String pluginVersion = this.getPluginMeta().getVersion();
         // Check for any updates
         new HoneypotSupportedVersions(this, pluginVersion).getSupportedVersions(value -> {
+            if (value.pulled()) {
+                getHoneypotLogger().warning(Component.text(value.message()));
+                return;
+            }
             // Get the least supported and most supported server versions for this version
             // of Honeypot
-            String[] lowerVersion = value.split("-")[0].split("\\.");
-            String[] upperVersion = value.split("-")[1].split("\\.");
+            String[] lowerVersion = value.message().split("-")[0].split("\\.");
+            String[] upperVersion = value.message().split("-")[1].split("\\.");
 
             int lowerMajorVer = Integer.parseInt(lowerVersion[0]);
             int lowerMinorVer = Integer.parseInt(lowerVersion[1]);

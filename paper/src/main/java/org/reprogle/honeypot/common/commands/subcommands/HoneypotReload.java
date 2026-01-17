@@ -23,6 +23,7 @@ import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
+import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
@@ -74,6 +75,8 @@ public class HoneypotReload implements HoneypotSubCommand {
             if (configManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable")) {
                 fixer.startTask();
             }
+
+            CacheManager.clearCache();
 
             String providerName = configManager.getPluginConfig().getString("storage-method");
             if (!Registry.getStorageProvider().getProviderName().equalsIgnoreCase(providerName)) {
