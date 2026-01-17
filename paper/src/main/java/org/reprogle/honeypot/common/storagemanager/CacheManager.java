@@ -70,14 +70,7 @@ public class CacheManager {
 	 *         not existing)
 	 */
 	public boolean removeFromCache(HoneypotBlockObject block) {
-		for (HoneypotBlockObject b : cache) {
-			if (block.equals(b)) {
-				cache.remove(b);
-				return true;
-			}
-		}
-
-		return false;
+		return cache.removeIf(block::equals);
 	}
 
 	/**

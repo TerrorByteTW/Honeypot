@@ -115,9 +115,9 @@ public class BlockBreakEventListener implements Listener {
                     || player.hasPermission(BREAK_PERMISSION)
                     || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
                 deleteBlock = true;
+                logger.debug(Component.text("The player who broke this block is either allowed to break it, or has some sort of permission. This Honeypot will be removed from the world"));
             } else {
                 event.setCancelled(true);
-                logger.debug(Component.text("The player who broke this block is either allowed to break it, or has some sort of permission. This Honeypot will be removed from the world"));
             }
 
             // If blocks broken before action is less than or equal to 1, go to the break

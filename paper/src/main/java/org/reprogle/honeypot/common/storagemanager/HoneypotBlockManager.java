@@ -71,7 +71,7 @@ public class HoneypotBlockManager {
 
         Registry.getStorageProvider().removeHoneypotBlock(matched.get());
 
-        cacheManager.removeFromCache(new HoneypotBlockObject(block, null));
+        cacheManager.removeFromCache(new HoneypotBlockObject(matched.get(), null));
         logger.debug(Component.text("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
     }
 
@@ -93,7 +93,7 @@ public class HoneypotBlockManager {
         if (matched.isEmpty()) return false;
 
         String action = getAction(matched.get());
-        cacheManager.addToCache(new HoneypotBlockObject(block, action));
+        cacheManager.addToCache(new HoneypotBlockObject(matched.get(), action));
         return true;
     }
 
@@ -167,7 +167,12 @@ public class HoneypotBlockManager {
             return potential.getAction();
 
         try {
-            return Registry.getStorageProvider().getAction(block);
+            Optional<Block> matched = resolveLogicalBlocks(block)
+                    .filter(b -> Registry.getStorageProvider().isHoneypotBlock(b))
+                    .findFirst();
+            if (matched.isEmpty()) throw new Exception("No action found");
+
+            return Registry.getStorageProvider().getAction(matched.get());
         } catch (Exception e) {
             logger.warning(Component.text("No action found for block, " +
                             "this is likely due to a container being created using the special lock format. " +
@@ -183,6 +188,8 @@ public class HoneypotBlockManager {
      */
     public void deleteAllHoneypotBlocks(World world) {
         Registry.getStorageProvider().deleteAllHoneypotBlocks(world);
+        CacheManager.clearCache();
+
         logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }
 

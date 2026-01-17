@@ -30,6 +30,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
@@ -67,15 +68,31 @@ public class InventoryClickDragEventListener implements Listener {
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        // Because for some reason DoubleChest is its own class and does not implement Container. It only implements InventoryHolder :|
+
+        // Because for some reason DoubleChest is its own class and does not implement Container. It only *extends* InventoryHolder :|
         if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
             return;
+
         // Support weird slot types that may bypass the checks
         if (!EnumSet.of(SlotType.CONTAINER, SlotType.CRAFTING, SlotType.FUEL, SlotType.RESULT).contains(event.getSlotType()))
             return;
+
+        //noinspection DataFlowIssue getType() is marked @NotNull but IntelliJ thinks otherwise
         if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
 
-        final Block block = ((Container) event.getClickedInventory().getHolder()).getBlock();
+        InventoryHolder holder = event.getInventory().getHolder();
+
+        // Stupid hack because DoubleChest is the ONLY inventory in the entire Paper API that EXTENDS InventoryHolder instead of implementing Container.
+        // There is nothing more permanent than a temporary solution. Put in the work and do things right, geeze....
+        Block block;
+        if (holder instanceof DoubleChest doubleChest) {
+            //noinspection DataFlowIssue Same issue as above, getBlockAt() is claiming to be nullable when it clearly is marked @NotNull
+            block = doubleChest.getWorld().getBlockAt(doubleChest.getLocation());
+        } else {
+            //noinspection DataFlowIssue
+            block = ((Container) event.getClickedInventory().getHolder()).getBlock();
+        }
+
         if (!blockManager.isHoneypotBlock(block)) return;
 
         final Inventory inventory = event.getInventory();

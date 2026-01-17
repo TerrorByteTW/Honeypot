@@ -34,16 +34,19 @@ public record HoneypotSupportedVersions(Plugin plugin, String version) {
      *
      * @param consumer The consumer function
      */
-    public void getSupportedVersions(final Consumer<String> consumer, HoneypotLogger logger) {
+    public void getSupportedVersions(final Consumer<VersionStatus> consumer, HoneypotLogger logger) {
         Bukkit.getAsyncScheduler().runNow(this.plugin, scheduledTask -> {
             logger.info(Component.text("Checking if this server version is supported"));
-            try (InputStream inputStream = new URI(
-                    "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version)
-                    .toURL()
-                    .openStream();
-                 Scanner scanner = new Scanner(inputStream)) {
-                if (scanner.hasNext()) {
-                    consumer.accept(scanner.next());
+            try (InputStream inputStream = new URI("https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/supported-versions/" + version).toURL().openStream(); Scanner scanner = new Scanner(inputStream)) {
+                if (!scanner.hasNextLine()) return;
+
+                String firstLine = scanner.nextLine().trim();
+
+                if (firstLine.equalsIgnoreCase("pulled")) {
+                    String reason = scanner.hasNextLine() ? scanner.nextLine() : "This version of Honeypot has been pulled, it's recommended you update to the next available version immediately!";
+                    consumer.accept(new VersionStatus(true, reason));
+                } else {
+                    consumer.accept(new VersionStatus(false, firstLine));
                 }
             } catch (IOException | URISyntaxException exception) {
                 logger.warning(Component.text("Unable to check supported versions: " + exception.getMessage()));

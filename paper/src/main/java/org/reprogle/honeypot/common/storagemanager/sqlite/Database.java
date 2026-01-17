@@ -184,9 +184,6 @@ public abstract class Database extends StorageProvider {
      */
     @SuppressWarnings("java:S1192")
     public boolean isHoneypotBlock(Block block) {
-        String coordinates = block.getX() + ", " + block.getY() + ", " + block.getZ();
-        String worldName = block.getWorld().getName();
-
         Connection c = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -586,7 +583,6 @@ public abstract class Database extends StorageProvider {
 
             ps = c.prepareStatement(DELETE + INDEX_TABLE + ";");
             qm.addToQueue(ps);
-            CacheManager.clearCache();
         } catch (SQLException e) {
             logger.severe(Component.text("Error while executing create SQL statement on player table: " + e));
         } finally {
