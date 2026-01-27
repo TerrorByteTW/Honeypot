@@ -27,6 +27,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
@@ -34,7 +35,6 @@ import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.discord.DiscordWebhookNotifier;
 import org.reprogle.honeypot.common.utils.discord.WebhookActionType;
@@ -52,7 +52,7 @@ public class BlockBreakEventListener implements Listener {
     private final ActionHandler actionHandler;
     private final HoneypotLogger logger;
     private final HoneypotBlockManager blockManager;
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
     private final HoneypotPlayerHistoryManager playerHistoryManager;
     private final HoneypotPlayerManager playerManager;
@@ -63,12 +63,12 @@ public class BlockBreakEventListener implements Listener {
      */
     @Inject
     public BlockBreakEventListener(ActionHandler actionHandler, HoneypotLogger logger, HoneypotBlockManager blockManager,
-                                   HoneypotConfigManager configManager, CommandFeedback commandFeedback,
+                                   BytePluginConfig config, CommandFeedback commandFeedback,
                                    HoneypotPlayerHistoryManager playerHistoryManager, HoneypotPlayerManager playerManager, AdapterManager adapterManager) {
         this.actionHandler = actionHandler;
         this.logger = logger;
         this.blockManager = blockManager;
-        this.configManager = configManager;
+        this.config = config;
         this.commandFeedback = commandFeedback;
         this.playerHistoryManager = playerHistoryManager;
         this.playerManager = playerManager;
@@ -78,7 +78,7 @@ public class BlockBreakEventListener implements Listener {
     // Player block break event
     @EventHandler(priority = EventPriority.LOWEST)
     public void blockBreakEvent(BlockBreakEvent event) {
-        // Check to see if the event is cancelled before doing any logic.
+        // Check to see if the event is canceled before doing any logic.
         // Ex: Creative mode player with Sword in hand
         if (event.isCancelled())
             return;
@@ -98,7 +98,7 @@ public class BlockBreakEventListener implements Listener {
             Bukkit.getPluginManager().callEvent(hppbe);
             logger.debug(Component.text("Pre block break event is being called for " + player));
 
-            // Check if the event was cancelled. If it is, delete the block.
+            // Check if the event was canceled. If it is, delete the block.
             if (hppbe.isCancelled()) {
                 blockManager.deleteBlock(event.getBlock());
                 logger.debug(Component.text("The event for " + player + " was cancelled, not continuing."));
@@ -110,8 +110,8 @@ public class BlockBreakEventListener implements Listener {
 
             // If Allow Player Destruction is true, the player has permissions, or is Op,
             // flag the block for deletion from the DB
-            // Otherwise, set the BlockBreakEvent to cancelled
-            if (configManager.getPluginConfig().getBoolean("allow-player-destruction")
+            // Otherwise, set the BlockBreakEvent to canceled
+            if (config.config().getBoolean("allow-player-destruction")
                     || player.hasPermission(BREAK_PERMISSION)
                     || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
                 deleteBlock = true;
@@ -123,7 +123,7 @@ public class BlockBreakEventListener implements Listener {
             // If blocks broken before action is less than or equal to 1, go to the break
             // action.
             // Otherwise, check if the player should have the action triggered
-            if (configManager.getPluginConfig().getInt("blocks-broken-before-action-taken") <= 1) {
+            if (config.config().getInt("blocks-broken-before-action-taken") <= 1) {
                 // This is just a precaution to ensure that the player count is always less than
                 // 1 if the value in the
                 // config is 1
@@ -155,7 +155,7 @@ public class BlockBreakEventListener implements Listener {
     // the block they're on being broken
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void checkBlockBreakSideEffects(BlockBreakEvent event) {
-        if (!configManager.getPluginConfig().getBoolean("allow-player-destruction"))
+        if (!config.config().getBoolean("allow-player-destruction"))
             return;
 
         Player player = event.getPlayer();
@@ -234,7 +234,7 @@ public class BlockBreakEventListener implements Listener {
             return;
 
         // Get the config value and the amount of blocks broken
-        int breaksBeforeAction = configManager.getPluginConfig().getInt("blocks-broken-before-action-taken");
+        int breaksBeforeAction = config.config().getInt("blocks-broken-before-action-taken");
         int blocksBroken = playerManager.getCount(player);
 
         // getCount returns -1 if the player doesn't exist in the DB. If that's the
@@ -248,7 +248,7 @@ public class BlockBreakEventListener implements Listener {
         blocksBroken += 1;
 
         // If the blocks broken are larger than or equals 'breaks before action' or if
-        // breaks before action equal equal 1, reset the count and perform the break
+        // breaks before action equal 1, reset the count and perform the break
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
             playerManager.setPlayerCount(player, 0);
             breakAction(event);
@@ -267,12 +267,12 @@ public class BlockBreakEventListener implements Listener {
     private void sendWebhook(BlockBreakEvent event) {
         Player player = event.getPlayer();
 
-        if (configManager.getPluginConfig().getBoolean("discord.enable")) {
+        if (config.config().getBoolean("discord.enable")) {
             WebhookActionType actionType;
-            String sendWhen = configManager.getPluginConfig().getString("discord.send-when");
+            String sendWhen = config.config().getString("discord.send-when");
             actionType = sendWhen.equalsIgnoreCase("onbreak") ? WebhookActionType.BREAK : WebhookActionType.ACTION;
 
-            new DiscordWebhookNotifier(actionType, configManager.getPluginConfig().getString("discord.url"), event.getBlock(), player, logger).send();
+            new DiscordWebhookNotifier(actionType, config.config().getString("discord.url"), event.getBlock(), player, logger).send();
         }
     }
 }

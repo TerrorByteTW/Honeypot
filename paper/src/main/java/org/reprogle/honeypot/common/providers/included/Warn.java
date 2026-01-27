@@ -29,7 +29,7 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 public class Warn extends BehaviorProvider {
 
 	@Inject
-	private CommandFeedback commandFeedback;
+	CommandFeedback commandFeedback;
 
 	@Override
 	public boolean process(Player p, Block block) {

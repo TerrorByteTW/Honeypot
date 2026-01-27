@@ -41,7 +41,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
@@ -49,7 +50,6 @@ import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
@@ -66,16 +66,16 @@ import java.util.function.Consumer;
 @SuppressWarnings("java:S1874")
 public class HoneypotGUI implements HoneypotSubCommand {
 
-    private final Honeypot plugin;
-    private final HoneypotConfigManager configManager;
+    private final JavaPlugin plugin;
+    private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
     private final CommandFeedback commandFeedback;
     private final AdapterManager adapterManager;
 
     @Inject
-    HoneypotGUI(Honeypot plugin, HoneypotConfigManager configManager, HoneypotBlockManager blockManager, CommandFeedback commandFeedback, AdapterManager adapterManager) {
+    HoneypotGUI(JavaPlugin plugin, BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback, AdapterManager adapterManager) {
         this.plugin = plugin;
-        this.configManager = configManager;
+        this.config = config;
         this.blockManager = blockManager;
         this.commandFeedback = commandFeedback;
         this.adapterManager = adapterManager;
@@ -107,7 +107,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
         List<String> types = new ArrayList<>();
 
-        Set<Object> keys = configManager.getHoneypotsConfig().getKeys();
+        Set<Object> keys = config.require("honeypots").getKeys();
         for (Object key : keys) {
             types.add(key.toString());
         }
@@ -125,15 +125,11 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
                 if (Registry.getBehaviorRegistry().getBehaviorProvider(type) == null) {
                     // The behavior registry will not have behaviors defined in the Custom Honeypots config file, so fallback to this
-                    String action = configManager.getHoneypotsConfig().getString(type + ".icon");
+                    String action = config.require("honeypots").getString(type + ".icon");
 
-                    item = createInventoryButtonItem(action, type, "Click to create a Honeypot of this type", event -> {
-                        createHoneypotFromGUI(event, type);
-                    });
+                    item = createInventoryButtonItem(action, type, "Click to create a Honeypot of this type", event -> createHoneypotFromGUI(event, type));
                 } else {
-                    item = createInventoryButtonItem(Registry.getBehaviorRegistry().getBehaviorProvider(type).getIcon().name(), type, "Click to create a Honeypot of this type", event -> {
-                        createHoneypotFromGUI(event, type);
-                    });
+                    item = createInventoryButtonItem(Registry.getBehaviorRegistry().getBehaviorProvider(type).getIcon().name(), type, "Click to create a Honeypot of this type", event -> createHoneypotFromGUI(event, type));
                 }
 
                 oPane.addItem(item);
@@ -169,7 +165,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
         List<HoneypotBlockObject> blocks = blockManager.getAllHoneypots(p.getWorld());
 
-        boolean displayAsPot = configManager.getGuiConfig().getBoolean("display-button-as-honeypot");
+        boolean displayAsPot = config.require("gui").getBoolean("display-button-as-honeypot");
 
         // 18 is 2*9, with 2 being the number of rows that will be used for populating Custom Honeypots
         for (int x = 0; x < blocks.size(); x += 18) {
@@ -188,7 +184,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                         event.getWhoClicked().closeInventory();
                     });
                 } else {
-                    item = createInventoryButtonItem(configManager.getGuiConfig().getString("default-gui-button"), "Honeypot: " + block.getCoordinates(), "Click to teleport to Honeypot", event -> {
+                    item = createInventoryButtonItem(config.require("gui").getString("default-gui-button"), "Honeypot: " + block.getCoordinates(), "Click to teleport to Honeypot", event -> {
                         event.getWhoClicked().sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
 
                         // In the future, we're going to make this nice and pretty. Until then, ew.
@@ -234,7 +230,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
             List<Player> chunk = players.subList(x, Math.min(x + 18, players.size()));
             OutlinePane oPane = new OutlinePane(0, 0, 9, 2);
 
-            for (Player player : players) {
+            for (Player player : chunk) {
                 GuiItem item;
 
                 ItemStack skullItem = new ItemStack(Material.PLAYER_HEAD);
@@ -273,7 +269,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
         StaticPane options = new StaticPane(0, 0, 9, 1);
         options.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("remove-buttons.remove-all-button"),
+                config.require("gui").getString("remove-buttons.remove-all-button"),
                 "Remove all Honeypots",
                 null,
                 event -> {
@@ -284,12 +280,12 @@ public class HoneypotGUI implements HoneypotSubCommand {
         ), 3, 0);
 
         options.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("remove-buttons.remove-near-button"),
+                config.require("gui").getString("remove-buttons.remove-near-button"),
                 "Remove nearby Honeypots",
                 null,
                 event -> {
                     event.getWhoClicked().closeInventory();
-                    final int radius = configManager.getPluginConfig().getInt("search-range");
+                    final int radius = config.config().getInt("search-range");
                     List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
 
                     if (honeypots.isEmpty()) {
@@ -306,7 +302,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
         ), 4, 0);
 
         options.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("remove-buttons.remove-target-button"),
+                config.require("gui").getString("remove-buttons.remove-target-button"),
                 "Remove the Honeypot you're targeting",
                 null,
                 event -> {
@@ -376,15 +372,15 @@ public class HoneypotGUI implements HoneypotSubCommand {
             return;
         }
 
-        if (configManager.getPluginConfig().getBoolean("filters.blocks")
-                || configManager.getPluginConfig().getBoolean("filters.inventories")) {
-            List<String> allowedBlocks = (List<String>) configManager.getPluginConfig()
+        if (config.config().getBoolean("filters.blocks")
+                || config.config().getBoolean("filters.inventories")) {
+            List<String> allowedBlocks = (List<String>) config.config()
                     .getList("allowed-blocks");
-            List<String> allowedInventories = (List<String>) configManager.getPluginConfig()
+            List<String> allowedInventories = (List<String>) config.config()
                     .getList("allowed-inventories");
             boolean allowed = false;
 
-            if (configManager.getPluginConfig().getBoolean("filters.blocks")) {
+            if (config.config().getBoolean("filters.blocks")) {
                 for (String blockType : allowedBlocks) {
                     if (block.getType().name().equals(blockType)) {
                         allowed = true;
@@ -393,7 +389,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                 }
             }
 
-            if (configManager.getPluginConfig().getBoolean("filters.inventories")) {
+            if (config.config().getBoolean("filters.inventories")) {
                 for (String blockType : allowedInventories) {
                     if (block.getType().name().equals(blockType)) {
                         allowed = true;
@@ -439,25 +435,25 @@ public class HoneypotGUI implements HoneypotSubCommand {
         StaticPane navigation = new StaticPane(0, 0, 9, 1);
 
         navigation.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("main-buttons.create-button"),
+                config.require("gui").getString("main-buttons.create-button"),
                 "Create a Honeypot",
                 null,
                 event -> this.customHoneypotsInventory(p)
         ), 2, 0);
         navigation.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("main-buttons.remove-button"),
+                config.require("gui").getString("main-buttons.remove-button"),
                 "Remove a Honeypot",
                 null,
                 event -> this.removeHoneypotInventory(p)
         ), 3, 0);
         navigation.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("main-buttons.list-button"),
+                config.require("gui").getString("main-buttons.list-button"),
                 "List all Honeypots",
                 null,
                 event -> this.allHoneypotsInventory(p)
         ), 4, 0);
         navigation.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("main-buttons.locate-button"),
+                config.require("gui").getString("main-buttons.locate-button"),
                 "Locate nearby Honeypots",
                 null,
                 event -> {
@@ -467,7 +463,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                         return;
                     }
 
-                    final int radius = configManager.getPluginConfig().getInt("search-range");
+                    final int radius = config.config().getInt("search-range");
 
                     boolean potFound = false;
 
@@ -481,7 +477,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                         slime.setAI(false);
                         slime.setGlowing(true);
                         slime.setInvulnerable(true);
-                        slime.setHealth(slime.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+                        slime.setHealth(slime.getAttribute(Attribute.MAX_HEALTH).getValue());
                         slime.setInvisible(true);
 
                         // Remove the slime after 5 seconds
@@ -498,7 +494,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                 }
         ), 5, 0);
         navigation.addItem(createInventoryButtonItem(
-                configManager.getGuiConfig().getString("main-buttons.history-button"),
+                config.require("gui").getString("main-buttons.history-button"),
                 "Query player history",
                 null,
                 event -> this.historyQueryInventory(p)

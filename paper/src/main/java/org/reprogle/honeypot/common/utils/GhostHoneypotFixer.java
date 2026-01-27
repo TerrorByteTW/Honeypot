@@ -22,7 +22,8 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
@@ -32,22 +33,22 @@ import java.util.List;
 @SuppressWarnings({"java:S1604"})
 @Singleton
 public class GhostHoneypotFixer {
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotLogger logger;
     private final HoneypotBlockManager blockManager;
-    private final Honeypot plugin;
+    private final JavaPlugin plugin;
     private ScheduledTask task;
 
     // Create package constructor to hide implicit one
     @Inject
-    public GhostHoneypotFixer(Honeypot plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, HoneypotConfigManager configManager) {
+    public GhostHoneypotFixer(JavaPlugin plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, BytePluginConfig config) {
         this.plugin = plugin;
         this.logger = logger;
         this.blockManager = blockManager;
-        this.configManager = configManager;
+        this.config = config;
 
         // Start the GhostHoneypotFixer
-        if (configManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable")) {
+        if (config.config().getBoolean("ghost-honeypot-checker.enable")) {
             logger.info(
                     Component.text("Starting the ghost checker task! If you need to change the settings for this function, edit the config then do /honeypot reload"));
         }
@@ -108,7 +109,7 @@ public class GhostHoneypotFixer {
             }
 
             logger.info(Component.text("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots."));
-        }, 10L, 20L * 60 * configManager.getPluginConfig().getInt("ghost-honeypot-checker.check-interval"));
+        }, 10L, 20L * 60 * config.config().getInt("ghost-honeypot-checker.check-interval"));
     }
 
     /**

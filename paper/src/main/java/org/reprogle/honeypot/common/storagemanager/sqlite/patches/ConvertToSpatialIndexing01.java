@@ -17,14 +17,18 @@
 package org.reprogle.honeypot.common.storagemanager.sqlite.patches;
 
 import net.kyori.adventure.text.Component;
+import org.reprogle.bytelib.db.api.Param;
+import org.reprogle.bytelib.db.migrate.Migration;
+import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("FieldCanBeLocal")
-public class ConvertToSpatialIndexing01 implements SQLitePatch {
+public class ConvertToSpatialIndexing01 implements Migration {
 
     private final String ADD_HONEYPOT_INDEX_TABLE = "CREATE VIRTUAL TABLE IF NOT EXISTS honeypot_index USING "
             + "rtree( id INTEGER PRIMARY KEY AUTOINCREMENT, x_min INTEGER, x_max INTEGER, y_min INTEGER, y_max INTEGER, z_min INTEGER, z_max INTEGER);";
@@ -37,59 +41,41 @@ public class ConvertToSpatialIndexing01 implements SQLitePatch {
     private final String DROP_OLD_HONEYPOT_DATA = "DROP TABLE IF EXISTS honeypot_blocks;";
     private final String RENAME_NEW_HONEYPOT_DATA_TABLE = "ALTER TABLE new_honeypot_data RENAME TO honeypot_blocks;";
 
+    private final HoneypotLogger logger;
 
-    @Override
-    public void update(Connection connection, HoneypotLogger logger) throws SQLException {
-        ArrayList<HoneypotBlockObject> blocks = new ArrayList<>();
-        ResultSet rs = null;
-
-        logger.debug(Component.text("A rather large SQLite DB patch is about to be attempted. This may take a few seconds and cause your server to slightly lag"));
-
-        connection.setAutoCommit(false);
-        connection.createStatement().execute("PRAGMA busy_timeout = 5000;");
-
-        try (Statement s = connection.createStatement()) {
-            rs = s.executeQuery("SELECT * FROM honeypot_blocks;");
-
-            while (rs.next()) {
-                blocks.add(new HoneypotBlockObject(rs.getString("worldName"), rs.getString("coordinates"),
-                        rs.getString("action")));
-            }
-
-            s.executeUpdate(ADD_HONEYPOT_INDEX_TABLE);
-            s.executeUpdate(CREATE_NEW_HONEYPOT_BLOCKS_TABLE);
-
-            for (HoneypotBlockObject block : blocks) {
-                String[] coords = block.getCoordinates().split(", ");
-
-                s.executeUpdate("INSERT INTO honeypot_index (x_min, x_max, y_min, y_max, z_min, z_max) VALUES (" +
-                        coords[0] + ", " + coords[0] + ", " +
-                        coords[1] + ", " + coords[1] + ", " +
-                        coords[2] + ", " + coords[2] + ");");
-                s.executeUpdate("INSERT INTO new_honeypot_data (id, world, action) VALUES (last_insert_rowid(),'" + block.getWorld() + "','" + block.getAction() + "');");
-            }
-
-            s.executeUpdate(DROP_OLD_HONEYPOT_DATA);
-            s.executeUpdate(RENAME_NEW_HONEYPOT_DATA_TABLE);
-
-            connection.commit();
-            connection.setAutoCommit(true);
-
-        } catch (SQLException e) {
-            logger.debug(Component.text("Migrating to spacial indexing failed: " + e.getMessage()));
-            connection.rollback();
-        } finally {
-            try {
-                if (rs != null)
-                    rs.close();
-            } catch (SQLException e) {
-                logger.severe(Component.text("Failed to close SQLite Connection: " + e));
-            }
-        }
+    public ConvertToSpatialIndexing01(HoneypotLogger logger) {
+        this.logger = logger;
     }
 
     @Override
-    public int patchedIn() {
-        return 2;
+    public void apply(SqliteDatabase.Tx tx) {
+        logger.info(Component.text("A rather large DB patch is going to be applied to the Honeypot DB. This may take a second..."));
+        logger.debug(Component.text("Applying patch: ConvertToSpatialIndexing01"));
+        List<HoneypotBlockObject> blocks = tx.query("""
+                    SELECT worldName, coordinates, action
+                    FROM honeypot_blocks
+                """, row -> new HoneypotBlockObject(
+                row.string("worldName"),
+                row.string("coordinates"),
+                row.string("action")
+        ));
+
+        tx.execute(ADD_HONEYPOT_INDEX_TABLE);
+        tx.execute(CREATE_NEW_HONEYPOT_BLOCKS_TABLE);
+
+        for (HoneypotBlockObject block : blocks) {
+            String[] coords = block.getCoordinates().split(", ");
+            tx.execute("""
+                                INSERT INTO honeypot_index (x_min, x_max, y_min, y_max, z_min, z_max)
+                                VALUES (?, ?, ?, ?, ?, ?)
+                            """,
+                    Param.i32(Integer.valueOf(coords[0])), Param.i32(Integer.valueOf(coords[0])),
+                    Param.i32(Integer.valueOf(coords[1])), Param.i32(Integer.valueOf(coords[1])),
+                    Param.i32(Integer.valueOf(coords[2])), Param.i32(Integer.valueOf(coords[2])));
+        }
+
+        tx.execute(DROP_OLD_HONEYPOT_DATA);
+        tx.execute(RENAME_NEW_HONEYPOT_DATA_TABLE);
+        logger.debug(Component.text("Applied patch: ConvertToSpatialIndexing01"));
     }
 }

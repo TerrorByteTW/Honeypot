@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
@@ -28,7 +28,6 @@ import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
@@ -43,18 +42,16 @@ import java.util.concurrent.ConcurrentMap;
 public class HoneypotCreate implements HoneypotSubCommand {
 
     private final CommandFeedback commandFeedback;
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
     private final AdapterManager adapterManager;
-    private final Honeypot plugin;
 
     @Inject
-    HoneypotCreate(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotBlockManager blockManager, AdapterManager adapterManager, Honeypot plugin) {
+    HoneypotCreate(CommandFeedback commandFeedback, BytePluginConfig config, HoneypotBlockManager blockManager, AdapterManager adapterManager) {
         this.commandFeedback = commandFeedback;
-        this.configManager = configManager;
+        this.config = config;
         this.blockManager = blockManager;
         this.adapterManager = adapterManager;
-        this.plugin = plugin;
     }
 
     @Override
@@ -99,8 +96,8 @@ public class HoneypotCreate implements HoneypotSubCommand {
         }
 
         // Check if the filter is enabled, and if so, if it's allowed
-        if (configManager.getPluginConfig().getBoolean("filters.blocks")
-                || configManager.getPluginConfig().getBoolean("filters.inventories")
+        if (config.config().getBoolean("filters.blocks")
+                || config.config().getBoolean("filters.inventories")
                 && (!isAllowedPerFilters(block))) {
             p.sendMessage(commandFeedback.sendCommandFeedback("against-filter"));
             return;
@@ -123,7 +120,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
                     return;
 
                 if (args[1].equalsIgnoreCase("custom")) {
-                    if (!args[2].isEmpty() && configManager.getHoneypotsConfig().contains(args[2])) {
+                    if (!args[2].isEmpty() && config.require("honeypots").contains(args[2])) {
                         blockManager.createBlock(block, args[2]);
                         p.sendMessage(commandFeedback.sendCommandFeedback("success", true));
                     } else {
@@ -160,7 +157,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
             map.forEach((providerName, provider) -> subcommands.add(providerName));
 
             // Add all custom config actions to the subcommands list
-            Set<Object> keys = configManager.getHoneypotsConfig().getKeys();
+            Set<Object> keys = config.require("honeypots").getKeys();
             for (Object key : keys) {
                 subcommands.add(key.toString());
             }
@@ -176,11 +173,11 @@ public class HoneypotCreate implements HoneypotSubCommand {
     }
 
     private boolean isAllowedPerFilters(Block block) {
-        List<String> allowedBlocks = configManager.getPluginConfig().getStringList("allowed-blocks");
-        List<String> allowedInventories = configManager.getPluginConfig().getStringList("allowed-inventories");
+        List<String> allowedBlocks = config.config().getStringList("allowed-blocks");
+        List<String> allowedInventories = config.config().getStringList("allowed-inventories");
         boolean allowed = false;
 
-        if (configManager.getPluginConfig().getBoolean("filters.blocks")) {
+        if (config.config().getBoolean("filters.blocks")) {
             for (String blockType : allowedBlocks) {
                 assert block != null;
                 if (block.getType().name().equals(blockType)) {
@@ -190,7 +187,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
             }
         }
 
-        if (configManager.getPluginConfig().getBoolean("filters.inventories")) {
+        if (config.config().getBoolean("filters.inventories")) {
             for (String blockType : allowedInventories) {
                 if (block.getType().name().equals(blockType)) {
                     allowed = true;

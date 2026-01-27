@@ -20,13 +20,13 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
@@ -37,16 +37,16 @@ import java.util.List;
 public class HoneypotMigrate implements HoneypotSubCommand {
 
     private final CommandFeedback commandFeedback;
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotBlockManager hbm;
-    private final Honeypot plugin;
+    private final JavaPlugin plugin;
     private final DataStoreManager dataStoreManager;
     private final HoneypotLogger logger;
 
     @Inject
-    public HoneypotMigrate(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotBlockManager hbm, Honeypot plugin, DataStoreManager dataStoreManager, HoneypotLogger logger) {
+    public HoneypotMigrate(CommandFeedback commandFeedback, BytePluginConfig config, HoneypotBlockManager hbm, JavaPlugin plugin, DataStoreManager dataStoreManager, HoneypotLogger logger) {
         this.commandFeedback = commandFeedback;
-        this.configManager = configManager;
+        this.config = config;
         this.hbm = hbm;
         this.plugin = plugin;
         this.dataStoreManager = dataStoreManager;
@@ -60,7 +60,7 @@ public class HoneypotMigrate implements HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) throws IOException {
-        if (configManager.getPluginConfig().getString("storage-method").equalsIgnoreCase("pdc")) {
+        if (config.config().getString("storage-method").equalsIgnoreCase("pdc")) {
             p.sendMessage(commandFeedback.sendCommandFeedback("migrate", false));
             return;
         }
@@ -88,8 +88,8 @@ public class HoneypotMigrate implements HoneypotSubCommand {
 
                 // Change the storage method to pdc and shutdown the plugin to prevent potential issues. The storage method is decided on server start,
                 // and absolutely cannot be changed in runtime due to it being injected everywhere via Guice.
-                configManager.getPluginConfig().set("storage-method", "pdc");
-                configManager.getPluginConfig().save();
+                config.config().set("storage-method", "pdc");
+                config.config().save();
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
             }
         }

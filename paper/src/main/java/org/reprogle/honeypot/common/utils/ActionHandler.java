@@ -27,34 +27,38 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.BehaviorProcessor;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.List;
 
 public class ActionHandler {
 
-    private final Honeypot plugin;
+    private final JavaPlugin plugin;
     private final HoneypotLogger logger;
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
+    private final AdapterManager adapterManager;
 
     private final MiniMessage mm = MiniMessage.miniMessage();
 
     @Inject
-    public ActionHandler(Honeypot plugin, HoneypotLogger logger, HoneypotConfigManager configManager, CommandFeedback commandFeedback) {
+    public ActionHandler(JavaPlugin plugin, HoneypotLogger logger, BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager) {
         this.plugin = plugin;
         this.logger = logger;
-        this.configManager = configManager;
+        this.config = config;
         this.commandFeedback = commandFeedback;
+        this.adapterManager = adapterManager;
     }
 
     @SuppressWarnings({"java:S3776", "java:S2629", "java:S1192", "java:S6541"})
     public void handleCustomAction(String action, Block block, Player player) {
 
-        plugin.getHoneypotLogger().debug(Component.text("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation()));
+        logger.debug(Component.text("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation()));
 
         // Behavior providers take higher precedence over custom config actions.
         if (Registry.getBehaviorRegistry().getBehaviorProvider(action) != null) {
@@ -63,7 +67,7 @@ public class ActionHandler {
         }
 
         // Default path is likely due to custom actions. Run whatever the action was
-        YamlDocument config = configManager.getHoneypotsConfig();
+        YamlDocument config = this.config.require("honeypots");
         if (config.contains(action)) {
             List<String> commands = config.getStringList(action + ".commands");
             List<String> permissionsAdd = config.getStringList(action + ".permissions-add");
@@ -90,16 +94,16 @@ public class ActionHandler {
                 }
             }
 
-            if (plugin.getAdapterManager().getPermissions() != null) {
+            if (adapterManager.getPermissions() != null) {
                 if (!permissionsAdd.isEmpty()) {
                     for (String permission : permissionsAdd) {
-                        plugin.getAdapterManager().getPermissions().getPermissionProvider().playerAdd(null, player, permission);
+                        adapterManager.getPermissions().getPermissionProvider().playerAdd(null, player, permission);
                     }
                 }
 
                 if (!permissionsRemove.isEmpty()) {
                     for (String permission : permissionsRemove) {
-                        plugin.getAdapterManager().getPermissions().getPermissionProvider().playerRemove(null, player, permission);
+                        adapterManager.getPermissions().getPermissionProvider().playerRemove(null, player, permission);
                     }
                 }
             }

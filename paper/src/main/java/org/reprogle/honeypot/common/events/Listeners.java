@@ -23,14 +23,14 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
-import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class Listeners {
 
-    private final Honeypot plugin;
-    private final HoneypotConfigManager configManager;
+    private final JavaPlugin plugin;
+    private final BytePluginConfig config;
     private final HoneypotLogger logger;
 
     // Yay, DI!! Each event uses DI itself, and since Guice can't inject dependencies if we manually `new` it, we have to inject every single event here as well
@@ -71,9 +71,9 @@ public class Listeners {
      * Create the listener configurator
      */
     @Inject
-    Listeners(Honeypot plugin, HoneypotConfigManager configManager, HoneypotLogger logger) {
+    Listeners(JavaPlugin plugin, BytePluginConfig config, HoneypotLogger logger) {
         this.plugin = plugin;
-        this.configManager = configManager;
+        this.config = config;
         this.logger = logger;
     }
 
@@ -99,8 +99,8 @@ public class Listeners {
         primaryListeners.forEach(event -> manager.registerEvents(event, plugin));
 
         // Register the proper events for container actions and their processors
-        if (configManager.getPluginConfig().getBoolean("container-actions.enable-container-actions")) {
-            if (configManager.getPluginConfig().getBoolean("container-actions.use-inventory-click")) {
+        if (config.config().getBoolean("container-actions.enable-container-actions")) {
+            if (config.config().getBoolean("container-actions.use-inventory-click")) {
                 logger.info(Component.text("Using inventory click for containers"));
                 manager.registerEvents(inventoryClickDragEventListener, plugin);
             } else {
@@ -110,7 +110,7 @@ public class Listeners {
         }
 
         // Register extra unnecessary events
-        if (configManager.getPluginConfig().getBoolean("enable-extra-events")) {
+        if (config.config().getBoolean("enable-extra-events")) {
             logger.info(Component.text(
                     "Extra events have been enabled. Some of the events can be noisy, and may cause additional lag on low-performance hardware, such as budget server hosts. If you experience lag, disable these events, Honeypot can still function without them!"));
             secondaryListeners.forEach(event -> manager.registerEvents(event, plugin));

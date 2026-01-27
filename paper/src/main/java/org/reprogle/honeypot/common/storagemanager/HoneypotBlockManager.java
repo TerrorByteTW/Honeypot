@@ -38,10 +38,7 @@ import java.util.stream.Stream;
 public class HoneypotBlockManager {
 
     @Inject
-    private HoneypotLogger logger;
-
-    @Inject
-    private CacheManager cacheManager;
+    HoneypotLogger logger;
 
     /**
      * Create a Honeypot {@link Block} and add it to the DB
@@ -52,7 +49,6 @@ public class HoneypotBlockManager {
     public void createBlock(Block block, String action) {
         Registry.getStorageProvider().createHoneypotBlock(block, action);
 
-        cacheManager.addToCache(new HoneypotBlockObject(block, action));
         logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
     }
 
@@ -71,7 +67,6 @@ public class HoneypotBlockManager {
 
         Registry.getStorageProvider().removeHoneypotBlock(matched.get());
 
-        cacheManager.removeFromCache(new HoneypotBlockObject(matched.get(), null));
         logger.debug(Component.text("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
     }
 
@@ -82,10 +77,6 @@ public class HoneypotBlockManager {
      * @return true or false
      */
     public boolean isHoneypotBlock(Block block) {
-        if (cacheManager.isInCache(new HoneypotBlockObject(block, null)) != null) {
-            return true;
-        }
-
         Optional<Block> matched = resolveLogicalBlocks(block)
                 .filter(b -> Registry.getStorageProvider().isHoneypotBlock(b))
                 .findFirst();
@@ -93,7 +84,6 @@ public class HoneypotBlockManager {
         if (matched.isEmpty()) return false;
 
         String action = getAction(matched.get());
-        cacheManager.addToCache(new HoneypotBlockObject(matched.get(), action));
         return true;
     }
 
@@ -160,12 +150,6 @@ public class HoneypotBlockManager {
      * @return The Honeypot's action as a string
      */
     public String getAction(Block block) {
-        // Check if block exists in cache. If it doesn't this will be null
-        HoneypotBlockObject potential = cacheManager.isInCache(new HoneypotBlockObject(block, null));
-
-        if (potential != null)
-            return potential.getAction();
-
         try {
             Optional<Block> matched = resolveLogicalBlocks(block)
                     .filter(b -> Registry.getStorageProvider().isHoneypotBlock(b))
@@ -188,7 +172,6 @@ public class HoneypotBlockManager {
      */
     public void deleteAllHoneypotBlocks(World world) {
         Registry.getStorageProvider().deleteAllHoneypotBlocks(world);
-        CacheManager.clearCache();
 
         logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }

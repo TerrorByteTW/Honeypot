@@ -22,6 +22,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.providers.Behavior;
@@ -34,10 +35,10 @@ import net.kyori.adventure.text.Component;
 public class Notify extends BehaviorProvider {
 
     @Inject
-    private CommandFeedback commandFeedback;
+    CommandFeedback commandFeedback;
 
     @Inject
-    private Honeypot plugin;
+    JavaPlugin plugin;
 
     @Override
     public boolean process(Player p, Block block) {

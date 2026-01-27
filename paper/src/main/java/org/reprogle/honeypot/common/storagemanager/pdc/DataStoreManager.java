@@ -27,8 +27,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
@@ -40,11 +40,11 @@ import javax.annotation.Nullable;
 @HoneypotStore(name = "pdc")
 public class DataStoreManager extends StorageProvider {
 
-    final Honeypot plugin;
+    final JavaPlugin plugin;
     private final HoneypotLogger logger;
 
     @Inject
-    public DataStoreManager(Honeypot plugin, HoneypotLogger logger) {
+    public DataStoreManager(JavaPlugin plugin, HoneypotLogger logger) {
         this.plugin = plugin;
         this.logger = logger;
     }
@@ -81,8 +81,6 @@ public class DataStoreManager extends StorageProvider {
             if (key.getKey().startsWith("honeypot-container-"))
                 world.getPersistentDataContainer().remove(key);
         }
-
-        CacheManager.clearCache();
 
         logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }

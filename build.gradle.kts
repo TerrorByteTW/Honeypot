@@ -15,7 +15,7 @@
  */
 
 group = "org.reprogle"
-version = "3.5.1"
+version = "4.0.0"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 

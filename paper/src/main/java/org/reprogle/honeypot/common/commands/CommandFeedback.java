@@ -18,21 +18,16 @@ package org.reprogle.honeypot.common.commands;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
-
-import java.util.Objects;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.Translator;
 
 @Singleton
 public class CommandFeedback {
 
-    public static final MiniMessage mm = MiniMessage.miniMessage();
     @Inject
-    private HoneypotConfigManager configManager;
+    Translator translator;
 
     /**
      * A helper class which helps to reduce boilerplate player.sendMessage code by
@@ -48,81 +43,57 @@ public class CommandFeedback {
     @SuppressWarnings("java:S1192")
     public Component sendCommandFeedback(String feedback, Boolean... success) {
         Component feedbackMessage;
-        Component chatPrefix = getChatPrefix();
-        YamlDocument languageFile = configManager.getLanguageFile();
 
         switch (feedback.toLowerCase()) {
-            case "usage" ->
-                    feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
-                            .append(chatPrefix)
-                            .append(Component.text("Need help?\n\n", NamedTextColor.WHITE))
-                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near) (optional)\n", NamedTextColor.GRAY))
-                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("reload\n", NamedTextColor.GRAY))
-                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("locate\n", NamedTextColor.GRAY))
-                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("gui\n", NamedTextColor.GRAY))
-                            .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("history [query | delete | purge] \n", NamedTextColor.GRAY))
-                            .append(Component.text("-----------------------", NamedTextColor.WHITE))
-                            .build();
+            case "usage" -> {
+                final Component prefixComponent = translator.tr("prefix");
+                feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
+                        .append(prefixComponent)
+                        .append(Component.text("Need help?\n\n", NamedTextColor.WHITE))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near) (optional)\n", NamedTextColor.GRAY))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("reload\n", NamedTextColor.GRAY))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("locate\n", NamedTextColor.GRAY))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("gui\n", NamedTextColor.GRAY))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("history [query | delete | purge] \n", NamedTextColor.GRAY))
+                        .append(Component.text("-----------------------", NamedTextColor.WHITE))
+                        .build();
+            }
 
             case "success" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.created"))));
+                    feedbackMessage = translator.tr("success.created");
 
                 } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.removed"))));
+                    feedbackMessage = translator.tr("success.removed");
 
                 } else {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("success.default"))));
-                }
-            }
-
-            case "debug" -> {
-                if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text("Debug mode has been enabled. Right click any block to check its PDC"));
-
-                } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text("Debug mode has been disabled"));
-                } else {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text("Debug mode is only useful while using PDC"));
+                    feedbackMessage = translator.tr("success.default");
                 }
             }
 
             case "migrate" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.confirm"))));
+                    feedbackMessage = translator.tr("migrate.confirm");
                 } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.failed"))));
+                    feedbackMessage = translator.tr("migrate.failed");
                 } else {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("migrate.preconfirm"))));
+                    feedbackMessage = translator.tr("migrate.preconfirm");
                 }
             }
 
             case "deleted" -> {
                 if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.all"))));
+                    feedbackMessage = translator.tr("deleted.all");
                 } else {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("deleted.near"))));
+                    feedbackMessage = translator.tr("deleted.near");
                 }
             }
 
             default -> {
                 try {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString(feedback.toLowerCase()))));
+                    feedbackMessage = translator.tr(feedback.toLowerCase());
                 } catch (Exception e) {
-                    feedbackMessage = chatPrefix
-                            .append(Component.text().append(mm.deserialize(languageFile.getString("unknown-error"))));
+                    feedbackMessage = translator.tr("unknown-error");
                 }
             }
         }
@@ -135,11 +106,11 @@ public class CommandFeedback {
      * @return The chat prefix, preformatted with color and other modifiers
      */
     public Component getChatPrefix() {
-        return mm.deserialize(Objects.requireNonNull(configManager.getLanguageFile().getString("prefix")));
+        return translator.tr("prefix");
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    public Component buildSplash(Honeypot plugin) {
+    public Component buildSplash(JavaPlugin plugin) {
         return Component.text().content("\n")
                 .append(Component.text(" _____                         _\n", NamedTextColor.GOLD))
                 .append(Component.text("|  |  |___ ___ ___ _ _ ___ ___| |_\n", NamedTextColor.GOLD))

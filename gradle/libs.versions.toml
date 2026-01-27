@@ -4,8 +4,8 @@ shadow = "9.3.1"
 lombok = "8.10.2"
 
 # Libraries
-paper-api = "1.20.4-R0.1-SNAPSHOT"
-folia-api = "1.20.2-R0.1-SNAPSHOT"
+paper-api = "1.21.11-R0.1-SNAPSHOT"
+folia-api = "1.21.11-R0.1-SNAPSHOT"
 inventory-framework = "0.11.6"
 
 worldguard = "7.1.0-SNAPSHOT"

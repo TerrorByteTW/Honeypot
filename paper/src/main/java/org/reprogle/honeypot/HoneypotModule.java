@@ -16,13 +16,14 @@
 
 package org.reprogle.honeypot;
 
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.*;
+import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
+import org.reprogle.bytelib.boot.lifecycle.PluginLifecycle;
+import org.reprogle.bytelib.commands.CommandRegistration;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.commands.HoneypotCommandRegistration;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.commands.subcommands.*;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
@@ -31,32 +32,22 @@ import org.reprogle.honeypot.common.providers.included.Kick;
 import org.reprogle.honeypot.common.providers.included.Notify;
 import org.reprogle.honeypot.common.providers.included.Warn;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
-import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.common.storagemanager.sqlite.HoneypotRepository;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
 import java.io.File;
+import java.nio.file.Path;
 
 public class HoneypotModule extends AbstractModule {
+    private final Path dataDir;
 
-    private final Honeypot plugin;
-    private final HoneypotConfigManager configManager;
-    private final CommandFeedback commandFeedback;
-
-    public HoneypotModule(Honeypot plugin, HoneypotConfigManager configManager) {
-        this.plugin = plugin;
-        this.configManager = configManager;
-        configManager.setupConfig(plugin);
-
-        this.commandFeedback = new CommandFeedback();
+    public HoneypotModule(Path dataDir) {
+        this.dataDir = dataDir;
     }
 
     @Override
     protected void configure() {
-        // The lifeline of the entire DI system is the plugin object itself
-        bind(Honeypot.class).toInstance(plugin);
-        bind(HoneypotConfigManager.class).toInstance(configManager);
-        bind(CommandFeedback.class).toInstance(commandFeedback);
+        bind(CommandFeedback.class).in(Singleton.class);
 
         // Bind all the behavior providers
         Multibinder<BehaviorProvider> behaviorBinder = Multibinder.newSetBinder(binder(), BehaviorProvider.class);
@@ -66,7 +57,7 @@ public class HoneypotModule extends AbstractModule {
         behaviorBinder.addBinding().to(Notify.class);
 
         Multibinder<StorageProvider> storageBinder = Multibinder.newSetBinder(binder(), StorageProvider.class);
-        storageBinder.addBinding().to(SQLite.class);
+        storageBinder.addBinding().to(HoneypotRepository.class);
         storageBinder.addBinding().to(DataStoreManager.class);
 
         // Bind all commands
@@ -82,13 +73,17 @@ public class HoneypotModule extends AbstractModule {
         subcommandBinder.addBinding().to(HoneypotList.class);
         subcommandBinder.addBinding().to(HoneypotMigrate.class);
 
+        // Commands
+        Multibinder.newSetBinder(binder(), CommandRegistration.class)
+                .addBinding()
+                .to(HoneypotCommandRegistration.class);
+
         // Not really necessary but cool and I'm learning :P
-        bind(File.class).annotatedWith(Names.named("HoneypotLogFile")).toInstance(new File(plugin.getDataFolder(), "honeypot.log"));
+        File file = new File(dataDir.toFile(), "honeypot.log");
+        file.getParentFile().mkdirs();
+        bind(File.class).annotatedWith(Names.named("HoneypotLogFile")).toInstance(file);
+
+        Multibinder<PluginLifecycle> lifecycles = Multibinder.newSetBinder(binder(), PluginLifecycle.class);
+        lifecycles.addBinding().to(HoneypotLifecycle.class);
     }
-
-    public Injector createInjector() {
-        return Guice.createInjector(this);
-    }
-
-
 }

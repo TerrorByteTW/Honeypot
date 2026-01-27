@@ -34,7 +34,7 @@ import java.util.Date;
 public class Ban extends BehaviorProvider {
 
     @Inject
-    private CommandFeedback commandFeedback;
+    CommandFeedback commandFeedback;
 
     @Override
     public boolean process(Player p, Block block) {

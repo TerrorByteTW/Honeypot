@@ -22,13 +22,12 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
 import java.util.ArrayList;
@@ -37,14 +36,14 @@ import java.util.Objects;
 
 public class HoneypotLocate implements HoneypotSubCommand {
 
-    private final Honeypot plugin;
-    private final HoneypotConfigManager configManager;
+    private final JavaPlugin plugin;
+    private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
 
     @Inject
-    public HoneypotLocate(Honeypot plugin, HoneypotConfigManager configManager, CommandFeedback commandFeedback) {
+    public HoneypotLocate(JavaPlugin plugin, BytePluginConfig config, CommandFeedback commandFeedback) {
         this.plugin = plugin;
-        this.configManager = configManager;
+        this.config = config;
         this.commandFeedback = commandFeedback;
     }
 
@@ -65,10 +64,10 @@ public class HoneypotLocate implements HoneypotSubCommand {
                 radius = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
                 p.sendMessage(commandFeedback.sendCommandFeedback("invalid-radius"));
-                radius = configManager.getPluginConfig().getInt("search-range");
+                radius = config.config().getInt("search-range");
             }
         } else {
-            radius = configManager.getPluginConfig().getInt("search-range");
+            radius = config.config().getInt("search-range");
         }
 
         boolean potFound = false;
@@ -83,7 +82,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
             slime.setAI(false);
             slime.setGlowing(true);
             slime.setInvulnerable(true);
-            slime.setHealth(slime.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+            slime.setHealth(slime.getAttribute(Attribute.MAX_HEALTH).getValue());
             slime.setInvisible(true);
 
             // Remove the slime after 5 seconds

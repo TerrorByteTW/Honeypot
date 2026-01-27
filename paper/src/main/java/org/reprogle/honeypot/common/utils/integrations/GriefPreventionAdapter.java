@@ -21,17 +21,17 @@ import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.bytelib.config.BytePluginConfig;
 
 /**
  * A small helper class for utilizing GriefPrevention
  */
 public class GriefPreventionAdapter {
 
-	private final HoneypotConfigManager configManager;
+	private final BytePluginConfig config;
 
-	protected GriefPreventionAdapter(HoneypotConfigManager configManager) {
-		this.configManager = configManager;
+	protected GriefPreventionAdapter(BytePluginConfig config) {
+		this.config = config;
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class GriefPreventionAdapter {
 		Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
 
 		if (claim != null) {
-			if (!configManager.getPluginConfig().getBoolean("respect-griefprevention"))
+			if (!config.config().getBoolean("respect-griefprevention"))
 				return false;
 
 			return claim.checkPermission(player, ClaimPermission.Build, null) == null;

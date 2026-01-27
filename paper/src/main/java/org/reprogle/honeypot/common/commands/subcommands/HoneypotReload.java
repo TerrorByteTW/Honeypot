@@ -19,33 +19,28 @@ package org.reprogle.honeypot.common.commands.subcommands;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.common.storagemanager.CacheManager;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.GhostHoneypotFixer;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HoneypotReload implements HoneypotSubCommand {
 
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final GhostHoneypotFixer fixer;
     private final CommandFeedback commandFeedback;
-    private final Honeypot plugin;
     private final HoneypotLogger logger;
 
     @Inject
-    public HoneypotReload(Honeypot plugin, HoneypotConfigManager configManager, GhostHoneypotFixer fixer, CommandFeedback commandFeedback, HoneypotLogger logger) {
-        this.plugin = plugin;
-        this.configManager = configManager;
+    public HoneypotReload(BytePluginConfig config, GhostHoneypotFixer fixer, CommandFeedback commandFeedback, HoneypotLogger logger) {
+        this.config = config;
         this.fixer = fixer;
         this.commandFeedback = commandFeedback;
         this.logger = logger;
@@ -58,48 +53,29 @@ public class HoneypotReload implements HoneypotSubCommand {
 
     @Override
     public void perform(Player p, String[] args) {
-        try {
-            configManager.getPluginConfig().reload();
-            configManager.getPluginConfig().save();
+        config.reload();
 
-            configManager.getGuiConfig().reload();
-            configManager.getGuiConfig().save();
-
-            configManager.getHoneypotsConfig().reload();
-            configManager.getHoneypotsConfig().save();
-
-            configManager.getLanguageFile().reload();
-            configManager.getLanguageFile().save();
-
-            fixer.cancelTask();
-            if (configManager.getPluginConfig().getBoolean("ghost-honeypot-checker.enable")) {
-                fixer.startTask();
-            }
-
-            CacheManager.clearCache();
-
-            String providerName = configManager.getPluginConfig().getString("storage-method");
-            if (!Registry.getStorageProvider().getProviderName().equalsIgnoreCase(providerName)) {
-                StorageProvider provider = Registry.getStorageManagerRegistry().getStorageProvider(providerName);
-                if (provider != null) {
-                    if (!configManager.getPluginConfig().getBoolean("allow-third-party-storage-providers")) {
-                        logger.severe(Component.text("The storage method was updated to a custom provider, but the server is not configured to allow third-party storage providers! On your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
-                    }
-                    Registry.setStorageProvider(provider);
-                    logger.info(Component.text("The storage provider was updated to \"" + providerName + "\""));
-                } else {
-                    logger.severe(Component.text("The storage provider was updated to \"" + providerName + "\" but it is not registered! On your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
-                }
-            }
-
-            p.sendMessage(commandFeedback.sendCommandFeedback("reload"));
-            logger.info(Component.text("Honeypot has successfully been reloaded"));
-        } catch (IOException e) {
-            plugin.getLogger().severe(
-                    "Could not load config file, disabling! Please alert the plugin author with the following info:"
-                            + e);
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
+        fixer.cancelTask();
+        if (config.config().getBoolean("ghost-honeypot-checker.enable")) {
+            fixer.startTask();
         }
+
+        String providerName = config.config().getString("storage-method");
+        if (!Registry.getStorageProvider().getProviderName().equalsIgnoreCase(providerName)) {
+            StorageProvider provider = Registry.getStorageManagerRegistry().getStorageProvider(providerName);
+            if (provider != null) {
+                if (!config.config().getBoolean("allow-third-party-storage-providers")) {
+                    logger.severe(Component.text("The storage method was updated to a custom provider, but the server is not configured to allow third-party storage providers! On your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
+                }
+                Registry.setStorageProvider(provider);
+                logger.info(Component.text("The storage provider was updated to \"" + providerName + "\""));
+            } else {
+                logger.severe(Component.text("The storage provider was updated to \"" + providerName + "\" but it is not registered! On your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
+            }
+        }
+
+        p.sendMessage(commandFeedback.sendCommandFeedback("reload"));
+        logger.info(Component.text("Honeypot has successfully been reloaded"));
     }
 
     // We don't have any subcommands here, but we cannot return null otherwise the

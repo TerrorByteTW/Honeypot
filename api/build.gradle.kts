@@ -15,7 +15,7 @@
  */
 
 group = "org.reprogle"
-version = "3.5.1"
+version = "4.0.0"
 
 extra["platform"] = "api"
 
@@ -34,7 +34,7 @@ repositories {
 
 dependencies {
     compileOnly(libs.paper.api)
-    compileOnly(libs.folia.api)
+//    compileOnly(libs.folia.api)
 }
 
 java {

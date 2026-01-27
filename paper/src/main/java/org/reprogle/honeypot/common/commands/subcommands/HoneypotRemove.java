@@ -19,12 +19,12 @@ package org.reprogle.honeypot.common.commands.subcommands;
 import com.google.inject.Inject;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
 import java.util.ArrayList;
@@ -32,13 +32,13 @@ import java.util.List;
 
 public class HoneypotRemove implements HoneypotSubCommand {
 
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
     private final CommandFeedback commandFeedback;
 
     @Inject
-    public HoneypotRemove(HoneypotConfigManager configManager, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
-        this.configManager = configManager;
+    public HoneypotRemove(BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
+        this.config = config;
         this.blockManager = blockManager;
         this.commandFeedback = commandFeedback;
     }
@@ -61,7 +61,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
                 }
 
                 case "near" -> {
-                    final int radius = configManager.getPluginConfig().getInt("search-range");
+                    final int radius = config.config().getInt("search-range");
                     List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
 
                     if (honeypots.isEmpty()) {

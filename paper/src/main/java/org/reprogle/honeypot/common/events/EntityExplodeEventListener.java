@@ -28,10 +28,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
@@ -41,7 +41,7 @@ import java.util.List;
 public class EntityExplodeEventListener implements Listener {
 
 	private final HoneypotLogger logger;
-	private final HoneypotConfigManager configManager;
+	private final BytePluginConfig config;
 	private final HoneypotBlockManager blockManager;
 	private final HoneypotPlayerHistoryManager playerHistoryManager;
 	private final AdapterManager adapterManager;
@@ -50,10 +50,10 @@ public class EntityExplodeEventListener implements Listener {
 	 * Create package constructor to hide implicit one
 	 */
 	@Inject
-	EntityExplodeEventListener(HoneypotLogger logger, HoneypotConfigManager configManager, HoneypotBlockManager blockManager,
+	EntityExplodeEventListener(HoneypotLogger logger, BytePluginConfig config, HoneypotBlockManager blockManager,
 							   HoneypotPlayerHistoryManager playerHistoryManager, AdapterManager adapterManager) {
 		this.logger = logger;
-		this.configManager = configManager;
+		this.config = config;
 		this.blockManager = blockManager;
 		this.playerHistoryManager = playerHistoryManager;
 		this.adapterManager = adapterManager;
@@ -65,7 +65,7 @@ public class EntityExplodeEventListener implements Listener {
 		// Get every block that would've been blown up
 		List<Block> destroyedBlocks = event.blockList();
 		ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
-		boolean allowExplosions = configManager.getPluginConfig().getBoolean("allow-explode");
+		boolean allowExplosions = config.config().getBoolean("allow-explode");
 		Entity e = event.getEntity();
 		Entity source = null;
 
@@ -77,7 +77,7 @@ public class EntityExplodeEventListener implements Listener {
 		// are allowed.
 		// If so, just delete the Honeypot. If not, cancel the explosion
 		for (Block block : destroyedBlocks) {
-			if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(block))) {
+			if (blockManager.isHoneypotBlock(block)) {
 				logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 
 				if (source instanceof Player) {

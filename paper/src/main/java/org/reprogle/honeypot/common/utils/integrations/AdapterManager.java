@@ -17,6 +17,8 @@
 package org.reprogle.honeypot.common.utils.integrations;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -24,33 +26,38 @@ import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 @Singleton
 public class AdapterManager {
 
-    private final Honeypot plugin;
-    private final HoneypotConfigManager configManager;
+    private final JavaPlugin plugin;
+    private final HoneypotLogger logger;
+    private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
     private WorldGuardAdapter wga = null;
     private GriefPreventionAdapter gpa = null;
     private LandsAdapter la = null;
     private PermissionAdapter pa = null;
+    private final Injector injector;
 
     /**
      * Private constructor to hide implicit one
      *
-     * @param plugin          Pluign instance
-     * @param configManager   ConfigManager instance
+     * @param plugin          Plugin instance
+     * @param config          ConfigManager instance
      * @param commandFeedback CommandFeedback instance
      */
     @Inject
-    public AdapterManager(Honeypot plugin, HoneypotConfigManager configManager, CommandFeedback commandFeedback) {
-        this.configManager = configManager;
+    public AdapterManager(JavaPlugin plugin, HoneypotLogger logger, BytePluginConfig config, CommandFeedback commandFeedback, Injector injector) {
+        this.config = config;
+        this.logger = logger;
         this.plugin = plugin;
         this.commandFeedback = commandFeedback;
+        this.injector = injector;
     }
 
     public void onLoadAdapters(Server server) {
@@ -61,7 +68,7 @@ public class AdapterManager {
 
     public void onEnableAdapters(Server server) {
         if (server.getPluginManager().getPlugin("GriefPrevention") != null)
-            gpa = new GriefPreventionAdapter(configManager);
+            gpa = new GriefPreventionAdapter(config);
 
         if (server.getPluginManager().getPlugin("Lands") != null) {
             la = new LandsAdapter(plugin);
@@ -70,13 +77,13 @@ public class AdapterManager {
         if (server.getPluginManager().getPlugin("Vault") != null) {
             pa = new PermissionAdapter(plugin);
         } else {
-            plugin.getHoneypotLogger().info(commandFeedback.getChatPrefix()
+            logger.info(commandFeedback.getChatPrefix()
                     .append(Component.text("Vault is not installed, some features won't work. Please download Vault here: https://www.spigotmc.org/resources/vault.34315/", NamedTextColor.RED)));
         }
 
         if (server.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            plugin.getHoneypotLogger().debug(Component.text("PlaceholderAPI is installed on this server, hooking into it"));
-            plugin.getInjector().getInstance(PlaceholderAPIExpansion.class).register();
+            logger.debug(Component.text("PlaceholderAPI is installed on this server, hooking into it"));
+            injector.getInstance(PlaceholderAPIExpansion.class).register();
         }
     }
 

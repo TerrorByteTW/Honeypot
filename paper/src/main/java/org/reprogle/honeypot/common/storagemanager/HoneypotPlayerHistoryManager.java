@@ -19,7 +19,7 @@ package org.reprogle.honeypot.common.storagemanager;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.common.storagemanager.sqlite.HoneypotRepository;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
@@ -36,10 +36,10 @@ import java.util.List;
 public class HoneypotPlayerHistoryManager {
 
 	private final HoneypotLogger logger;
-	private final SQLite db;
+	private final HoneypotRepository db;
 
 	@Inject
-	public HoneypotPlayerHistoryManager(HoneypotLogger logger, SQLite db) {
+	public HoneypotPlayerHistoryManager(HoneypotLogger logger, HoneypotRepository db) {
 		this.logger = logger;
 		this.db = db;
 	}

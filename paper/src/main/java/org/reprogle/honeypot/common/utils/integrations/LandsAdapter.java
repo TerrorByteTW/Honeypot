@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.common.utils.integrations;
 
 import org.bukkit.Location;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.Honeypot;
 
 import me.angeschossen.lands.api.LandsIntegration;
@@ -31,7 +32,7 @@ public class LandsAdapter {
      * Construct the LandsIntegration. This constructor is because the LandsIntegration interface must be obtained prior
      * to utilizing the API
      */
-    public LandsAdapter(Honeypot plugin) {
+    public LandsAdapter(JavaPlugin plugin) {
         api = LandsIntegration.of(plugin);
     }
 

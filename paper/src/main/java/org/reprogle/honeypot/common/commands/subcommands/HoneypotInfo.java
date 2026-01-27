@@ -20,10 +20,11 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
+import org.reprogle.honeypot.common.utils.HoneypotSupportedVersions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,13 +32,15 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 public class HoneypotInfo implements HoneypotSubCommand {
 
-    private final Honeypot plugin;
+    private final JavaPlugin plugin;
     private final CommandFeedback commandFeedback;
+    private final HoneypotSupportedVersions supportedVersions;
 
     @Inject
-    public HoneypotInfo(Honeypot plugin, CommandFeedback commandFeedback) {
+    public HoneypotInfo(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotSupportedVersions supportedVersions) {
         this.plugin = plugin;
         this.commandFeedback = commandFeedback;
+        this.supportedVersions = supportedVersions;
     }
 
     @Override
@@ -50,7 +53,7 @@ public class HoneypotInfo implements HoneypotSubCommand {
         p.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Honeypot version " + plugin.getDescription().getVersion())));
 
         p.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion())));
-        plugin.checkIfServerSupported();
+        supportedVersions.checkIfServerSupported();
     }
 
     @Override

@@ -20,16 +20,16 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.common.storagemanager.sqlite.SQLite;
+import org.reprogle.honeypot.common.storagemanager.sqlite.HoneypotRepository;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class HoneypotPlayerManager {
 
 	private final HoneypotLogger logger;
-	private final SQLite db;
+	private final HoneypotRepository db;
 
 	@Inject
-	public HoneypotPlayerManager(HoneypotLogger logger, SQLite db) {
+	public HoneypotPlayerManager(HoneypotLogger logger, HoneypotRepository db) {
 		this.logger = logger;
 		this.db = db;
 	}

@@ -27,11 +27,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
 import java.util.ArrayList;
@@ -42,13 +42,13 @@ import java.util.List;
 public class HoneypotHistory implements HoneypotSubCommand {
 
     private final CommandFeedback commandFeedback;
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotPlayerHistoryManager playerHistoryManager;
 
     @Inject
-    public HoneypotHistory(CommandFeedback commandFeedback, HoneypotConfigManager configManager, HoneypotPlayerHistoryManager playerHistoryManager) {
+    public HoneypotHistory(CommandFeedback commandFeedback, BytePluginConfig config, HoneypotPlayerHistoryManager playerHistoryManager) {
         this.commandFeedback = commandFeedback;
-        this.configManager = configManager;
+        this.config = config;
         this.playerHistoryManager = playerHistoryManager;
 
     }
@@ -72,7 +72,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
                 p.sendMessage(commandFeedback.sendCommandFeedback("searching"));
 
                 List<HoneypotPlayerHistoryObject> history = playerHistoryManager.getPlayerHistory(argPlayer);
-                int length = configManager.getPluginConfig().getInt("history-length");
+                int length = config.config().getInt("history-length");
 
                 if (history.size() > length) {
                     p.sendMessage(commandFeedback.sendCommandFeedback("truncating"));
