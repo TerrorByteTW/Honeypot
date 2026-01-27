@@ -18,7 +18,7 @@ package org.reprogle.honeypot;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.samjakob.spigui.SpiGUI;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
@@ -43,28 +43,33 @@ import java.util.Set;
  */
 @SuppressWarnings("UnstableApiUsage")
 public final class Honeypot extends JavaPlugin {
-    // These dependencies can't really be injected
-    private static SpiGUI gui;
     // These dependencies can (and should) be injected
+    @Getter
     @Inject
-    private AdapterManager adapterManager;
+    AdapterManager adapterManager;
     @Inject
-    private Listeners listeners;
+    Listeners listeners;
     @Inject
-    private CommandManager manager;
+    CommandManager manager;
     @Inject
-    private HoneypotLogger logger;
+    HoneypotLogger logger;
     @Inject
-    private GhostHoneypotFixer ghf;
+    GhostHoneypotFixer ghf;
     @Inject
-    private CommandFeedback commandFeedback;
+    CommandFeedback commandFeedback;
     @Inject
-    private Set<BehaviorProvider> behaviorProviders;
+    Set<BehaviorProvider> behaviorProviders;
     @Inject
-    private Set<StorageProvider> storageProviders;
+    Set<StorageProvider> storageProviders;
     @Inject
-    private HoneypotConfigManager configManager;
+    HoneypotConfigManager configManager;
 
+    /**
+     * -- GETTER --
+     *  Returns the injector object from Guice, useful for dynamically creating objects on the fly
+     *
+     */
+    @Getter
     private Injector injector;
 
     /**
@@ -101,8 +106,7 @@ public final class Honeypot extends JavaPlugin {
     @Override
     public void onEnable() {
 
-        // Initialize the SpiGUI object for UI, lock the registry, and start the Ghost Honeypot Fixer task
-        gui = new SpiGUI(this);
+        // Lock the registries and start the Ghost Honeypot Fixer task
         Registry.getBehaviorRegistry().setInitialized(true);
         Registry.getStorageManagerRegistry().setInitialized(true);
         ghf.startTask();
@@ -229,33 +233,6 @@ public final class Honeypot extends JavaPlugin {
      *
      * These simply return objects to prevent static keyword abuse
      */
-
-    /**
-     * Returns the injector object from Guice, useful for dynamically creating objects on the fly
-     *
-     * @return {@link Injector}
-     */
-    public Injector getInjector() {
-        return injector;
-    }
-
-    /**
-     * Returns the permission object for Vault
-     *
-     * @return {@link AdapterManager}
-     */
-    public AdapterManager getAdapterManager() {
-        return adapterManager;
-    }
-
-    /**
-     * Returns the GUI object of the plugin for GUI creation
-     *
-     * @return {@link com.samjakob.spigui.SpiGUI}
-     */
-    public SpiGUI getGUI() {
-        return gui;
-    }
 
     /**
      * Gets the Honeypot logger

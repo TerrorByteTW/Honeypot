@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -37,7 +38,6 @@ import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
-import com.samjakob.spigui.menu.SGMenu;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.EnumSet;
@@ -70,7 +70,7 @@ public class InventoryClickDragEventListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         // Because for some reason DoubleChest is its own class and does not implement Container. It only *extends* InventoryHolder :|
-        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
+        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof ChestGui)
             return;
 
         // Support weird slot types that may bypass the checks
@@ -128,7 +128,7 @@ public class InventoryClickDragEventListener implements Listener {
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
         // Because for some reason DoubleChest is its own class and does not implement Container. It only implements InventoryHolder :|
-        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
+        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof ChestGui)
             return;
         if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
 

@@ -38,6 +38,8 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.bytelib)
+
     compileOnly(libs.paper.api)
     compileOnly(libs.folia.api)
 
@@ -45,7 +47,7 @@ dependencies {
     compileOnly(libs.placeholder.api)
     compileOnly(libs.boosted.yaml)
     implementation(libs.bstats)
-    implementation(libs.spigui)
+    implementation(libs.inventory.framework)
     implementation(project(":api"))
 
     compileOnly(libs.worldguard)
@@ -80,5 +82,5 @@ tasks.shadowJar {
     archiveBaseName.set("honeypot-${platform}")
     archiveClassifier.set("")
     relocate("org.bstats", "org.reprogle.honeypot.common.libs.bstats")
-    relocate("com.samjakob", "org.reprogle.honeypot.common.libs.spigui")
+    relocate("com.github.stefvanschie.inventoryframework", "org.reprogle.honeypot.common.libs.inventoryframework")
 }
