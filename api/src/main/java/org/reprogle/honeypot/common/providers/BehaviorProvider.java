@@ -82,7 +82,7 @@ public abstract class BehaviorProvider {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(providerName, behaviorType, icon);
+		return Objects.hashCode(providerName);
 	}
 
 	/**

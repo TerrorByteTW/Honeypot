@@ -132,7 +132,7 @@ public class HoneypotBlockObject implements PersistentDataType<String, HoneypotB
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(coordinates, world, action);
+        return Objects.hashCode(coordinates, world);
     }
 
     // These methods are what allow HoneypotBlockObjects to directly be stored in

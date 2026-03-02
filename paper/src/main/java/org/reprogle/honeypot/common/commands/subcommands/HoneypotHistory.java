@@ -63,7 +63,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
         if (args.length >= 3 && (args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query"))) {
             Player argPlayer = Bukkit.getPlayer(args[2]);
 
-            if (argPlayer == null || !Bukkit.getPlayer(args[2]).isOnline()) {
+            if (argPlayer == null || !argPlayer.isOnline()) {
                 p.sendMessage(commandFeedback.sendCommandFeedback("not-online"));
                 return;
             }
@@ -117,8 +117,15 @@ public class HoneypotHistory implements HoneypotSubCommand {
 
             } else if (args[1].equalsIgnoreCase("delete")) {
                 if (args.length >= 4) {
-                    playerHistoryManager.deletePlayerHistory(argPlayer,
-                            Integer.parseInt(args[3]));
+                    int count = 5;
+                    try {
+                        // Clamp to 100,000. No need to go insane here, and 100,000 is already pushing it tbh haha.
+                        count = Math.max(0, Math.min(Integer.parseInt(args[3]), 100000));
+                    } catch (NumberFormatException ignored) {
+                        // Ignored, since the default for `count` is already 5, so we don't need to reassign it again.
+                    }
+
+                    playerHistoryManager.deletePlayerHistory(argPlayer, count);
                 } else {
                     playerHistoryManager.deletePlayerHistory(argPlayer);
                 }

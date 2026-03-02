@@ -96,8 +96,8 @@ public class HoneypotCreate implements HoneypotSubCommand {
         }
 
         // Check if the filter is enabled, and if so, if it's allowed
-        if (config.config().getBoolean("filters.blocks")
-                || config.config().getBoolean("filters.inventories")
+        if ((config.config().getBoolean("filters.blocks")
+                || config.config().getBoolean("filters.inventories"))
                 && (!isAllowedPerFilters(block))) {
             p.sendMessage(commandFeedback.sendCommandFeedback("against-filter"));
             return;
@@ -105,7 +105,7 @@ public class HoneypotCreate implements HoneypotSubCommand {
         }
 
         // If the block already exists in the DB
-        if (blockManager.isHoneypotBlock(block)) {
+    if (blockManager.isHoneypotBlock(block)) {
             p.sendMessage(commandFeedback.sendCommandFeedback("already-exists"));
 
             // If the block doesn't exist

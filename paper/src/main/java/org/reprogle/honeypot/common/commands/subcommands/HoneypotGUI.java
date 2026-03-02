@@ -24,12 +24,10 @@ import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.github.stefvanschie.inventoryframework.pane.component.PagingButtons;
 import com.github.stefvanschie.inventoryframework.pane.util.Slot;
-import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -44,6 +42,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
+import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
@@ -58,7 +57,6 @@ import org.reprogle.honeypot.common.utils.integrations.WorldGuardAdapter;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 // Some Paper methods are marked with the Obsolete annotation instead of Deprecated, and Sonarlint treats that as deprecated. 
@@ -94,167 +92,112 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
     @SuppressWarnings({"java:S1192", "java:S1121"})
     private void customHoneypotsInventory(Player p) {
-        ChestGui gui = new ChestGui(3, "Custom Honeypot");
-        OutlinePane background = new OutlinePane(0, 2, 9, 1);
-
-        background.addItem(new GuiItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE)));
-        background.setRepeat(true);
-        background.setPriority(Pane.Priority.LOWEST);
-
-        gui.addPane(background);
-
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 2);
 
-        List<String> types = new ArrayList<>();
-
-        Set<Object> keys = config.require("honeypots").getKeys();
-        for (Object key : keys) {
-            types.add(key.toString());
+        // Collect + dedupe types (config keys + behavior providers)
+        Set<String> typeSet = new HashSet<>();
+        for (Object key : config.require("honeypots").getKeys()) {
+            typeSet.add(String.valueOf(key));
         }
 
-        ConcurrentMap<String, BehaviorProvider> map = Registry.getBehaviorRegistry().getBehaviorProviders();
-        map.forEach((providerName, provider) -> types.add(providerName));
+        Registry.getBehaviorRegistry()
+                .getBehaviorProviders()
+                .forEach((providerName, provider) -> typeSet.add(providerName));
 
-        // 18 is 2*9, with 2 being the number of rows that will be used for populating Custom Honeypots
-        for (int x = 0; x < types.size(); x += 18) {
-            List<String> chunk = types.subList(x, Math.min(x + 18, types.size()));
-            OutlinePane oPane = new OutlinePane(0, 0, 9, 2);
+        List<String> types = new ArrayList<>(typeSet);
+        types.sort(String.CASE_INSENSITIVE_ORDER);
 
-            for (String type : chunk) {
-                GuiItem item;
+        fillPages(pages, types, 18, type -> {
+            BehaviorProvider provider = Registry.getBehaviorRegistry().getBehaviorProvider(type);
 
-                if (Registry.getBehaviorRegistry().getBehaviorProvider(type) == null) {
-                    // The behavior registry will not have behaviors defined in the Custom Honeypots config file, so fallback to this
-                    String action = config.require("honeypots").getString(type + ".icon");
+            // Provider not present => type came from config; use config icon
+            String iconMaterial = (provider == null)
+                    ? config.require("honeypots").getString(type + ".icon")
+                    : provider.getIcon().name();
 
-                    item = createInventoryButtonItem(action, type, "Click to create a Honeypot of this type", event -> createHoneypotFromGUI(event, type));
-                } else {
-                    item = createInventoryButtonItem(Registry.getBehaviorRegistry().getBehaviorProvider(type).getIcon().name(), type, "Click to create a Honeypot of this type", event -> createHoneypotFromGUI(event, type));
-                }
+            return button(
+                    iconMaterial,
+                    type,
+                    "Click to create a Honeypot of this type",
+                    event -> createHoneypotFromGUI(event, type)
+            );
+        });
 
-                oPane.addItem(item);
-            }
-
-            pages.addPage(oPane);
-        }
-
-        gui.addPane(pages);
-
-        PagingButtons pagingButtons = new PagingButtons(Slot.fromXY(0, 2), 9, pages);
-        gui.addPane(pagingButtons);
+        ChestGui gui = createPagedGui("Custom Honeypot", 3, pages);
         gui.show(p);
     }
 
-    @SuppressWarnings("java:S1192")
     private void allHoneypotsInventory(Player p) {
-        if (!(p.hasPermission("honeypot.locate"))) {
+        if (!p.hasPermission("honeypot.locate")) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
-        ChestGui gui = new ChestGui(3, "All Honeypots");
-        OutlinePane background = new OutlinePane(0, 2, 9, 1);
-
-        background.addItem(new GuiItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE)));
-        background.setRepeat(true);
-        background.setPriority(Pane.Priority.LOWEST);
-
-        gui.addPane(background);
-
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 2);
 
-        List<HoneypotBlockObject> blocks = blockManager.getAllHoneypots(p.getWorld());
-
         boolean displayAsPot = config.require("gui").getBoolean("display-button-as-honeypot");
+        String defaultButton = config.require("gui").getString("default-gui-button");
 
-        // 18 is 2*9, with 2 being the number of rows that will be used for populating Custom Honeypots
-        for (int x = 0; x < blocks.size(); x += 18) {
-            List<HoneypotBlockObject> chunk = blocks.subList(x, Math.min(x + 18, blocks.size()));
-            OutlinePane oPane = new OutlinePane(0, 0, 9, 2);
+        List<HoneypotBlockObject> blocks = new ArrayList<>(blockManager.getAllHoneypots(p.getWorld()));
+        // Sort based on distance to player
+        blocks.sort(Comparator.comparingDouble(b -> b.getLocation().distanceSquared(p.getLocation())));
 
-            for (HoneypotBlockObject block : chunk) {
-                GuiItem item;
+        fillPages(pages, blocks, 18, block -> {
+            String mat = displayAsPot ? block.getBlock().getType().name() : defaultButton;
 
-                if (displayAsPot) {
-                    item = createInventoryButtonItem(block.getBlock().getType().name(), "Honeypot: " + block.getCoordinates(), "Click to teleport to Honeypot", event -> {
-                        event.getWhoClicked().sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
+            return button(mat,
+                    "Honeypot: " + block.getCoordinates(),
+                    "Click to teleport to Honeypot",
+                    e -> {
+                        Player clicker = (Player) e.getWhoClicked();
+                        clicker.sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
+                        clicker.teleportAsync(block.getLocation().add(0.5, 1, 0.5));
+                        clicker.closeInventory();
+                    }
+            );
+        });
 
-                        // In the future, we're going to make this nice and pretty. Until then, ew.
-                        event.getWhoClicked().teleportAsync(block.getLocation().add(0.5, 1, 0.5));
-                        event.getWhoClicked().closeInventory();
-                    });
-                } else {
-                    item = createInventoryButtonItem(config.require("gui").getString("default-gui-button"), "Honeypot: " + block.getCoordinates(), "Click to teleport to Honeypot", event -> {
-                        event.getWhoClicked().sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
-
-                        // In the future, we're going to make this nice and pretty. Until then, ew.
-                        event.getWhoClicked().teleportAsync(block.getLocation().add(0.5, 1, 0.5));
-                        event.getWhoClicked().closeInventory();
-                    });
-                }
-
-                oPane.addItem(item);
-            }
-
-            pages.addPage(oPane);
-        }
-
-        gui.addPane(pages);
-
-        PagingButtons pagingButtons = new PagingButtons(Slot.fromXY(0, 2), 9, pages);
-        gui.addPane(pagingButtons);
+        ChestGui gui = createPagedGui("All Honeypots", 3, pages);
         gui.show(p);
     }
 
     private void historyQueryInventory(Player p) {
-        if (!(p.hasPermission("honeypot.history"))) {
+        if (!p.hasPermission("honeypot.history")) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
 
-        ChestGui gui = new ChestGui(3, "Query Player History");
-        OutlinePane background = new OutlinePane(0, 2, 9, 1);
-
-        background.addItem(new GuiItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE)));
-        background.setRepeat(true);
-        background.setPriority(Pane.Priority.LOWEST);
-
-        gui.addPane(background);
-
         PaginatedPane pages = new PaginatedPane(0, 0, 9, 2);
 
-        List<Player> players = ImmutableList.copyOf(Bukkit.getOnlinePlayers());
+        List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        players.sort(Comparator.comparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
 
-        // 18 is 2*9, with 2 being the number of rows that will be used for populating Custom Honeypots
-        for (int x = 0; x < players.size(); x += 18) {
-            List<Player> chunk = players.subList(x, Math.min(x + 18, players.size()));
-            OutlinePane oPane = new OutlinePane(0, 0, 9, 2);
-
-            for (Player player : chunk) {
-                GuiItem item;
-
-                ItemStack skullItem = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();
-                assert skullMeta != null;
-                skullMeta.setOwningPlayer(player);
-                skullMeta.displayName(Component.text(player.getName()));
-                skullItem.setItemMeta(skullMeta);
-
-                item = new GuiItem(skullItem, event -> {
-                    event.getWhoClicked().closeInventory();
-                    Bukkit.dispatchCommand(event.getWhoClicked(), "honeypot history query " + PlainTextComponentSerializer.plainText().serialize(skullItem.displayName()));
-                });
-
-                oPane.addItem(item);
+        fillPages(pages, players, 18, player -> {
+            ItemStack skullItem = new ItemStack(Material.PLAYER_HEAD);
+            if (!(skullItem.getItemMeta() instanceof SkullMeta skullMeta)) {
+                // Fallback: should be extremely rare
+                return button(
+                        Material.PAPER.name(),
+                        player.getName(),
+                        "Click to query history",
+                        event -> {
+                            event.getWhoClicked().closeInventory();
+                            Bukkit.dispatchCommand(event.getWhoClicked(), "honeypot history query " + player.getName());
+                        }
+                );
             }
 
-            pages.addPage(oPane);
-        }
+            skullMeta.setOwningPlayer(player);
+            skullMeta.displayName(Component.text(player.getName()));
+            skullItem.setItemMeta(skullMeta);
 
-        gui.addPane(pages);
+            return new GuiItem(skullItem, event -> {
+                event.getWhoClicked().closeInventory();
+                Bukkit.dispatchCommand(event.getWhoClicked(), "honeypot history query " + player.getName());
+            });
+        });
 
-        PagingButtons pagingButtons = new PagingButtons(Slot.fromXY(0, 2), 9, pages);
-        gui.addPane(pagingButtons);
+        ChestGui gui = createPagedGui("Query Player History", 3, pages);
         gui.show(p);
     }
 
@@ -268,7 +211,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
         ChestGui gui = new ChestGui(1, "Remove Honeypots");
 
         StaticPane options = new StaticPane(0, 0, 9, 1);
-        options.addItem(createInventoryButtonItem(
+        options.addItem(button(
                 config.require("gui").getString("remove-buttons.remove-all-button"),
                 "Remove all Honeypots",
                 null,
@@ -279,7 +222,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                 }
         ), 3, 0);
 
-        options.addItem(createInventoryButtonItem(
+        options.addItem(button(
                 config.require("gui").getString("remove-buttons.remove-near-button"),
                 "Remove nearby Honeypots",
                 null,
@@ -301,7 +244,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                 }
         ), 4, 0);
 
-        options.addItem(createInventoryButtonItem(
+        options.addItem(button(
                 config.require("gui").getString("remove-buttons.remove-target-button"),
                 "Remove the Honeypot you're targeting",
                 null,
@@ -423,7 +366,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
             event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("success", true));
 
             // Fire HoneypotCreateEvent
-            HoneypotPreCreateEvent hce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
+            HoneypotCreateEvent hce = new HoneypotCreateEvent((Player) event.getWhoClicked(), block);
             Bukkit.getPluginManager().callEvent(hce);
         }
     }
@@ -434,25 +377,25 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
         StaticPane navigation = new StaticPane(0, 0, 9, 1);
 
-        navigation.addItem(createInventoryButtonItem(
+        navigation.addItem(button(
                 config.require("gui").getString("main-buttons.create-button"),
                 "Create a Honeypot",
                 null,
                 event -> this.customHoneypotsInventory(p)
         ), 2, 0);
-        navigation.addItem(createInventoryButtonItem(
+        navigation.addItem(button(
                 config.require("gui").getString("main-buttons.remove-button"),
                 "Remove a Honeypot",
                 null,
                 event -> this.removeHoneypotInventory(p)
         ), 3, 0);
-        navigation.addItem(createInventoryButtonItem(
+        navigation.addItem(button(
                 config.require("gui").getString("main-buttons.list-button"),
                 "List all Honeypots",
                 null,
                 event -> this.allHoneypotsInventory(p)
         ), 4, 0);
-        navigation.addItem(createInventoryButtonItem(
+        navigation.addItem(button(
                 config.require("gui").getString("main-buttons.locate-button"),
                 "Locate nearby Honeypots",
                 null,
@@ -493,7 +436,7 @@ public class HoneypotGUI implements HoneypotSubCommand {
                     }
                 }
         ), 5, 0);
-        navigation.addItem(createInventoryButtonItem(
+        navigation.addItem(button(
                 config.require("gui").getString("main-buttons.history-button"),
                 "Query player history",
                 null,
@@ -521,27 +464,79 @@ public class HoneypotGUI implements HoneypotSubCommand {
 
     private Material safeGetMaterial(String materialName) {
         Material material = Material.getMaterial(materialName);
-        return material != null ? material : Material.PAPER;
+        return material != null && material.asItemType() != null ? material : Material.PAPER;
     }
 
     public void callAllHoneypotsInventory(Player p) {
         allHoneypotsInventory(p);
     }
 
-    private GuiItem createInventoryButtonItem(String materialName, String itemName, @Nullable String lore) {
+    private GuiItem button(String materialName, String name, @Nullable String lore, Consumer<InventoryClickEvent> onClick) {
         ItemStack item = new ItemStack(safeGetMaterial(materialName));
-        ItemMeta meta = item.getItemMeta();
-        meta.displayName(Component.text(itemName));
-        item.setItemMeta(meta);
-        if (lore != null && !lore.isEmpty()) item.lore(new ArrayList<>(List.of(Component.text(lore))));
 
-        return new GuiItem(item);
+        if (item.getType().equals(Material.AIR)) {
+            // The only time a Honeypot can be AIR is if it was broken somehow (Such as by flowing water if optional events is turned off). The Ghost Honeypot Fixer will clean it up eventually.
+            item = new ItemStack(Material.BARRIER);
+            ItemMeta meta = item.getItemMeta();
+            meta.displayName(Component.text("Broken Honeypot", NamedTextColor.RED));
+            meta.lore(List.of(Component.text("This Honeypot has been broken and does not exist in the world anymore. It will be removed automatically soon")));
+            item.setItemMeta(meta);
+        } else {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                meta.displayName(Component.text(name));
+                if (lore != null && !lore.isBlank()) meta.lore(List.of(Component.text(lore, NamedTextColor.GRAY)));
+
+                item.setItemMeta(meta);
+            }
+        }
+
+        return new GuiItem(item, e -> {
+            e.setCancelled(true);
+            onClick.accept(e);
+        });
     }
 
-    private GuiItem createInventoryButtonItem(String materialName, String itemName, @Nullable String lore, Consumer<InventoryClickEvent> callback) {
-        GuiItem item = createInventoryButtonItem(materialName, itemName, lore);
-        item.setAction(callback);
+    private ChestGui createPagedGui(String title, int rows, PaginatedPane pages) {
+        ChestGui gui = new ChestGui(rows, title);
 
-        return item;
+        // Cancel everything by default
+        gui.setOnGlobalClick(e -> e.setCancelled(true));
+
+        // Bottom row background
+        OutlinePane background = new OutlinePane(0, rows - 1, 9, 1);
+        background.addItem(new GuiItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), e -> e.setCancelled(true)));
+        background.setRepeat(true);
+        background.setPriority(Pane.Priority.LOWEST);
+
+        gui.addPane(background);
+        gui.addPane(pages);
+
+        PagingButtons paging = new PagingButtons(Slot.fromXY(0, rows - 1), 9, pages);
+        paging.setBackwardButton(button("ARROW", "Previous Page", null, e -> {
+        }));
+        paging.setForwardButton(button("ARROW", "Next Page", null, e -> {
+        }));
+        gui.addPane(paging);
+
+        return gui;
+    }
+
+    private <T> void fillPages(PaginatedPane pages, List<T> items, int pageSize, java.util.function.Function<T, GuiItem> toGuiItem) {
+        for (int i = 0; i < items.size(); i += pageSize) {
+            List<T> chunk = items.subList(i, Math.min(i + pageSize, items.size()));
+            OutlinePane pane = new OutlinePane(0, 0, 9, 2);
+
+            for (T t : chunk) {
+                pane.addItem(toGuiItem.apply(t));
+            }
+
+            pages.addPage(pane);
+        }
+
+        // Ensure at least one empty page so the GUI still renders nicely with paging buttons
+        if (items.isEmpty()) {
+            pages.addPage(new OutlinePane(0, 0, 9, 2));
+        }
     }
 }

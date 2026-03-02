@@ -73,11 +73,12 @@ please [see the Wiki](https://terrorbytetw.github.io/Honeypot-Docs/adding-functi
 
 ## Credits 🎬
 
-Big thanks to dejvokep for
-their [BoostedYAML](https://www.spigotmc.org/threads/%E2%9A%A1-boostedyaml-standalone-yaml-library-with-updater-and-comment-support-much-more-5min-setup-%E2%9A%A1.545585/)
-library, and the Spigot community for all their tips and tricks!
+Thank you to everyone that has poured time into the plugin!
 
-Also, a big thanks to SamJakob, who develops [SpiGUI](https://github.com/SamJakob/SpiGUI) which allows me to provide the beautiful GUI's in Honeypot that you see today!
+- **Code Contributions**: TerrorByte, SandwichBtw (Build tools modernization and various fixes/improvements), Restitutor (Many bug fixes such as Double Chest support, and showing me the Spigot Library Loader which reduced the size of this plugin dramatically!)
+- **Feature Contributions**: MattVid#3488, Jammers, melaniebeedot, Restitutor
+- **Translation Contributions**: siyukatu#4489 (ja_JP), HaHaWTH (zh_CN)
+- **Bug Reports**: Casper#9647, siyukatu#4489, MattVid#3488, Restitutor
 
 ## Note 📒
 
@@ -87,5 +88,5 @@ etc. Please make sure you have another protection and rollback plugin to prevent
 to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I highly
 recommend CoreProtect and GriefPrevention, but if you have the money to spend, Lands is an awesome plugin as well.
 
-This plugin is currently written for Minecraft 1.18+ and is compiled using Java 17. If you are not running Java 17 on your
-server, or using Minecraft 1.17(.x) or earlier, this plugin is not for you.
+This plugin is currently written for Minecraft 1.21+ and is compiled using Java 21. If you are not running Java 21 on your
+server, or running on older versions of Minecraft, this plugin is not for you.

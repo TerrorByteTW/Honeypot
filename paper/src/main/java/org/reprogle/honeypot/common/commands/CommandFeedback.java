@@ -109,7 +109,6 @@ public class CommandFeedback {
         return translator.tr("prefix");
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     public Component buildSplash(JavaPlugin plugin) {
         return Component.text().content("\n")
                 .append(Component.text(" _____                         _\n", NamedTextColor.GOLD))

@@ -9,7 +9,6 @@ import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.api.RowMapper;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 
 import java.util.List;
 
@@ -216,12 +215,12 @@ public class HoneypotBlockRepository {
                           AND world = ?;
                         """,
                 BLOCK_OBJECT_MAPPER,
-                Param.i32(xMin),
                 Param.i32(xMax),
-                Param.i32(yMin),
+                Param.i32(xMin),
                 Param.i32(yMax),
-                Param.i32(zMin),
+                Param.i32(yMin),
                 Param.i32(zMax),
+                Param.i32(zMin),
                 Param.text(location.getWorld().getName()));
     }
 }

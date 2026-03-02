@@ -32,7 +32,6 @@ import java.util.List;
  * Main method for Honeypot, this is what gets the ball rolling for everything this plugin does, including setting the command executor and registering events.
  * The Wiring class is handled via ByteLib. All the plugin's wiring happens in Honeypot$Wiring
  */
-@SuppressWarnings("UnstableApiUsage")
 public final class Honeypot extends ByteLibPlugin {
     @Inject
     public Honeypot(Injector injector, PluginMeta meta, Path dataDir, ComponentLogger logger) {

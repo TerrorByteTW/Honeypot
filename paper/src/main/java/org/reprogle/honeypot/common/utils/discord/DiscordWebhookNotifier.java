@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.IOException;
+import java.time.Instant;
 
 public class DiscordWebhookNotifier {
 
@@ -32,6 +33,7 @@ public class DiscordWebhookNotifier {
     private final Block block;
     private final Player player;
     private final HoneypotLogger logger;
+    private final OkHttpClient CLIENT;
 
     /**
      * Create a Discord webhook to send. This method does not automatically send the webhook, giving the developer more control over when it is actually sent.
@@ -47,6 +49,8 @@ public class DiscordWebhookNotifier {
         this.block = block;
         this.player = player;
         this.logger = logger;
+
+        this.CLIENT = new OkHttpClient();
     }
 
     /**
@@ -64,7 +68,7 @@ public class DiscordWebhookNotifier {
                     .post(body)
                     .build();
 
-            new OkHttpClient().newCall(request).enqueue(new Callback() {
+            this.CLIENT.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     logger.severe(Component.text("Failed to send webhook: " + e.getMessage()));
@@ -90,7 +94,7 @@ public class DiscordWebhookNotifier {
                       "description": "The honeypot located at %coordinates% in world %world% was triggered by %player%!",
                       "fields": [],
                       "title": "Honeypot Discord Alert - %webhookType%",
-                      "timestamp": "2024-06-24T00:32:00.000Z",
+                      "timestamp": "%timestamp%",
                       "color": 11636736,
                       "thumbnail": {
                         "url": "https://mc-heads.net/avatar/%UUID%"
@@ -108,7 +112,9 @@ public class DiscordWebhookNotifier {
             case BREAK -> jsonTemplate.replace("%webhookType%", "Block Broken");
         };
 
-        return tempBody.replace("%coordinates%", block.getX() + ", " + block.getY() + ", " + block.getZ())
+        return tempBody
+                .replace("%timestamp%", Instant.now().toString())
+                .replace("%coordinates%", block.getX() + ", " + block.getY() + ", " + block.getZ())
                 .replace("%world%", "\\\"" + block.getWorld().getName() + "\\\"")
                 .replace("%player%", player.getName())
                 .replace("%UUID%", player.getUniqueId().toString());
