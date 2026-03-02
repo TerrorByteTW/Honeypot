@@ -66,7 +66,7 @@ public class HoneypotSupportedVersions {
 
             int upperMajorVer = Integer.parseInt(upperVersion[0]);
             int upperMinorVer = Integer.parseInt(upperVersion[1]);
-            int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
+            int upperRevisionVer = upperVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
 
             // Check if the version the server is running is within the bounds of the
             // supported versions
