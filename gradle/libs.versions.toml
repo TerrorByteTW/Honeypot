@@ -1,6 +1,6 @@
 [versions]
 # Plugins
-shadow = "9.3.1"
+shadow = "9.3.2"
 lombok = "8.10.2"
 
 # Libraries
