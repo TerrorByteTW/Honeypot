@@ -54,7 +54,7 @@ public class PistonExtendRetractListener implements Listener {
 				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()));
 
 				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());
+				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
 				Bukkit.getPluginManager().callEvent(hnpbe);
 
 				event.setCancelled(true);
@@ -71,7 +71,7 @@ public class PistonExtendRetractListener implements Listener {
 				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()));
 
 				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());
+				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
 				Bukkit.getPluginManager().callEvent(hnpbe);
 
 				event.setCancelled(true);

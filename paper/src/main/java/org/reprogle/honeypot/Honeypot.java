@@ -23,13 +23,15 @@ import io.papermc.paper.plugin.configuration.PluginMeta;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.reprogle.bytelib.ByteLibPlugin;
 import org.reprogle.bytelib.boot.wiring.PluginWiring;
+import org.reprogle.bytelib.db.sqlite.SqliteConfig;
 import org.reprogle.bytelib.db.sqlite.SqliteModule;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 
 /**
- * Main method for Honeypot, this is what gets the ball rolling for everything this plugin does, including setting the command executor and registering events.
+ * The main method for Honeypot, this is what gets the ball rolling for everything this plugin does, including setting the command executor and registering events.
  * The Wiring class is handled via ByteLib. All the plugin's wiring happens in Honeypot$Wiring
  */
 public final class Honeypot extends ByteLibPlugin {
@@ -38,12 +40,18 @@ public final class Honeypot extends ByteLibPlugin {
         super(injector, meta, dataDir, logger);
     }
 
+    @SuppressWarnings("unused") // Used via Reflection in ByteLib
     public static class Wiring implements PluginWiring {
         @Override
         public List<Module> modules(PluginMeta meta, Path dataDir, ComponentLogger logger) {
             return List.of(
                     new HoneypotModule(dataDir),
-                    new SqliteModule("honeypot.db")
+                    new SqliteModule("honeypot.db", cfg -> SqliteConfig.defaults().withCache(new SqliteConfig.CacheConfig(
+                            Duration.ofSeconds(cfg.config().getInt("cache.ttl", 30)),
+                            Duration.ofSeconds(cfg.config().getInt("cache.refresh-after", 10)),
+                            cfg.config().getBoolean("cache.serve-stale-while-refreshing", true),
+                            cfg.config().getInt("cache.max-size", Integer.MAX_VALUE)
+                    )))
             );
         }
     }
