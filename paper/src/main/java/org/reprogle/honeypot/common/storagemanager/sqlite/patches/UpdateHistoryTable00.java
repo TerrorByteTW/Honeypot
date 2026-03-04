@@ -22,7 +22,6 @@ import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 // This is titled 00 since, if we ever need any further patches to the database, we can create new files for them.
-@SuppressWarnings("FieldCanBeLocal")
 public class UpdateHistoryTable00 implements Migration {
 
     private final HoneypotLogger logger;
@@ -30,9 +29,6 @@ public class UpdateHistoryTable00 implements Migration {
     public UpdateHistoryTable00(HoneypotLogger logger) {
         this.logger = logger;
     }
-
-    private final String UPDATE_PLAYER_TABLE_00 = "ALTER TABLE honeypot_history ADD `type` " +
-            "VARCHAR NOT NULL default 'prelimBreak';";
 
     @Override
     public void apply(SqliteDatabase.Tx tx) {

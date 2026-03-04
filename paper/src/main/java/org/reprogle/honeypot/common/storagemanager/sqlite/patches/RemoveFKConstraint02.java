@@ -1,12 +1,22 @@
 package org.reprogle.honeypot.common.storagemanager.sqlite.patches;
 
+import net.kyori.adventure.text.Component;
 import org.reprogle.bytelib.db.migrate.Migration;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class RemoveFKConstraint02 implements Migration {
 
+    private final HoneypotLogger logger;
+
+    public RemoveFKConstraint02(HoneypotLogger logger) {
+        this.logger = logger;
+    }
+
+
     @Override
     public void apply(SqliteDatabase.Tx tx) {
+        logger.debug(Component.text("Applying RemoveFKConstraint02 migration to SQLite database"));
         tx.execute("PRAGMA foreign_keys = OFF;");
 
         tx.execute("""
@@ -33,5 +43,6 @@ public class RemoveFKConstraint02 implements Migration {
                 """);
         tx.execute("PRAGMA foreign_keys = ON;");
 
+        logger.debug(Component.text("Completed RemoveFKConstraint02 migration."));
     }
 }

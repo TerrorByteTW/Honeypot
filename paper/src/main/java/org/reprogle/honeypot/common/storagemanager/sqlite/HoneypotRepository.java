@@ -41,7 +41,7 @@ public class HoneypotRepository extends StorageProvider {
         UserVersionMigrator migrator = new UserVersionMigrator("honeypot_blocks", new ArrayList<>(List.of(
                 new MigrationStep(1, new UpdateHistoryTable00(logger)),
                 new MigrationStep(2, new ConvertToSpatialIndexing01(logger)),
-                new MigrationStep(3, new RemoveFKConstraint02())
+                new MigrationStep(3, new RemoveFKConstraint02(logger))
         )));
         migrator.migrate(db);
 
