@@ -17,20 +17,22 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class HoneypotRemove implements HoneypotSubCommand {
+public class HoneypotRemove implements CommandCallback {
 
     private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
@@ -43,18 +45,31 @@ public class HoneypotRemove implements HoneypotSubCommand {
         this.commandFeedback = commandFeedback;
     }
 
-    @Override
-    public String getName() {
-        return "remove";
+    private void potRemovalCheck(Block block, Player p) {
+        if (block != null && blockManager.isHoneypotBlock(block)) {
+            blockManager.deleteBlock(block);
+            p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
+        } else {
+            p.sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
+        }
     }
 
+
     @Override
-    @SuppressWarnings("java:S3776")
-    public void perform(Player p, String[] args) {
+    public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
+        String qualifierArg = null;
+
+        try {
+            qualifierArg = StringArgumentType.getString(ctx, "qualifier");
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        var p = (Player) ctx.getSource().getSender(); // This is safe because this command has a requirement that only allows players to execute it
+
         Block block = p.getTargetBlockExact(5);
 
-        if (args.length >= 2) {
-            switch (args[1].toLowerCase()) {
+        if (qualifierArg != null) {
+            switch (qualifierArg) {
                 case "all" -> {
                     blockManager.deleteAllHoneypotBlocks(p.getWorld());
                     p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
@@ -66,7 +81,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
 
                     if (honeypots.isEmpty()) {
                         p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
-                        return;
+                        return Command.SINGLE_SUCCESS;
                     }
 
                     for (HoneypotBlockObject honeypot : honeypots) {
@@ -81,35 +96,7 @@ public class HoneypotRemove implements HoneypotSubCommand {
         } else {
             potRemovalCheck(block, p);
         }
-    }
 
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        List<String> subcommands = new ArrayList<>();
-
-        if (args.length == 2) {
-            // Return all action types for the /honeypot create command
-            subcommands.add("all");
-            subcommands.add("near");
-        }
-
-        return subcommands;
-    }
-
-    private void potRemovalCheck(Block block, Player p) {
-        if (block != null && blockManager.isHoneypotBlock(block)) {
-            blockManager.deleteBlock(block);
-            p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
-        } else {
-            p.sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
-        }
-    }
-
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        List<HoneypotPermission> permissions = new ArrayList<>();
-        permissions.add(new HoneypotPermission("honeypot.remove"));
-        permissions.add(new HoneypotPermission("honeypot.break"));
-        return permissions;
+        return Command.SINGLE_SUCCESS;
     }
 }

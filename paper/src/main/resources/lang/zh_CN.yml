@@ -1,4 +1,4 @@
-language-version: 7
+language-version: 8
 prefix: '<gold>[Honeypot]<reset> '
 kick-reason: "<prefix> 你因破坏蜜罐方块被踢出, 请勿破坏!"
 ban-reason: "<prefix> 你因破坏蜜罐方块被封禁!"
@@ -8,8 +8,8 @@ success:
   created: "<prefix> 成功创建 Honeypot!"
   removed: "<prefix> 成功移除 Honeypot!"
   default: "<prefix> 操作成功完成!"
-not-a-honeypot: "<prefix> &c目标方块不是蜜罐方块"
-no-permission: "<prefix> &c你没有权限执行该命令"
+not-a-honeypot: "<prefix> <red>目标方块不是蜜罐方块</red>"
+no-permission: "<prefix> <red>你没有权限执行该命令</red>"
 reload: "<prefix> 配置文件重载中, 如果你修改了语言配置, 请重启服务器以应用更改."
 found-pots: "<prefix> 正在高亮附近的蜜罐方块"
 no-pots-found: "<prefix> 范围内没有找到任何蜜罐方块"
@@ -31,7 +31,7 @@ truncating: "<prefix> 正在过滤结果..."
 not-online: "<prefix> &c该玩家不在线!"
 no-history: "<prefix> 找不到该玩家相关的历史记录!"
 migrate:
-  preconfirm: "<prefix> This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are REQUIRED to restart your server afterwards for Honeypot to continue working. Enter \"/honeypot migrate confirm\" to continue"
+  preconfirm: <prefix> This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are <italic>REQUIRED</italic> to restart your server afterwards for Honeypot to continue working. Enter "<hover:show_text:"Click to execute migration"><click:run_command:honeypot migrate true>/honeypot migrate true</click></hover>" to continue
   confirm: "<prefix> Migration is completed! Honeypot has been shutdown, please restart your server as soon as possible for this change to take effect. If you need to switch back, your DB has been left in tact."
   failed: "<prefix> You cannot migrate since you are already using PDC. If you need to migrate anyway, please contact the plugin developer for assistance! He's glad to help :)"
 invalid-radius: "<prefix> Invalid search range. Defaulting to config value"

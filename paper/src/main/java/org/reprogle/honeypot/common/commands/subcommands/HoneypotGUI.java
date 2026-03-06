@@ -25,6 +25,9 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.github.stefvanschie.inventoryframework.pane.component.PagingButtons;
 import com.github.stefvanschie.inventoryframework.pane.util.Slot;
 import com.google.inject.Inject;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -40,16 +43,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
 import org.reprogle.honeypot.common.utils.integrations.LandsAdapter;
@@ -62,7 +64,7 @@ import java.util.function.Consumer;
 // Some Paper methods are marked with the Obsolete annotation instead of Deprecated, and Sonarlint treats that as deprecated. 
 // So, SuppressWarnings("deprecation") works, but my IDE considers it "unnecessary". Instead, we disable the SonarLint rule
 @SuppressWarnings("java:S1874")
-public class HoneypotGUI implements HoneypotSubCommand {
+public class HoneypotGUI implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final BytePluginConfig config;
@@ -77,17 +79,6 @@ public class HoneypotGUI implements HoneypotSubCommand {
         this.blockManager = blockManager;
         this.commandFeedback = commandFeedback;
         this.adapterManager = adapterManager;
-    }
-
-    @Override
-    public String getName() {
-        return "gui";
-    }
-
-    @Override
-    @SuppressWarnings("java:S1192")
-    public void perform(Player p, String[] args) {
-        this.mainMenu(p);
     }
 
     @SuppressWarnings({"java:S1192", "java:S1121"})
@@ -448,20 +439,6 @@ public class HoneypotGUI implements HoneypotSubCommand {
         gui.show(p);
     }
 
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        return new ArrayList<>();
-    }
-
-    // We will let the individual GUIs handle their own permission checking, but the
-    // overall permissions of the GUI will be handled here
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        List<HoneypotPermission> permissions = new ArrayList<>();
-        permissions.add(new HoneypotPermission("honeypot.gui"));
-        return permissions;
-    }
-
     private Material safeGetMaterial(String materialName) {
         Material material = Material.getMaterial(materialName);
         return material != null && material.asItemType() != null ? material : Material.PAPER;
@@ -538,5 +515,15 @@ public class HoneypotGUI implements HoneypotSubCommand {
         if (items.isEmpty()) {
             pages.addPage(new OutlinePane(0, 0, 9, 2));
         }
+    }
+
+    @Override
+    public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
+        Player player = (Player) ctx.getSource().getSender(); // This is safe because we guarantee it's a player based on the requirement
+
+        this.mainMenu(player);
+        player.updateCommands();
+
+        return Command.SINGLE_SUCCESS;
     }
 }

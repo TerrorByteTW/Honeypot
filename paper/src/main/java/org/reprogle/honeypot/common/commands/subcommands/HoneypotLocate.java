@@ -17,24 +17,26 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class HoneypotLocate implements HoneypotSubCommand {
+public class HoneypotLocate implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final BytePluginConfig config;
@@ -48,31 +50,19 @@ public class HoneypotLocate implements HoneypotSubCommand {
     }
 
     @Override
-    public String getName() {
-        return "locate";
-    }
+    public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
+        int radiusArg = config.config().getInt("search-range", 5);
 
-    /*
-     * TODO - Add some sort of functionality to display all Honeypots within render distance. Not sure how to do that but I'll figure it out.
-     *  Maybe consider integrating maps plugins? However, that would ruin the whole point of honeypot, to be secretive. I'll figure it out.
-     */
-    @Override
-    public void perform(Player p, String[] args) {
-        int radius;
-        if (args.length == 2) {
-            try {
-                radius = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                p.sendMessage(commandFeedback.sendCommandFeedback("invalid-radius"));
-                radius = config.config().getInt("search-range");
-            }
-        } else {
-            radius = config.config().getInt("search-range");
+        try {
+            radiusArg = IntegerArgumentType.getInteger(ctx, "radius");
+        } catch (IllegalArgumentException ignored) {
         }
+
+        Player p = (Player) ctx.getSource().getSender(); // This is safe because there is a requirement that the sender must be a player
 
         boolean potFound = false;
 
-        List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+        List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radiusArg);
         if (!honeypots.isEmpty()) potFound = true;
 
         for (HoneypotBlockObject honeypot : honeypots) {
@@ -96,20 +86,7 @@ public class HoneypotLocate implements HoneypotSubCommand {
         } else {
             p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
         }
-    }
 
-    // We don't have any subcommands here, but we cannot return null otherwise the
-    // tab completer in the CommandManager
-    // will throw an exception since CopyPartialMatches doesn't allow null values
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        List<HoneypotPermission> permissions = new ArrayList<>();
-        permissions.add(new HoneypotPermission("honeypot.locate"));
-        return permissions;
+        return Command.SINGLE_SUCCESS;
     }
 }

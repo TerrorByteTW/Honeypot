@@ -25,6 +25,7 @@ import org.reprogle.bytelib.ByteLibPlugin;
 import org.reprogle.bytelib.boot.wiring.PluginWiring;
 import org.reprogle.bytelib.db.sqlite.SqliteConfig;
 import org.reprogle.bytelib.db.sqlite.SqliteModule;
+import org.reprogle.honeypot.common.commands.CommandModule;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -46,6 +47,7 @@ public final class Honeypot extends ByteLibPlugin {
         public List<Module> modules(PluginMeta meta, Path dataDir, ComponentLogger logger) {
             return List.of(
                     new HoneypotModule(dataDir),
+                    new CommandModule(),
                     new SqliteModule("honeypot.db", cfg -> SqliteConfig.defaults().withCache(new SqliteConfig.CacheConfig(
                             Duration.ofSeconds(cfg.config().getInt("cache.ttl", 30)),
                             Duration.ofSeconds(cfg.config().getInt("cache.refresh-after", 10)),

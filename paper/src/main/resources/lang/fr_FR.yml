@@ -1,5 +1,5 @@
-language-version: 6
-prefix: '<gold>[Honeypot]<reset> '
+language-version: 7
+prefix: '<gold>[Honeypot]<reset>'
 kick-reason: "<prefix> Coup de pied pour avoir cassé des blocs de pot de miel. Ne chagrine pas !"
 ban-reason: "<prefix> Vous avez été banni pour avoir cassé des blocs de pot de miel"
 warn-reason: "<prefix> S'il vous plaît, ne construisez pas de chagrin !"
@@ -31,7 +31,7 @@ truncating: "<prefix> Découpage des résultats selon les paramètres de configu
 not-online: "<prefix> <red>Ce joueur n'est pas en ligne!</red>"
 no-history: "<prefix> Aucun historique trouvé pour ce joueur!"
 migrate:
-  preconfirm: "<prefix> This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are REQUIRED to restart your server afterwards for Honeypot to continue working. Enter \"/honeypot migrate confirm\" to continue"
+  preconfirm: <prefix> This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are <italic>REQUIRED</italic> to restart your server afterwards for Honeypot to continue working. Enter "<hover:show_text:"Click to execute migration"><click:run_command:honeypot migrate true>/honeypot migrate true</click></hover>" to continue
   confirm: "<prefix> Migration is completed! Honeypot has been shutdown, please restart your server as soon as possible for this change to take effect. If you need to switch back, your DB has been left in tact."
   failed: "<prefix> You cannot migrate since you are already using PDC. If you need to migrate anyway, please contact the plugin developer for assistance! He's glad to help :)"
 invalid-storage-provider: "<prefix> A storage provider with the name %s does not exist. Please check your config and try again"

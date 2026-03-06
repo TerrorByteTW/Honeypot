@@ -17,14 +17,13 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class HoneypotList implements HoneypotSubCommand {
+public class HoneypotList implements CommandCallback {
 
 	private final HoneypotGUI gui;
 
@@ -34,25 +33,10 @@ public class HoneypotList implements HoneypotSubCommand {
 	}
 
 	@Override
-	public String getName() {
-		return "list";
-	}
-
-	@Override
-	public void perform(Player p, String[] args) {
+	public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
+		// We know this is safe because there is a requirement that the sender is a player
+		Player p = (Player) ctx.getSource().getSender();
 		gui.callAllHoneypotsInventory(p);
+		return Command.SINGLE_SUCCESS;
 	}
-
-	@Override
-	public List<String> getSubcommands(Player p, String[] args) {
-		return new ArrayList<>();
-	}
-
-	@Override
-	public List<HoneypotPermission> getRequiredPermissions() {
-		List<HoneypotPermission> permissions = new ArrayList<>();
-		permissions.add(new HoneypotPermission("honeypot.gui"));
-		return permissions;
-	}
-
 }

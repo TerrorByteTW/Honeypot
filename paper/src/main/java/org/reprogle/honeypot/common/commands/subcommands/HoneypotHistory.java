@@ -17,29 +17,34 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
-import java.util.ArrayList;
+import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings({"java:S1192", "java:S3776"})
-public class HoneypotHistory implements HoneypotSubCommand {
+public class HoneypotHistory implements CommandCallback {
 
     private final CommandFeedback commandFeedback;
     private final BytePluginConfig config;
@@ -54,34 +59,54 @@ public class HoneypotHistory implements HoneypotSubCommand {
     }
 
     @Override
-    public String getName() {
-        return "history";
-    }
+    public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
+        HoneypotHistoryArgs args = parseArgumentsFromContext(ctx);
+        if (!args.isValid()) {
+            ctx.getSource().getSender().sendMessage(commandFeedback.sendCommandFeedback("usage"));
+            return Command.SINGLE_SUCCESS;
+        }
 
-    @Override
-    public void perform(Player p, String[] args) {
-        if (args.length >= 3 && (args[1].equalsIgnoreCase("delete") || args[1].equalsIgnoreCase("query"))) {
-            Player argPlayer = Bukkit.getPlayer(args[2]);
+        // This is safe because args.isValid() will only be true if both of these variables are not null
+        assert args.action != null;
+        assert args.player != null;
 
-            if (argPlayer == null || !argPlayer.isOnline()) {
-                p.sendMessage(commandFeedback.sendCommandFeedback("not-online"));
-                return;
-            }
+        var sender = ctx.getSource().getSender();
 
-            if (args[1].equalsIgnoreCase("query")) {
-                p.sendMessage(commandFeedback.sendCommandFeedback("searching"));
+        switch (args.action) {
+            case "delete":
+                if (!args.player.isOnline()) {
+                    sender.sendMessage(commandFeedback.sendCommandFeedback("not-online"));
+                    return Command.SINGLE_SUCCESS;
+                }
 
-                List<HoneypotPlayerHistoryObject> history = playerHistoryManager.getPlayerHistory(argPlayer);
+                if (args.count >= 1) { // Since primitives are not nullable, the argument has a minimum of 1 but defaults to 0 if not provided. So, we know that args.count == 0 means not provided, and anything <= 0 is not possible thanks to Brigadier
+                    playerHistoryManager.deletePlayerHistory(args.player, args.count);
+                } else {
+                    playerHistoryManager.deletePlayerHistory(args.player);
+                }
+
+                sender.sendMessage(commandFeedback.sendCommandFeedback("success"));
+
+                break;
+            case "query":
+                if (!args.player.isOnline()) {
+                    sender.sendMessage(commandFeedback.sendCommandFeedback("not-online"));
+                    return Command.SINGLE_SUCCESS;
+                }
+
+                sender.sendMessage(commandFeedback.sendCommandFeedback("searching"));
+
+                List<HoneypotPlayerHistoryObject> history = playerHistoryManager.getPlayerHistory(args.player);
                 int length = config.config().getInt("history-length");
 
                 if (history.size() > length) {
-                    p.sendMessage(commandFeedback.sendCommandFeedback("truncating"));
+                    sender.sendMessage(commandFeedback.sendCommandFeedback("truncating"));
                     history = history.subList(0, length);
                 }
 
                 if (history.isEmpty()) {
-                    p.sendMessage(commandFeedback.sendCommandFeedback("no-history"));
-                    return;
+                    sender.sendMessage(commandFeedback.sendCommandFeedback("no-history"));
+                    return Command.SINGLE_SUCCESS;
                 }
 
                 // Reverse the history array so that it's in chronological order when sent to the player
@@ -90,7 +115,7 @@ public class HoneypotHistory implements HoneypotSubCommand {
                 int limit = Math.min(history.size(), length);
 
                 for (int i = 0; i < limit; i++) {
-                    p.sendMessage(
+                    sender.sendMessage(
                             Component.text("\n-------[ ", NamedTextColor.GOLD)
                                     .append(Component.text(history.get(i).getDateTime(), NamedTextColor.WHITE))
                                     .append(Component.text(" ]-------", NamedTextColor.GOLD))
@@ -104,71 +129,48 @@ public class HoneypotHistory implements HoneypotSubCommand {
                             .append(Component.text(history.get(i).getHoneypot().getWorld() + " ", NamedTextColor.GOLD))
                             .append(Component.text(history.get(i).getHoneypot().getCoordinates(), NamedTextColor.WHITE))
                             .clickEvent(ClickEvent.callback((Audience audience) -> {
-                                Player player = (Player) audience;
+                                if (!(audience instanceof Player player)) return;
                                 player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
                             }))
                             .hoverEvent(HoverEvent.showText(Component.text("Click to teleport").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)));
 
-                    p.sendMessage(playerInfo);
-                    p.sendMessage(Component.text("Action: ").append(Component.text(history.get(i).getHoneypot().getAction(), NamedTextColor.GOLD)));
-                    p.sendMessage(Component.text("Break type: ").append(Component.text(history.get(i).getType(), NamedTextColor.GOLD)));
-                    p.sendMessage(Component.text("----------------------------------", NamedTextColor.GOLD));
+                    sender.sendMessage(playerInfo);
+                    sender.sendMessage(Component.text("Action: ").append(Component.text(history.get(i).getHoneypot().getAction(), NamedTextColor.GOLD)));
+                    sender.sendMessage(Component.text("Break type: ").append(Component.text(history.get(i).getType(), NamedTextColor.GOLD)));
+                    sender.sendMessage(Component.text("----------------------------------", NamedTextColor.GOLD));
                 }
-
-            } else if (args[1].equalsIgnoreCase("delete")) {
-                if (args.length >= 4) {
-                    int count = 5;
-                    try {
-                        // Clamp to 100,000. No need to go insane here, and 100,000 is already pushing it tbh haha.
-                        count = Math.max(0, Math.min(Integer.parseInt(args[3]), 100000));
-                    } catch (NumberFormatException ignored) {
-                        // Ignored, since the default for `count` is already 5, so we don't need to reassign it again.
-                    }
-
-                    playerHistoryManager.deletePlayerHistory(argPlayer, count);
-                } else {
-                    playerHistoryManager.deletePlayerHistory(argPlayer);
-                }
-                p.sendMessage(commandFeedback.sendCommandFeedback("success"));
-            }
-        } else if (args.length == 2 && args[1].equalsIgnoreCase("purge")) {
-            playerHistoryManager.deleteAllHistory();
-            p.sendMessage(commandFeedback.sendCommandFeedback("success"));
-        } else {
-            p.sendMessage(commandFeedback.sendCommandFeedback("usage"));
+                break;
+            case "purge":
+                playerHistoryManager.deleteAllHistory();
+                sender.sendMessage(commandFeedback.sendCommandFeedback("success"));
+                break;
+            default:
+                sender.sendMessage(commandFeedback.sendCommandFeedback("usage"));
+                break;
         }
 
+        return Command.SINGLE_SUCCESS;
     }
 
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        List<String> subcommands = new ArrayList<>();
+    private static HoneypotHistoryArgs parseArgumentsFromContext(CommandContext<CommandSourceStack> ctx) {
+        @Nullable String actionArg = null;
+        @Nullable Player playerArg = null;
+        int countArg = 0;
 
-        // Base arguments
-        if (args.length == 2) {
-            subcommands.add("delete");
-            subcommands.add("query");
-            subcommands.add("purge");
-            // If the args length is 3, and they passed a valid sub-subcommand, do this
-        } else if (args.length == 3 && (args[1].equalsIgnoreCase("query") || args[1].equalsIgnoreCase("delete"))) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                subcommands.add(player.getName());
-            }
-            // If the args length is 4, and they typed delete, just give them a list of numbers
-        } else if (args.length == 4 && args[1].equalsIgnoreCase("delete")) {
-            for (int i = 1; i < 10; i++) {
-                subcommands.add(Integer.toString(i));
-            }
+        try {
+            actionArg = StringArgumentType.getString(ctx, "action");
+            playerArg = ctx.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource()).getFirst();
+            countArg = IntegerArgumentType.getInteger(ctx, "count");
+        } catch (IllegalArgumentException | CommandSyntaxException ignored) {
+            return new HoneypotHistoryArgs(actionArg, playerArg, countArg);
         }
 
-        return subcommands;
+        return new HoneypotHistoryArgs(actionArg, playerArg, countArg);
     }
 
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        List<HoneypotPermission> permissions = new ArrayList<>();
-        permissions.add(new HoneypotPermission("honeypot.history"));
-        return permissions;
+    private record HoneypotHistoryArgs(@Nullable String action, @Nullable Player player, int count) {
+        public boolean isValid() {
+            return action != null && player != null;
+        } // primitives can't be null, but we don't care if `count` is null or not
     }
-
 }

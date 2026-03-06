@@ -1,6 +1,7 @@
 package org.reprogle.honeypot.common.storagemanager.sqlite;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -23,6 +24,7 @@ import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import java.util.ArrayList;
 import java.util.List;
 
+@Singleton
 @HoneypotStore(name = "sqlite")
 public class HoneypotRepository extends StorageProvider {
 

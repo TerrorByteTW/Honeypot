@@ -17,15 +17,10 @@
 package org.reprogle.honeypot;
 
 import com.google.inject.*;
-import com.google.inject.Module;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 import org.reprogle.bytelib.boot.lifecycle.PluginLifecycle;
-import org.reprogle.bytelib.commands.CommandRegistration;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotCommandRegistration;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.common.commands.subcommands.*;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.included.Ban;
 import org.reprogle.honeypot.common.providers.included.Kick;
@@ -59,24 +54,6 @@ public class HoneypotModule extends AbstractModule {
         Multibinder<StorageProvider> storageBinder = Multibinder.newSetBinder(binder(), StorageProvider.class);
         storageBinder.addBinding().to(HoneypotRepository.class);
         storageBinder.addBinding().to(DataStoreManager.class);
-
-        // Bind all commands
-        Multibinder<HoneypotSubCommand> subcommandBinder = Multibinder.newSetBinder(binder(), HoneypotSubCommand.class);
-        subcommandBinder.addBinding().to(HoneypotCreate.class);
-        subcommandBinder.addBinding().to(HoneypotRemove.class);
-        subcommandBinder.addBinding().to(HoneypotReload.class);
-        subcommandBinder.addBinding().to(HoneypotLocate.class);
-        subcommandBinder.addBinding().to(HoneypotGUI.class);
-        subcommandBinder.addBinding().to(HoneypotHelp.class);
-        subcommandBinder.addBinding().to(HoneypotInfo.class);
-        subcommandBinder.addBinding().to(HoneypotHistory.class);
-        subcommandBinder.addBinding().to(HoneypotList.class);
-        subcommandBinder.addBinding().to(HoneypotMigrate.class);
-
-        // Commands
-        Multibinder.newSetBinder(binder(), CommandRegistration.class)
-                .addBinding()
-                .to(HoneypotCommandRegistration.class);
 
         // Not really necessary but cool and I'm learning :P
         File file = new File(dataDir.toFile(), "honeypot.log");

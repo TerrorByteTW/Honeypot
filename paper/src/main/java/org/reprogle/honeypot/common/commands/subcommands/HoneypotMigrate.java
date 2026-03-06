@@ -17,24 +17,23 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-public class HoneypotMigrate implements HoneypotSubCommand {
+public class HoneypotMigrate implements CommandCallback {
 
     private final CommandFeedback commandFeedback;
     private final BytePluginConfig config;
@@ -54,56 +53,50 @@ public class HoneypotMigrate implements HoneypotSubCommand {
     }
 
     @Override
-    public String getName() {
-        return "migrate";
-    }
+    public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
+        boolean confirm = false;
 
-    @Override
-    public void perform(Player p, String[] args) throws IOException {
-        if (config.config().getString("storage-method").equalsIgnoreCase("pdc")) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("migrate", false));
-            return;
+        try {
+            confirm = ctx.getArgument("confirm", boolean.class);
+        } catch (IllegalArgumentException ignored) {
+            // a lack of a value implies false
         }
 
-        if (args.length == 1) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("migrate"));
-        } else if (args.length >= 2) {
-            if (args[1].equalsIgnoreCase("confirm")) {
-                logger.severe(commandFeedback.getChatPrefix()
-                        .append(Component.text(p.getName() + " has started migrating Honeypot to PDC!!! "))
-                        .append(Component.text("They were warned that this will cause Honeypot to shutdown afterwards. If you heavily rely on Honeypot, PLEASE restart ASAP!")));
+        var sender = ctx.getSource().getSender();
 
-                // Get all worlds in the server, since PDC works on a per-world basis
-                List<World> worlds = plugin.getServer().getWorlds();
+        if (config.config().getString("storage-method").equalsIgnoreCase("pdc")) {
+            sender.sendMessage(commandFeedback.sendCommandFeedback("migrate", false));
+            return Command.SINGLE_SUCCESS;
+        }
 
-                // For every world on the server, get all blocks. Add each of those blocks to PDc
-                for (World world : worlds) {
-                    List<HoneypotBlockObject> blocks = hbm.getAllHoneypots(world);
-                    for (HoneypotBlockObject block : blocks) {
-                        dataStoreManager.createHoneypotBlock(block.getBlock(), block.getAction());
-                    }
-                }
+        if (!confirm) {
+            sender.sendMessage(commandFeedback.sendCommandFeedback("migrate"));
+            return Command.SINGLE_SUCCESS;
+        }
 
-                p.sendMessage(commandFeedback.sendCommandFeedback("migrate", true));
+        logger.severe(commandFeedback.getChatPrefix()
+                .append(Component.text(sender.getName() + " has started migrating Honeypot to PDC!!! "))
+                .append(Component.text("They were warned that this will cause Honeypot to shutdown afterwards. If you heavily rely on Honeypot, PLEASE restart ASAP!")));
 
-                // Change the storage method to pdc and shutdown the plugin to prevent potential issues. The storage method is decided on server start,
-                // and absolutely cannot be changed in runtime due to it being injected everywhere via Guice.
-                config.config().set("storage-method", "pdc");
-                config.config().save();
-                plugin.getServer().getPluginManager().disablePlugin(plugin);
+        // Get all worlds in the server, since PDC works on a per-world basis
+        List<World> worlds = plugin.getServer().getWorlds();
+
+        // For every world on the server, get all blocks. Add each of those blocks to PDc
+        for (World world : worlds) {
+            List<HoneypotBlockObject> blocks = hbm.getAllHoneypots(world);
+            for (HoneypotBlockObject block : blocks) {
+                dataStoreManager.createHoneypotBlock(block.getBlock(), block.getAction());
             }
         }
-    }
 
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        return List.of("confirm");
-    }
+        sender.sendMessage(commandFeedback.sendCommandFeedback("migrate", true));
 
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        List<HoneypotPermission> permissions = new ArrayList<>();
-        permissions.add(new HoneypotPermission("honeypot.migrate"));
-        return permissions;
+        // Change the storage method to pdc and shutdown the plugin to prevent potential issues. The storage method is decided on server start,
+        // and absolutely cannot be changed in runtime due to it being injected everywhere via Guice.
+        config.config().set("storage-method", "pdc");
+        config.config().save();
+        plugin.getServer().getPluginManager().disablePlugin(plugin);
+
+        return Command.SINGLE_SUCCESS;
     }
 }

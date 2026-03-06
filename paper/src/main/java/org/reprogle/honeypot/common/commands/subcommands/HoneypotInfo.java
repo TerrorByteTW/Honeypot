@@ -17,20 +17,18 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
 import org.reprogle.honeypot.common.utils.HoneypotSupportedVersions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("deprecation")
-public class HoneypotInfo implements HoneypotSubCommand {
+public class HoneypotInfo implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final CommandFeedback commandFeedback;
@@ -44,26 +42,12 @@ public class HoneypotInfo implements HoneypotSubCommand {
     }
 
     @Override
-    public String getName() {
-        return "info";
-    }
-
-    @Override
-    public void perform(Player p, String[] args) {
-        p.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Honeypot version " + plugin.getDescription().getVersion())));
-
-        p.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion())));
+    public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
+        var sender = ctx.getSource().getSender();
+        sender.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Honeypot version " + plugin.getDescription().getVersion())));
+        sender.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion())));
         supportedVersions.checkIfServerSupported();
-    }
 
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        return new ArrayList<>();
+        return Command.SINGLE_SUCCESS;
     }
-
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        return new ArrayList<>();
-    }
-
 }

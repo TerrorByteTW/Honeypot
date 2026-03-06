@@ -17,21 +17,18 @@
 package org.reprogle.honeypot.common.commands.subcommands;
 
 import com.google.inject.Inject;
+import com.mojang.brigadier.context.CommandContext;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Player;
+import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.HoneypotSubCommand;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 import org.reprogle.honeypot.common.utils.GhostHoneypotFixer;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
-import org.reprogle.honeypot.common.utils.HoneypotPermission;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class HoneypotReload implements HoneypotSubCommand {
+public class HoneypotReload implements CommandCallback {
 
     private final BytePluginConfig config;
     private final GhostHoneypotFixer fixer;
@@ -47,12 +44,7 @@ public class HoneypotReload implements HoneypotSubCommand {
     }
 
     @Override
-    public String getName() {
-        return "reload";
-    }
-
-    @Override
-    public void perform(Player p, String[] args) {
+    public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
         config.reload();
 
         fixer.cancelTask();
@@ -74,22 +66,9 @@ public class HoneypotReload implements HoneypotSubCommand {
             }
         }
 
-        p.sendMessage(commandFeedback.sendCommandFeedback("reload"));
+        ctx.getSource().getSender().sendMessage(commandFeedback.sendCommandFeedback("reload"));
         logger.info(Component.text("Honeypot has successfully been reloaded"));
-    }
 
-    // We don't have any subcommands here, but we cannot return null otherwise the
-    // tab completer in the CommandManager
-    // will throw an exception since CopyPartialMatches doesn't allow null values
-    @Override
-    public List<String> getSubcommands(Player p, String[] args) {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<HoneypotPermission> getRequiredPermissions() {
-        List<HoneypotPermission> permissions = new ArrayList<>();
-        permissions.add(new HoneypotPermission("honeypot.reload"));
-        return permissions;
+        return 0;
     }
 }
