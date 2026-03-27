@@ -13,48 +13,52 @@ public class HoneypotPlayerRepository {
     public void createSchema() {
         // Honeypot Players Table
         db.execute("""
-                CREATE TABLE IF NOT EXISTS honeypot_players (
-                    `playerName` VARCHAR NOT NULL,
-                    `blocksBroken` INT NOT NULL,
-                    PRIMARY KEY (`playerName`)
-                );
-                """);
+            CREATE TABLE IF NOT EXISTS honeypot_players (
+                `playerName` VARCHAR NOT NULL,
+                `blocksBroken` INT NOT NULL,
+                PRIMARY KEY (`playerName`)
+            );
+            """);
     }
 
     public void createHoneypotPlayer(Player player, int blocksBroken) {
         db.execute("""
-                        INSET INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
-                        """,
-                Param.text(player.getUniqueId().toString()),
-                Param.i32(blocksBroken));
+                INSET INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
+                """,
+            Param.text(player.getUniqueId().toString()),
+            Param.i32(blocksBroken));
     }
 
     public void setPlayerCount(Player playerName, int blocksBroken) {
         db.execute("""
-                        REPLACE INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
-                        """,
-                Param.text(playerName.getUniqueId().toString()),
-                Param.i32(blocksBroken));
+                REPLACE INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
+                """,
+            Param.text(playerName.getUniqueId().toString()),
+            Param.i32(blocksBroken));
     }
 
     public int getCount(Player player) {
-        return db.queryOne("""
-                        SELECT *
-                        FROM honeypot_players
-                        WHERE playerName = ?;
-                        """,
-                row -> row.i32("blocksBroken"),
-                Param.text(player.getUniqueId().toString()));
+        Integer count = db.queryOne("""
+                SELECT *
+                FROM honeypot_players
+                WHERE playerName = ?;
+                """,
+            row -> row.i32("blocksBroken"),
+            Param.text(player.getUniqueId().toString()));
+
+        return count == null ? -1 : count;
     }
 
     public int getCount(OfflinePlayer player) {
-        return db.queryOne("""
-                        SELECT *
-                        FROM honeypot_players
-                        WHERE playerName = ?;
-                        """,
-                row -> row.i32("blocksBroken"),
-                Param.text(player.getUniqueId().toString()));
+        Integer count = db.queryOne("""
+                SELECT *
+                FROM honeypot_players
+                WHERE playerName = ?;
+                """,
+            row -> row.i32("blocksBroken"),
+            Param.text(player.getUniqueId().toString()));
+
+        return count == null ? -1 : count;
     }
 
     public void deleteAllPlayers() {

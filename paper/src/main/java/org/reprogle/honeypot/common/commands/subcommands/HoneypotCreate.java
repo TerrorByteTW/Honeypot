@@ -86,7 +86,7 @@ public class HoneypotCreate implements CommandCallback {
 
         try {
             typeArg = StringArgumentType.getString(ctx, "type");
-            if (!config.require("honeypots").contains(typeArg) || Registry.getBehaviorRegistry().getBehaviorProvider(typeArg) == null) {
+            if (!config.require("honeypots").contains(typeArg) && Registry.getBehaviorRegistry().getBehaviorProvider(typeArg) == null) {
                 ctx.getSource().getSender().sendMessage(commandFeedback.sendCommandFeedback("no-exist"));
                 return Command.SINGLE_SUCCESS;
             }

@@ -132,7 +132,6 @@ public class BlockBreakEventListener implements Listener {
                 logger.debug(Component.text("Action is being taken for this event."));
                 breakAction(event);
             } else {
-                logger.debug(Component.text("The break is just being counted, no action is taken yet"));
                 countBreak(event);
             }
 
@@ -232,6 +231,8 @@ public class BlockBreakEventListener implements Listener {
                 || player.hasPermission(BREAK_PERMISSION)
                 || player.hasPermission(WILDCARD_PERMISSION))
             return;
+
+        logger.debug(Component.text("The break is just being counted, no action is taken yet"));
 
         // Get the config value and the amount of blocks broken
         int breaksBeforeAction = config.config().getInt("blocks-broken-before-action-taken");
