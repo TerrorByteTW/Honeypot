@@ -58,7 +58,7 @@ public class ActionHandler {
     @SuppressWarnings({"java:S3776", "java:S2629", "java:S1192", "java:S6541"})
     public void handleCustomAction(String action, Block block, Player player) {
 
-        logger.debug(Component.text("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation()));
+        logger.debug(Component.text("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation()), false);
 
         // Behavior providers take higher precedence over custom config actions.
         if (Registry.getBehaviorRegistry().getBehaviorProvider(action) != null) {

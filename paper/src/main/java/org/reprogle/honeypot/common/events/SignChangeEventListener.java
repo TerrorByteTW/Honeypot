@@ -33,9 +33,6 @@ public class SignChangeEventListener implements Listener {
     private final HoneypotLogger logger;
     private final AdapterManager adapterManager;
 
-    /**
-     * Create package listener to hide implicit one
-     */
     @Inject
     SignChangeEventListener(HoneypotBlockManager blockManager, HoneypotLogger logger, AdapterManager adapterManager) {
         this.blockManager = blockManager;
@@ -53,7 +50,7 @@ public class SignChangeEventListener implements Listener {
                 return;
             }
 
-            logger.debug(Component.text("SignChangeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.debug(Component.text("SignChangeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
             event.setCancelled(true);
         }
     }

@@ -34,10 +34,7 @@ public class EntityChangeBlockEventListener implements Listener {
     private final HoneypotLogger logger;
     private final HoneypotBlockManager blockManager;
     private final BytePluginConfig config;
-
-    /**
-     * Create package constructor to hide implicit one
-     */
+    
     @Inject
     EntityChangeBlockEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager, BytePluginConfig config) {
 
@@ -56,7 +53,7 @@ public class EntityChangeBlockEventListener implements Listener {
         if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
             if (blockManager.isHoneypotBlock(event.getBlock())) {
 
-                logger.debug(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()));
+                logger.debug(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()), true);
 
                 // Fire HoneypotNonPlayerBreakEvent
                 HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(),

@@ -52,9 +52,6 @@ permissions:
   honeypot.teleport:
     description: Allows for staff to teleport to Honeypot blocks within the GUI
     default: op
-  honeypot.migrate:
-    description: Allows migration from SQLite to PDC
-    default: op
   honeypot.*:
     description: Allows all Honeypot permissions
     default: op
@@ -70,4 +67,3 @@ permissions:
       honeypot.update: true
       honeypot.history: true
       honeypot.teleport: true
-      honeypot.migrate: true

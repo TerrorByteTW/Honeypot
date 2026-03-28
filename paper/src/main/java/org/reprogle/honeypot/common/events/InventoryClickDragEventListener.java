@@ -51,9 +51,6 @@ public class InventoryClickDragEventListener implements Listener {
     private final BytePluginConfig config;
     private final HoneypotLogger logger;
 
-    /**
-     * Create package constructor to hide implicit one
-     */
     @Inject
     InventoryClickDragEventListener(ActionHandler actionHandler, HoneypotBlockManager blockManager, BytePluginConfig config, HoneypotLogger logger) {
         this.actionHandler = actionHandler;
@@ -157,11 +154,11 @@ public class InventoryClickDragEventListener implements Listener {
         String action = blockManager.getAction(block);
 
         if (action == null) {
-            logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
             return;
         }
 
-        logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
+        logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
 
         actionHandler.handleCustomAction(action, block, player);
 

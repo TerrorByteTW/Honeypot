@@ -36,8 +36,7 @@ public abstract class StorageProvider {
     }
 
     /**
-     * Override default equals function to provide comparison support to
-     * StorageProviders.
+     * Override the default equals() method to provide comparison support to StorageProviders.
      * Since StorageProviders must have unique names, this checks against name only
      *
      * @param o The object which we are checking equality against

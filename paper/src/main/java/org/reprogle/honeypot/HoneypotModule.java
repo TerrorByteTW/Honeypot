@@ -26,7 +26,6 @@ import org.reprogle.honeypot.common.providers.included.Ban;
 import org.reprogle.honeypot.common.providers.included.Kick;
 import org.reprogle.honeypot.common.providers.included.Notify;
 import org.reprogle.honeypot.common.providers.included.Warn;
-import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
 import org.reprogle.honeypot.common.storagemanager.sqlite.HoneypotRepository;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 
@@ -53,7 +52,6 @@ public class HoneypotModule extends AbstractModule {
 
         Multibinder<StorageProvider> storageBinder = Multibinder.newSetBinder(binder(), StorageProvider.class);
         storageBinder.addBinding().to(HoneypotRepository.class);
-        storageBinder.addBinding().to(DataStoreManager.class);
 
         // Not really necessary but cool and I'm learning :P
         File file = new File(dataDir.toFile(), "honeypot.log");

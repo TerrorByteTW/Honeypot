@@ -31,10 +31,7 @@ public class BlockFromToEventListener implements Listener {
 
 	private final HoneypotLogger logger;
 	private final HoneypotBlockManager blockManager;
-
-	/**
-	 * Create package listener to hide implicit one
-	 */
+	
 	@Inject
 	BlockFromToEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
 		this.logger = logger;
@@ -54,7 +51,7 @@ public class BlockFromToEventListener implements Listener {
 
 		Block toBlock = event.getToBlock();
 		if (blockManager.isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
-			logger.debug(Component.text("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", " + toBlock.getY() + ", " + toBlock.getZ()));
+			logger.debug(Component.text("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", " + toBlock.getY() + ", " + toBlock.getZ()), true);
 			event.setCancelled(true);
 		}
 	}

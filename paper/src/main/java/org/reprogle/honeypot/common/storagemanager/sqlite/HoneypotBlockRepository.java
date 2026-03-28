@@ -43,7 +43,6 @@ public class HoneypotBlockRepository {
     }
 
     public void createHoneypotBlock(Block block, String action) {
-
         db.transaction(tx -> {
             // 1) Insert the “real” row and get its generated id
             tx.execute("""

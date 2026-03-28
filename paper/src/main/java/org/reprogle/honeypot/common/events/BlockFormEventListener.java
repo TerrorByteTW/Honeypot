@@ -30,10 +30,7 @@ public class BlockFormEventListener implements Listener {
 
 	private final HoneypotLogger logger;
 	private final HoneypotBlockManager blockManager;
-
-	/**
-	 * Create package listener to hide implicit one
-	 */
+	
 	@Inject
 	BlockFormEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
 		this.logger = logger;
@@ -45,7 +42,7 @@ public class BlockFormEventListener implements Listener {
 		Block block = event.getBlock();
 
 		if (blockManager.isHoneypotBlock(block)) {
-			logger.debug(Component.text("BlockFormEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+			logger.debug(Component.text("BlockFormEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
 			event.setCancelled(true);
 		}
 	}

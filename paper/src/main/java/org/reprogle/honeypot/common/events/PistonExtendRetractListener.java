@@ -36,9 +36,6 @@ public class PistonExtendRetractListener implements Listener {
 	private final HoneypotBlockManager blockManager;
 	private final HoneypotLogger logger;
 
-	/**
-	 * Create private constructor to hide the implicit one
-	 */
 	@Inject
 	PistonExtendRetractListener(HoneypotBlockManager blockManager, HoneypotLogger logger) {
 		this.blockManager = blockManager;
@@ -51,7 +48,7 @@ public class PistonExtendRetractListener implements Listener {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
 			if (blockManager.isHoneypotBlock(b)) {
-				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()));
+				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()), true);
 
 				// Fire HoneypotNonPlayerBreakEvent
 				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
@@ -68,7 +65,7 @@ public class PistonExtendRetractListener implements Listener {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
 			if (blockManager.isHoneypotBlock(b)) {
-				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()));
+				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()), true);
 
 				// Fire HoneypotNonPlayerBreakEvent
 				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);

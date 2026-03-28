@@ -1,4 +1,4 @@
-language-version: 8
+language-version: 9
 prefix: '<gold>[Honeypot]<reset> '
 kick-reason: "<prefix> 你因破坏蜜罐方块被踢出, 请勿破坏!"
 ban-reason: "<prefix> 你因破坏蜜罐方块被封禁!"
@@ -30,10 +30,6 @@ searching: "<prefix> 搜索中..."
 truncating: "<prefix> 正在过滤结果..."
 not-online: "<prefix> &c该玩家不在线!"
 no-history: "<prefix> 找不到该玩家相关的历史记录!"
-migrate:
-  preconfirm: <prefix> This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are <italic>REQUIRED</italic> to restart your server afterwards for Honeypot to continue working. Enter "<hover:show_text:"Click to execute migration"><click:run_command:honeypot migrate true>/honeypot migrate true</click></hover>" to continue
-  confirm: "<prefix> Migration is completed! Honeypot has been shutdown, please restart your server as soon as possible for this change to take effect. If you need to switch back, your DB has been left in tact."
-  failed: "<prefix> You cannot migrate since you are already using PDC. If you need to migrate anyway, please contact the plugin developer for assistance! He's glad to help :)"
 invalid-radius: "<prefix> Invalid search range. Defaulting to config value"
 invalid-storage-provider: "<prefix> A storage provider with the name %s does not exist. Please check your config and try again"
 storage-providers-not-enabled: "<prefix> Third party storage providers are not enabled in the config. If you meant to use one, please enable that setting and restart your server"

@@ -44,7 +44,7 @@ public class HoneypotPlayerManager {
 	 */
 	public void addPlayer(Player player, int blocksBroken) {
 		db.createHoneypotPlayer(player, blocksBroken);
-		logger.info(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()));
+		logger.debug(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()), true);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class HoneypotPlayerManager {
 	 */
 	public void setPlayerCount(Player player, int blocksBroken) {
 		db.setPlayerCount(player, blocksBroken);
-		logger.debug(Component.text("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken));
+		logger.debug(Component.text("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken), true);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class HoneypotPlayerManager {
 	 */
 	public void deleteAllHoneypotPlayers() {
 		db.deleteAllPlayers();
-		logger.debug(Component.text("Deleted all Honeypot players from DB"));
+		logger.debug(Component.text("Deleted all Honeypot players from DB"), false);
 	}
 
 }

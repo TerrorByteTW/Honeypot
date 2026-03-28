@@ -47,9 +47,6 @@ public class PlayerInteractEventListener implements Listener {
     private final ActionHandler actionHandler;
     private final AdapterManager adapterManager;
 
-    /**
-     * Create a private constructor to hide the implicit one
-     */
     @Inject
     PlayerInteractEventListener(BytePluginConfig config, HoneypotBlockManager blockManager,
                                 HoneypotLogger logger, ActionHandler actionHandler,
@@ -141,11 +138,11 @@ public class PlayerInteractEventListener implements Listener {
         String action = blockManager.getAction(block);
 
         if (action == null) {
-            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
             return;
         }
 
-        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
+        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
 
         actionHandler.handleCustomAction(action, block, player);
     }

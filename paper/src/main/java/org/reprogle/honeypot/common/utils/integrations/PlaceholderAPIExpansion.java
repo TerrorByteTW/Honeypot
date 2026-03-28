@@ -67,7 +67,7 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, @NotNull
     String params) {
-        logger.debug(Component.text("Param received was: " + params));
+        logger.debug(Component.text("Param received was: " + params), false);
         if (params.equalsIgnoreCase("current_count_broken")) {
             if (player == null)
                 return null;

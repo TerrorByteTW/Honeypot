@@ -8,11 +8,14 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.bytelib.db.migrate.MigrationStep;
 import org.reprogle.bytelib.db.migrate.UserVersionMigrator;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.ConvertToSpatialIndexing01;
+import org.reprogle.honeypot.common.storagemanager.sqlite.patches.MigratePdcToSqlite03;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.RemoveFKConstraint02;
 import org.reprogle.honeypot.common.storagemanager.sqlite.patches.UpdateHistoryTable00;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
@@ -33,7 +36,13 @@ public class HoneypotRepository extends StorageProvider {
     private final HoneypotPlayerRepository playerRepo;
 
     @Inject
-    public HoneypotRepository(HoneypotLogger logger, HoneypotBlockRepository blockRepo, HoneypotPlayerHistoryRepository playerHistoryRepo, HoneypotPlayerRepository playerRepo, SqliteDatabase db) {
+    public HoneypotRepository(JavaPlugin plugin,
+                              BytePluginConfig config,
+                              HoneypotLogger logger,
+                              HoneypotBlockRepository blockRepo,
+                              HoneypotPlayerHistoryRepository playerHistoryRepo,
+                              HoneypotPlayerRepository playerRepo,
+                              SqliteDatabase db) {
         this.blockRepo = blockRepo;
         this.playerHistoryRepo = playerHistoryRepo;
         this.playerRepo = playerRepo;
@@ -41,9 +50,10 @@ public class HoneypotRepository extends StorageProvider {
         logger.info(Component.text("Checking and applying any necessary migrations..."));
 
         UserVersionMigrator migrator = new UserVersionMigrator("honeypot_blocks", new ArrayList<>(List.of(
-                new MigrationStep(1, new UpdateHistoryTable00(logger)),
-                new MigrationStep(2, new ConvertToSpatialIndexing01(logger)),
-                new MigrationStep(3, new RemoveFKConstraint02(logger))
+            new MigrationStep(1, new UpdateHistoryTable00(logger)),
+            new MigrationStep(2, new ConvertToSpatialIndexing01(logger)),
+            new MigrationStep(3, new RemoveFKConstraint02(logger)),
+            new MigrationStep(4, new MigratePdcToSqlite03(plugin, config, logger, blockRepo))
         )));
         migrator.migrate(db);
 

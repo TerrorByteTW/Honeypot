@@ -49,7 +49,7 @@ public class HoneypotBlockManager {
     public void createBlock(Block block, String action) {
         Registry.getStorageProvider().createHoneypotBlock(block, action);
 
-        logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+        logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
     }
 
     /**
@@ -67,7 +67,7 @@ public class HoneypotBlockManager {
 
         Registry.getStorageProvider().removeHoneypotBlock(matched.get());
 
-        logger.debug(Component.text("Deleted Honeypot block with at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+        logger.debug(Component.text("Deleted Honeypot block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
     }
 
     /**
@@ -173,7 +173,7 @@ public class HoneypotBlockManager {
     public void deleteAllHoneypotBlocks(World world) {
         Registry.getStorageProvider().deleteAllHoneypotBlocks(world);
 
-        logger.debug(Component.text("Deleted all Honeypot blocks!"));
+        logger.debug(Component.text("Deleted all Honeypot blocks!"), false);
     }
 
     /**

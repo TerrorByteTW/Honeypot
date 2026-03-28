@@ -53,7 +53,7 @@ public class HoneypotPlayerHistoryManager {
 	public void addPlayerHistory(Player p, HoneypotBlockObject b, String type) {
 		db.addPlayerHistory(p, b, type);
 
-		logger.debug(Component.text("Added new history entry for player " + p.getName()));
+		logger.debug(Component.text("Added new history entry for player " + p.getName()), true);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class HoneypotPlayerHistoryManager {
 			db.deletePlayerHistory(p);
 		}
 
-		logger.debug(Component.text("Deleting player history for player " + p.getName()));
+		logger.debug(Component.text("Deleting player history for player " + p.getName()), true);
 	}
 
 	/**

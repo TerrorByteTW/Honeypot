@@ -59,8 +59,9 @@ public class HoneypotLogger {
      *
      * @param message The message to log
      */
-    public void debug(Component message) {
-        if (!config.config().getBoolean("enable-logging"))
+    public void debug(Component message, boolean noisy) {
+        // If logging is disabled OR the message is classified as a "noisy" message and Honeypot is configured to silence those, return
+        if (!config.config().getBoolean("enable-logging") || (noisy && config.config().getBoolean("silence-noisy-logs")))
             return;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");

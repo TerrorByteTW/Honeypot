@@ -39,9 +39,6 @@ public class PlayerJoinEventListener implements Listener {
     private final HoneypotLogger logger;
     private final JavaPlugin plugin;
 
-    /**
-     * Create a private constructor to hide the implicit one
-     */
     @Inject
     PlayerJoinEventListener(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotLogger logger) {
         this.plugin = plugin;

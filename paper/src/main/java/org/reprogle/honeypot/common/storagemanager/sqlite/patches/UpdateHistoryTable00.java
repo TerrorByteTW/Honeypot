@@ -32,8 +32,8 @@ public class UpdateHistoryTable00 implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) {
-        logger.debug(Component.text("Applying DB patch: UpdateHistoryTable00"));
+        logger.debug(Component.text("Applying DB patch: UpdateHistoryTable00"), false);
         tx.execute("ALTER TABLE honeypot_history ADD `type` VARCHAR NOT NULL default 'prelimBreak';");
-        logger.debug(Component.text("Applied patch: UpdateHistoryTable00"));
+        logger.debug(Component.text("Applied patch: UpdateHistoryTable00"), false);
     }
 }

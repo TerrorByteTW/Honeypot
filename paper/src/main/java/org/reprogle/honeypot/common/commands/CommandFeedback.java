@@ -71,16 +71,6 @@ public class CommandFeedback {
                 }
             }
 
-            case "migrate" -> {
-                if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = translator.tr("migrate.confirm");
-                } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = translator.tr("migrate.failed");
-                } else {
-                    feedbackMessage = translator.tr("migrate.preconfirm");
-                }
-            }
-
             case "deleted" -> {
                 if (success.length > 0 && success[0].equals(true)) {
                     feedbackMessage = translator.tr("deleted.all");

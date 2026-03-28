@@ -1,31 +1,5 @@
-######################################################################
-#                 D A T A B A S E   S E T T I N G S                  #
-######################################################################
-
 # File version (do NOT edit):
-file-version: 26
-
-# These settings control Honeypot's caching mechanism
-# If you don't know what these settings are, it's recommended to leave them as default.
-# The only setting you should really tweak is max-size, unless you really know what you're doing.
-# Changes to these values require a server restart. Open an issue on GitHub if you have questions.
-cache:
-  # How many Honeypots to store in the cache at any given time.
-  # Setting this to 0 or <= -2 will disable caching, which will decrease memory usage but heavily increase tick times.
-  # Setting this to -1 will disable the max size of the cache. This has the potential to increase memory usage dramatically but will provide the best performance.
-  max-size: 1000000
-  # How long objects in the cache are valid for, in seconds.
-  ttl: 30
-  # How long until a background refresh is allowed to be triggered on an object in the cache.
-  # If an object in the cache isn't past its TTL (Meaning it's still considered "valid"), after this amount of time, if the object is queried again, Honeypot will proactively refresh the record anyway
-  # Set to >= TTL to refresh at or after expiration (Higher risk of stale objects).
-  # Set to < TTL to proactively refresh in the background.
-  # Set to <= 0 to disable proactive refresh entirely.
-  refresh-after: 10
-  # Allows Honeypot to serve stale data from the cache while it's retrieving the most up-to-date information from the database.
-  # This can improve performance but may result in incorrect data being used in Honeypot calculations. However, this is exceedingly rare.
-  # It's recommended to leave this as true. Setting it as false will require a blocking DB query when an action occurs that requires it, but guarantees accurate data.
-  serve-stale-while-refreshing: true
+file-version: 27
 
 ######################################################################
 #                     P L U G I N   S E T T I N G S                  #
@@ -77,6 +51,10 @@ ghost-honeypot-checker:
 
 # Enable more detailed logging, stored in a honeypot.log file in the Honeypot folder
 enable-logging: true
+
+# Silences more noisy log messages, such as events from non-player triggered actions (Pistons, leaf decay, etc.) or log messages that occur frequently
+# This only applies to DEBUG log messages, INFO, WARNING, etc. messages are not affected
+silence-noisy-logs: false
 
 # Enable Discord Webhooks. This will send messages to Discord via your webhook URL if a Honeypot is broken and/or activated
 # Change "send-when" to "onbreak" when you want to be notified of all breaks (Including when action is taken).
@@ -139,17 +117,73 @@ respect-griefprevention: false
 #                       E X P E R I M E N T A L                      #
 ######################################################################
 
-# This is an experimental setting, testing PDC support for Honeypot. PDC is a Spigot API which allows for storing data directly in the NBT of certain objects
-# For now sqlite is the default method, but PDC hopefully will speed up the plugin by a ton.
-# To enable the experimental PDC support, change the value from "sqlite" to "pdc" (No quotes).
+# Allows you to change the storage provider from SQLite to a separate provider if one exists.
 # If you have a custom storage provider, set its name (The author of the provider should give this to you) here and enable third party providers.
 # Believe it or not, this *can* be changed on the fly with /honeypot reload! As long as the storage provider was registered on startup, you can switch between them at any time.
 storage-method: sqlite
 
 # This is an experimental setting that enables the ability for a third-party storage manager to be used with Honeypot. This is not recommended for most users.
-# Developers can create their own storage manager to store Honeypot data in if they don't like SQLite or PDC. This allows things like MySQL, H2, PostgreSQL, etc. to be added later on
+# Developers can create their own storage manager to store Honeypot data in if they don't like SQLite. This allows things like MySQL, H2, PostgreSQL, etc. to be added later on
 # If you are a developer and want to use this, please refer to the wiki. Defaults to false.
 allow-third-party-storage-managers: false
+
+######################################################################
+#                    S Q L I T E    S E T T I N G S                  #
+######################################################################
+
+# Honeypot is built on ByteLib and uses its SQLite module for data storage. All of these configuration options come from there.
+# For detailed information, please refer to the ByteLib documentation: https://terrorbytetw.github.io/ByteLib/configuring-sqlite-api.html
+# Only the settings listed here are configurable (Any extra settings listed in the documentation are hardcoded)
+
+# Changing these settings requires a server restart and could cause significant performance issues or data loss.
+# It's recommended to leave them as default unless you know what you're doing.
+# Honeypot does not validate these values. If any are invalid, you will experience unexpected errors.
+db:
+  # The SQLite journal mode to use. WAL is by far the most performant mode that ensures data integrity. However, you may change it
+  # to MEMORY if you're wanting to squeeze the most performance out of your server and accept the slight risk of data loss in the event of a crash.
+  # Options are DELETE, WAL (Default), TRUNCATE, PERSIST, MEMORY, and OFF.
+  journal-mode: "WAL"
+  # The amount of time that SQLite will wait to execute a query if a table is locked.
+  # Measured in milliseconds, defaults to 5000 (5 seconds)
+  busy-timeout: 5000
+  # The amount of time that Honeypot will wait for a query on the main thread to complete before timing out
+  # Measured in milliseconds, defaults to 50.
+  # Increase this if you're experiencing lots of errors in the console about timeouts, have a slow disk, or are using a shared host
+  main-thread-timeout: 50
+  # Whether to allow Honeypot to query using the main server thread or not. Options are DISALLOW, ALLOW, and WARN (Default)
+  # ALLOW will silently allow queries on the main thread, WARN will allow queries on the main thread but trigger slow query warnings. DISALLOW blocks main thread queries entirely and throws an exception
+  # NOTE: HONEYPOT CANNOT QUERY ASYNCHRONOUSLY. SETTING TO DISALLOW WILL BREAK HONEYPOT!!!!!!!!! NO SUPPORT WILL BE PROVIDED IF YOU DO THIS
+  main-thread-policy: "WARN"
+  # Determines what Honeypot will do if a query takes longer than the main-thread-timeout while the main-thread-policy is WARN
+  # Options are THROW (Default), FAIL_OPEN, and FAIL_CLOSED
+  # FAIL_CLOSED and THROW are (currently) the same thing
+  # FAIL_OPEN will cause queries to return nothing, but will not throw an exception. This will cause unexpected behavior.
+  timeout-policy: "THROW"
+  # If a query takes longer than this amount of time but is still faster than the timeout, Honeypot will log a simple warning message.
+  # Increase this if you're experiencing lots of warnings in the console about slow queries, have a slow disk, or are using a shared host
+  # Measured in milliseconds, defaults to 30
+  slow-query-threshold: 30
+
+cache:
+  # How many Honeypots to store in the cache at any given time.
+  # Setting this to 0 will disable caching, which will decrease memory usage but heavily increase tick times.
+  # Setting this to -1 will disable the max size of the cache. This has the potential to increase memory usage dramatically but will provide the best performance.
+  max-size: 1000000
+  # How long objects in the cache are valid for, in seconds.
+  # The cache is evaluated on each query, so objects may remain in the cache after they are no longer valid.
+  # If an object expires but another query is not performed, that object will remain indefinitely.
+  # This is unlikely as queries are performed constantly for a lot of things. However, it's still possible.
+  ttl: 30
+  # How long until a background refresh is allowed to be triggered on an object in the cache.
+  # If an object in the cache isn't past its TTL (Meaning it's still considered "valid"), after this amount of time, if the object is queried again, Honeypot will proactively refresh the record anyway
+  # Set to >= TTL to refresh at or after expiration (Higher risk of stale objects).
+  # Set to < TTL to proactively refresh in the background.
+  # Set to <= 0 to disable proactive refresh entirely.
+  refresh-after: 10
+  # Allows Honeypot to serve stale data from the cache while it's retrieving the most up-to-date information from the database.
+  # This can improve performance but may result in incorrect data being used in Honeypot calculations. However, this is exceedingly rare.
+  # It's recommended to leave this as true. Setting it as false will require a blocking DB query when an action occurs that requires it but guarantees accurate data.
+  serve-stale-while-refreshing: true
 
 ######################################################################
 #                           C R E D I T S                            #

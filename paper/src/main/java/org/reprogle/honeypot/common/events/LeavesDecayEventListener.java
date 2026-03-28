@@ -31,9 +31,6 @@ public class LeavesDecayEventListener implements Listener {
     private final HoneypotBlockManager honeypotBlockManager;
     private final HoneypotLogger logger;
 
-    /**
-     * Create package listener to hide implicit one
-     */
     @Inject
     LeavesDecayEventListener(HoneypotBlockManager honeypotBlockManager, HoneypotLogger logger) {
         this.honeypotBlockManager = honeypotBlockManager;
@@ -45,7 +42,7 @@ public class LeavesDecayEventListener implements Listener {
         Block block = event.getBlock();
 
         if (honeypotBlockManager.isHoneypotBlock(block)) {
-            logger.debug(Component.text("LeavesDecayEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.debug(Component.text("LeavesDecayEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
             event.setCancelled(true);
         }
     }

@@ -46,14 +46,32 @@ public final class Honeypot extends ByteLibPlugin {
         @Override
         public List<Module> modules(PluginMeta meta, Path dataDir, ComponentLogger logger) {
             return List.of(
-                    new HoneypotModule(dataDir),
-                    new CommandModule(),
-                    new SqliteModule("honeypot.db", cfg -> SqliteConfig.defaults().withCache(new SqliteConfig.CacheConfig(
-                            Duration.ofSeconds(cfg.config().getInt("cache.ttl", 30)),
-                            Duration.ofSeconds(cfg.config().getInt("cache.refresh-after", 10)),
-                            cfg.config().getBoolean("cache.serve-stale-while-refreshing", true),
-                            cfg.config().getInt("cache.max-size", Integer.MAX_VALUE)
-                    )))
+                new HoneypotModule(dataDir),
+                new CommandModule(),
+                new SqliteModule("honeypot.db", cfg -> new SqliteConfig(
+                    true,
+                    cfg.config().getString("db.journal-mode", "WAL"),
+                    "NORMAL",
+                    cfg.config().getInt("db.busy-timeout", 5000),
+                    Duration.ofMillis(cfg.config().getInt("db.main-thread-timeout", 50)),
+                    switch (cfg.config().getString("db.main-thread-policy", "WARN")) {
+                        case "ALLOW" -> SqliteConfig.MainThreadPolicy.ALLOW;
+                        case "DISALLOW" -> SqliteConfig.MainThreadPolicy.DISALLOW;
+                        default -> SqliteConfig.MainThreadPolicy.WARN;
+                    },
+                    switch (cfg.config().getString("db.timeout-policy", "THROW")) {
+                        case "FAIL_OPEN" -> SqliteConfig.TimeoutBehavior.FAIL_OPEN;
+                        case "FAIL_CLOSED" -> SqliteConfig.TimeoutBehavior.FAIL_CLOSED;
+                        default -> SqliteConfig.TimeoutBehavior.THROW;
+                    },
+                    Duration.ofMillis(cfg.config().getInt("db.slow-query-threshold", 30)),
+                    new SqliteConfig.CacheConfig(
+                        Duration.ofSeconds(cfg.config().getInt("cache.ttl", 30)),
+                        Duration.ofSeconds(cfg.config().getInt("cache.refresh-after", 10)),
+                        cfg.config().getBoolean("cache.serve-stale-while-refreshing", true),
+                        cfg.config().getInt("cache.max-size", Integer.MAX_VALUE)
+                    ))
+                )
             );
         }
     }

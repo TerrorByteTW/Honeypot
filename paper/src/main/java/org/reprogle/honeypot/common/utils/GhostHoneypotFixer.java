@@ -59,16 +59,16 @@ public class GhostHoneypotFixer {
      */
     public void startTask() {
         task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> {
-            logger.info(Component.text("Running ghost Honeypot checks..."));
+            logger.debug(Component.text("Running ghost Honeypot checks..."), true);
             int removedPots = 0;
             List<World> worlds = Bukkit.getWorlds();
 
-            // Because Honeypots can now be on a per-world level when using PDC, we need to
-            // iterate through all worlds.
-            // There is a better way to do this since, if we're using SQLite this isn't
-            // necessary, but this is just temporary
+            // Normally, with SQLite we could just query the entire table and loop through blocks. However, with
+            // legacy storage providers (And some custom ones), blocks *must* be allocated to a specific world.
+            // Eventually this will be better.
             // TODO: Make this loop better (10/26/24 No better permanent fix like a temporary solution.
             //  Git blame says I made this change on 2/20/2024, almost a year ago. I'll get around to it eventually) ^^^
+            //  3/28/2026 - Lol still haven't
             for (World world : worlds) {
                 List<HoneypotBlockObject> pots = blockManager.getAllHoneypots(world);
                 for (HoneypotBlockObject pot : pots) {
@@ -101,14 +101,14 @@ public class GhostHoneypotFixer {
                      * in some instances (Such as if a Honeypot was set as a torch)
                      */
                     if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
-                        logger.debug(Component.text("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld() + ". Removing"));
+                        logger.debug(Component.text("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld() + ". Removing"), true);
                         blockManager.deleteBlock(pot.getBlock());
                         removedPots++;
                     }
                 }
             }
 
-            logger.info(Component.text("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots."));
+            logger.debug(Component.text("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots."), true);
         }, 10L, 20L * 60 * config.config().getInt("ghost-honeypot-checker.check-interval"));
     }
 

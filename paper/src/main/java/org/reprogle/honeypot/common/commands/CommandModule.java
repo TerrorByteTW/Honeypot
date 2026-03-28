@@ -2,7 +2,6 @@ package org.reprogle.honeypot.common.commands;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.ProvidesIntoSet;
-import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -155,20 +154,6 @@ public final class CommandModule extends AbstractModule {
                         CommandDsl.argument("radius", IntegerArgumentType.integer(1))
                     )
                     .executes(HoneypotLocate.class, factory)
-            )
-            .then(
-                CommandDsl.literal("migrate")
-                    .requires(
-                        PermissionChecks.anyOf(
-                            PermissionChecks.permission("honeypot.migrate"),
-                            PermissionChecks.permission("honeypot.*"),
-                            PermissionChecks.isOp()
-                        )
-                    )
-                    .then(
-                        CommandDsl.argument("confirmation", BoolArgumentType.bool())
-                    )
-                    .executes(HoneypotMigrate.class, factory)
             )
             .then(
                 CommandDsl.literal("reload")

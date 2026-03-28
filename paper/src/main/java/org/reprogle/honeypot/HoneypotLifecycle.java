@@ -75,7 +75,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     }
 
     /**
-     * Enable method called by Bukkit. This is a little messy due to all the setup
+     * onEnable() method called by Paper. This is a little messy due to all the setup
      * it has to do
      */
     @lombok.SneakyThrows
@@ -92,7 +92,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         ghf.startTask();
 
         String storageMethod = config.config().getString("storage-method");
-        if (!storageMethod.equals("sqlite") && !storageMethod.equals("pdc") && !config.config().getBoolean("allow-third-party-storage-managers")) {
+        if (!storageMethod.equals("sqlite") && !config.config().getBoolean("allow-third-party-storage-managers")) {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. YOUR CONFIGURATION IS INVALID, CHECK IT BEFORE REPORTING TO THE DEVELOPER!"));
             throw new ConfigurationException(config.lang().getString("storage-providers-not-enabled"));
@@ -123,7 +123,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
 
         if (isFolia()) {
             logger.warning(
-                    Component.text("Welcome to Folia!!!! It is assumed you know what you're doing, since Folia is not yet standard. While Honeypot can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
+                    Component.text("Welcome to Folia! It is assumed you know what you're doing, since Folia is not yet standard. While Honeypot can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
         }
 
         // Check the supported MC versions against the MC versions supported by this version of Honeypot

@@ -46,9 +46,6 @@ public class EntityExplodeEventListener implements Listener {
 	private final HoneypotPlayerHistoryManager playerHistoryManager;
 	private final AdapterManager adapterManager;
 
-	/**
-	 * Create package constructor to hide implicit one
-	 */
 	@Inject
 	EntityExplodeEventListener(HoneypotLogger logger, BytePluginConfig config, HoneypotBlockManager blockManager,
 							   HoneypotPlayerHistoryManager playerHistoryManager, AdapterManager adapterManager) {
@@ -69,6 +66,7 @@ public class EntityExplodeEventListener implements Listener {
 		Entity e = event.getEntity();
 		Entity source = null;
 
+		// If a block of TNT was used to destroy the Honeypot, get its igniter. This is to allow us to track if a Player lit it
 		if (e instanceof TNTPrimed tnt) {
 			source = tnt.getSource();
 		}
@@ -78,7 +76,7 @@ public class EntityExplodeEventListener implements Listener {
 		// If so, just delete the Honeypot. If not, cancel the explosion
 		for (Block block : destroyedBlocks) {
 			if (blockManager.isHoneypotBlock(block)) {
-				logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+				logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
 
 				if (source instanceof Player) {
 					// If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
@@ -88,7 +86,7 @@ public class EntityExplodeEventListener implements Listener {
 
 					playerHistoryManager.addPlayerHistory((Player) source,
 							blockManager.getHoneypotBlock(block), "break");
-					logger.debug(Component.text("EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: " + source.getName()));
+					logger.debug(Component.text("EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: " + source.getName()), false);
 
 					// Call a BlockBreakEvent for that player, as they attempted to break the block
 					// in the first place.
