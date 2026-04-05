@@ -34,6 +34,7 @@ repositories {
 
 dependencies {
     compileOnly(libs.paper.api)
+    compileOnly(libs.boosted.yaml)
 //    compileOnly(libs.folia.api)
 }
 

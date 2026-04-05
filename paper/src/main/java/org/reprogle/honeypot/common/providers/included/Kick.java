@@ -17,7 +17,8 @@
 package org.reprogle.honeypot.common.providers.included;
 
 import com.google.inject.Inject;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import dev.dejvokep.boostedyaml.YamlDocument;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -26,6 +27,8 @@ import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
+import javax.annotation.Nullable;
+
 @Behavior(type = BehaviorType.KICK, name = "kick", icon = Material.LEATHER_BOOTS)
 public class Kick extends BehaviorProvider {
 
@@ -33,7 +36,13 @@ public class Kick extends BehaviorProvider {
     CommandFeedback commandFeedback;
 
     @Override
-    public boolean process(Player p, Block block) {
+    public boolean process(Player p, Block block, @Nullable YamlDocument config) {
+        if (config != null && config.getBoolean("use-custom-kick-command", false)) {
+            String command = config.getString("kick-command", "/kick %player%");
+            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
+                command.replace("%player%", p.getName()));
+            return true;
+        }
         p.kick(commandFeedback.sendCommandFeedback("kick-reason"));
 
         return true;

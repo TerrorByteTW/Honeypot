@@ -1,9 +1,12 @@
 # File version (do NOT edit):
-file-version: 27
+file-version: 28
 
 ######################################################################
 #                     P L U G I N   S E T T I N G S                  #
 ######################################################################
+
+#Testing haha lol
+testing-parameter: true
 
 # This setting enables whether some potentially unnecessary events are enabled.
 # Leaving these off won't reduce the functionality of Honeypot, but if enabled can trigger events to process without player interaction

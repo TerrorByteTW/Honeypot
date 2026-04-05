@@ -1,0 +1,9 @@
+# Configuration for Honeypot's 'ban' Behavior
+# Tells Honeypot to use the custom ban command below
+# If false, Honeypot will use the native Minecraft banlist
+use-custom-ban-command: false
+
+# The custom ban command to use.
+# Use %player% as a placeholder for the player to ban
+# Does NOT support PlaceholderAPI (yet)
+ban-command: "/ban %player%"

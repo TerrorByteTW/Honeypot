@@ -17,19 +17,23 @@
 package org.reprogle.honeypot.common.providers.included;
 
 import com.google.inject.Inject;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reprogle.honeypot.Honeypot;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
 import net.kyori.adventure.text.Component;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Behavior(type = BehaviorType.NOTIFY, name = "notify", icon = Material.BEACON)
 public class Notify extends BehaviorProvider {
@@ -41,26 +45,36 @@ public class Notify extends BehaviorProvider {
     JavaPlugin plugin;
 
     @Override
-    public boolean process(Player p, Block block) {
+    public boolean process(Player p, Block block, @Nullable YamlDocument config) {
 
         Component chatPrefix = commandFeedback.getChatPrefix();
 
+        List<String> permissions = new ArrayList<>(List.of("honeypot.notify", "honeypot.*"));
+        if (config != null && config.getBoolean("use-additional-permissions", false)) {
+            permissions.addAll(config.getStringList("additional-permissions"));
+        }
+
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasPermission("honeypot.notify") || player.hasPermission("honeypot.*")
-                    || player.isOp()) {
-                player.sendMessage(chatPrefix.append(Component.text(p.getName(), NamedTextColor.RED))
-                        .append(Component.text(" was caught breaking a Honeypot block at x=" + block.getX()))
-                        .append(Component.text(", y=" + block.getY()))
-                        .append(Component.text(", z=" + block.getZ()))
-                        .append(Component.text(" in world " + block.getWorld().getName()))
+            if (isPermissible(player, permissions)) {
+                player.sendMessage(chatPrefix.append(Component.text(" ", NamedTextColor.WHITE))
+                    .append(Component.text(p.getName(), NamedTextColor.RED))
+                    .append(Component.text(" was caught breaking a Honeypot block at x=" + block.getX()))
+                    .append(Component.text(", y=" + block.getY()))
+                    .append(Component.text(", z=" + block.getZ()))
+                    .append(Component.text(" in world " + block.getWorld().getName()))
                 );
             }
         }
 
-        plugin.getServer().getConsoleSender().sendMessage(chatPrefix.append(Component.text(p.getName(), NamedTextColor.RED))
-                .append(Component.text(" was caught breaking a Honeypot block"))
+        plugin.getServer().getConsoleSender().sendMessage(chatPrefix.append(Component.text(" ", NamedTextColor.WHITE))
+            .append(Component.text(p.getName(), NamedTextColor.RED))
+            .append(Component.text(" was caught breaking a Honeypot block"))
         );
 
         return true;
+    }
+
+    private boolean isPermissible(Player player, List<String> permissions) {
+        return player.isOp() || permissions.stream().anyMatch(player::hasPermission);
     }
 }

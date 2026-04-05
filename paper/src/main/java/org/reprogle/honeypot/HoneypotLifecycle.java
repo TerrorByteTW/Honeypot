@@ -18,6 +18,9 @@ import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import javax.naming.ConfigurationException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Set;
 
 public class HoneypotLifecycle implements PluginLifecycle {
@@ -36,16 +39,16 @@ public class HoneypotLifecycle implements PluginLifecycle {
 
     @Inject
     public HoneypotLifecycle(
-            JavaPlugin plugin,
-            AdapterManager adapterManager,
-            Listeners listeners,
-            HoneypotLogger logger,
-            GhostHoneypotFixer ghf,
-            CommandFeedback commandFeedback,
-            Set<BehaviorProvider> behaviorProviders,
-            Set<StorageProvider> storageProviders,
-            BytePluginConfig config,
-            HoneypotSupportedVersions supportedVersions
+        JavaPlugin plugin,
+        AdapterManager adapterManager,
+        Listeners listeners,
+        HoneypotLogger logger,
+        GhostHoneypotFixer ghf,
+        CommandFeedback commandFeedback,
+        Set<BehaviorProvider> behaviorProviders,
+        Set<StorageProvider> storageProviders,
+        BytePluginConfig config,
+        HoneypotSupportedVersions supportedVersions
     ) {
         this.plugin = plugin;
         this.adapterManager = adapterManager;
@@ -65,7 +68,26 @@ public class HoneypotLifecycle implements PluginLifecycle {
         // Register adapters which must be registered on load
         adapterManager.onLoadAdapters(plugin.getServer());
 
+        try {
+            Path dir = plugin.getDataFolder().toPath().resolve("behaviors");
+            if (Files.notExists(dir)) Files.createDirectories(dir);
+        } catch (IOException e) {
+            logger.severe(Component.text("Could not create the behaviors folder! Honeypot will function without it, but custom behaviors may not load properly."));
+        }
+
         for (BehaviorProvider behavior : behaviorProviders) {
+            config.register(
+                behavior.getProviderName(),
+                // By providing our own YamlSpec instead of using `of()` or `externalOnly()`, we can mark it as an internal YAML file without it being required
+                // This allows us to write our own behavior provider configs to disk without requiring 3rd party ones to exist
+                new BoostedYamlPluginConfig.YamlSpec(
+                    plugin.getDataFolder().toPath().resolve("behaviors/" + behavior.getProviderName() + ".yml"),
+                    "behaviors/" + behavior.getProviderName() + ".yml",
+                    null,
+                    false,
+                    false
+                ));
+
             Registry.getBehaviorRegistry().register(behavior);
         }
 
@@ -82,7 +104,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     @Override
     public void onEnable() {
 
-        config.register("honeypots", BoostedYamlPluginConfig.YamlSpec.of(plugin.getDataFolder().toPath().resolve("honeypots.yml"), "honeypots.yml"));
+        config.register("honeypots", BoostedYamlPluginConfig.YamlSpec.of(plugin.getDataFolder().toPath().resolve("honeypots.yml"), "honeypots.yml", null, false));
         config.register("gui", BoostedYamlPluginConfig.YamlSpec.of(plugin.getDataFolder().toPath().resolve("gui.yml"), "gui.yml", "file-version"));
         config.reload();
 
@@ -107,10 +129,10 @@ public class HoneypotLifecycle implements PluginLifecycle {
         }
 
         logger.info(Component.text("Successfully registered " + Registry.getBehaviorRegistry().size()
-                + " behavior providers. Further registrations are now locked."));
+            + " behavior providers. Further registrations are now locked."));
 
         logger.info(Component.text(Registry.getStorageManagerRegistry().size()
-                + " storage providers have been registered, the one Honeypot is configured to use is: " + Registry.getStorageProvider().getProviderName() + ". Further registrations are now locked, but the provider can be changed at any time by doing /honeypot reload."));
+            + " storage providers have been registered, the one Honeypot is configured to use is: " + Registry.getStorageProvider().getProviderName() + ". Further registrations are now locked, but the provider can be changed at any time by doing /honeypot reload."));
 
         // Start bstats and register event listeners
         new Metrics(plugin, 15425);
@@ -123,7 +145,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
 
         if (isFolia()) {
             logger.warning(
-                    Component.text("Welcome to Folia! It is assumed you know what you're doing, since Folia is not yet standard. While Honeypot can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
+                Component.text("Welcome to Folia! It is assumed you know what you're doing, since Folia is not yet standard. While Honeypot can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
         }
 
         // Check the supported MC versions against the MC versions supported by this version of Honeypot
@@ -132,15 +154,15 @@ public class HoneypotLifecycle implements PluginLifecycle {
 
         // Check for any updates
         new HoneypotUpdateChecker(plugin, "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt")
-                .getVersion(latest -> {
-                    if (Integer.parseInt(latest.replace(".", "")) > Integer
-                            .parseInt(plugin.getPluginMeta().getVersion().replace(".", ""))) {
-                        plugin.getServer().getConsoleSender()
-                                .sendMessage(commandFeedback.getChatPrefix().append(Component.text("There is a new update available: " + latest + ". Download for the latest features and performance improvements!", NamedTextColor.RED)));
-                    } else {
-                        plugin.getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text("You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
-                    }
-                }, logger);
+            .getVersion(latest -> {
+                if (Integer.parseInt(latest.replace(".", "")) > Integer
+                    .parseInt(plugin.getPluginMeta().getVersion().replace(".", ""))) {
+                    plugin.getServer().getConsoleSender()
+                        .sendMessage(commandFeedback.getChatPrefix().append(Component.text("There is a new update available: " + latest + ". Download for the latest features and performance improvements!", NamedTextColor.RED)));
+                } else {
+                    plugin.getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text("You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
+                }
+            }, logger);
     }
 
     /**

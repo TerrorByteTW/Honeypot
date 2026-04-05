@@ -20,7 +20,7 @@ bstats = "3.1.0"
 guice = '7.0.0'
 okhttp = '4.12.0'
 
-bytelib = '81c727bf17'
+bytelib = 'f05e2c2344'
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

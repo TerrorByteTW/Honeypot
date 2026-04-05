@@ -62,7 +62,7 @@ public class ActionHandler {
 
         // Behavior providers take higher precedence over custom config actions.
         if (Registry.getBehaviorRegistry().getBehaviorProvider(action) != null) {
-            BehaviorProcessor.process(Registry.getBehaviorRegistry().getBehaviorProvider(action), player, block);
+            BehaviorProcessor.process(Registry.getBehaviorRegistry().getBehaviorProvider(action), player, block, config.yaml(action));
             return;
         }
 
