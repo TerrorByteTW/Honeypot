@@ -76,20 +76,6 @@ public class HoneypotLifecycle implements PluginLifecycle {
         }
 
         for (BehaviorProvider behavior : behaviorProviders) {
-            // Register a behavior's config if it's configurable or not
-            if (behavior.isConfigurable())
-                config.register(
-                    behavior.getProviderName(),
-                    // By providing our own YamlSpec instead of using `of()` or `externalOnly()`, we can mark it as an internal YAML file without it being required
-                    // This allows us to write our own behavior provider configs to disk without requiring 3rd party ones to exist
-                    new BoostedYamlPluginConfig.YamlSpec(
-                        plugin.getDataFolder().toPath().resolve("behaviors/" + behavior.getProviderName() + ".yml"),
-                        "behaviors/" + behavior.getProviderName() + ".yml",
-                        null,
-                        false,
-                        false
-                    ));
-
             Registry.getBehaviorRegistry().register(behavior);
         }
 
@@ -108,6 +94,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
 
         config.register("honeypots", BoostedYamlPluginConfig.YamlSpec.of(plugin.getDataFolder().toPath().resolve("honeypots.yml"), "honeypots.yml", null, false));
         config.register("gui", BoostedYamlPluginConfig.YamlSpec.of(plugin.getDataFolder().toPath().resolve("gui.yml"), "gui.yml", "file-version"));
+        registerBehaviorConfigs();
         config.reload();
 
         // Lock the registries and start the Ghost Honeypot Fixer task
@@ -185,5 +172,25 @@ public class HoneypotLifecycle implements PluginLifecycle {
 
     private boolean isFolia() {
         return Bukkit.getServer().getName().startsWith("Folia");
+    }
+
+    private void registerBehaviorConfigs() {
+        for (BehaviorProvider behavior : Registry.getBehaviorRegistry().getBehaviorProviders().values()) {
+            if (!behavior.isConfigurable()) {
+                continue;
+            }
+
+            config.register(
+                behavior.getProviderName(),
+                // By providing our own YamlSpec instead of using `of()` or `externalOnly()`, we can mark it as an internal YAML file without it being required
+                // This allows us to write our own behavior provider configs to disk without requiring 3rd party ones to exist
+                new BoostedYamlPluginConfig.YamlSpec(
+                    plugin.getDataFolder().toPath().resolve("behaviors/" + behavior.getProviderName() + ".yml"),
+                    "behaviors/" + behavior.getProviderName() + ".yml",
+                    null,
+                    false,
+                    false
+                ));
+        }
     }
 }
