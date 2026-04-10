@@ -38,7 +38,7 @@ import java.awt.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Behavior(type = BehaviorType.WARN, name = "warn", icon = Material.STONE_AXE)
+@Behavior(type = BehaviorType.WARN, name = "warn", icon = Material.STONE_AXE, configurable = true)
 public class Warn extends BehaviorProvider {
 
     @Inject

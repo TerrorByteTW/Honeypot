@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 public final class CommandModule extends AbstractModule {
 
@@ -58,7 +59,9 @@ public final class CommandModule extends AbstractModule {
                                         Set<Object> keys = config.require("honeypots").getKeys();
                                         keys.forEach(key -> suggestions.add(Suggest.suggestion(key.toString())));
 
-                                        return suggestions;
+                                        return suggestions.stream()
+                                            .filter(s -> s.value().startsWith(remaining) || s.value().equalsIgnoreCase(remaining))
+                                            .collect(Collectors.toList());
                                     }
                                 )
                             )
@@ -109,7 +112,7 @@ public final class CommandModule extends AbstractModule {
                                             (ctx, remaining) ->
                                                 Bukkit.getOnlinePlayers()
                                                     .stream()
-                                                    .filter(player -> player.getName().startsWith(remaining))
+                                                    .filter(player -> player.getName().startsWith(remaining) || player.getName().equalsIgnoreCase(remaining))
                                                     .map(player -> Suggest.suggestion(player.getName()))
                                                     .toList()
                                         )

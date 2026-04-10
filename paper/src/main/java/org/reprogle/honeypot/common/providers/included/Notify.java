@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Behavior(type = BehaviorType.NOTIFY, name = "notify", icon = Material.BEACON)
+@Behavior(type = BehaviorType.NOTIFY, name = "notify", icon = Material.BEACON, configurable = true)
 public class Notify extends BehaviorProvider {
 
     @Inject

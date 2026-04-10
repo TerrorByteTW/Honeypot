@@ -76,17 +76,19 @@ public class HoneypotLifecycle implements PluginLifecycle {
         }
 
         for (BehaviorProvider behavior : behaviorProviders) {
-            config.register(
-                behavior.getProviderName(),
-                // By providing our own YamlSpec instead of using `of()` or `externalOnly()`, we can mark it as an internal YAML file without it being required
-                // This allows us to write our own behavior provider configs to disk without requiring 3rd party ones to exist
-                new BoostedYamlPluginConfig.YamlSpec(
-                    plugin.getDataFolder().toPath().resolve("behaviors/" + behavior.getProviderName() + ".yml"),
-                    "behaviors/" + behavior.getProviderName() + ".yml",
-                    null,
-                    false,
-                    false
-                ));
+            // Register a behavior's config if it's configurable or not
+            if (behavior.isConfigurable())
+                config.register(
+                    behavior.getProviderName(),
+                    // By providing our own YamlSpec instead of using `of()` or `externalOnly()`, we can mark it as an internal YAML file without it being required
+                    // This allows us to write our own behavior provider configs to disk without requiring 3rd party ones to exist
+                    new BoostedYamlPluginConfig.YamlSpec(
+                        plugin.getDataFolder().toPath().resolve("behaviors/" + behavior.getProviderName() + ".yml"),
+                        "behaviors/" + behavior.getProviderName() + ".yml",
+                        null,
+                        false,
+                        false
+                    ));
 
             Registry.getBehaviorRegistry().register(behavior);
         }
@@ -114,14 +116,13 @@ public class HoneypotLifecycle implements PluginLifecycle {
         ghf.startTask();
 
         String storageMethod = config.config().getString("storage-method");
-        if (!storageMethod.equals("sqlite") && !config.config().getBoolean("allow-third-party-storage-managers")) {
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
-            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. YOUR CONFIGURATION IS INVALID, CHECK IT BEFORE REPORTING TO THE DEVELOPER!"));
-            throw new ConfigurationException(config.lang().getString("storage-providers-not-enabled"));
-        }
 
-        if (Registry.getStorageManagerRegistry().getStorageProvider(storageMethod) != null) {
-            Registry.setStorageProvider(Registry.getStorageManagerRegistry().getStorageProvider(storageMethod));
+        if (Registry.getStorageManagerRegistry().getStorageProvider(storageMethod) != null || storageMethod.equalsIgnoreCase("pdc")) {
+            // Temporary workaround for PDC migration process, will be removed in the future
+            if (storageMethod.equalsIgnoreCase("pdc"))
+                Registry.setStorageProvider(Registry.getStorageManagerRegistry().getStorageProvider("sqlite"));
+            else
+                Registry.setStorageProvider(Registry.getStorageManagerRegistry().getStorageProvider(storageMethod));
         } else {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. THE STORAGE PROVIDER IS NOT CORRECTLY DEFINED, CHECK WITH THE DEVELOPER OF THE PROVIDER!"));

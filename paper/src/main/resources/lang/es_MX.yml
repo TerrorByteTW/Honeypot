@@ -1,4 +1,4 @@
-language-version: 9
+language-version: 10
 prefix: '<gold>[Honeypot]<reset>'
 kick-reason: "<prefix> Pateado por romper bloques de honeypot. ¡No te apenes!"
 ban-reason: "<prefix> Has sido baneado por romper bloques de honeypot"
@@ -31,5 +31,4 @@ truncating: "<prefix> Recorte de resultados por ajustes de configuración..."
 not-online: "<prefix> <red>Este jugador no está en línea!</red>"
 no-history: "<prefix> No se ha encontrado historia para este jugador!"
 invalid-storage-provider: "<prefix> A storage provider with the name %s does not exist. Please check your config and try again"
-storage-providers-not-enabled: "<prefix> Third party storage providers are not enabled in the config. If you meant to use one, please enable that setting and restart your server"
 invalid-radius: "<prefix> Invalid search range. Defaulting to config value"

@@ -56,13 +56,10 @@ public class HoneypotReload implements CommandCallback {
         if (!Registry.getStorageProvider().getProviderName().equalsIgnoreCase(providerName)) {
             StorageProvider provider = Registry.getStorageManagerRegistry().getStorageProvider(providerName);
             if (provider != null) {
-                if (!config.config().getBoolean("allow-third-party-storage-providers")) {
-                    logger.severe(Component.text("The storage method was updated to a custom provider, but the server is not configured to allow third-party storage providers! On your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
-                }
                 Registry.setStorageProvider(provider);
                 logger.info(Component.text("The storage provider was updated to \"" + providerName + "\""));
             } else {
-                logger.severe(Component.text("The storage provider was updated to \"" + providerName + "\" but it is not registered! On your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
+                logger.severe(Component.text("The storage provider was updated to \"" + providerName + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
             }
         }
 

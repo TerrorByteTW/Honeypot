@@ -32,7 +32,7 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 
 import java.util.Date;
 
-@Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER)
+@Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER, configurable = true)
 public class Ban extends BehaviorProvider {
 
     @Inject

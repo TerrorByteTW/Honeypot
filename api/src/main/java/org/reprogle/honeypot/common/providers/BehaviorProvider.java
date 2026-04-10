@@ -28,13 +28,14 @@ public abstract class BehaviorProvider {
 
 	protected final String providerName;
 	protected final BehaviorType behaviorType;
-
 	protected final Material icon;
+	protected final boolean configurable;
 
 	protected BehaviorProvider() {
 		this.providerName = getClass().getAnnotation(Behavior.class).name();
 		this.behaviorType = getClass().getAnnotation(Behavior.class).type();
 		this.icon = getClass().getAnnotation(Behavior.class).icon();
+		this.configurable = getClass().getAnnotation(Behavior.class).configurable();
 	}
 
 	/**
@@ -62,6 +63,14 @@ public abstract class BehaviorProvider {
 	 */
 	public Material getIcon() {
 		return icon;
+	}
+
+	/**
+	 * Returns whether this behavior provider is configurable
+	 * @return True if configurable, false if not
+	 */
+	public boolean isConfigurable() {
+		return configurable;
 	}
 
 	/**

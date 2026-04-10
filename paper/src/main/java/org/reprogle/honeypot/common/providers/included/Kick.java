@@ -29,7 +29,7 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 
 import javax.annotation.Nullable;
 
-@Behavior(type = BehaviorType.KICK, name = "kick", icon = Material.LEATHER_BOOTS)
+@Behavior(type = BehaviorType.KICK, name = "kick", icon = Material.LEATHER_BOOTS, configurable = true)
 public class Kick extends BehaviorProvider {
 
     @Inject

@@ -32,7 +32,7 @@ public @interface Behavior {
 
 	/**
 	 * The type of the BehaviorProvider. This is currently a formality and does not have any bearing on the provider functionality.
-	 * Please define it correctly however, as this may receive added functionality in the future
+	 * Please define it correctly, however, as this may receive added functionality in the future
 	 *
 	 * @return The type of the {@link BehaviorProvider}
 	 */
@@ -51,4 +51,10 @@ public @interface Behavior {
 	 * @return The {@link org.bukkit.Material} to display
 	 */
 	Material icon();
+
+	/**
+	 * Determines if the provider should be configurable or not. If true, a configuration file will be generated for the provider.
+	 * @return True if the provider should be configurable, false otherwise
+	 */
+	boolean configurable();
 }
