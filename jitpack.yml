@@ -1,5 +1,4 @@
-before_install:
- - sdk install java 25.0.2-jbr
- - sdk use java 25.0.2-jbr
+jdk:
+ - openjdk25
 install:
  - ./gradlew clean build publishToMavenLocal
