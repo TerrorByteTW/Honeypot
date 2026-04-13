@@ -1,0 +1,20 @@
+# Configures Honeypot's `warn` behavior to send messages with rainbow coloring. This is just a silly example of configuration,
+# as the warn option has no real reason to be configurable.
+rainbowify: false
+
+# Uses a random message from the predefined list below instead of the translation file
+use-random-messages: false
+
+# A list of random messages that may be sent to the player when warned
+# Supports all native MiniMessage formatting tags, as well as the <prefix> placeholder, standard in language files
+messages:
+  - "<prefix> Can you, like...<italic>not</italic>?"
+  - "<prefix> This block has a family!"
+  - "<prefix> Bold of you to assume that's allowed"
+  - "<prefix> That wasn't very cash money of you"
+  - "<prefix> Ah yes, chaos. Your specialty."
+  - "<prefix> Interesting strategy. Completely illegal, but interesting."
+  - "<prefix> That's one way to get noticed..."
+  - "<prefix> We love the enthusiasm. Not the execution."
+  - "<prefix> A villager somewhere just gasped."
+  - "<prefix> The consequences of that will be...mildly inconvenient."

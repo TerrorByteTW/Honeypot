@@ -25,10 +25,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class BlockBurnEventListener implements Listener {
+public class BlockBurnEventListener implements Listener, IHoneypotEvent {
 
 	
 	private final HoneypotLogger logger;
@@ -45,7 +45,7 @@ public class BlockBurnEventListener implements Listener {
 		Block block = event.getBlock();
 
 		if (blockManager.isHoneypotBlock(block)) {
-			logger.debug(Component.text("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+			logger.debug(Component.text("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
 			event.setCancelled(true);
 
 			Block[] adjacentBlocks = new Block[] {

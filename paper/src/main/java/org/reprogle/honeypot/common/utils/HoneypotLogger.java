@@ -20,7 +20,8 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,18 +32,18 @@ import java.time.format.DateTimeFormatter;
 
 public class HoneypotLogger {
 
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final File logFile;
-    private final Honeypot plugin;
+    private final JavaPlugin plugin;
 
     /**
      * Initialize the Honeypot logger and create it if it doesn't exist
      */
     @Inject
-    public HoneypotLogger(@Named("HoneypotLogFile") File logFile, Honeypot plugin, HoneypotConfigManager configManager) {
+    public HoneypotLogger(@Named("HoneypotLogFile") File logFile, JavaPlugin plugin, BytePluginConfig config) {
         this.logFile = logFile;
         this.plugin = plugin;
-        this.configManager = configManager;
+        this.config = config;
 
         try {
             if (logFile.createNewFile()) {
@@ -58,8 +59,9 @@ public class HoneypotLogger {
      *
      * @param message The message to log
      */
-    public void debug(Component message) {
-        if (!configManager.getPluginConfig().getBoolean("enable-logging"))
+    public void debug(Component message, boolean noisy) {
+        // If logging is disabled OR the message is classified as a "noisy" message and Honeypot is configured to silence those, return
+        if (!config.config().getBoolean("enable-logging") || (noisy && config.config().getBoolean("silence-noisy-logs")))
             return;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -78,7 +80,7 @@ public class HoneypotLogger {
      */
     public void info(Component message) {
         plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(message));
-        if (!configManager.getPluginConfig().getBoolean("enable-logging"))
+        if (!config.config().getBoolean("enable-logging"))
             return;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -97,7 +99,7 @@ public class HoneypotLogger {
      */
     public void warning(Component message) {
         plugin.getLogger().warning(PlainTextComponentSerializer.plainText().serialize(message));
-        if (!configManager.getPluginConfig().getBoolean("enable-logging"))
+        if (!config.config().getBoolean("enable-logging"))
             return;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -116,7 +118,7 @@ public class HoneypotLogger {
      */
     public void severe(Component message) {
         plugin.getLogger().severe(PlainTextComponentSerializer.plainText().serialize(message));
-        if (!configManager.getPluginConfig().getBoolean("enable-logging"))
+        if (!config.config().getBoolean("enable-logging"))
             return;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");

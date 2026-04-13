@@ -16,105 +16,79 @@
 
 package org.reprogle.honeypot.common.events;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
-import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class Listeners {
 
-    private final Honeypot plugin;
-    private final HoneypotConfigManager configManager;
+    private final JavaPlugin plugin;
+    private final BytePluginConfig config;
     private final HoneypotLogger logger;
-
-    // Yay, DI!! Each event uses DI itself, and since Guice can't inject dependencies if we manually `new` it, we have to inject every single event here as well
-    // I'm new to Guice, so if there's a better way, *please* let me know!
-    // I'm thinking of using Guice's `MultiBinder` but I'm not quite sure if that's the best way to do it
-    @Inject
-    BlockBreakEventListener blockBreakEventListener;
-    @Inject
-    BlockBurnEventListener blockBurnEventListener;
-    @Inject
-    EntityChangeBlockEventListener entityChangeBlockEventListener;
-    @Inject
-    EntityExplodeEventListener entityExplodeEventListener;
-    @Inject
-    PistonExtendRetractListener pistonExtendRetractListener;
-    @Inject
-    InventoryMoveItemEventListener inventoryMoveItemEventListener;
-    @Inject
-    StructureGrowEventListener structureGrowEventListener;
-    @Inject
-    PlayerJoinEventListener playerJoinEventListener;
-
-    @Inject
-    BlockFormEventListener blockFormEventListener;
-    @Inject
-    LeavesDecayEventListener leavesDecayEventListener;
-    @Inject
-    SignChangeEventListener signChangeEventListener;
-    @Inject
-    BlockFromToEventListener blockFromToEventListener;
-
-    @Inject
-    InventoryClickDragEventListener inventoryClickDragEventListener;
-    @Inject
-    PlayerInteractEventListener playerInteractEventListener;
+    private final Set<IHoneypotEvent> events;
 
     /**
      * Create the listener configurator
      */
     @Inject
-    Listeners(Honeypot plugin, HoneypotConfigManager configManager, HoneypotLogger logger) {
+    Listeners(JavaPlugin plugin, BytePluginConfig config, HoneypotLogger logger, Set<IHoneypotEvent> events) {
         this.plugin = plugin;
-        this.configManager = configManager;
+        this.config = config;
         this.logger = logger;
+        this.events = events;
     }
 
     /**
-     * Set's up all the listeners in the entire plugin
+     * Set up all the listeners in the entire plugin
      */
     public void setupListeners() {
-
-        // All primary listeners go here
-        final List<Listener> primaryListeners = new ArrayList<>(List.of(blockBreakEventListener,
-                blockBurnEventListener, entityChangeBlockEventListener,
-                entityExplodeEventListener, pistonExtendRetractListener,
-                inventoryMoveItemEventListener, structureGrowEventListener,
-                playerJoinEventListener));
-
-        // All secondary listeners here
-        final List<Listener> secondaryListeners = new ArrayList<>(
-                List.of(blockFormEventListener, leavesDecayEventListener, signChangeEventListener,
-                        blockFromToEventListener));
-
-        // Initial registration of events
         PluginManager manager = plugin.getServer().getPluginManager();
-        primaryListeners.forEach(event -> manager.registerEvents(event, plugin));
+        var cfg = config.config();
 
-        // Register the proper events for container actions and their processors
-        if (configManager.getPluginConfig().getBoolean("container-actions.enable-container-actions")) {
-            if (configManager.getPluginConfig().getBoolean("container-actions.use-inventory-click")) {
-                logger.info(Component.text("Using inventory click for containers"));
-                manager.registerEvents(inventoryClickDragEventListener, plugin);
-            } else {
-                logger.info(Component.text("Using player interact for containers"));
-                manager.registerEvents(playerInteractEventListener, plugin);
+        boolean enableExtraEvents = cfg.getBoolean("enable-extra-events");
+        boolean enableContainerActions = cfg.getBoolean("container-actions.enable-container-actions");
+        boolean useInventoryClick = cfg.getBoolean("container-actions.use-inventory-click");
+
+        events.forEach(event -> {
+            if (!(event instanceof Listener listener)) {
+                return;
             }
-        }
 
-        // Register extra unnecessary events
-        if (configManager.getPluginConfig().getBoolean("enable-extra-events")) {
-            logger.info(Component.text(
-                    "Extra events have been enabled. Some of the events can be noisy, and may cause additional lag on low-performance hardware, such as budget server hosts. If you experience lag, disable these events, Honeypot can still function without them!"));
-            secondaryListeners.forEach(event -> manager.registerEvents(event, plugin));
-        }
+            if (event.isOptional() && !enableExtraEvents) {
+                logger.debug(Component.text(
+                    "Skipping registration of optional event: " + event.getClass().getSimpleName()), true);
+                return;
+            }
+
+            if (event.isOptional()) {
+                logger.debug(Component.text(
+                    "Registering optional event: " + event.getClass().getSimpleName()), true);
+            }
+
+            if (listener instanceof InventoryClickDragEventListener) {
+                if (enableContainerActions && useInventoryClick) {
+                    logger.info(Component.text("Using inventory click for containers"));
+                    manager.registerEvents(listener, plugin);
+                }
+                return;
+            }
+
+            if (listener instanceof PlayerInteractEventListener) {
+                if (enableContainerActions && !useInventoryClick) {
+                    logger.info(Component.text("Using player interact for containers"));
+                    manager.registerEvents(listener, plugin);
+                }
+                return;
+            }
+
+            manager.registerEvents(listener, plugin);
+        });
     }
 
 }

@@ -20,11 +20,8 @@ import com.google.common.base.Objects;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.persistence.PersistentDataAdapterContext;
-import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 
-public class HoneypotBlockObject implements PersistentDataType<String, HoneypotBlockObject> {
+public class HoneypotBlockObject {
 
     private final String coordinates;
 
@@ -132,33 +129,7 @@ public class HoneypotBlockObject implements PersistentDataType<String, HoneypotB
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(coordinates, world, action);
-    }
-
-    // These methods are what allow HoneypotBlockObjects to directly be stored in
-    // PDC. They may or may not be used, but they are here as utilities
-
-    @Override
-    public @NotNull Class<String> getPrimitiveType() {
-        return String.class;
-    }
-
-    @Override
-    public @NotNull Class<HoneypotBlockObject> getComplexType() {
-        return HoneypotBlockObject.class;
-    }
-
-    @Override
-    public @NotNull String toPrimitive(@NotNull HoneypotBlockObject complex,
-                                                @NotNull PersistentDataAdapterContext context) {
-        return world + ";;" + coordinates + ";;" + action;
-    }
-
-    @Override
-    public @NotNull HoneypotBlockObject fromPrimitive(String primitive,
-                                                      @NotNull PersistentDataAdapterContext context) {
-        String[] strings = primitive.split(";;");
-        return new HoneypotBlockObject(strings[0], strings[1], strings[2]);
+        return Objects.hashCode(coordinates, world);
     }
 
     public String toString() {

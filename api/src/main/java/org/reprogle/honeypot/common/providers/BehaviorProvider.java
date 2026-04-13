@@ -17,21 +17,25 @@
 package org.reprogle.honeypot.common.providers;
 
 import com.google.common.base.Objects;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+
+import javax.annotation.Nullable;
 
 public abstract class BehaviorProvider {
 
 	protected final String providerName;
 	protected final BehaviorType behaviorType;
-
 	protected final Material icon;
+	protected final boolean configurable;
 
 	protected BehaviorProvider() {
 		this.providerName = getClass().getAnnotation(Behavior.class).name();
 		this.behaviorType = getClass().getAnnotation(Behavior.class).type();
 		this.icon = getClass().getAnnotation(Behavior.class).icon();
+		this.configurable = getClass().getAnnotation(Behavior.class).configurable();
 	}
 
 	/**
@@ -62,6 +66,14 @@ public abstract class BehaviorProvider {
 	}
 
 	/**
+	 * Returns whether this behavior provider is configurable
+	 * @return True if configurable, false if not
+	 */
+	public boolean isConfigurable() {
+		return configurable;
+	}
+
+	/**
 	 * Override default equals function to provide comparison support to
 	 * BehaviorProviders.
 	 * Since BehaviorProviders must have unique names, this checks against name only
@@ -82,7 +94,7 @@ public abstract class BehaviorProvider {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(providerName, behaviorType, icon);
+		return Objects.hashCode(providerName);
 	}
 
 	/**
@@ -93,6 +105,21 @@ public abstract class BehaviorProvider {
 	 * @param block The block object belonging to the Honeypot.
 	 * @return Your behavior provider should return true if the processing is
 	 *         successful, otherwise return false.
+	 * @deprecated Use the {@link BehaviorProvider#process(Player, Block, YamlDocument)} method instead.
 	 */
-	public abstract boolean process(Player p, Block block);
+	public boolean process(Player p, Block block) {
+		return this.process(p, block, null);
+	}
+
+	/**
+	 * A method to be executed when an action requires processing.
+	 *
+	 * @param p     The {@link org.bukkit.entity.Player} who the behavior provider
+	 *              will process against
+	 * @param block The block object belonging to the Honeypot.
+	 * @param config The configuration for this behavior provider. This is null if no configuration exists.
+	 * @return Your behavior provider should return true if the processing is
+	 *         successful, otherwise return false.
+	 */
+	public abstract boolean process(Player p, Block block, @Nullable YamlDocument config);
 }

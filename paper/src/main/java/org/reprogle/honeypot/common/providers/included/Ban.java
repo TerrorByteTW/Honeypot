@@ -17,12 +17,14 @@
 package org.reprogle.honeypot.common.providers.included;
 
 import com.google.inject.Inject;
+import dev.dejvokep.boostedyaml.YamlDocument;
 import io.papermc.paper.ban.BanListType;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.Nullable;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
@@ -30,14 +32,21 @@ import org.reprogle.honeypot.common.providers.BehaviorType;
 
 import java.util.Date;
 
-@Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER)
+@Behavior(type = BehaviorType.BAN, name = "ban", icon = Material.BARRIER, configurable = true)
 public class Ban extends BehaviorProvider {
 
     @Inject
-    private CommandFeedback commandFeedback;
+    CommandFeedback commandFeedback;
 
     @Override
-    public boolean process(Player p, Block block) {
+    public boolean process(Player p, Block block, @Nullable YamlDocument config) {
+        if (config != null && config.getBoolean("use-custom-ban-command", false)) {
+            String command = config.getString("ban-command", "/ban %player%");
+            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
+                command.replace("%player%", p.getName()));
+            return true;
+        }
+
         String banReason = PlainTextComponentSerializer.plainText().serialize(commandFeedback.sendCommandFeedback("ban-reason"));
         String chatPrefix = PlainTextComponentSerializer.plainText().serialize(commandFeedback.getChatPrefix());
 

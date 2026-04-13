@@ -1,3 +1,6 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+import org.gradle.kotlin.dsl.filter
+
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
@@ -15,11 +18,11 @@
  */
 
 group = "org.reprogle"
-version = "3.5.1"
+version = "4.0.0"
 
 extra["platform"] = "paper"
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 
 plugins {
     java
@@ -38,14 +41,15 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.bytelib)
+
     compileOnly(libs.paper.api)
-    compileOnly(libs.folia.api)
 
     compileOnly(libs.vault)
     compileOnly(libs.placeholder.api)
     compileOnly(libs.boosted.yaml)
     implementation(libs.bstats)
-    implementation(libs.spigui)
+    implementation(libs.inventory.framework)
     implementation(project(":api"))
 
     compileOnly(libs.worldguard)
@@ -69,8 +73,14 @@ tasks.named("build") {
 
 // Replaces the version number in the plugin.yml by expanding all variables to project properties
 tasks.processResources {
-    filesMatching("plugin.yml") {
-        expand(project.properties)
+    outputs.upToDateWhen { false }
+    from(sourceSets.main.get().resources.srcDirs) {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        filter<ReplaceTokens>(
+            "tokens" to mapOf(
+                "version" to project.version.toString(),
+            )
+        )
     }
 }
 
@@ -80,5 +90,5 @@ tasks.shadowJar {
     archiveBaseName.set("honeypot-${platform}")
     archiveClassifier.set("")
     relocate("org.bstats", "org.reprogle.honeypot.common.libs.bstats")
-    relocate("com.samjakob", "org.reprogle.honeypot.common.libs.spigui")
+    relocate("com.github.stefvanschie.inventoryframework", "org.reprogle.honeypot.common.libs.inventoryframework")
 }

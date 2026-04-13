@@ -28,32 +28,29 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityExplodeEventListener implements Listener {
+public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotLogger logger;
-	private final HoneypotConfigManager configManager;
+	private final BytePluginConfig config;
 	private final HoneypotBlockManager blockManager;
 	private final HoneypotPlayerHistoryManager playerHistoryManager;
 	private final AdapterManager adapterManager;
 
-	/**
-	 * Create package constructor to hide implicit one
-	 */
 	@Inject
-	EntityExplodeEventListener(HoneypotLogger logger, HoneypotConfigManager configManager, HoneypotBlockManager blockManager,
+	EntityExplodeEventListener(HoneypotLogger logger, BytePluginConfig config, HoneypotBlockManager blockManager,
 							   HoneypotPlayerHistoryManager playerHistoryManager, AdapterManager adapterManager) {
 		this.logger = logger;
-		this.configManager = configManager;
+		this.config = config;
 		this.blockManager = blockManager;
 		this.playerHistoryManager = playerHistoryManager;
 		this.adapterManager = adapterManager;
@@ -65,10 +62,11 @@ public class EntityExplodeEventListener implements Listener {
 		// Get every block that would've been blown up
 		List<Block> destroyedBlocks = event.blockList();
 		ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
-		boolean allowExplosions = configManager.getPluginConfig().getBoolean("allow-explode");
+		boolean allowExplosions = config.config().getBoolean("allow-explode");
 		Entity e = event.getEntity();
 		Entity source = null;
 
+		// If a block of TNT was used to destroy the Honeypot, get its igniter. This is to allow us to track if a Player lit it
 		if (e instanceof TNTPrimed tnt) {
 			source = tnt.getSource();
 		}
@@ -77,8 +75,8 @@ public class EntityExplodeEventListener implements Listener {
 		// are allowed.
 		// If so, just delete the Honeypot. If not, cancel the explosion
 		for (Block block : destroyedBlocks) {
-			if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(block))) {
-				logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+			if (blockManager.isHoneypotBlock(block)) {
+				logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
 
 				if (source instanceof Player) {
 					// If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
@@ -88,7 +86,7 @@ public class EntityExplodeEventListener implements Listener {
 
 					playerHistoryManager.addPlayerHistory((Player) source,
 							blockManager.getHoneypotBlock(block), "break");
-					logger.debug(Component.text("EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: " + source.getName()));
+					logger.debug(Component.text("EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: " + source.getName()), false);
 
 					// Call a BlockBreakEvent for that player, as they attempted to break the block
 					// in the first place.

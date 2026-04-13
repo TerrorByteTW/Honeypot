@@ -1,16 +1,16 @@
 name: Honeypot
-version: '${project.version}'
+version: '@version@'
 author: TerrorByte
 description: Creates honeypot blocks designed to prevent griefing on your server
 main: org.reprogle.honeypot.Honeypot
-api-version: 1.20
+api-version: 26.1.2
 load: STARTUP
 folia-supported: true
 softdepend: [ Vault, WorldGuard, GriefPrevention, Lands, PlaceholderAPI ]
 libraries:
   - dev.dejvokep:boosted-yaml:1.3.7
   - com.google.inject:guice:7.0.0
-  - com.squareup.okhttp3:okhttp:4.12.0
+  - com.squareup.okhttp3:okhttp:5.3.0
 commands:
   honeypot:
     description: Creates or deletes a honeypot block
@@ -49,12 +49,6 @@ permissions:
   honeypot.history:
     description: Allows querying and modifying the history table
     default: op
-  honeypot.teleport:
-    description: Allows for staff to teleport to Honeypot blocks within the GUI
-    default: op
-  honeypot.migrate:
-    description: Allows migration from SQLite to PDC
-    default: op
   honeypot.*:
     description: Allows all Honeypot permissions
     default: op
@@ -69,5 +63,3 @@ permissions:
       honeypot.locate: true
       honeypot.update: true
       honeypot.history: true
-      honeypot.teleport: true
-      honeypot.migrate: true

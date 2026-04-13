@@ -24,59 +24,56 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class EntityChangeBlockEventListener implements Listener {
+public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent {
 
-	private final HoneypotLogger logger;
-	private final HoneypotBlockManager blockManager;
-	private final HoneypotConfigManager configManager;
+    private final HoneypotLogger logger;
+    private final HoneypotBlockManager blockManager;
+    private final BytePluginConfig config;
+    
+    @Inject
+    EntityChangeBlockEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager, BytePluginConfig config) {
 
-	/**
-	 * Create package constructor to hide implicit one
-	 */
-	@Inject
-	EntityChangeBlockEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager, HoneypotConfigManager configManager) {
+        this.logger = logger;
+        this.blockManager = blockManager;
+        this.config = config;
+    }
 
-		this.logger = logger;
-		this.blockManager = blockManager;
-		this.configManager = configManager;
-	}
+    // Enderman event
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void entityChangeBlockEvent(EntityChangeBlockEvent event) {
 
-	// Enderman event
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void entityChangeBlockEvent(EntityChangeBlockEvent event) {
+        // If the entity grabbing the block is an enderman, if they are allowed to,
+        // delete the
+        // Honeypot, otherwise cancel it
+        if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
+            if (blockManager.isHoneypotBlock(event.getBlock())) {
 
-		// If the entity grabbing the block is an enderman, if they are allowed to,
-		// delete the
-		// Honeypot, otherwise cancel it
-		if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
-			if (Boolean.TRUE.equals(blockManager.isHoneypotBlock(event.getBlock()))) {
+                logger.debug(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()), true);
 
-				logger.debug(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()));
+                // Fire HoneypotNonPlayerBreakEvent
+                HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(),
+                        event.getBlock());
+                Bukkit.getPluginManager().callEvent(hnpbe);
 
-				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(),
-						event.getBlock());
-				Bukkit.getPluginManager().callEvent(hnpbe);
+                if (Boolean.TRUE.equals(config.config().getBoolean("allow-enderman"))) {
+                    blockManager.deleteBlock(event.getBlock());
+                } else {
+                    event.setCancelled(true);
+                }
+            }
+        } else if (event.getEntity().getType().equals(EntityType.SILVERFISH)
+                && blockManager.isHoneypotBlock(event.getBlock())) {
 
-				if (Boolean.TRUE.equals(configManager.getPluginConfig().getBoolean("allow-enderman"))) {
-					blockManager.deleteBlock(event.getBlock());
-				} else {
-					event.setCancelled(true);
-				}
-			}
-		} else if (event.getEntity().getType().equals(EntityType.SILVERFISH)
-				&& Boolean.TRUE.equals(blockManager.isHoneypotBlock(event.getBlock()))) {
+            // Fire HoneypotNonPlayerBreakEvent
+            HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), event.getBlock());
+            Bukkit.getPluginManager().callEvent(hnpbe);
 
-			// Fire HoneypotNonPlayerBreakEvent
-			HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), event.getBlock());
-			Bukkit.getPluginManager().callEvent(hnpbe);
-
-			event.setCancelled(true);
-		}
-	}
+            event.setCancelled(true);
+        }
+    }
 }

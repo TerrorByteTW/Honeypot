@@ -18,6 +18,7 @@ package org.reprogle.honeypot.common.utils.integrations;
 
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.Honeypot;
 
 public class PermissionAdapter {
@@ -26,9 +27,9 @@ public class PermissionAdapter {
 
     /**
      * Retrieve the permission service provider object
-     * @param plugin {@link Honeypot}
+     * @param plugin {@link JavaPlugin}
      */
-    public PermissionAdapter(Honeypot plugin) {
+    public PermissionAdapter(JavaPlugin plugin) {
         RegisteredServiceProvider<Permission> rsp = plugin.getServer().getServicesManager().getRegistration(Permission.class);
         permission = rsp != null ? rsp.getProvider() : null;
     }

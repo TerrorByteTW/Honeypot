@@ -28,36 +28,30 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.reprogle.honeypot.Honeypot;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
-import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storagemanager.pdc.DataStoreManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerInteractEventListener implements Listener {
+public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
 
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
     private final HoneypotLogger logger;
     private final ActionHandler actionHandler;
     private final AdapterManager adapterManager;
 
-    /**
-     * Create a private constructor to hide the implicit one
-     */
     @Inject
-    PlayerInteractEventListener(HoneypotConfigManager configManager, HoneypotBlockManager blockManager,
+    PlayerInteractEventListener(BytePluginConfig config, HoneypotBlockManager blockManager,
                                 HoneypotLogger logger, ActionHandler actionHandler,
                                 AdapterManager adapterManager) {
-        this.configManager = configManager;
+        this.config = config;
         this.blockManager = blockManager;
         this.logger = logger;
         this.actionHandler = actionHandler;
@@ -82,8 +76,8 @@ public class PlayerInteractEventListener implements Listener {
         // We want to filter on inventories upon opening, not just creation (Like in the
         // HoneypotCreate class) because
         // inventories can be both broken AND open :)
-        if (configManager.getPluginConfig().getBoolean("filters.inventories")) {
-            List<String> allowedBlocks = (List<String>) configManager.getPluginConfig()
+        if (config.config().getBoolean("filters.inventories")) {
+            List<String> allowedBlocks = (List<String>) config.config()
                     .getList("allowed-inventories");
             boolean allowed = false;
 
@@ -119,7 +113,7 @@ public class PlayerInteractEventListener implements Listener {
 
                 if (!(player.hasPermission("honeypot.exempt")
                         || player.hasPermission("honeypot.*") || player.isOp())) {
-                    if (!configManager.getPluginConfig().getBoolean("always-allow-container-access"))
+                    if (!config.config().getBoolean("always-allow-container-access"))
                         event.setCancelled(true);
                     executeAction(event);
                 }
@@ -144,12 +138,12 @@ public class PlayerInteractEventListener implements Listener {
         String action = blockManager.getAction(block);
 
         if (action == null) {
-            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
             return;
         }
 
-        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
+        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
 
-        actionHandler.handleCustomAction(action, block, player);
+        actionHandler.handle(action, block, player);
     }
 }

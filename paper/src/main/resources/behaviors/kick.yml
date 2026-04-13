@@ -1,0 +1,9 @@
+# Configuration for Honeypot's 'kick' Behavior
+# Tells Honeypot to use the custom kick command below
+# If false, Honeypot will use native Paper APIs instead
+use-custom-kick-command: false
+
+# The custom kick command to use.
+# Use %player% as a placeholder for the player to kick
+# Does NOT support PlaceholderAPI (yet)
+kick-command: "/kick %player%"

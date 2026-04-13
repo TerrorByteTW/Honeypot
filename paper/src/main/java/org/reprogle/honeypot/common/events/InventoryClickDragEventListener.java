@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.events;
 
+import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
@@ -31,34 +32,30 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
 
-import com.samjakob.spigui.menu.SGMenu;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
-public class InventoryClickDragEventListener implements Listener {
+public class InventoryClickDragEventListener implements Listener, IHoneypotEvent {
 
     private final ActionHandler actionHandler;
     private final HoneypotBlockManager blockManager;
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotLogger logger;
 
-    /**
-     * Create package constructor to hide implicit one
-     */
     @Inject
-    InventoryClickDragEventListener(ActionHandler actionHandler, HoneypotBlockManager blockManager, HoneypotConfigManager configManager, HoneypotLogger logger) {
+    InventoryClickDragEventListener(ActionHandler actionHandler, HoneypotBlockManager blockManager, BytePluginConfig config, HoneypotLogger logger) {
         this.actionHandler = actionHandler;
         this.blockManager = blockManager;
-        this.configManager = configManager;
+        this.config = config;
         this.logger = logger;
     }
 
@@ -70,7 +67,7 @@ public class InventoryClickDragEventListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
         // Because for some reason DoubleChest is its own class and does not implement Container. It only *extends* InventoryHolder :|
-        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
+        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof ChestGui)
             return;
 
         // Support weird slot types that may bypass the checks
@@ -111,7 +108,7 @@ public class InventoryClickDragEventListener implements Listener {
                 // If the clicked slot is null, that means the slot didn't have something in it,
                 // whether the player placed something in that slot. slot == null
                 // corresponds to a click or place, not a take
-                if (inventory.getItem(event.getSlot()) == null && configManager.getPluginConfig().getBoolean("container-actions.only-trigger-on-withdrawal")) {
+                if (inventory.getItem(event.getSlot()) == null && config.config().getBoolean("container-actions.only-trigger-on-withdrawal")) {
                     return;
                 }
                 event.setCancelled(true);
@@ -128,7 +125,7 @@ public class InventoryClickDragEventListener implements Listener {
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
         // Because for some reason DoubleChest is its own class and does not implement Container. It only implements InventoryHolder :|
-        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof SGMenu)
+        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof ChestGui)
             return;
         if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
 
@@ -157,13 +154,13 @@ public class InventoryClickDragEventListener implements Listener {
         String action = blockManager.getAction(block);
 
         if (action == null) {
-            logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
             return;
         }
 
-        logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
+        logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
 
-        actionHandler.handleCustomAction(action, block, player);
+        actionHandler.handle(action, block, player);
 
         HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player, inventory);
         Bukkit.getPluginManager().callEvent(hice);
@@ -181,8 +178,8 @@ public class InventoryClickDragEventListener implements Listener {
         // We want to filter on inventories upon opening, not just creation (Like in the
         // HoneypotCreate class) because
         // inventories can be both broken AND open :)
-        if (configManager.getPluginConfig().getBoolean("filters.inventories")) {
-            List<String> allowedBlocks = (List<String>) configManager.getPluginConfig().getList("allowed-inventories");
+        if (config.config().getBoolean("filters.inventories")) {
+            List<String> allowedBlocks = (List<String>) config.config().getList("allowed-inventories");
 
             for (String blockType : allowedBlocks) {
                 if (Objects.requireNonNull(block).getType().name().equals(blockType)) {

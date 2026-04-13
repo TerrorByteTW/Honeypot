@@ -18,255 +18,63 @@ package org.reprogle.honeypot;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.samjakob.spigui.SpiGUI;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.commands.CommandManager;
-import org.reprogle.honeypot.common.events.Listeners;
-import org.reprogle.honeypot.common.providers.BehaviorProvider;
-import org.reprogle.honeypot.common.storagemanager.CacheManager;
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
-import org.reprogle.honeypot.common.utils.*;
-import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
+import com.google.inject.Module;
+import io.papermc.paper.plugin.configuration.PluginMeta;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.reprogle.bytelib.ByteLibPlugin;
+import org.reprogle.bytelib.boot.wiring.PluginWiring;
+import org.reprogle.bytelib.db.sqlite.SqliteConfig;
+import org.reprogle.bytelib.db.sqlite.SqliteModule;
+import org.reprogle.honeypot.common.commands.CommandModule;
+import org.reprogle.honeypot.common.events.ListenerModule;
 
-import javax.naming.ConfigurationException;
-import java.util.Set;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
 
 /**
- * Main method for Honeypot, this is what gets the ball rolling for everything this plugin does, including setting the command executor and registering events.
- * The command manager actually registers what commands are available for use, see {@link CommandManager} for more info on that.
- * This plugin also heavily relies on Dependency Injection using the Google Guice framework. The bindings for that are handled in the {@link HoneypotModule}
+ * The main method for Honeypot, this is what gets the ball rolling for everything this plugin does, including setting the command executor and registering events.
+ * The Wiring class is handled via ByteLib. All the plugin's wiring happens in Honeypot$Wiring
  */
-@SuppressWarnings("UnstableApiUsage")
-public final class Honeypot extends JavaPlugin {
-    // These dependencies can't really be injected
-    private static SpiGUI gui;
-    // These dependencies can (and should) be injected
+public final class Honeypot extends ByteLibPlugin {
     @Inject
-    private AdapterManager adapterManager;
-    @Inject
-    private Listeners listeners;
-    @Inject
-    private CommandManager manager;
-    @Inject
-    private HoneypotLogger logger;
-    @Inject
-    private GhostHoneypotFixer ghf;
-    @Inject
-    private CommandFeedback commandFeedback;
-    @Inject
-    private Set<BehaviorProvider> behaviorProviders;
-    @Inject
-    private Set<StorageProvider> storageProviders;
-    @Inject
-    private HoneypotConfigManager configManager;
+    public Honeypot(Injector injector, PluginMeta meta, Path dataDir, ComponentLogger logger) {
+        super(injector, meta, dataDir, logger);
+    }
 
-    private Injector injector;
-
-    /**
-     * Set up WorldGuard. This must be done in onLoad() due to how WorldGuard
-     * registers flags.
-     */
-    @Override
-    @SuppressWarnings("java:S2696")
-    public void onLoad() {
-        HoneypotConfigManager configManager = new HoneypotConfigManager();
-
-        // Create the Guice Injector
-        HoneypotModule module = new HoneypotModule(this, configManager);
-        injector = module.createInjector();
-        injector.injectMembers(this);
-
-        // Register adapters which must be registered on load
-        adapterManager.onLoadAdapters(getServer());
-
-        for (BehaviorProvider behavior : behaviorProviders) {
-            Registry.getBehaviorRegistry().register(behavior);
+    @SuppressWarnings("unused") // Used via Reflection in ByteLib
+    public static class Wiring implements PluginWiring {
+        @Override
+        public List<Module> modules(PluginMeta meta, Path dataDir, ComponentLogger logger) {
+            return List.of(
+                new HoneypotModule(dataDir),
+                new CommandModule(),
+                new ListenerModule(),
+                new SqliteModule("honeypot.db", cfg -> new SqliteConfig(
+                    true,
+                    cfg.config().getString("db.journal-mode", "WAL"),
+                    "NORMAL",
+                    cfg.config().getInt("db.busy-timeout", 5000),
+                    Duration.ofMillis(cfg.config().getInt("db.main-thread-timeout", 50)),
+                    switch (cfg.config().getString("db.main-thread-policy", "WARN")) {
+                        case "ALLOW" -> SqliteConfig.MainThreadPolicy.ALLOW;
+                        case "DISALLOW" -> SqliteConfig.MainThreadPolicy.DISALLOW;
+                        default -> SqliteConfig.MainThreadPolicy.WARN;
+                    },
+                    switch (cfg.config().getString("db.timeout-policy", "THROW")) {
+                        case "FAIL_OPEN" -> SqliteConfig.TimeoutBehavior.FAIL_OPEN;
+                        case "FAIL_CLOSED" -> SqliteConfig.TimeoutBehavior.FAIL_CLOSED;
+                        default -> SqliteConfig.TimeoutBehavior.THROW;
+                    },
+                    Duration.ofMillis(cfg.config().getInt("db.slow-query-threshold", 30)),
+                    new SqliteConfig.CacheConfig(
+                        Duration.ofSeconds(cfg.config().getInt("cache.ttl", 30)),
+                        Duration.ofSeconds(cfg.config().getInt("cache.refresh-after", 10)),
+                        cfg.config().getBoolean("cache.serve-stale-while-refreshing", true),
+                        cfg.config().getInt("cache.max-size", Integer.MAX_VALUE)
+                    ))
+                )
+            );
         }
-
-        for (StorageProvider provider : storageProviders) {
-            Registry.getStorageManagerRegistry().register(provider);
-        }
-    }
-
-    /**
-     * Enable method called by Bukkit. This is a little messy due to all the setup
-     * it has to do
-     */
-    @lombok.SneakyThrows
-    @Override
-    public void onEnable() {
-
-        // Initialize the SpiGUI object for UI, lock the registry, and start the Ghost Honeypot Fixer task
-        gui = new SpiGUI(this);
-        Registry.getBehaviorRegistry().setInitialized(true);
-        Registry.getStorageManagerRegistry().setInitialized(true);
-        ghf.startTask();
-
-        String storageMethod = configManager.getPluginConfig().getString("storage-method");
-        if (!storageMethod.equals("sqlite") && !storageMethod.equals("pdc") && !configManager.getPluginConfig().getBoolean("allow-third-party-storage-managers")) {
-            this.getServer().getPluginManager().disablePlugin(this);
-            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. YOUR CONFIGURATION IS INVALID, CHECK IT BEFORE REPORTING TO THE DEVELOPER!"));
-            throw new ConfigurationException(configManager.getLanguageFile().getString("storage-providers-not-enabled"));
-        }
-
-        if (Registry.getStorageManagerRegistry().getStorageProvider(storageMethod) != null) {
-            Registry.setStorageProvider(Registry.getStorageManagerRegistry().getStorageProvider(storageMethod));
-        } else {
-            this.getServer().getPluginManager().disablePlugin(this);
-            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. THE STORAGE PROVIDER IS NOT CORRECTLY DEFINED, CHECK WITH THE DEVELOPER OF THE PROVIDER!"));
-            throw new ConfigurationException(configManager.getLanguageFile().getString("invalid-storage-provider").replace("%s", storageMethod));
-        }
-
-        getHoneypotLogger().info(Component.text("Successfully registered " + Registry.getBehaviorRegistry().size()
-                + " behavior providers. Further registrations are now locked."));
-
-        getHoneypotLogger().info(Component.text(Registry.getStorageManagerRegistry().size()
-                + " storage providers have been registered, the one Honeypot is configured to use is: " + Registry.getStorageProvider().getProviderName() + ". Further registrations are now locked, but the provider can be changed at any time by doing /honeypot reload."));
-
-        // Start bstats and register event listeners
-        new Metrics(this, 15425);
-        listeners.setupListeners();
-
-        // Register remaining adapters that can be registered on enable
-        adapterManager.onEnableAdapters(getServer());
-
-        // We know this will not be null due to it being registered in plugin.yml
-        //noinspection DataFlowIssue
-        getCommand("honeypot").setExecutor(this.manager);
-
-        getServer().getConsoleSender().sendMessage(commandFeedback.buildSplash(this));
-
-        if (isFolia()) {
-            getHoneypotLogger().warning(
-                    Component.text("Welcome to Folia!!!! It is assumed you know what you're doing, since Folia is not yet standard. While Honeypot can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
-        }
-
-        // Check the supported MC versions against the MC versions supported by this version of Honeypot
-        // That's a mouthful, isn't it?
-        checkIfServerSupported();
-
-        // Check for any updates
-        new HoneypotUpdateChecker(this, "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt")
-                .getVersion(latest -> {
-
-                    if (Integer.parseInt(latest.replace(".", "")) > Integer
-                            .parseInt(this.getPluginMeta().getVersion().replace(".", ""))) {
-                        getServer().getConsoleSender()
-                                .sendMessage(commandFeedback.getChatPrefix().append(Component.text("There is a new update available: " + latest + ". Download for the latest features and performance improvements!", NamedTextColor.RED)));
-                    } else {
-                        getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text("You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
-                    }
-                }, logger);
-    }
-
-    /**
-     * Disable method called by Bukkit
-     */
-    @Override
-    public void onDisable() {
-        getHoneypotLogger().info(Component.text("Stopping the ghost checker task"));
-        ghf.cancelTask();
-        CacheManager.clearCache();
-        getHoneypotLogger().info(Component.text("Successfully shutdown Honeypot. Bye for now!"));
-    }
-
-    /**
-     * Check the GitHub repo of the plugin to verify the version of Spigot we're
-     * running on is supported
-     */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public void checkIfServerSupported() {
-        String[] serverVersion = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
-        int serverMajorVer = Integer.parseInt(serverVersion[0]);
-        int serverMinorVer = Integer.parseInt(serverVersion[1]);
-        int serverRevisionVer = serverVersion.length > 2 ? Integer.parseInt(serverVersion[2]) : 0;
-
-        String pluginVersion = this.getPluginMeta().getVersion();
-        // Check for any updates
-        new HoneypotSupportedVersions(this, pluginVersion).getSupportedVersions(value -> {
-            if (value.pulled()) {
-                getHoneypotLogger().warning(Component.text(value.message()));
-                return;
-            }
-            // Get the least supported and most supported server versions for this version
-            // of Honeypot
-            String[] lowerVersion = value.message().split("-")[0].split("\\.");
-            String[] upperVersion = value.message().split("-")[1].split("\\.");
-
-            int lowerMajorVer = Integer.parseInt(lowerVersion[0]);
-            int lowerMinorVer = Integer.parseInt(lowerVersion[1]);
-            int lowerRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
-
-            int upperMajorVer = Integer.parseInt(upperVersion[0]);
-            int upperMinorVer = Integer.parseInt(upperVersion[1]);
-            int upperRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
-
-            // Check if the version the server is running is within the bounds of the
-            // supported versions
-            // This check is done because it allows the plugin to verify and
-            // disable version check messages without updating the plugin code
-            // This means if a minor MC version rolls out and doesn't affect functionality
-            // to the plugin, we can update it on the GitHub side and server admins will not
-            // see an error message
-            if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer)
-                    && (serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer)
-                    && (serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
-                getHoneypotLogger().warning(
-                        Component.text("Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but functionality is not guaranteed. If you experience any issues please report them to the developer."));
-                getHoneypotLogger().warning(Component.text("Honeypot " + pluginVersion + " supports server versions " + value));
-            }
-        }, logger);
-
-    }
-
-    /*
-     * All the functions below are getter functions
-     *
-     * These simply return objects to prevent static keyword abuse
-     */
-
-    /**
-     * Returns the injector object from Guice, useful for dynamically creating objects on the fly
-     *
-     * @return {@link Injector}
-     */
-    public Injector getInjector() {
-        return injector;
-    }
-
-    /**
-     * Returns the permission object for Vault
-     *
-     * @return {@link AdapterManager}
-     */
-    public AdapterManager getAdapterManager() {
-        return adapterManager;
-    }
-
-    /**
-     * Returns the GUI object of the plugin for GUI creation
-     *
-     * @return {@link com.samjakob.spigui.SpiGUI}
-     */
-    public SpiGUI getGUI() {
-        return gui;
-    }
-
-    /**
-     * Gets the Honeypot logger
-     *
-     * @return {@link HoneypotLogger}
-     */
-    public HoneypotLogger getHoneypotLogger() {
-        return logger;
-    }
-
-    private boolean isFolia() {
-        return Bukkit.getServer().getName().startsWith("Folia");
     }
 }

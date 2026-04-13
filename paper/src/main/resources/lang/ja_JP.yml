@@ -1,39 +1,34 @@
-language-version: 6
-prefix: '<gold>[Honeypot]<reset> '
-kick-reason: あなたはハニーポットを破壊しました。これらの行為は許可されていません。
-ban-reason: あなたはハニーポットを破壊したためBANされました。
-warn-reason: そのブロックを破壊しないでください。
-already-exists: このブロックは既にハニーポットになっています。一度削除してからもう一度作成してください。
+language-version: 10
+prefix: '<gold>[Honeypot]<reset>'
+kick-reason: "<prefix> あなたはハニーポットを破壊しました。これらの行為は許可されていません。"
+ban-reason: "<prefix> あなたはハニーポットを破壊したためBANされました。"
+warn-reason: "<prefix> そのブロックを破壊しないでください。"
+already-exists: "<prefix> このブロックは既にハニーポットになっています。一度削除してからもう一度作成してください。"
 success:
-  created: ハニーポットを作成しました
-  removed: ハニーポットを削除しました
-  default: 成功しました
-not-a-honeypot: '&cこのブロックはハニーポットではありません。'
-no-permission: '&cあなたにはこのコマンドを実行する権限がありません。'
-reload: configを再読み込みします。言語ファイルに変更を加えた場合、反映させるにはサーバーそのものを再起動する必要があります。
-found-pots: 周辺のハニーポットを可視化しました。
-no-pots-found: この周辺にハニーポットがありません。
-update-available: このプラグインにアップデートがあります。&6https://github.com/TerrorByteTW/Honeypot&r から新しいバージョンをダウンロードしてください。
-against-filter: このブロックはフィルター内にないので、それはできません。
-not-looking-at-block: ハニーポットにしたいブロックにカーソルを当ててください
-no-exist: 処罰が見つかりませんでした。
+  created: "<prefix> ハニーポットを作成しました"
+  removed: "<prefix> ハニーポットを削除しました"
+  default: "<prefix> 成功しました"
+not-a-honeypot: "<prefix> <red>このブロックはハニーポットではありません。</red>"
+no-permission: "<prefix> <red>あなたにはこのコマンドを実行する権限がありません。</red>"
+reload: "<prefix> configを再読み込みします。言語ファイルに変更を加えた場合、反映させるにはサーバーそのものを再起動する必要があります。"
+found-pots: "<prefix> 周辺のハニーポットを可視化しました。"
+no-pots-found: "<prefix> この周辺にハニーポットがありません。"
+update-available: "<prefix> このプラグインにアップデートがあります。&6https://github.com/TerrorByteTW/Honeypot&r から新しいバージョンをダウンロードしてください。"
+against-filter: "<prefix> このブロックはフィルター内にないので、それはできません。"
+not-looking-at-block: "<prefix> ハニーポットにしたいブロックにカーソルを当ててください"
+no-exist: "<prefix> 処罰が見つかりませんでした。"
 deleted:
-  all: 全てのハニーポットを削除しました
-  near: 近くにある全てのハニーポットを削除しました
-worldguard: このリージョンではハニーポットが無効です。
-griefprevention: このエリアはGriefPreventionによって保護されています。あなたには建築を行う権限がありません。
-lands: この地域は土地によって保護されています。 土地の主張にハニーポットを配置することはできません
-unknown-error: 不明なエラーが発生しました。サーバー管理者に連絡してください。
-staff-broke: 今あなたが破壊したブロックはハニーポットです。ブロックが破壊されたためハニーポットが削除されました。
-exempt-no-break: あなたにはこのブロックを破壊する権限がありません。
-searching: 検索しています、しばらくお待ちください...
-truncating: 構成設定ごとに結果をトリミングしています...
-not-online: '&c指定されたプレイヤーはオフラインです'
-no-history: 指定されたプレイヤーの履歴が見つかりませんでした。
-migrate:
-  preconfirm: "This command will migrate the Honeypot database to PDC, a much faster and more efficient storage type. It is not possible to switch back once migrated. You are REQUIRED to restart your server afterwards for Honeypot to continue working. Enter \"/honeypot migrate confirm\" to continue"
-  confirm: "Migration is completed! Honeypot has been shutdown, please restart your server as soon as possible for this change to take effect. If you need to switch back, your DB has been left in tact."
-  failed: "You cannot migrate since you are already using PDC. If you need to migrate anyway, please contact the plugin developer for assistance! He's glad to help :)"
-invalid-storage-provider: "A storage provider with the name %s does not exist. Please check your config and try again"
-storage-providers-not-enabled: "Third party storage providers are not enabled in the config. If you meant to use one, please enable that setting and restart your server"
-invalid-radius: "Invalid search range. Defaulting to config value"
+  all: "<prefix> 全てのハニーポットを削除しました"
+  near: "<prefix> 近くにある全てのハニーポットを削除しました"
+worldguard: "<prefix> このリージョンではハニーポットが無効です。"
+griefprevention: "<prefix> このエリアはGriefPreventionによって保護されています。あなたには建築を行う権限がありません。"
+lands: "<prefix> この地域は土地によって保護されています。 土地の主張にハニーポットを配置することはできません"
+unknown-error: "<prefix> 不明なエラーが発生しました。サーバー管理者に連絡してください。"
+staff-broke: "<prefix> 今あなたが破壊したブロックはハニーポットです。ブロックが破壊されたためハニーポットが削除されました。"
+exempt-no-break: "<prefix> あなたにはこのブロックを破壊する権限がありません。"
+searching: "<prefix> 検索しています、しばらくお待ちください..."
+truncating: "<prefix> 構成設定ごとに結果をトリミングしています..."
+not-online: "<prefix> <red>指定されたプレイヤーはオフラインです</red>"
+no-history: "<prefix> 指定されたプレイヤーの履歴が見つかりませんでした。"
+invalid-storage-provider: "<prefix> A storage provider with the name %s does not exist. Please check your config and try again"
+invalid-radius: "<prefix> Invalid search range. Defaulting to config value"

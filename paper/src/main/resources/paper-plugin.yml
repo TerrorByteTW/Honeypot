@@ -1,0 +1,32 @@
+name: Honeypot
+version: '@version@'
+main: org.reprogle.honeypot.Honeypot
+api-version: '26.1.2'
+bootstrapper: org.reprogle.bytelib.BytePluginBootstrap
+loader: org.reprogle.bytelib.BytePluginLoader
+dependencies:
+  bootstrap:
+    WorldGuard:
+      load: BEFORE
+      required: false
+  server:
+    Vault:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    WorldGuard:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    GriefPrevention:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    Lands:
+      load: BEFORE
+      required: false
+      join-classpath: true
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+      join-classpath: true

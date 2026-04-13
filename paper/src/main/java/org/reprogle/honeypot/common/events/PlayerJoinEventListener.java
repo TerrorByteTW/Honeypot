@@ -24,7 +24,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.reprogle.honeypot.Honeypot;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.HoneypotUpdateChecker;
@@ -32,17 +32,14 @@ import org.reprogle.honeypot.common.utils.HoneypotUpdateChecker;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 
-public class PlayerJoinEventListener implements Listener {
+public class PlayerJoinEventListener implements Listener, IHoneypotEvent {
 
     private final CommandFeedback commandFeedback;
     private final HoneypotLogger logger;
-    private final Honeypot plugin;
+    private final JavaPlugin plugin;
 
-    /**
-     * Create a private constructor to hide the implicit one
-     */
     @Inject
-    PlayerJoinEventListener(Honeypot plugin, CommandFeedback commandFeedback, HoneypotLogger logger) {
+    PlayerJoinEventListener(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotLogger logger) {
         this.plugin = plugin;
         this.commandFeedback = commandFeedback;
         this.logger = logger;

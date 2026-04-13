@@ -15,11 +15,11 @@
  */
 
 group = "org.reprogle"
-version = "3.5.1"
+version = "4.0.0"
 
 extra["platform"] = "api"
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 
 plugins {
     java
@@ -34,7 +34,8 @@ repositories {
 
 dependencies {
     compileOnly(libs.paper.api)
-    compileOnly(libs.folia.api)
+    compileOnly(libs.boosted.yaml)
+//    compileOnly(libs.folia.api)
 }
 
 java {

@@ -1,0 +1,7 @@
+# Set to `true` to notify players with any one of the permissions below
+use-additional-permissions: false
+
+# Any players with one of these permissions will be notified alongside the players with honeypot.notify, honeypot.*, or /op
+# Only applies if `use-additional-permissions` is set to `true`
+additional-permissions:
+  - additional.permission.node

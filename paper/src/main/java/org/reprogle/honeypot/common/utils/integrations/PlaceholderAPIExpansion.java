@@ -20,33 +20,32 @@ import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.reprogle.honeypot.Honeypot;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerManager;
-import org.reprogle.honeypot.common.utils.HoneypotConfigManager;
+import org.reprogle.bytelib.config.BytePluginConfig;
+import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-@SuppressWarnings({ "deprecation", "unused" })
 public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
-    private final Honeypot plugin;
+    private final JavaPlugin plugin;
     private final HoneypotPlayerManager playerManager;
-    private final HoneypotConfigManager configManager;
+    private final BytePluginConfig config;
     private final HoneypotLogger logger;
 
     @Inject
-    public PlaceholderAPIExpansion(Honeypot plugin, HoneypotLogger logger, HoneypotPlayerManager playerManager, HoneypotConfigManager configManager) {
+    public PlaceholderAPIExpansion(JavaPlugin plugin, HoneypotLogger logger, HoneypotPlayerManager playerManager, BytePluginConfig config) {
         this.plugin = plugin;
         this.logger = logger;
         this.playerManager = playerManager;
-        this.configManager = configManager;
+        this.config = config;
     }
 
     @Override
     public @NotNull String getAuthor() {
-        return String.join(", ", plugin.getDescription().getAuthors());
+        return String.join(", ", plugin.getPluginMeta().getAuthors());
     }
 
     @Override
@@ -56,7 +55,7 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return plugin.getDescription().getVersion();
+        return plugin.getPluginMeta().getVersion();
     }
 
     @Override
@@ -65,9 +64,8 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onRequest(OfflinePlayer player, @NotNull
-    String params) {
-        logger.debug(Component.text("Param received was: " + params));
+    public String onRequest(OfflinePlayer player, @NotNull String params) {
+        logger.debug(Component.text("Param received was: " + params), false);
         if (params.equalsIgnoreCase("current_count_broken")) {
             if (player == null)
                 return null;
@@ -83,7 +81,7 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
         }
 
         if (params.equalsIgnoreCase("breaks_before_action")) {
-            return String.valueOf(configManager.getPluginConfig().getInt("blocks-broken-before-action-taken"));
+            return String.valueOf(config.config().getInt("blocks-broken-before-action-taken"));
         }
 
         return null;

@@ -26,19 +26,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 
-public class PistonExtendRetractListener implements Listener {
+public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotBlockManager blockManager;
 	private final HoneypotLogger logger;
 
-	/**
-	 * Create private constructor to hide the implicit one
-	 */
 	@Inject
 	PistonExtendRetractListener(HoneypotBlockManager blockManager, HoneypotLogger logger) {
 		this.blockManager = blockManager;
@@ -51,10 +48,10 @@ public class PistonExtendRetractListener implements Listener {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
 			if (blockManager.isHoneypotBlock(b)) {
-				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()));
+				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()), true);
 
 				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());
+				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
 				Bukkit.getPluginManager().callEvent(hnpbe);
 
 				event.setCancelled(true);
@@ -68,10 +65,10 @@ public class PistonExtendRetractListener implements Listener {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
 			if (blockManager.isHoneypotBlock(b)) {
-				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()));
+				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()), true);
 
 				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), event.getBlock());
+				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
 				Bukkit.getPluginManager().callEvent(hnpbe);
 
 				event.setCancelled(true);

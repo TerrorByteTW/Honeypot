@@ -24,17 +24,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class BlockFromToEventListener implements Listener {
+public class BlockFromToEventListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotLogger logger;
 	private final HoneypotBlockManager blockManager;
 
-	/**
-	 * Create package listener to hide implicit one
-	 */
+	@Override
+	public boolean isOptional() {
+		return true;
+	}
+	
 	@Inject
 	BlockFromToEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
 		this.logger = logger;
@@ -54,7 +56,7 @@ public class BlockFromToEventListener implements Listener {
 
 		Block toBlock = event.getToBlock();
 		if (blockManager.isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
-			logger.debug(Component.text("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", " + toBlock.getY() + ", " + toBlock.getZ()));
+			logger.debug(Component.text("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", " + toBlock.getY() + ", " + toBlock.getZ()), true);
 			event.setCancelled(true);
 		}
 	}

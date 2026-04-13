@@ -20,7 +20,7 @@ import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 
 public class Registry {
     private static BehaviorRegistry behaviorRegistry = new BehaviorRegistry();
-    private static HoneypotStoreRegistry honeypotStoreRegistry = new HoneypotStoreRegistry();
+    private static StoreRegistry storeRegistry = new StoreRegistry();
     private static StorageProvider provider = null;
 
     public static BehaviorRegistry getBehaviorRegistry() {
@@ -31,12 +31,12 @@ public class Registry {
         Registry.behaviorRegistry = behaviorRegistry;
     }
 
-    public static HoneypotStoreRegistry getStorageManagerRegistry() {
-        return honeypotStoreRegistry;
+    public static StoreRegistry getStorageManagerRegistry() {
+        return storeRegistry;
     }
 
-    public static void setStorageManagerRegistry(HoneypotStoreRegistry honeypotStoreRegistry) {
-        Registry.honeypotStoreRegistry = honeypotStoreRegistry;
+    public static void setStorageManagerRegistry(StoreRegistry storeRegistry) {
+        Registry.storeRegistry = storeRegistry;
     }
 
     public static StorageProvider getStorageProvider() {

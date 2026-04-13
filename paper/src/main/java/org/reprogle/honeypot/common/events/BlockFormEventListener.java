@@ -23,17 +23,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFormEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class BlockFormEventListener implements Listener {
+public class BlockFormEventListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotLogger logger;
 	private final HoneypotBlockManager blockManager;
 
-	/**
-	 * Create package listener to hide implicit one
-	 */
+	@Override
+	public boolean isOptional() {
+		return true;
+	}
+	
 	@Inject
 	BlockFormEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
 		this.logger = logger;
@@ -45,7 +47,7 @@ public class BlockFormEventListener implements Listener {
 		Block block = event.getBlock();
 
 		if (blockManager.isHoneypotBlock(block)) {
-			logger.debug(Component.text("BlockFormEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+			logger.debug(Component.text("BlockFormEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
 			event.setCancelled(true);
 		}
 	}

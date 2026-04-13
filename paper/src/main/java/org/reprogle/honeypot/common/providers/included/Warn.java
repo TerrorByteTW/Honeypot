@@ -17,24 +17,98 @@
 package org.reprogle.honeypot.common.providers.included;
 
 import com.google.inject.Inject;
+import dev.dejvokep.boostedyaml.YamlDocument;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.providers.Behavior;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.providers.BehaviorType;
 
-@Behavior(type = BehaviorType.WARN, name = "warn", icon = Material.STONE_AXE)
+import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+@Behavior(type = BehaviorType.WARN, name = "warn", icon = Material.STONE_AXE, configurable = true)
 public class Warn extends BehaviorProvider {
 
-	@Inject
-	private CommandFeedback commandFeedback;
+    @Inject
+    CommandFeedback commandFeedback;
 
-	@Override
-	public boolean process(Player p, Block block) {
-		p.sendMessage(commandFeedback.sendCommandFeedback("warn-reason"));
+    @Inject
+    BytePluginConfig honeypotConfig;
 
-		return true;
-	}
+    @Override
+    public boolean process(Player p, Block block, @Nullable YamlDocument config) {
+        boolean useRandom = config != null && config.getBoolean("use-random-messages", false);
+        boolean rainbow = config != null && config.getBoolean("rainbowify", false);
+
+        Component warnReason = commandFeedback.sendCommandFeedback("warn-reason");
+
+        if (useRandom) {
+            List<String> messages = config.getStringList("messages");
+            if (!messages.isEmpty()) {
+                String message = messages.get(ThreadLocalRandom.current().nextInt(messages.size()));
+                MiniMessage mm = MiniMessage.miniMessage();
+                warnReason = mm.deserialize(message, Placeholder.component("prefix", mm.deserialize(honeypotConfig.lang().getString("prefix"))));
+            }
+        }
+
+        if (rainbow) {
+            warnReason = rainbowify(warnReason);
+        }
+
+        p.sendMessage(warnReason);
+        return true;
+    }
+
+    private static Component rainbowify(Component component) {
+        String text = PlainTextComponentSerializer.plainText().serialize(component);
+        int length = text.length();
+
+        Index index = new Index();
+
+        return applyRainbow(component, index, length);
+    }
+
+    private static Component applyRainbow(Component component, Index index, int length) {
+        if (component instanceof TextComponent textComponent) {
+            Component result = Component.empty();
+
+            String content = textComponent.content();
+            for (int i = 0; i < content.length(); i++) {
+                float hue = (float) index.value / length;
+                int rgb = Color.HSBtoRGB(hue, 1f, 1f);
+
+                result = result.append(
+                    Component.text(content.charAt(i))
+                        .style(textComponent.style())
+                        .color(TextColor.color(rgb))
+                );
+
+                index.value++;
+            }
+
+            for (Component child : component.children()) {
+                result = result.append(applyRainbow(child, index, length));
+            }
+
+            return result;
+        }
+
+        return component;
+    }
+
+    private static class Index {
+        int value = 0;
+    }
 }
