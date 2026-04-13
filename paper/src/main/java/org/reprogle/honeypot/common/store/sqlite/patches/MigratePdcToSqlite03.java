@@ -1,32 +1,33 @@
 package org.reprogle.honeypot.common.store.sqlite.patches;
 
 import net.kyori.adventure.text.Component;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.migrate.Migration;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.Registry;
-import org.reprogle.honeypot.common.store.sqlite.HoneypotBlockRepository;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MigratePdcToSqlite03 implements Migration {
 
     private final JavaPlugin plugin;
     private final HoneypotLogger logger;
     private final BytePluginConfig config;
-    private final HoneypotBlockRepository blockRepo;
 
-    public MigratePdcToSqlite03(JavaPlugin plugin, BytePluginConfig config, HoneypotLogger logger, HoneypotBlockRepository blockRepo) {
+    public MigratePdcToSqlite03(JavaPlugin plugin, BytePluginConfig config, HoneypotLogger logger) {
         this.plugin = plugin;
         this.config = config;
         this.logger = logger;
-        this.blockRepo = blockRepo;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class MigratePdcToSqlite03 implements Migration {
             long rowId = 1;
 
             for (World world : worlds) {
-                List<HoneypotBlockObject> blocks = blockRepo.getAllHoneypots(world);
+                List<HoneypotBlockObject> blocks = getAllHoneypots(world);
                 for (HoneypotBlockObject block : blocks) {
                     tx.execute("""
                             INSERT INTO honeypot_blocks (id, world, action)
@@ -87,5 +88,21 @@ public class MigratePdcToSqlite03 implements Migration {
             logger.info(Component.text("Migration to SQLite from PDC is complete and your config has been updated."));
 
         }
+    }
+    private List<HoneypotBlockObject> getAllHoneypots(World world) {
+        List<HoneypotBlockObject> blocks = new ArrayList<>();
+        Set<NamespacedKey> keys = world.getPersistentDataContainer().getKeys();
+
+        for (NamespacedKey key : keys) {
+            if (key.getKey().startsWith("honeypot-container-")) {
+                String coordinatesRaw = key.getKey().split("honeypot-container-")[1];
+                String coordinates = coordinatesRaw.replace("_", ", ");
+
+                blocks.add(new HoneypotBlockObject(world.getName(), coordinates,
+                    world.getPersistentDataContainer().get(key, PersistentDataType.STRING)));
+            }
+        }
+
+        return blocks;
     }
 }

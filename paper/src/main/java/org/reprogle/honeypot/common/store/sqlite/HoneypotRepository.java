@@ -59,7 +59,7 @@ public class HoneypotRepository extends StorageProvider {
             new MigrationStep(1, new UpdateHistoryTable00(logger)),
             new MigrationStep(2, new ConvertToSpatialIndexing01(logger)),
             new MigrationStep(3, new RemoveFKConstraint02(logger)),
-            new MigrationStep(4, new MigratePdcToSqlite03(plugin, config, logger, blockRepo))
+            new MigrationStep(4, new MigratePdcToSqlite03(plugin, config, logger))
         )));
         migrator.migrate(db);
 
