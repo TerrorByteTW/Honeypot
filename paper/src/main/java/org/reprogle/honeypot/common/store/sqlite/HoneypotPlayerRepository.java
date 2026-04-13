@@ -23,7 +23,7 @@ public class HoneypotPlayerRepository {
 
     public void addPlayer(Player player, int blocksBroken) {
         db.execute("""
-                INSET INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
+                INSERT INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
                 """,
             Param.text(player.getUniqueId().toString()),
             Param.i32(blocksBroken));
