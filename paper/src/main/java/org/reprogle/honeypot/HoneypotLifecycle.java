@@ -29,7 +29,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     private final AdapterManager adapterManager;
     private final Listeners listeners;
     private final HoneypotLogger logger;
-    private final GhostHoneypotFixer ghf;
+    private final GhostHoneypotMonitor ghf;
     private final CommandFeedback commandFeedback;
     private final Set<BehaviorProvider> behaviorProviders;
     private final Set<StorageProvider> storageProviders;
@@ -43,7 +43,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         AdapterManager adapterManager,
         Listeners listeners,
         HoneypotLogger logger,
-        GhostHoneypotFixer ghf,
+        GhostHoneypotMonitor ghf,
         CommandFeedback commandFeedback,
         Set<BehaviorProvider> behaviorProviders,
         Set<StorageProvider> storageProviders,
@@ -97,7 +97,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         registerBehaviorConfigs();
         config.reload();
 
-        // Lock the registries and start the Ghost Honeypot Fixer task
+        // Lock the registries and start the Ghost Honeypot Monitor task
         Registry.getBehaviorRegistry().setInitialized(true);
         Registry.getStorageManagerRegistry().setInitialized(true);
         ghf.startTask();

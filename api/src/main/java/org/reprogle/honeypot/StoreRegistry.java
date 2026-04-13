@@ -26,7 +26,7 @@ import org.reprogle.honeypot.common.storageproviders.exceptions.StorageManagerCo
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
-public class HoneypotStoreRegistry {
+public class StoreRegistry {
     protected final ConcurrentMap<String, StorageProvider> storageProviders = Maps.newConcurrentMap();
     private final Object lock = new Object();
     private boolean initialized = false;

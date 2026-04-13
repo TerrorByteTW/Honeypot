@@ -23,15 +23,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
-public class SignChangeEventListener implements Listener {
+public class SignChangeEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotBlockManager blockManager;
     private final HoneypotLogger logger;
     private final AdapterManager adapterManager;
+
+    @Override
+    public boolean isOptional() {
+        return true;
+    }
 
     @Inject
     SignChangeEventListener(HoneypotBlockManager blockManager, HoneypotLogger logger, AdapterManager adapterManager) {

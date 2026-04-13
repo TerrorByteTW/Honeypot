@@ -1,4 +1,4 @@
-package org.reprogle.honeypot.common.storagemanager.sqlite;
+package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
 import org.bukkit.entity.Player;
@@ -41,7 +41,7 @@ public class HoneypotPlayerHistoryRepository {
                 Param.text(block.getAction()));
     }
 
-    public List<HoneypotPlayerHistoryObject> retrieveHistory(Player p) {
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
         return db.query("""
                         SELECT *
                         FROM honeypot_history

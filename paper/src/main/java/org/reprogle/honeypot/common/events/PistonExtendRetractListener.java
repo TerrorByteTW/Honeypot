@@ -26,12 +26,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 
-public class PistonExtendRetractListener implements Listener {
+public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotBlockManager blockManager;
 	private final HoneypotLogger logger;

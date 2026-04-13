@@ -50,8 +50,8 @@ Need support? [Reach out on Discord](http://discord.gg/DpcdgTbPnU)!
 
 Prerequisites:
 
-- Java 21
-- Gradle 9.3
+- Java 25
+- Gradle 9.4.1
 
 1. Clone the repository. This will clone the master branch. If you wish to pull development branches, specify that
    accordingly
@@ -88,5 +88,5 @@ etc. Please make sure you have another protection and rollback plugin to prevent
 to keep honest people honest and to catch bad actors without moderators having to constantly monitor players. I highly
 recommend CoreProtect and GriefPrevention, but if you have the money to spend, Lands is an awesome plugin as well.
 
-This plugin is currently written for Minecraft 1.21+ and is compiled using Java 21. If you are not running Java 21 on your
+This plugin is currently written for Minecraft 26+ and is compiled using Java 25. If you are not running Java 25 on your
 server, or running on older versions of Minecraft, this plugin is not for you.

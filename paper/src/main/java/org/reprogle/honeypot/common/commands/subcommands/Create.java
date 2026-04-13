@@ -30,7 +30,7 @@ import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
 import org.reprogle.honeypot.common.utils.integrations.LandsAdapter;
@@ -38,7 +38,7 @@ import org.reprogle.honeypot.common.utils.integrations.WorldGuardAdapter;
 
 import java.util.List;
 
-public class HoneypotCreate implements CommandCallback {
+public class Create implements CommandCallback {
 
     private final CommandFeedback commandFeedback;
     private final BytePluginConfig config;
@@ -46,7 +46,7 @@ public class HoneypotCreate implements CommandCallback {
     private final AdapterManager adapterManager;
 
     @Inject
-    HoneypotCreate(CommandFeedback commandFeedback, BytePluginConfig config, HoneypotBlockManager blockManager, AdapterManager adapterManager) {
+    Create(CommandFeedback commandFeedback, BytePluginConfig config, HoneypotBlockManager blockManager, AdapterManager adapterManager) {
         this.commandFeedback = commandFeedback;
         this.config = config;
         this.blockManager = blockManager;

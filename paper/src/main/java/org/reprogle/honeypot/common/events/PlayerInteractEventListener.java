@@ -31,7 +31,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -39,7 +39,7 @@ import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import java.util.List;
 import java.util.Objects;
 
-public class PlayerInteractEventListener implements Listener {
+public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
 
     private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
@@ -144,6 +144,6 @@ public class PlayerInteractEventListener implements Listener {
 
         logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
 
-        actionHandler.handleCustomAction(action, block, player);
+        actionHandler.handle(action, block, player);
     }
 }

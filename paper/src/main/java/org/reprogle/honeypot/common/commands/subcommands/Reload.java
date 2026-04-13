@@ -25,20 +25,20 @@ import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
-import org.reprogle.honeypot.common.utils.GhostHoneypotFixer;
+import org.reprogle.honeypot.common.utils.GhostHoneypotMonitor;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class HoneypotReload implements CommandCallback {
+public class Reload implements CommandCallback {
 
     private final BytePluginConfig config;
-    private final GhostHoneypotFixer fixer;
+    private final GhostHoneypotMonitor monitor;
     private final CommandFeedback commandFeedback;
     private final HoneypotLogger logger;
 
     @Inject
-    public HoneypotReload(BytePluginConfig config, GhostHoneypotFixer fixer, CommandFeedback commandFeedback, HoneypotLogger logger) {
+    public Reload(BytePluginConfig config, GhostHoneypotMonitor monitor, CommandFeedback commandFeedback, HoneypotLogger logger) {
         this.config = config;
-        this.fixer = fixer;
+        this.monitor = monitor;
         this.commandFeedback = commandFeedback;
         this.logger = logger;
     }
@@ -47,9 +47,9 @@ public class HoneypotReload implements CommandCallback {
     public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
         config.reload();
 
-        fixer.cancelTask();
+        monitor.cancelTask();
         if (config.config().getBoolean("ghost-honeypot-checker.enable")) {
-            fixer.startTask();
+            monitor.startTask();
         }
 
         String providerName = config.config().getString("storage-method");

@@ -1,4 +1,4 @@
-package org.reprogle.honeypot.common.storagemanager.sqlite.patches;
+package org.reprogle.honeypot.common.store.sqlite.patches;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.World;
@@ -8,7 +8,7 @@ import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.migrate.Migration;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.Registry;
-import org.reprogle.honeypot.common.storagemanager.sqlite.HoneypotBlockRepository;
+import org.reprogle.honeypot.common.store.sqlite.HoneypotBlockRepository;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 

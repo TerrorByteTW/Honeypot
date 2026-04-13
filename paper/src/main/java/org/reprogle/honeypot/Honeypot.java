@@ -26,6 +26,7 @@ import org.reprogle.bytelib.boot.wiring.PluginWiring;
 import org.reprogle.bytelib.db.sqlite.SqliteConfig;
 import org.reprogle.bytelib.db.sqlite.SqliteModule;
 import org.reprogle.honeypot.common.commands.CommandModule;
+import org.reprogle.honeypot.common.events.ListenerModule;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -48,6 +49,7 @@ public final class Honeypot extends ByteLibPlugin {
             return List.of(
                 new HoneypotModule(dataDir),
                 new CommandModule(),
+                new ListenerModule(),
                 new SqliteModule("honeypot.db", cfg -> new SqliteConfig(
                     true,
                     cfg.config().getString("db.journal-mode", "WAL"),

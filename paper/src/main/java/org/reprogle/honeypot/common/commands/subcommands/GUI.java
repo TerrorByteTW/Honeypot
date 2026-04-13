@@ -45,12 +45,13 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
+import org.reprogle.bytelib.config.Translator;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
@@ -59,31 +60,34 @@ import org.reprogle.honeypot.common.utils.integrations.WorldGuardAdapter;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 // Some Paper methods are marked with the Obsolete annotation instead of Deprecated, and Sonarlint treats that as deprecated. 
 // So, SuppressWarnings("deprecation") works, but my IDE considers it "unnecessary". Instead, we disable the SonarLint rule
 @SuppressWarnings("java:S1874")
-public class HoneypotGUI implements CommandCallback {
+public class GUI implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
     private final CommandFeedback commandFeedback;
     private final AdapterManager adapterManager;
+    private final Translator translator;
 
     @Inject
-    HoneypotGUI(JavaPlugin plugin, BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback, AdapterManager adapterManager) {
+    GUI(JavaPlugin plugin, BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback, AdapterManager adapterManager, Translator translator) {
         this.plugin = plugin;
         this.config = config;
         this.blockManager = blockManager;
         this.commandFeedback = commandFeedback;
         this.adapterManager = adapterManager;
+        this.translator = translator;
     }
 
     @SuppressWarnings({"java:S1192", "java:S1121"})
     private void customHoneypotsInventory(Player p) {
-        PaginatedPane pages = new PaginatedPane(0, 0, 9, 2);
+        PaginatedPane pages = new PaginatedPane(9, 2);
 
         // Collect + dedupe types (config keys + behavior providers)
         Set<String> typeSet = new HashSet<>();
@@ -92,8 +96,8 @@ public class HoneypotGUI implements CommandCallback {
         }
 
         Registry.getBehaviorRegistry()
-                .getBehaviorProviders()
-                .forEach((providerName, provider) -> typeSet.add(providerName));
+            .getBehaviorProviders()
+            .forEach((providerName, provider) -> typeSet.add(providerName));
 
         List<String> types = new ArrayList<>(typeSet);
         types.sort(String.CASE_INSENSITIVE_ORDER);
@@ -103,14 +107,14 @@ public class HoneypotGUI implements CommandCallback {
 
             // Provider not present => type came from config; use config icon
             String iconMaterial = (provider == null)
-                    ? config.require("honeypots").getString(type + ".icon")
-                    : provider.getIcon().name();
+                ? config.require("honeypots").getString(type + ".icon")
+                : provider.getIcon().name();
 
             return button(
-                    iconMaterial,
-                    type,
-                    "Click to create a Honeypot of this type",
-                    event -> createHoneypotFromGUI(event, type)
+                iconMaterial,
+                type,
+                "Click to create a Honeypot of this type",
+                event -> createHoneypotFromGUI(event, type)
             );
         });
 
@@ -124,7 +128,7 @@ public class HoneypotGUI implements CommandCallback {
             return;
         }
 
-        PaginatedPane pages = new PaginatedPane(0, 0, 9, 2);
+        PaginatedPane pages = new PaginatedPane(9, 2);
 
         boolean displayAsPot = config.require("gui").getBoolean("display-button-as-honeypot");
         String defaultButton = config.require("gui").getString("default-gui-button");
@@ -137,14 +141,14 @@ public class HoneypotGUI implements CommandCallback {
             String mat = displayAsPot ? block.getBlock().getType().name() : defaultButton;
 
             return button(mat,
-                    "Honeypot: " + block.getCoordinates(),
-                    "Click to teleport to Honeypot",
-                    e -> {
-                        Player clicker = (Player) e.getWhoClicked();
-                        clicker.sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
-                        clicker.teleportAsync(block.getLocation().add(0.5, 1, 0.5));
-                        clicker.closeInventory();
-                    }
+                "Honeypot: " + block.getCoordinates(),
+                "Click to teleport to Honeypot",
+                e -> {
+                    Player clicker = (Player) e.getWhoClicked();
+                    clicker.sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
+                    clicker.teleportAsync(block.getLocation().add(0.5, 1, 0.5));
+                    clicker.closeInventory();
+                }
             );
         });
 
@@ -158,7 +162,7 @@ public class HoneypotGUI implements CommandCallback {
             return;
         }
 
-        PaginatedPane pages = new PaginatedPane(0, 0, 9, 2);
+        PaginatedPane pages = new PaginatedPane(9, 2);
 
         List<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
         players.sort(Comparator.comparing(Player::getName, String.CASE_INSENSITIVE_ORDER));
@@ -168,13 +172,13 @@ public class HoneypotGUI implements CommandCallback {
             if (!(skullItem.getItemMeta() instanceof SkullMeta skullMeta)) {
                 // Fallback: should be extremely rare
                 return button(
-                        Material.PAPER.name(),
-                        player.getName(),
-                        "Click to query history",
-                        event -> {
-                            event.getWhoClicked().closeInventory();
-                            Bukkit.dispatchCommand(event.getWhoClicked(), "honeypot history query " + player.getName());
-                        }
+                    Material.PAPER.name(),
+                    player.getName(),
+                    "Click to query history",
+                    event -> {
+                        event.getWhoClicked().closeInventory();
+                        Bukkit.dispatchCommand(event.getWhoClicked(), "honeypot history query " + player.getName());
+                    }
                 );
             }
 
@@ -201,70 +205,70 @@ public class HoneypotGUI implements CommandCallback {
 
         ChestGui gui = new ChestGui(1, "Remove Honeypots");
 
-        StaticPane options = new StaticPane(0, 0, 9, 1);
+        StaticPane options = new StaticPane(9, 1);
         options.addItem(button(
-                config.require("gui").getString("remove-buttons.remove-all-button"),
-                "Remove all Honeypots",
-                null,
-                event -> {
-                    event.getWhoClicked().closeInventory();
-                    blockManager.deleteAllHoneypotBlocks(p.getWorld());
-                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
-                }
+            config.require("gui").getString("remove-buttons.remove-all-button"),
+            "Remove all Honeypots",
+            null,
+            event -> {
+                event.getWhoClicked().closeInventory();
+                blockManager.deleteAllHoneypotBlocks(p.getWorld());
+                p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
+            }
         ), 3, 0);
 
         options.addItem(button(
-                config.require("gui").getString("remove-buttons.remove-near-button"),
-                "Remove nearby Honeypots",
-                null,
-                event -> {
-                    event.getWhoClicked().closeInventory();
-                    final int radius = config.config().getInt("search-range");
-                    List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+            config.require("gui").getString("remove-buttons.remove-near-button"),
+            "Remove nearby Honeypots",
+            null,
+            event -> {
+                event.getWhoClicked().closeInventory();
+                final int radius = config.config().getInt("search-range");
+                List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
 
-                    if (honeypots.isEmpty()) {
-                        p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
-                        return;
-                    }
-
-                    for (HoneypotBlockObject honeypot : honeypots) {
-                        blockManager.deleteBlock(honeypot.getBlock());
-                    }
-
-                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));
+                if (honeypots.isEmpty()) {
+                    p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
+                    return;
                 }
+
+                for (HoneypotBlockObject honeypot : honeypots) {
+                    blockManager.deleteBlock(honeypot.getBlock());
+                }
+
+                p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));
+            }
         ), 4, 0);
 
         options.addItem(button(
-                config.require("gui").getString("remove-buttons.remove-target-button"),
-                "Remove the Honeypot you're targeting",
-                null,
-                event -> {
-                    Block block;
-                    event.getWhoClicked().closeInventory();
+            config.require("gui").getString("remove-buttons.remove-target-button"),
+            "Remove the Honeypot you're targeting",
+            null,
+            event -> {
+                Block block;
+                event.getWhoClicked().closeInventory();
 
-                    if (event.getWhoClicked().getTargetBlockExact(5) != null) {
-                        block = event.getWhoClicked().getTargetBlockExact(5);
-                    } else {
-                        event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-looking-at-block"));
-                        return;
-                    }
-
-                    if (block == null) {
-                        event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-looking-at-block"));
-                        return;
-                    }
-
-                    if (blockManager.isHoneypotBlock(block)) {
-                        blockManager.deleteBlock(block);
-                        p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
-                    } else {
-                        event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
-                    }
+                if (event.getWhoClicked().getTargetBlockExact(5) != null) {
+                    block = event.getWhoClicked().getTargetBlockExact(5);
+                } else {
+                    event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-looking-at-block"));
+                    return;
                 }
+
+                if (block == null) {
+                    event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-looking-at-block"));
+                    return;
+                }
+
+                if (blockManager.isHoneypotBlock(block)) {
+                    blockManager.deleteBlock(block);
+                    p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
+                } else {
+                    event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
+                }
+            }
         ), 5, 0);
 
-        gui.addPane(options);
+        gui.addPane(Slot.fromXY(0, 0), options);
         gui.show(p);
     }
 
@@ -307,11 +311,11 @@ public class HoneypotGUI implements CommandCallback {
         }
 
         if (config.config().getBoolean("filters.blocks")
-                || config.config().getBoolean("filters.inventories")) {
+            || config.config().getBoolean("filters.inventories")) {
             List<String> allowedBlocks = (List<String>) config.config()
-                    .getList("allowed-blocks");
+                .getList("allowed-blocks");
             List<String> allowedInventories = (List<String>) config.config()
-                    .getList("allowed-inventories");
+                .getList("allowed-inventories");
             boolean allowed = false;
 
             if (config.config().getBoolean("filters.blocks")) {
@@ -366,27 +370,48 @@ public class HoneypotGUI implements CommandCallback {
     public void mainMenu(Player p) {
         ChestGui gui = new ChestGui(1, "Honeypot");
 
-        StaticPane navigation = new StaticPane(0, 0, 9, 1);
+        StaticPane navigation = new StaticPane(9, 1);
 
-        navigation.addItem(button(
+        if (p.hasPermission("honeypot.create"))
+            navigation.addItem(button(
                 config.require("gui").getString("main-buttons.create-button"),
                 "Create a Honeypot",
                 null,
                 event -> this.customHoneypotsInventory(p)
-        ), 2, 0);
-        navigation.addItem(button(
+            ), 2, 0);
+        else
+            navigation.addItem(button(
+                "BARRIER",
+                "Create a Honeypot (No Permission)",
+                null,
+                event -> p.sendMessage(translator.tr("no-permission"))
+            ), 2, 0);
+
+        if (p.hasPermission("honeypot.remove"))
+            navigation.addItem(button(
                 config.require("gui").getString("main-buttons.remove-button"),
                 "Remove a Honeypot",
                 null,
                 event -> this.removeHoneypotInventory(p)
-        ), 3, 0);
-        navigation.addItem(button(
-                config.require("gui").getString("main-buttons.list-button"),
-                "List all Honeypots",
+            ), 3, 0);
+        else
+            navigation.addItem(button(
+                "BARRIER",
+                "Remove a Honeypot (No Permission)",
                 null,
-                event -> this.allHoneypotsInventory(p)
-        ), 4, 0);
+                event -> p.sendMessage(translator.tr("no-permission"))
+            ), 3, 0);
+
+
         navigation.addItem(button(
+            config.require("gui").getString("main-buttons.list-button"),
+            "List all Honeypots",
+            null,
+            event -> this.allHoneypotsInventory(p)
+        ), 4, 0);
+
+        if (p.hasPermission("honeypot.locate"))
+            navigation.addItem(button(
                 config.require("gui").getString("main-buttons.locate-button"),
                 "Locate nearby Honeypots",
                 null,
@@ -406,7 +431,7 @@ public class HoneypotGUI implements CommandCallback {
 
                     for (HoneypotBlockObject honeypot : honeypots) {
                         Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(honeypot.getBlock().getWorld().getName()))
-                                .spawnEntity(honeypot.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
+                            .spawnEntity(honeypot.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
                         slime.setSize(2);
                         slime.setAI(false);
                         slime.setGlowing(true);
@@ -426,15 +451,31 @@ public class HoneypotGUI implements CommandCallback {
                         p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
                     }
                 }
-        ), 5, 0);
-        navigation.addItem(button(
+            ), 5, 0);
+        else
+            navigation.addItem(button(
+                "BARRIER",
+                "Locate nearby Honeypots (No Permission)",
+                null,
+                event -> p.sendMessage(translator.tr("no-permission"))
+            ), 5, 0);
+
+        if (p.hasPermission("honeypot.history"))
+            navigation.addItem(button(
                 config.require("gui").getString("main-buttons.history-button"),
                 "Query player history",
                 null,
                 event -> this.historyQueryInventory(p)
-        ), 6, 0);
+            ), 6, 0);
+        else
+            navigation.addItem(button(
+                "BARRIER",
+                "Query player history (No Permission)",
+                null,
+                event -> p.sendMessage(translator.tr("no-permission"))
+            ), 6, 0);
 
-        gui.addPane(navigation);
+        gui.addPane(Slot.fromXY(0, 0), navigation);
 
         gui.show(p);
     }
@@ -452,7 +493,7 @@ public class HoneypotGUI implements CommandCallback {
         ItemStack item = new ItemStack(safeGetMaterial(materialName));
 
         if (item.getType().equals(Material.AIR)) {
-            // The only time a Honeypot can be AIR is if it was broken somehow (Such as by flowing water if optional events is turned off). The Ghost Honeypot Fixer will clean it up eventually.
+            // The only time a Honeypot can be AIR is if it was broken somehow (Such as by flowing water if optional events are turned off). The Ghost Honeypot Monitor will clean it up eventually.
             item = new ItemStack(Material.BARRIER);
             ItemMeta meta = item.getItemMeta();
             meta.displayName(Component.text("Broken Honeypot", NamedTextColor.RED));
@@ -481,20 +522,20 @@ public class HoneypotGUI implements CommandCallback {
         gui.setOnGlobalClick(e -> e.setCancelled(true));
 
         // Bottom row background
-        OutlinePane background = new OutlinePane(0, rows - 1, 9, 1);
+        OutlinePane background = new OutlinePane(9, 1);
         background.addItem(new GuiItem(new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), e -> e.setCancelled(true)));
         background.setRepeat(true);
         background.setPriority(Pane.Priority.LOWEST);
 
-        gui.addPane(background);
-        gui.addPane(pages);
+        gui.addPane(Slot.fromXY(0, rows - 1), background);
+        gui.addPane(Slot.fromXY(0, 0), pages);
 
-        PagingButtons paging = new PagingButtons(Slot.fromXY(0, rows - 1), 9, pages);
+        PagingButtons paging = new PagingButtons(9, pages);
         paging.setBackwardButton(button("ARROW", "Previous Page", null, e -> {
         }));
         paging.setForwardButton(button("ARROW", "Next Page", null, e -> {
         }));
-        gui.addPane(paging);
+        gui.addPane(Slot.fromXY(0, rows - 1), paging);
 
         return gui;
     }
@@ -502,18 +543,18 @@ public class HoneypotGUI implements CommandCallback {
     private <T> void fillPages(PaginatedPane pages, List<T> items, int pageSize, java.util.function.Function<T, GuiItem> toGuiItem) {
         for (int i = 0; i < items.size(); i += pageSize) {
             List<T> chunk = items.subList(i, Math.min(i + pageSize, items.size()));
-            OutlinePane pane = new OutlinePane(0, 0, 9, 2);
+            OutlinePane pane = new OutlinePane(9, 2);
 
             for (T t : chunk) {
                 pane.addItem(toGuiItem.apply(t));
             }
 
-            pages.addPage(pane);
+            pages.addPage(Slot.fromXY(0, 0), pane);
         }
 
         // Ensure at least one empty page so the GUI still renders nicely with paging buttons
         if (items.isEmpty()) {
-            pages.addPage(new OutlinePane(0, 0, 9, 2));
+            pages.addPage(Slot.fromXY(0, 0), new OutlinePane(9, 2));
         }
     }
 

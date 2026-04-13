@@ -23,13 +23,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFormEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class BlockFormEventListener implements Listener {
+public class BlockFormEventListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotLogger logger;
 	private final HoneypotBlockManager blockManager;
+
+	@Override
+	public boolean isOptional() {
+		return true;
+	}
 	
 	@Inject
 	BlockFormEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {

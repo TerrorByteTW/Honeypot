@@ -22,7 +22,7 @@ version = "4.0.0"
 
 extra["platform"] = "paper"
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 
 plugins {
     java
@@ -44,7 +44,6 @@ dependencies {
     implementation(libs.bytelib)
 
     compileOnly(libs.paper.api)
-//    compileOnly(libs.folia.api)
 
     compileOnly(libs.vault)
     compileOnly(libs.placeholder.api)

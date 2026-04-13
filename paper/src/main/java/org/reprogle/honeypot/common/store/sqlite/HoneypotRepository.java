@@ -1,4 +1,4 @@
-package org.reprogle.honeypot.common.storagemanager.sqlite;
+package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -14,10 +14,10 @@ import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.bytelib.db.migrate.MigrationStep;
 import org.reprogle.bytelib.db.migrate.UserVersionMigrator;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
-import org.reprogle.honeypot.common.storagemanager.sqlite.patches.ConvertToSpatialIndexing01;
-import org.reprogle.honeypot.common.storagemanager.sqlite.patches.MigratePdcToSqlite03;
-import org.reprogle.honeypot.common.storagemanager.sqlite.patches.RemoveFKConstraint02;
-import org.reprogle.honeypot.common.storagemanager.sqlite.patches.UpdateHistoryTable00;
+import org.reprogle.honeypot.common.store.sqlite.patches.ConvertToSpatialIndexing01;
+import org.reprogle.honeypot.common.store.sqlite.patches.MigratePdcToSqlite03;
+import org.reprogle.honeypot.common.store.sqlite.patches.RemoveFKConstraint02;
+import org.reprogle.honeypot.common.store.sqlite.patches.UpdateHistoryTable00;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
@@ -27,6 +27,12 @@ import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines the SQLite Honeypot Store. You should NOT interact with this directly.
+ * Instead, use the {@link org.reprogle.honeypot.common.store.HoneypotBlockManager},
+ * {@link org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager},
+ * or {@link org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager}
+ */
 @Singleton
 @HoneypotStore(name = "sqlite")
 public class HoneypotRepository extends StorageProvider {
@@ -102,8 +108,8 @@ public class HoneypotRepository extends StorageProvider {
     /*
        Player Repository
      */
-    public void createHoneypotPlayer(Player player, int blocksBroken) {
-        this.playerRepo.createHoneypotPlayer(player, blocksBroken);
+    public void addPlayer(Player player, int blocksBroken) {
+        this.playerRepo.addPlayer(player, blocksBroken);
     }
 
     public void setPlayerCount(Player playerName, int blocksBroken) {
@@ -118,8 +124,8 @@ public class HoneypotRepository extends StorageProvider {
         return this.playerRepo.getCount(player);
     }
 
-    public void deleteAllPlayers() {
-        this.playerRepo.deleteAllPlayers();
+    public void deleteAllHoneypotPlayers() {
+        this.playerRepo.deleteAllHoneypotPlayers();
     }
 
     /*
@@ -129,8 +135,8 @@ public class HoneypotRepository extends StorageProvider {
         this.playerHistoryRepo.addPlayerHistory(p, block, type);
     }
 
-    public List<HoneypotPlayerHistoryObject> retrieveHistory(Player p) {
-        return this.playerHistoryRepo.retrieveHistory(p);
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
+        return this.playerHistoryRepo.getPlayerHistory(p);
     }
 
     public void deletePlayerHistory(Player p, int... n) {

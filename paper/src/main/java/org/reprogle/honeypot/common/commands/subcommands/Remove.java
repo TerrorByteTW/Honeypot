@@ -27,19 +27,19 @@ import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 
 import java.util.List;
 
-public class HoneypotRemove implements CommandCallback {
+public class Remove implements CommandCallback {
 
     private final BytePluginConfig config;
     private final HoneypotBlockManager blockManager;
     private final CommandFeedback commandFeedback;
 
     @Inject
-    public HoneypotRemove(BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
+    public Remove(BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
         this.config = config;
         this.blockManager = blockManager;
         this.commandFeedback = commandFeedback;

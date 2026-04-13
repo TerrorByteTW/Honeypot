@@ -36,14 +36,14 @@ import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import java.util.List;
 import java.util.Objects;
 
-public class HoneypotLocate implements CommandCallback {
+public class Locate implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
 
     @Inject
-    public HoneypotLocate(JavaPlugin plugin, BytePluginConfig config, CommandFeedback commandFeedback) {
+    public Locate(JavaPlugin plugin, BytePluginConfig config, CommandFeedback commandFeedback) {
         this.plugin = plugin;
         this.config = config;
         this.commandFeedback = commandFeedback;

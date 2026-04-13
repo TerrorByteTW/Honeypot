@@ -1,4 +1,4 @@
-package org.reprogle.honeypot.common.storagemanager.sqlite;
+package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
 import org.bukkit.Location;

@@ -18,8 +18,10 @@ package org.reprogle.honeypot.common.storageproviders;
 
 import com.google.common.base.Objects;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -58,6 +60,9 @@ public abstract class StorageProvider {
         return Objects.hashCode(providerName);
     }
 
+    /*
+     * Block methods
+     */
     public abstract void createHoneypotBlock(Block block, String action);
 
     public abstract void removeHoneypotBlock(Block block);
@@ -73,4 +78,28 @@ public abstract class StorageProvider {
     public abstract List<HoneypotBlockObject> getAllHoneypots(@Nullable World world);
 
     public abstract List<HoneypotBlockObject> getNearbyHoneypots(Location location, int radius);
+
+    /*
+     * Player methods
+     */
+    public abstract void addPlayer(Player player, int blocksBroken);
+
+    public abstract void setPlayerCount(Player player, int blocksBroken);
+
+    public abstract int getCount(Player player);
+
+    public abstract int getCount(OfflinePlayer player);
+
+    public abstract void deleteAllHoneypotPlayers();
+
+    /*
+     * Player history methods
+     */
+    public abstract void addPlayerHistory(Player p, HoneypotBlockObject b, String type);
+
+    public abstract List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p);
+
+    public abstract void deletePlayerHistory(Player p, int... n);
+
+    public abstract void deleteAllHistory();
 }

@@ -14,7 +14,7 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.storagemanager.sqlite.patches;
+package org.reprogle.honeypot.common.store.sqlite.patches;
 
 import net.kyori.adventure.text.Component;
 import org.reprogle.bytelib.db.api.Param;
@@ -23,7 +23,6 @@ import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-import java.sql.*;
 import java.util.List;
 
 @SuppressWarnings("FieldCanBeLocal")

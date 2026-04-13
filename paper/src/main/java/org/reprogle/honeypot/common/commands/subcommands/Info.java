@@ -21,21 +21,21 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.utils.HoneypotSupportedVersions;
 
-@SuppressWarnings("deprecation")
-public class HoneypotInfo implements CommandCallback {
+public class Info implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final CommandFeedback commandFeedback;
     private final HoneypotSupportedVersions supportedVersions;
 
     @Inject
-    public HoneypotInfo(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotSupportedVersions supportedVersions) {
+    public Info(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotSupportedVersions supportedVersions) {
         this.plugin = plugin;
         this.commandFeedback = commandFeedback;
         this.supportedVersions = supportedVersions;
@@ -44,8 +44,12 @@ public class HoneypotInfo implements CommandCallback {
     @Override
     public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
         var sender = ctx.getSource().getSender();
-        sender.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Honeypot version " + plugin.getDescription().getVersion())));
-        sender.sendMessage(commandFeedback.getChatPrefix().append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion())));
+        sender.sendMessage(commandFeedback.getChatPrefix()
+            .append(Component.text(" "))
+            .append(Component.text("Honeypot " + plugin.getPluginMeta().getVersion(), NamedTextColor.WHITE)));
+        sender.sendMessage(commandFeedback.getChatPrefix()
+            .append(Component.text(" "))
+            .append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion(), NamedTextColor.WHITE)));
         supportedVersions.checkIfServerSupported();
 
         return Command.SINGLE_SUCCESS;

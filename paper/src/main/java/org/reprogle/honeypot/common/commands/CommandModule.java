@@ -17,7 +17,6 @@ import org.reprogle.honeypot.common.providers.BehaviorProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -65,9 +64,9 @@ public final class CommandModule extends AbstractModule {
                                     }
                                 )
                             )
-                            .executes(HoneypotCreate.class, factory)
+                            .executes(Create.class, factory)
                     )
-                    .executes(HoneypotHelp.class, factory)
+                    .executes(Help.class, factory)
             )
             .then(
                 CommandDsl.literal("gui")
@@ -81,7 +80,7 @@ public final class CommandModule extends AbstractModule {
                             PermissionChecks.playerOnly()
                         )
                     )
-                    .executes(HoneypotGUI.class, factory)
+                    .executes(GUI.class, factory)
             )
             .then(
                 CommandDsl.literal("help")
@@ -98,7 +97,7 @@ public final class CommandModule extends AbstractModule {
                     .then(
                         CommandDsl.argument("action", StringArgumentType.string())
                             .suggests(
-                                Suggest.fixedWithTooltip(List.of(
+                                Suggest.fixedWithTooltip(java.util.List.of(
                                         Suggest.suggestion("delete", Component.text("Delete history record for a player")),
                                         Suggest.suggestion("query", Component.text("Query history for a player")),
                                         Suggest.suggestion("purge", Component.text("Purges all history for all players"))
@@ -121,11 +120,11 @@ public final class CommandModule extends AbstractModule {
                                         CommandDsl.argument("count", IntegerArgumentType.integer(1, 100000))
                                     )
                             )
-                            .executes(HoneypotHistory.class, factory))
+                            .executes(History.class, factory))
             )
             .then(
                 CommandDsl.literal("info")
-                    .executes(HoneypotInfo.class, factory)
+                    .executes(Info.class, factory)
             )
             .then(
                 CommandDsl.literal("list")
@@ -139,7 +138,7 @@ public final class CommandModule extends AbstractModule {
                             PermissionChecks.playerOnly()
                         )
                     )
-                    .executes(HoneypotList.class, factory)
+                    .executes(List.class, factory)
             )
             .then(
                 CommandDsl.literal("locate")
@@ -156,7 +155,7 @@ public final class CommandModule extends AbstractModule {
                     .then(
                         CommandDsl.argument("radius", IntegerArgumentType.integer(1))
                     )
-                    .executes(HoneypotLocate.class, factory)
+                    .executes(Locate.class, factory)
             )
             .then(
                 CommandDsl.literal("reload")
@@ -167,7 +166,7 @@ public final class CommandModule extends AbstractModule {
                             PermissionChecks.isOp()
                         )
                     )
-                    .executes(HoneypotReload.class, factory)
+                    .executes(Reload.class, factory)
             )
             .then(
                 CommandDsl.literal("remove")
@@ -185,9 +184,9 @@ public final class CommandModule extends AbstractModule {
                         CommandDsl.argument("qualifier", StringArgumentType.string())
                             .suggests(Suggest.fixed("all", "near"))
                     )
-                    .executes(HoneypotRemove.class, factory)
+                    .executes(Remove.class, factory)
             )
-            .executes(HoneypotHelp.class, factory);
+            .executes(Help.class, factory);
 
         return new DslCommandRegistration(root);
     }

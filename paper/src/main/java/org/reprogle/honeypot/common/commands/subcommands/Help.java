@@ -20,23 +20,21 @@ import com.google.inject.Inject;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import org.bukkit.entity.Player;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.honeypot.common.commands.CommandFeedback;
 
-public class HoneypotList implements CommandCallback {
+public class Help implements CommandCallback {
 
-	private final HoneypotGUI gui;
+	private final CommandFeedback commandFeedback;
 
 	@Inject
-	public HoneypotList(HoneypotGUI gui) {
-		this.gui = gui;
+    Help(CommandFeedback commandFeedback) {
+		this.commandFeedback = commandFeedback;
 	}
 
 	@Override
 	public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
-		// We know this is safe because there is a requirement that the sender is a player
-		Player p = (Player) ctx.getSource().getSender();
-		gui.callAllHoneypotsInventory(p);
+		ctx.getSource().getSender().sendMessage(commandFeedback.sendCommandFeedback("usage"));
 		return Command.SINGLE_SUCCESS;
 	}
 }

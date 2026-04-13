@@ -25,10 +25,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class BlockBurnEventListener implements Listener {
+public class BlockBurnEventListener implements Listener, IHoneypotEvent {
 
 	
 	private final HoneypotLogger logger;

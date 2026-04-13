@@ -1,4 +1,4 @@
-package org.reprogle.honeypot.common.storagemanager.sqlite;
+package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
 import org.bukkit.OfflinePlayer;
@@ -21,7 +21,7 @@ public class HoneypotPlayerRepository {
             """);
     }
 
-    public void createHoneypotPlayer(Player player, int blocksBroken) {
+    public void addPlayer(Player player, int blocksBroken) {
         db.execute("""
                 INSET INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
                 """,
@@ -61,7 +61,7 @@ public class HoneypotPlayerRepository {
         return count == null ? -1 : count;
     }
 
-    public void deleteAllPlayers() {
+    public void deleteAllHoneypotPlayers() {
         db.execute("DELETE FROM honeypot_players;");
     }
 }

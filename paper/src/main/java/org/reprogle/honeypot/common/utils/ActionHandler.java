@@ -55,8 +55,7 @@ public class ActionHandler {
         this.adapterManager = adapterManager;
     }
 
-    @SuppressWarnings({"java:S3776", "java:S2629", "java:S1192", "java:S6541"})
-    public void handleCustomAction(String action, Block block, Player player) {
+    public void handle(String action, Block block, Player player) {
 
         logger.debug(Component.text("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation()), false);
 
@@ -66,7 +65,7 @@ public class ActionHandler {
             return;
         }
 
-        // Default path is likely due to custom actions. Run whatever the action was
+        // The default path is likely due to custom actions. Run whatever the action was
         YamlDocument config = this.config.require("honeypots");
         if (config.contains(action)) {
             List<String> commands = config.getStringList(action + ".commands");
@@ -107,7 +106,7 @@ public class ActionHandler {
                     }
                 }
             }
-            // I'd like to warn them if the tried to adjust permissions without vault. If vault is null and they
+            // I'd like to warn them if they tried to adjust permissions without Vault. If Vault is null, and they
             // *didn't* try to adjust permissions, then who cares?
             else if (!permissionsAdd.isEmpty() || !permissionsRemove.isEmpty()) {
                 logger.warning(commandFeedback.getChatPrefix().append(Component.text("Vault is not installed, Honeypots that modify permissions won't work. Please download here: https://www.spigotmc.org/resources/vault.34315/", NamedTextColor.RED)));
@@ -123,7 +122,7 @@ public class ActionHandler {
                 .replace("%bLocation%", block.getLocation().getX() + " " + block.getLocation().getY() + " " + block.getLocation().getZ())
                 .replace("%world%", block.getLocation().getWorld().getName());
 
-        // Support Placeholder API!!!! This will parse any remaining placeholders in the message
+        // Support for Placeholder API, this will parse any remaining placeholders in the message
         if (plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null)
             formattedString = PlaceholderAPI.setPlaceholders(player, formattedString);
 

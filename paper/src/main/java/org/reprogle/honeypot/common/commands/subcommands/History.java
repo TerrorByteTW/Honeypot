@@ -36,7 +36,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 
 import javax.annotation.Nullable;
@@ -44,14 +44,14 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings({"java:S1192", "java:S3776"})
-public class HoneypotHistory implements CommandCallback {
+public class History implements CommandCallback {
 
     private final CommandFeedback commandFeedback;
     private final BytePluginConfig config;
     private final HoneypotPlayerHistoryManager playerHistoryManager;
 
     @Inject
-    public HoneypotHistory(CommandFeedback commandFeedback, BytePluginConfig config, HoneypotPlayerHistoryManager playerHistoryManager) {
+    public History(CommandFeedback commandFeedback, BytePluginConfig config, HoneypotPlayerHistoryManager playerHistoryManager) {
         this.commandFeedback = commandFeedback;
         this.config = config;
         this.playerHistoryManager = playerHistoryManager;

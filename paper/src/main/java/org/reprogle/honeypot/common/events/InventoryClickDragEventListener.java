@@ -35,7 +35,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
@@ -44,7 +44,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
-public class InventoryClickDragEventListener implements Listener {
+public class InventoryClickDragEventListener implements Listener, IHoneypotEvent {
 
     private final ActionHandler actionHandler;
     private final HoneypotBlockManager blockManager;
@@ -160,7 +160,7 @@ public class InventoryClickDragEventListener implements Listener {
 
         logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
 
-        actionHandler.handleCustomAction(action, block, player);
+        actionHandler.handle(action, block, player);
 
         HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player, inventory);
         Bukkit.getPluginManager().callEvent(hice);

@@ -26,7 +26,7 @@ import org.reprogle.honeypot.common.providers.included.Ban;
 import org.reprogle.honeypot.common.providers.included.Kick;
 import org.reprogle.honeypot.common.providers.included.Notify;
 import org.reprogle.honeypot.common.providers.included.Warn;
-import org.reprogle.honeypot.common.storagemanager.sqlite.HoneypotRepository;
+import org.reprogle.honeypot.common.store.sqlite.HoneypotRepository;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
 
 import java.io.File;

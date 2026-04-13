@@ -26,10 +26,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class EntityChangeBlockEventListener implements Listener {
+public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotLogger logger;
     private final HoneypotBlockManager blockManager;

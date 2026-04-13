@@ -24,7 +24,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 
@@ -32,7 +32,7 @@ import java.util.List;
 
 @SuppressWarnings({"java:S1604"})
 @Singleton
-public class GhostHoneypotFixer {
+public class GhostHoneypotMonitor {
     private final BytePluginConfig config;
     private final HoneypotLogger logger;
     private final HoneypotBlockManager blockManager;
@@ -41,16 +41,16 @@ public class GhostHoneypotFixer {
 
     // Create package constructor to hide implicit one
     @Inject
-    public GhostHoneypotFixer(JavaPlugin plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, BytePluginConfig config) {
+    public GhostHoneypotMonitor(JavaPlugin plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, BytePluginConfig config) {
         this.plugin = plugin;
         this.logger = logger;
         this.blockManager = blockManager;
         this.config = config;
 
-        // Start the GhostHoneypotFixer
+        // Start the GhostHoneypotMonitor
         if (config.config().getBoolean("ghost-honeypot-checker.enable")) {
-            logger.info(
-                    Component.text("Starting the ghost checker task! If you need to change the settings for this function, edit the config then do /honeypot reload"));
+            logger.debug(
+                    Component.text("Ghost Honeypot Checker is enabled, starting the monitoring task. If you need to change the settings for this function, edit the config then do /honeypot reload"), false);
         }
     }
 
@@ -59,7 +59,7 @@ public class GhostHoneypotFixer {
      */
     public void startTask() {
         task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> {
-            logger.debug(Component.text("Running ghost Honeypot checks..."), true);
+            logger.debug(Component.text("Checking for Ghost Honeypots..."), true);
             int removedPots = 0;
             List<World> worlds = Bukkit.getWorlds();
 

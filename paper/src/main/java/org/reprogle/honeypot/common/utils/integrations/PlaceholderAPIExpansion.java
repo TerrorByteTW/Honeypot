@@ -23,12 +23,11 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-@SuppressWarnings({ "deprecation", "unused" })
 public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
     private final JavaPlugin plugin;
@@ -46,7 +45,7 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getAuthor() {
-        return String.join(", ", plugin.getDescription().getAuthors());
+        return String.join(", ", plugin.getPluginMeta().getAuthors());
     }
 
     @Override
@@ -56,7 +55,7 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return plugin.getDescription().getVersion();
+        return plugin.getPluginMeta().getVersion();
     }
 
     @Override
@@ -65,8 +64,7 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onRequest(OfflinePlayer player, @NotNull
-    String params) {
+    public String onRequest(OfflinePlayer player, @NotNull String params) {
         logger.debug(Component.text("Param received was: " + params), false);
         if (params.equalsIgnoreCase("current_count_broken")) {
             if (player == null)

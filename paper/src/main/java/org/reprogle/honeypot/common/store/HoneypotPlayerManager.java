@@ -14,24 +14,26 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.storagemanager;
+package org.reprogle.honeypot.common.store;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.reprogle.honeypot.common.storagemanager.sqlite.HoneypotRepository;
+import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
+/**
+ * A class for managing Players in the context of Honeypot. Does not interact with the Store, but rather uses the HoneypotRepository, as all player data
+ * is stored within SQLite (For now)
+ */
 public class HoneypotPlayerManager {
 
 	private final HoneypotLogger logger;
-	private final HoneypotRepository db;
 
 	@Inject
-	public HoneypotPlayerManager(HoneypotLogger logger, HoneypotRepository db) {
+	public HoneypotPlayerManager(HoneypotLogger logger) {
 		this.logger = logger;
-		this.db = db;
 	}
 
 	/**
@@ -43,7 +45,7 @@ public class HoneypotPlayerManager {
 	 * @param blocksBroken The amount of Blocks broken
 	 */
 	public void addPlayer(Player player, int blocksBroken) {
-		db.createHoneypotPlayer(player, blocksBroken);
+		Registry.getStorageProvider().addPlayer(player, blocksBroken);
 		logger.debug(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()), true);
 	}
 
@@ -57,7 +59,7 @@ public class HoneypotPlayerManager {
 	 * @param blocksBroken The amount of blocks broken by the player
 	 */
 	public void setPlayerCount(Player player, int blocksBroken) {
-		db.setPlayerCount(player, blocksBroken);
+		Registry.getStorageProvider().setPlayerCount(player, blocksBroken);
 		logger.debug(Component.text("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken), true);
 	}
 
@@ -70,7 +72,7 @@ public class HoneypotPlayerManager {
 	 * @return The amount of Honeypot blocks the player has broken
 	 */
 	public int getCount(Player player) {
-		return db.getCount(player);
+		return Registry.getStorageProvider().getCount(player);
 	}
 
 	/**
@@ -82,14 +84,14 @@ public class HoneypotPlayerManager {
 	 * @return The amount of Honeypot blocks the player has broken
 	 */
 	public int getCount(OfflinePlayer player) {
-		return db.getCount(player);
+		return Registry.getStorageProvider().getCount(player);
 	}
 
 	/**
 	 * Delete's all players in the DB
 	 */
 	public void deleteAllHoneypotPlayers() {
-		db.deleteAllPlayers();
+		Registry.getStorageProvider().deleteAllHoneypotPlayers();
 		logger.debug(Component.text("Deleted all Honeypot players from DB"), false);
 	}
 

@@ -30,14 +30,14 @@ public class CommandFeedback {
     Translator translator;
 
     /**
-     * A helper class which helps to reduce boilerplate player.sendMessage code by
+     * A helper class that helps to reduce boilerplate player.sendMessage code by
      * providing the strings to send instead
      * of having to copy and paste them.
      *
      * @param feedback The string to send back
-     * @param success  An optional Boolean which is used for the success feedback.
-     *                 If none is passed, success just
-     *                 replies "Success!"
+     * @param success  An optional Boolean that is used for the success feedback.
+     *                 If none is passed, this method just
+     *                 replies with the default
      * @return The Feedback string
      */
     @SuppressWarnings("java:S1192")
@@ -49,8 +49,10 @@ public class CommandFeedback {
                 final Component prefixComponent = translator.tr("prefix");
                 feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
                         .append(prefixComponent)
-                        .append(Component.text("Need help?\n\n", NamedTextColor.WHITE))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near) (optional)\n", NamedTextColor.GRAY))
+                        .append(Component.text(" Need help?\n\n", NamedTextColor.WHITE))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("create [type]\n", NamedTextColor.GRAY))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("list\n", NamedTextColor.GRAY))
+                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near)\n", NamedTextColor.GRAY))
                         .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("reload\n", NamedTextColor.GRAY))
                         .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("locate\n", NamedTextColor.GRAY))
                         .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("gui\n", NamedTextColor.GRAY))

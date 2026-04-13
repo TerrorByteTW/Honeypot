@@ -21,7 +21,6 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,17 +30,17 @@ import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerManager;
+import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.discord.DiscordWebhookNotifier;
 import org.reprogle.honeypot.common.utils.discord.WebhookActionType;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
-
-public class BlockBreakEventListener implements Listener {
+public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
     private static final String BREAK_PERMISSION = "honeypot.break";
 
@@ -161,28 +160,18 @@ public class BlockBreakEventListener implements Listener {
             && !player.hasPermission(WILDCARD_PERMISSION) && !player.isOp())
             return;
 
-        Block block = event.getBlock();
-
-        Block[] adjacentBlocks = new Block[]{block.getRelative(BlockFace.DOWN), block.getRelative(BlockFace.NORTH),
-            block.getRelative(BlockFace.SOUTH), block.getRelative(BlockFace.EAST),
-            block.getRelative(BlockFace.WEST), block.getRelative(BlockFace.UP)};
-
-        // TODO Future improvement: Use Registry.getStorageProvider().getNearbyHoneypots() to consolidate 6 queries into 1,
-        //  then compare nearby Honeypots to see if they are the same as the adjacent blocks
-
         // Check adjacent blocks to be sure an adjacent block wasn't broken either (e.g., A torch was broken due to its wall block being destroyed)
-        for (Block adjacentBlock : adjacentBlocks) {
-            if (!adjacentBlock.getType().equals(Material.AIR)) continue;
+        for (HoneypotBlockObject honeypot : blockManager.getNearbyHoneypots(event.getBlock().getLocation(), 1)) {
+            Block block = honeypot.getBlock();
+            if (!block.getType().equals(Material.AIR)) continue;
 
-            if (blockManager.isHoneypotBlock(adjacentBlock)) {
-                blockBreakEvent(new BlockBreakEvent(adjacentBlock, player));
-                blockManager.deleteBlock(adjacentBlock);
-                logger.warning(Component.text(
-                    "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
-                        + adjacentBlock.getX() + ", " + adjacentBlock.getY() + ", " + adjacentBlock.getZ()
-                        + ". " + player.getName()
-                        + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot"));
-            }
+            blockBreakEvent(new BlockBreakEvent(block, player));
+            blockManager.deleteBlock(block);
+            logger.warning(Component.text(
+                "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
+                    + block.getX() + ", " + block.getY() + ", " + block.getZ()
+                    + ". " + player.getName()
+                    + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot"));
         }
     }
 
@@ -212,7 +201,7 @@ public class BlockBreakEventListener implements Listener {
                 blockManager.getHoneypotBlock(event.getBlock()), "break");
 
             // Run certain actions based on the action of the Honeypot Block
-            actionHandler.handleCustomAction(action, block, player);
+            actionHandler.handle(action, block, player);
             logger.debug(Component.text("Action successfully taken for block " + block + " on player " + player + " via BlockBreakEvent"), false);
 
             sendWebhook(event);

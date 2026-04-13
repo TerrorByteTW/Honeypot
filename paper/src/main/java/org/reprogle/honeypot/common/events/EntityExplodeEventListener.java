@@ -30,15 +30,15 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storagemanager.HoneypotPlayerHistoryManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityExplodeEventListener implements Listener {
+public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotLogger logger;
 	private final BytePluginConfig config;

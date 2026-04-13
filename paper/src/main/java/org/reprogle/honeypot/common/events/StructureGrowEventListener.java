@@ -23,10 +23,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.StructureGrowEvent;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class StructureGrowEventListener implements Listener {
+public class StructureGrowEventListener implements Listener, IHoneypotEvent {
 
 	private final HoneypotBlockManager blockManager;
 	private final HoneypotLogger logger;

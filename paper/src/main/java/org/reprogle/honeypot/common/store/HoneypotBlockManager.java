@@ -14,10 +14,11 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 
-package org.reprogle.honeypot.common.storagemanager;
+package org.reprogle.honeypot.common.store;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -35,6 +36,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * A class for managing Honeypot blocks. Interacts with the Registry to use the currently selected Store.
+ */
 public class HoneypotBlockManager {
 
     @Inject
@@ -183,6 +187,17 @@ public class HoneypotBlockManager {
      */
     public List<HoneypotBlockObject> getAllHoneypots(World world) {
         return Registry.getStorageProvider().getAllHoneypots(world);
+    }
+
+    /**
+     * Gets all {@link HoneypotBlockObject} from the DB relative to the Location
+     *
+     * @param location The location to get nearby honeypots from
+     * @param radius   The radius to search for nearby honeypots
+     * @return A list of nearby HoneypotBlockObjects
+     */
+    public List<HoneypotBlockObject> getNearbyHoneypots(Location location, int radius) {
+        return Registry.getStorageProvider().getNearbyHoneypots(location, radius);
     }
 
 

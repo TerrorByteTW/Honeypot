@@ -25,9 +25,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.reprogle.honeypot.common.storagemanager.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 
-public class InventoryMoveItemEventListener implements Listener {
+public class InventoryMoveItemEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotBlockManager blockManager;
 
