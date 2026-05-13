@@ -61,7 +61,7 @@ public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent 
                 Bukkit.getPluginManager().callEvent(hnpbe);
 
                 if (Boolean.TRUE.equals(config.config().getBoolean("allow-enderman"))) {
-                    blockManager.deleteBlock(event.getBlock());
+                    blockManager.deleteRegionContaining(event.getBlock());
                 } else {
                     event.setCancelled(true);
                 }

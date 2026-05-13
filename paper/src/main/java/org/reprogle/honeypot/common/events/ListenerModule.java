@@ -22,5 +22,6 @@ public class ListenerModule extends AbstractModule {
         eventBinder.addBinding().to(PlayerJoinEventListener.class);
         eventBinder.addBinding().to(SignChangeEventListener.class);
         eventBinder.addBinding().to(StructureGrowEventListener.class);
+        eventBinder.addBinding().to(BlockPlaceEventListener.class);
     }
 }

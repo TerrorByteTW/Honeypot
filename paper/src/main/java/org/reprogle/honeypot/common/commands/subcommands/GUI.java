@@ -33,11 +33,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -52,7 +49,8 @@ import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.store.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
+import org.reprogle.honeypot.common.utils.RegionOutliner;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
 import org.reprogle.honeypot.common.utils.integrations.LandsAdapter;
@@ -133,20 +131,20 @@ public class GUI implements CommandCallback {
         boolean displayAsPot = config.require("gui").getBoolean("display-button-as-honeypot");
         String defaultButton = config.require("gui").getString("default-gui-button");
 
-        List<HoneypotBlockObject> blocks = new ArrayList<>(blockManager.getAllHoneypots(p.getWorld()));
+        List<HoneypotRegionObject> blocks = new ArrayList<>(blockManager.getAllHoneypots());
         // Sort based on distance to player
-        blocks.sort(Comparator.comparingDouble(b -> b.getLocation().distanceSquared(p.getLocation())));
+        blocks.sort(Comparator.comparingDouble(b -> b.getPos1().distanceSquared(p.getLocation())));
 
         fillPages(pages, blocks, 18, block -> {
-            String mat = displayAsPot ? block.getBlock().getType().name() : defaultButton;
+            String mat = displayAsPot && block.isSingleBlockRegion() ? block.getPos1().getBlock().getType().name() : defaultButton;
 
             return button(mat,
-                "Honeypot: " + block.getCoordinates(),
+                "Region: " + block.getPos1().toString(),
                 "Click to teleport to Honeypot",
                 e -> {
                     Player clicker = (Player) e.getWhoClicked();
                     clicker.sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
-                    clicker.teleportAsync(block.getLocation().add(0.5, 1, 0.5));
+                    clicker.teleportAsync(block.getPos1().add(0.5, 1, 0.5));
                     clicker.closeInventory();
                 }
             );
@@ -212,7 +210,7 @@ public class GUI implements CommandCallback {
             null,
             event -> {
                 event.getWhoClicked().closeInventory();
-                blockManager.deleteAllHoneypotBlocks(p.getWorld());
+                blockManager.deleteAllHoneypotBlocks();
                 p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
             }
         ), 3, 0);
@@ -224,15 +222,16 @@ public class GUI implements CommandCallback {
             event -> {
                 event.getWhoClicked().closeInventory();
                 final int radius = config.config().getInt("search-range");
-                List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+                List<HoneypotRegionObject> honeypots = Registry.getStorageProvider().getNearbyHoneypotRegions(p.getLocation(), radius);
 
                 if (honeypots.isEmpty()) {
                     p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
                     return;
                 }
 
-                for (HoneypotBlockObject honeypot : honeypots) {
-                    blockManager.deleteBlock(honeypot.getBlock());
+                // We want to delete the region, so we can just pass in one of the corners and delete it that way
+                for (HoneypotRegionObject honeypot : honeypots) {
+                    blockManager.deleteRegionContaining(honeypot.getPos1().getBlock());
                 }
 
                 p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));
@@ -260,7 +259,7 @@ public class GUI implements CommandCallback {
                 }
 
                 if (blockManager.isHoneypotBlock(block)) {
-                    blockManager.deleteBlock(block);
+                    blockManager.deleteRegionContaining(block);
                     p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
                 } else {
                     event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
@@ -426,22 +425,15 @@ public class GUI implements CommandCallback {
 
                     boolean potFound = false;
 
-                    List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+                    List<HoneypotRegionObject> honeypots = Registry.getStorageProvider().getNearbyHoneypotRegions(p.getLocation(), radius);
                     if (!honeypots.isEmpty()) potFound = true;
 
-                    for (HoneypotBlockObject honeypot : honeypots) {
-                        Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(honeypot.getBlock().getWorld().getName()))
-                            .spawnEntity(honeypot.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
-                        slime.setSize(2);
-                        slime.setAI(false);
-                        slime.setGlowing(true);
-                        slime.setInvulnerable(true);
-                        slime.setHealth(slime.getAttribute(Attribute.MAX_HEALTH).getValue());
-                        slime.setInvisible(true);
-
-                        // Remove the slime after 5 seconds
-                        // If we kill it, a death animation plays and the slime splits and drops items
-                        slime.getScheduler().runDelayed(plugin, scheduledTask -> slime.remove(), null, 20L * 5);
+                    for (HoneypotRegionObject honeypot : honeypots) {
+                        if (honeypot.isSingleBlockRegion()) {
+                            RegionOutliner.spawnSlime(plugin, p.getWorld(), honeypot.getPos1().getX(), honeypot.getPos1().getY(), honeypot.getPos1().getZ());
+                        } else {
+                            RegionOutliner.outlineBoundingBox(plugin, p, honeypot.getPos1(), honeypot.getPos2());
+                        }
                     }
 
                     // Let the player know if a pot was found or not

@@ -30,7 +30,7 @@ import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
@@ -88,7 +88,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
         // It really shouldn't be in this region anyway, so it's going to be removed
         if (!adapterManager.checkAllAdapters(player, event.getBlock().getLocation())) {
-            blockManager.deleteBlock(event.getBlock());
+            blockManager.deleteRegionContaining(event.getBlock());
             return;
         }
 
@@ -99,7 +99,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
         // Check if the event was canceled. If it is, delete the block.
         if (hppbe.isCancelled()) {
-            blockManager.deleteBlock(event.getBlock());
+            blockManager.deleteRegionContaining(event.getBlock());
             logger.debug(Component.text("HoneypotPrePlayerBreakEvent for " + player + " was cancelled, not continuing."), true);
             return;
         }
@@ -141,7 +141,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         // completed, otherwise the other actions will fail with NPEs
         if (deleteBlock) {
             logger.debug(Component.text("Block is flagged for deletion, removing it from storage"), true);
-            blockManager.deleteBlock(event.getBlock());
+            blockManager.deleteRegionContaining(event.getBlock());
         }
     }
 
@@ -161,12 +161,15 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             return;
 
         // Check adjacent blocks to be sure an adjacent block wasn't broken either (e.g., A torch was broken due to its wall block being destroyed)
-        for (HoneypotBlockObject honeypot : blockManager.getNearbyHoneypots(event.getBlock().getLocation(), 1)) {
-            Block block = honeypot.getBlock();
+        for (HoneypotRegionObject honeypot : blockManager.getNearbyHoneypots(event.getBlock().getLocation(), 1)) {
+            // If a break took place in a region, then there won't be any side effects.
+            if (!honeypot.isSingleBlockRegion()) continue;
+
+            Block block = honeypot.getPos1().getBlock();
             if (!block.getType().equals(Material.AIR)) continue;
 
             blockBreakEvent(new BlockBreakEvent(block, player));
-            blockManager.deleteBlock(block);
+            blockManager.deleteRegionContaining(block);
             logger.warning(Component.text(
                 "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
                     + block.getX() + ", " + block.getY() + ", " + block.getZ()
@@ -198,7 +201,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
             // Log the event in the history table
             playerHistoryManager.addPlayerHistory(player,
-                blockManager.getHoneypotBlock(event.getBlock()), "break");
+                event.getBlock(), action, "break");
 
             // Run certain actions based on the action of the Honeypot Block
             actionHandler.handle(action, block, player);
@@ -221,7 +224,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
     }
 
     private void countBreak(BlockBreakEvent event) {
-        logger.debug(Component.text("Attempting to count the break for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId() + "."), true);
+        logger.debug(Component.text("Attempting to count the break for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId()), true);
 
         Player player = event.getPlayer();
 
@@ -259,8 +262,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             // Just count it
             playerManager.setPlayerCount(player, blocksBroken);
             // Log the event in the history table
-            playerHistoryManager.addPlayerHistory(player,
-                blockManager.getHoneypotBlock(event.getBlock()), "prelimBreak");
+            playerHistoryManager.addPlayerHistory(player, event.getBlock(), blockManager.getAction(event.getBlock()), "prelimBreak");
 
             sendWebhook(event);
         }

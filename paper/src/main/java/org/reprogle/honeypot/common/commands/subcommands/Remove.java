@@ -28,7 +28,7 @@ import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.store.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class Remove implements CommandCallback {
 
     private void potRemovalCheck(Block block, Player p) {
         if (block != null && blockManager.isHoneypotBlock(block)) {
-            blockManager.deleteBlock(block);
+            blockManager.deleteRegionContaining(block);
             p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
         } else {
             p.sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
@@ -71,21 +71,21 @@ public class Remove implements CommandCallback {
         if (qualifierArg != null) {
             switch (qualifierArg) {
                 case "all" -> {
-                    blockManager.deleteAllHoneypotBlocks(p.getWorld());
+                    blockManager.deleteAllHoneypotBlocks();
                     p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
                 }
 
                 case "near" -> {
                     final int radius = config.config().getInt("search-range");
-                    List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+                    List<HoneypotRegionObject> honeypots = Registry.getStorageProvider().getNearbyHoneypotRegions(p.getLocation(), radius);
 
                     if (honeypots.isEmpty()) {
                         p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
                         return Command.SINGLE_SUCCESS;
                     }
 
-                    for (HoneypotBlockObject honeypot : honeypots) {
-                        blockManager.deleteBlock(honeypot.getBlock());
+                    for (HoneypotRegionObject honeypot : honeypots) {
+                        blockManager.deleteRegionContaining(honeypot.getPos1().getBlock());
                     }
 
                     p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));

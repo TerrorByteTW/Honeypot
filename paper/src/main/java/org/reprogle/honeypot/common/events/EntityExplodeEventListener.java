@@ -85,7 +85,7 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
 					}
 
 					playerHistoryManager.addPlayerHistory((Player) source,
-							blockManager.getHoneypotBlock(block), "break");
+							block, blockManager.getAction(block),"break");
 					logger.debug(Component.text("EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: " + source.getName()), false);
 
 					// Call a BlockBreakEvent for that player, as they attempted to break the block
@@ -99,7 +99,7 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
 				Bukkit.getPluginManager().callEvent(hnpbe);
 
 				if (allowExplosions) {
-					blockManager.deleteBlock(block);
+					blockManager.deleteRegionContaining(block);
 				} else {
 					foundHoneypotBlocks.add(block);
 				}

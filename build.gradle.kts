@@ -15,7 +15,7 @@
  */
 
 group = "org.reprogle"
-version = "4.0.0"
+version = "5.0.0"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 
@@ -39,6 +39,7 @@ idea {
 }
 
 tasks.register("thankYou") {
+    description = "Outputs a thank you message! :)"
     doLast {
         println("\n\n\n\n\n\n\n\n\n\n\n\n====================================================================================================================================================")
         println("Thanks for downloading Honeypot! If you enjoy the project, consider rating it on one of the many sites I release on, or give it a star on GitHub.")

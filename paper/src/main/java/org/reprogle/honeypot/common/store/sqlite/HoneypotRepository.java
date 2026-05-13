@@ -5,20 +5,15 @@ import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.Nullable;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.bytelib.db.migrate.MigrationStep;
 import org.reprogle.bytelib.db.migrate.UserVersionMigrator;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
-import org.reprogle.honeypot.common.store.sqlite.patches.ConvertToSpatialIndexing01;
-import org.reprogle.honeypot.common.store.sqlite.patches.MigratePdcToSqlite03;
-import org.reprogle.honeypot.common.store.sqlite.patches.RemoveFKConstraint02;
-import org.reprogle.honeypot.common.store.sqlite.patches.UpdateHistoryTable00;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.store.sqlite.patches.*;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
 import org.reprogle.honeypot.common.storageproviders.StorageProvider;
@@ -37,7 +32,7 @@ import java.util.List;
 @HoneypotStore(name = "sqlite")
 public class HoneypotRepository extends StorageProvider {
 
-    private final HoneypotBlockRepository blockRepo;
+    private final HoneypotRegionRepository regionRepo;
     private final HoneypotPlayerHistoryRepository playerHistoryRepo;
     private final HoneypotPlayerRepository playerRepo;
 
@@ -45,26 +40,27 @@ public class HoneypotRepository extends StorageProvider {
     public HoneypotRepository(JavaPlugin plugin,
                               BytePluginConfig config,
                               HoneypotLogger logger,
-                              HoneypotBlockRepository blockRepo,
+                              HoneypotRegionRepository regionRepo,
                               HoneypotPlayerHistoryRepository playerHistoryRepo,
                               HoneypotPlayerRepository playerRepo,
                               SqliteDatabase db) {
-        this.blockRepo = blockRepo;
+        this.regionRepo = regionRepo;
         this.playerHistoryRepo = playerHistoryRepo;
         this.playerRepo = playerRepo;
 
         logger.info(Component.text("Checking and applying any necessary migrations..."));
 
-        UserVersionMigrator migrator = new UserVersionMigrator("honeypot_blocks", new ArrayList<>(List.of(
+        UserVersionMigrator migrator = new UserVersionMigrator("honeypot_players", new ArrayList<>(List.of(
             new MigrationStep(1, new UpdateHistoryTable00(logger)),
             new MigrationStep(2, new ConvertToSpatialIndexing01(logger)),
             new MigrationStep(3, new RemoveFKConstraint02(logger)),
-            new MigrationStep(4, new MigratePdcToSqlite03(plugin, config, logger))
+            new MigrationStep(4, new MigratePdcToSqlite03(plugin, config, logger)),
+            new MigrationStep(5, new RegionizeTables04(logger))
         )));
         migrator.migrate(db);
 
         logger.info(Component.text("Initializing SQLite database..."));
-        blockRepo.createSchema();
+        regionRepo.createSchema();
         playerHistoryRepo.createSchema();
         playerRepo.createSchema();
 
@@ -73,36 +69,40 @@ public class HoneypotRepository extends StorageProvider {
     /*
         Block Repository
      */
-    public void createHoneypotBlock(Block block, String action) {
-        this.blockRepo.createHoneypotBlock(block, action);
+    public void createHoneypotRegion(Block block, String action) {
+        this.regionRepo.createHoneypotRegion(block, action);
     }
 
-    public void removeHoneypotBlock(Block block) {
-        this.blockRepo.removeHoneypotBlock(block);
+    public void createHoneypotRegion(Location pos1, Location pos2, String action) {
+        this.regionRepo.createHoneypotRegion(pos1, pos2, action);
     }
 
-    public boolean isHoneypotBlock(Block block) {
-        return this.blockRepo.isHoneypotBlock(block);
+    public void removeHoneypotRegion(Location location) {
+        this.regionRepo.removeHoneypotRegion(location);
     }
 
-    public HoneypotBlockObject getHoneypotBlock(Block block) {
-        return this.blockRepo.getHoneypotBlock(block);
+    public boolean isHoneypot(Location location) {
+        return this.regionRepo.isHoneypot(location);
     }
 
-    public String getAction(Block block) {
-        return this.blockRepo.getAction(block);
+    public HoneypotRegionObject getHoneypotRegion(Location location) {
+        return this.regionRepo.getHoneypotRegion(location);
     }
 
-    public void deleteAllHoneypotBlocks(@Nullable World world) {
-        this.blockRepo.deleteAllHoneypotBlocks(world);
+    public String getAction(Location location) {
+        return this.regionRepo.getAction(location);
     }
 
-    public List<HoneypotBlockObject> getAllHoneypots(@Nullable World world) {
-        return this.blockRepo.getAllHoneypots(world);
+    public void deleteAllHoneypotRegions() {
+        this.regionRepo.deleteAllHoneypotRegions();
     }
 
-    public List<HoneypotBlockObject> getNearbyHoneypots(Location location, int radius) {
-        return this.blockRepo.getNearbyHoneypots(location, radius);
+    public List<HoneypotRegionObject> getAllHoneypotRegions() {
+        return this.regionRepo.getAllHoneypotRegions();
+    }
+
+    public List<HoneypotRegionObject> getNearbyHoneypotRegions(Location location, int radius) {
+        return this.regionRepo.getNearbyHoneypotRegions(location, radius);
     }
 
     /*
@@ -131,8 +131,8 @@ public class HoneypotRepository extends StorageProvider {
     /*
         Player History Repository
      */
-    public void addPlayerHistory(Player p, HoneypotBlockObject block, String type) {
-        this.playerHistoryRepo.addPlayerHistory(p, block, type);
+    public void addPlayerHistory(Player p, Block block, String action, String type) {
+        this.playerHistoryRepo.addPlayerHistory(p, block, action, type);
     }
 
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {

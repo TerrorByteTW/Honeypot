@@ -116,26 +116,26 @@ public class History implements CommandCallback {
 
                 for (int i = 0; i < limit; i++) {
                     sender.sendMessage(
-                            Component.text("\n-------[ ", NamedTextColor.GOLD)
-                                    .append(Component.text(history.get(i).getDateTime(), NamedTextColor.WHITE))
-                                    .append(Component.text(" ]-------", NamedTextColor.GOLD))
+                        Component.text("\n-------[ ", NamedTextColor.GOLD)
+                            .append(Component.text(history.get(i).getDateTime(), NamedTextColor.WHITE))
+                            .append(Component.text(" ]-------", NamedTextColor.GOLD))
                     );
 
-                    Location location = history.get(i).getHoneypot().getLocation();
+                    Location location = history.get(i).getLocation().add(0.5, 0, 0.5);
 
                     Component playerInfo = Component.text("Player: ").color(NamedTextColor.GOLD)
-                            .append(Component.text(history.get(i).getPlayer(), NamedTextColor.WHITE))
-                            .append(Component.text(" @ ", NamedTextColor.WHITE))
-                            .append(Component.text(history.get(i).getHoneypot().getWorld() + " ", NamedTextColor.GOLD))
-                            .append(Component.text(history.get(i).getHoneypot().getCoordinates(), NamedTextColor.WHITE))
-                            .clickEvent(ClickEvent.callback((Audience audience) -> {
-                                if (!(audience instanceof Player player)) return;
-                                player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                            }))
-                            .hoverEvent(HoverEvent.showText(Component.text("Click to teleport").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)));
+                        .append(Component.text(history.get(i).getPlayer(), NamedTextColor.WHITE))
+                        .append(Component.text(" @ ", NamedTextColor.WHITE))
+                        .append(Component.text(history.get(i).getLocation().getWorld().getName() + " ", NamedTextColor.GOLD))
+                        .append(Component.text(String.join(", ", "" + history.get(i).getLocation().getBlockX(), "" + history.get(i).getLocation().getBlockY(), "" + history.get(i).getLocation().getBlockZ()), NamedTextColor.WHITE))
+                        .clickEvent(ClickEvent.callback((Audience audience) -> {
+                            if (!(audience instanceof Player player)) return;
+                            player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        }))
+                        .hoverEvent(HoverEvent.showText(Component.text("Click to teleport").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)));
 
                     sender.sendMessage(playerInfo);
-                    sender.sendMessage(Component.text("Action: ").append(Component.text(history.get(i).getHoneypot().getAction(), NamedTextColor.GOLD)));
+                    sender.sendMessage(Component.text("Action: ").append(Component.text(history.get(i).getAction(), NamedTextColor.GOLD)));
                     sender.sendMessage(Component.text("Break type: ").append(Component.text(history.get(i).getType(), NamedTextColor.GOLD)));
                     sender.sendMessage(Component.text("----------------------------------", NamedTextColor.GOLD));
                 }

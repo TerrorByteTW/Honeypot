@@ -1,10 +1,12 @@
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 
 import java.util.List;
@@ -16,50 +18,56 @@ public class HoneypotPlayerHistoryRepository {
     public void createSchema() {
         // Honeypot History Table
         db.execute("""
-                CREATE TABLE IF NOT EXISTS honeypot_history (
-                    `datetime` VARCHAR NOT NULL,
-                    `playerName` VARCHAR NOT NULL,
-                    `playerUUID` VARCHAR NOT NULL,
-                    `coordinates` VARCHAR NOT NULL,
-                    `world` VARCHAR NOT NULL,
-                    `type` VARCHAR NOT NULL,
-                    `action` VARCHAR NOT NULL
-                );
-                """);
+            CREATE TABLE IF NOT EXISTS honeypot_history (
+                `datetime` VARCHAR NOT NULL,
+                `playerName` VARCHAR NOT NULL,
+                `playerUUID` VARCHAR NOT NULL,
+                `x` INTEGER NOT NULL,
+                `y` INTEGER NOT NULL,
+                `z` INTEGER NOT NULL,
+                `world` VARCHAR NOT NULL,
+                `type` VARCHAR NOT NULL,
+                `action` VARCHAR NOT NULL
+            );
+            """);
     }
 
-    public void addPlayerHistory(Player p, HoneypotBlockObject block, String type) {
+    public void addPlayerHistory(Player p, Block block, String action, String type) {
         db.execute("""
-                        INSERT INTO honeypot_history (datetime, playerName, playerUUID, coordinates, world, type, action)
-                        VALUES (DATETIME('now', 'localtime'), ?, ?, ?, ?, ?, ?)
-                        """,
-                Param.text(p.getName()),
-                Param.text(p.getUniqueId().toString()),
-                Param.text(block.getCoordinates()),
-                Param.text(block.getWorld()),
-                Param.text(type),
-                Param.text(block.getAction()));
+                INSERT INTO honeypot_history (datetime, playerName, playerUUID, x, y, z, world, type, action)
+                VALUES (DATETIME('now', 'localtime'), ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+            Param.text(p.getName()),
+            Param.text(p.getUniqueId().toString()),
+            Param.i32(block.getX()),
+            Param.i32(block.getY()),
+            Param.i32(block.getZ()),
+            Param.text(block.getWorld().getName()),
+            Param.text(type),
+            Param.text(action));
     }
 
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
         return db.query("""
-                        SELECT *
-                        FROM honeypot_history
-                        WHERE playerUUID = ?
-                        ORDER BY datetime DESC;
-                        """,
-                row -> new HoneypotPlayerHistoryObject(
-                        row.string("datetime"),
-                        row.string("playerName"),
-                        row.string("playerUUID"),
-                        new HoneypotBlockObject(
-                                row.string("world"),
-                                row.string("coordinates"),
-                                row.string("action")
-                        ),
-                        row.string("type")
+                SELECT *
+                FROM honeypot_history
+                WHERE playerUUID = ?
+                ORDER BY datetime DESC;
+                """,
+            row -> new HoneypotPlayerHistoryObject(
+                row.string("datetime"),
+                row.string("playerName"),
+                row.string("playerUUID"),
+                new Location(
+                    Bukkit.getWorld(row.string("world")),
+                    row.i32("x"),
+                    row.i32("y"),
+                    row.i32("z")
                 ),
-                Param.text(p.getUniqueId().toString()));
+                row.string("type"),
+                row.string("action")
+            ),
+            Param.text(p.getUniqueId().toString()));
     }
 
     public void deletePlayerHistory(Player p, int... n) {
@@ -73,14 +81,14 @@ public class HoneypotPlayerHistoryRepository {
                         LIMIT ?
                     );
                     """,
-                    Param.text(p.getUniqueId().toString()),
-                    Param.i32(n[0]));
+                Param.text(p.getUniqueId().toString()),
+                Param.i32(n[0]));
         } else {
             db.execute("""
                     DELETE FROM honeypot_history
                     WHERE playerUUID = ?;
                     """,
-                    Param.text(p.getUniqueId().toString()));
+                Param.text(p.getUniqueId().toString()));
         }
     }
 

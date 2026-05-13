@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.storageproviders;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 /**
@@ -27,8 +28,9 @@ public class HoneypotPlayerHistoryObject {
 	private final String dateTime;
 	private final String player;
 	private final String UUID;
-	private final HoneypotBlockObject hbo;
+	private final Location location;
 	private final String type;
+	private final String action;
 
 	/**
 	 * Constructor for creating a history entry
@@ -36,14 +38,16 @@ public class HoneypotPlayerHistoryObject {
 	 * @param dateTime The Date and Time in string format. Really need to improve this to have standards but oh well
 	 * @param player   The player's name
 	 * @param UUID     The UUID of the player
-	 * @param hbo      The HoneypotBlockObject they broke
+	 * @param location The location of the block they broke
+	 * @param action   The action assigned to this block
 	 */
-	public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, HoneypotBlockObject hbo, String type) {
+	public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, Location location, String type, String action) {
 		this.dateTime = dateTime;
 		this.player = player;
 		this.UUID = UUID;
-		this.hbo = hbo;
+		this.location = location;
 		this.type = type;
+		this.action = action;
 	}
 
 	/**
@@ -51,14 +55,16 @@ public class HoneypotPlayerHistoryObject {
 	 *
 	 * @param dateTime The Date and Time in string format. Really need to improve this to have standards but oh well
 	 * @param player   The player object
-	 * @param hbo      The HoneypotBlockObject they broke
+	 * @param location The location of the block they broke
+	 * @param action   The action assigned to this block
 	 */
-	public HoneypotPlayerHistoryObject(String dateTime, Player player, HoneypotBlockObject hbo, String type) {
+	public HoneypotPlayerHistoryObject(String dateTime, Player player, Location location, String type, String action) {
 		this.dateTime = dateTime;
 		this.player = player.getName();
 		this.UUID = player.getUniqueId().toString();
-		this.hbo = hbo;
+		this.location = location;
 		this.type = type;
+		this.action = action;
 	}
 
 	/**
@@ -89,18 +95,23 @@ public class HoneypotPlayerHistoryObject {
 	}
 
 	/**
-	 * Get the Honeypot they broke
+	 * Get the location the event occurred at
 	 *
-	 * @return {@link HoneypotBlockObject}
+	 * @return {@link Location}
 	 */
-	public HoneypotBlockObject getHoneypot() {
-		return hbo;
+	public Location getLocation() {
+		return location;
 	}
 
 	/**
 	 * Get the type of break
 	 */
 	public String getType() { return type; }
+
+	/**
+	 * Get the action assigned to this block
+	 */
+	public String getAction() { return action; }
 
 
 }

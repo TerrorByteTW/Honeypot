@@ -10,7 +10,7 @@ import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.migrate.Migration;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.Registry;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.io.IOException;
@@ -48,19 +48,18 @@ public class MigratePdcToSqlite03 implements Migration {
             long rowId = 1;
 
             for (World world : worlds) {
-                List<HoneypotBlockObject> blocks = getAllHoneypots(world);
-                for (HoneypotBlockObject block : blocks) {
+                List<HoneypotRegionObject> blocks = getAllHoneypots(world);
+                for (HoneypotRegionObject block : blocks) {
                     tx.execute("""
                             INSERT INTO honeypot_blocks (id, world, action)
                             VALUES (?, ?, ?)
                             """,
                         Param.i64(rowId),
-                        Param.text(block.getWorld()),
+                        Param.text(block.getPos1().getWorld().getName()),
                         Param.text(block.getAction())
                     );
 
-                    String[] coords = block.getCoordinates().split(", ");
-                    int x = Integer.parseInt(coords[0]), y = Integer.parseInt(coords[1]), z = Integer.parseInt(coords[2]);
+                    int x = block.getPos1().getBlockX(), y = block.getPos1().getBlockY(), z = block.getPos1().getBlockZ();
 
                     tx.execute("""
                             INSERT INTO honeypot_index (id, x_min, x_max, y_min, y_max, z_min, z_max)
@@ -89,17 +88,23 @@ public class MigratePdcToSqlite03 implements Migration {
 
         }
     }
-    private List<HoneypotBlockObject> getAllHoneypots(World world) {
-        List<HoneypotBlockObject> blocks = new ArrayList<>();
+
+    private List<HoneypotRegionObject> getAllHoneypots(World world) {
+        List<HoneypotRegionObject> blocks = new ArrayList<>();
         Set<NamespacedKey> keys = world.getPersistentDataContainer().getKeys();
 
         for (NamespacedKey key : keys) {
             if (key.getKey().startsWith("honeypot-container-")) {
                 String coordinatesRaw = key.getKey().split("honeypot-container-")[1];
-                String coordinates = coordinatesRaw.replace("_", ", ");
+                String[] coordinates = coordinatesRaw.split("_");
 
-                blocks.add(new HoneypotBlockObject(world.getName(), coordinates,
-                    world.getPersistentDataContainer().get(key, PersistentDataType.STRING)));
+                blocks.add(new HoneypotRegionObject(
+                    world.getName(),
+                    Integer.parseInt(coordinates[0]),
+                    Integer.parseInt(coordinates[1]),
+                    Integer.parseInt(coordinates[2]),
+                    world.getPersistentDataContainer().get(key, PersistentDataType.STRING)
+                ));
             }
         }
 

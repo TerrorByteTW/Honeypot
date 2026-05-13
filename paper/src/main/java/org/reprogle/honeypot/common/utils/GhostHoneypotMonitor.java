@@ -26,7 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.store.HoneypotBlockManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class GhostHoneypotMonitor {
         // Start the GhostHoneypotMonitor
         if (config.config().getBoolean("ghost-honeypot-checker.enable")) {
             logger.debug(
-                    Component.text("Ghost Honeypot Checker is enabled, starting the monitoring task. If you need to change the settings for this function, edit the config then do /honeypot reload"), false);
+                Component.text("Ghost Honeypot Checker is enabled, starting the monitoring task. If you need to change the settings for this function, edit the config then do /honeypot reload"), false);
         }
     }
 
@@ -66,19 +66,23 @@ public class GhostHoneypotMonitor {
             // Normally, with SQLite we could just query the entire table and loop through blocks. However, with
             // legacy storage providers (And some custom ones), blocks *must* be allocated to a specific world.
             // Eventually this will be better.
-            // TODO: Make this loop better (10/26/24 No better permanent fix like a temporary solution.
+            // Make this loop better (10/26/24 No better permanent fix like a temporary solution.
             //  Git blame says I made this change on 2/20/2024, almost a year ago. I'll get around to it eventually) ^^^
             //  3/28/2026 - Lol still haven't
-            for (World world : worlds) {
-                List<HoneypotBlockObject> pots = blockManager.getAllHoneypots(world);
-                for (HoneypotBlockObject pot : pots) {
+            //  5/12/2026 I FIXED IT :D :D :D :D :D
+            List<HoneypotRegionObject> regions = blockManager.getAllHoneypots();
+            for (HoneypotRegionObject region : regions) {
+                if (region.isSingleBlockRegion()) {
 
                     Material block;
+
+                    int x = region.getPos1().getBlockX(), y = region.getPos1().getBlockY(), z = region.getPos1().getBlockZ();
+                    String coords = String.join(", ", "" + x, "" + y, "" + z);
 
                     /*
                      * This try/catch stems from Folia, where a region may not be ticking yet, or
                      * even loaded, so the
-                     * getType() method returns an error. Remember, `pot` is a HoneypotBlockObject,
+                     * getType() method returns an error. Remember, `region` is a HoneypotBlockObject,
                      * not a Block itself, so
                      * #getBlock() may return null (Usually not, but it's possible) This is a place
                      * we can improve, but for
@@ -89,9 +93,9 @@ public class GhostHoneypotMonitor {
                      * docs state that it *can* break, but I'm going to put a pin in it for now :)
                      */
                     try {
-                        block = pot.getBlock().getType();
+                        block = region.getPos1().getBlock().getType();
                     } catch (NullPointerException e) {
-                        logger.warning(Component.text("Could not get the material for Honeypot at " + pot.getCoordinates() + " because the world isn't loaded yet (Maybe running Folia?)"));
+                        logger.warning(Component.text("Could not get the material for Honeypot at " + coords + " because the world isn't loaded yet (Maybe running Folia?)"));
                         continue;
                     }
 
@@ -101,8 +105,8 @@ public class GhostHoneypotMonitor {
                      * in some instances (Such as if a Honeypot was set as a torch)
                      */
                     if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
-                        logger.debug(Component.text("Found ghost Honeypot at " + pot.getCoordinates() + " in world " + pot.getWorld() + ". Removing"), true);
-                        blockManager.deleteBlock(pot.getBlock());
+                        logger.debug(Component.text("Found ghost Honeypot at " + coords + " in world " + region.getPos1().getWorld().getName() + ". Removing"), true);
+                        blockManager.deleteRegionContaining(region.getPos1().getBlock());
                         removedPots++;
                     }
                 }

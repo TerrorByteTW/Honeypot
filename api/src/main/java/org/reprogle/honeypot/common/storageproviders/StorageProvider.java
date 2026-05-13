@@ -19,11 +19,9 @@ package org.reprogle.honeypot.common.storageproviders;
 import com.google.common.base.Objects;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class StorageProvider {
@@ -63,21 +61,23 @@ public abstract class StorageProvider {
     /*
      * Block methods
      */
-    public abstract void createHoneypotBlock(Block block, String action);
+    public abstract void createHoneypotRegion(Block block, String action);
 
-    public abstract void removeHoneypotBlock(Block block);
+    public abstract void createHoneypotRegion(Location pos1, Location pos2, String action);
 
-    public abstract boolean isHoneypotBlock(Block block);
+    public abstract void removeHoneypotRegion(Location location);
 
-    public abstract HoneypotBlockObject getHoneypotBlock(Block block);
+    public abstract boolean isHoneypot(Location location);
 
-    public abstract String getAction(Block block);
+    public abstract HoneypotRegionObject getHoneypotRegion(Location location);
 
-    public abstract void deleteAllHoneypotBlocks(@Nullable World world);
+    public abstract String getAction(Location location);
 
-    public abstract List<HoneypotBlockObject> getAllHoneypots(@Nullable World world);
+    public abstract void deleteAllHoneypotRegions();
 
-    public abstract List<HoneypotBlockObject> getNearbyHoneypots(Location location, int radius);
+    public abstract List<HoneypotRegionObject> getAllHoneypotRegions();
+
+    public abstract List<HoneypotRegionObject> getNearbyHoneypotRegions(Location location, int radius);
 
     /*
      * Player methods
@@ -95,7 +95,7 @@ public abstract class StorageProvider {
     /*
      * Player history methods
      */
-    public abstract void addPlayerHistory(Player p, HoneypotBlockObject b, String type);
+    public abstract void addPlayerHistory(Player p, Block b, String action, String type);
 
     public abstract List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p);
 
