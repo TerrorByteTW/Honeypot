@@ -148,7 +148,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
                     plugin.getServer().getConsoleSender()
                         .sendMessage(commandFeedback.getChatPrefix().append(Component.text("There is a new update available: " + latest + ". Download for the latest features and performance improvements!", NamedTextColor.RED)));
                 } else {
-                    plugin.getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text("You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
+                    plugin.getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text(" You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
                 }
             }, logger);
     }
