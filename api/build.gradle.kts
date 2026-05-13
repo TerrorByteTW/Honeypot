@@ -15,7 +15,7 @@
  */
 
 group = "org.reprogle"
-version = "4.0.0"
+version = "4.0.1"
 
 extra["platform"] = "api"
 
