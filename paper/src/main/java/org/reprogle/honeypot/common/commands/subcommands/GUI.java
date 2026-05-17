@@ -113,6 +113,12 @@ public class GUI implements CommandCallback {
             typeToggle.toggle();
         }
 
+        if (!p.hasPermission("honeypot.create.region")) {
+            type.set("block");
+            if (typeToggle.isEnabled()) typeToggle.toggle();
+            typeToggle.allowToggle(false);
+        }
+
         // Collect + dedupe types (config keys + behavior providers)
         Set<String> typeSet = new HashSet<>();
         for (Object key : config.require("honeypots").getKeys()) {

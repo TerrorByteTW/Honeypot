@@ -128,10 +128,13 @@ public class Create implements CommandCallback {
 
         Player p = (Player) ctx.getSource().getSender(); // This is safe because this command has a requirement that only allows players to execute it
 
-        if (kindArg.equalsIgnoreCase("block"))
+        if (kindArg.equalsIgnoreCase("block")) {
             returnCode = createBlock(p, typeArg);
-        else
+        } else if (kindArg.equalsIgnoreCase("region") && p.hasPermission("honeypot.create.region")) {
             returnCode = createRegion(p, typeArg);
+        } else {
+            p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
+        }
 
         return returnCode;
     }
