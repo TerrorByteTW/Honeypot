@@ -23,14 +23,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 
 public class BlockFromToEventListener implements Listener, IHoneypotEvent {
-	private final HoneypotBlockManager blockManager;
+	private final HoneypotRegionManager regionManager;
 
 	@Inject
-	BlockFromToEventListener(HoneypotBlockManager blockManager) {
-		this.blockManager = blockManager;
+	BlockFromToEventListener(HoneypotRegionManager regionManager) {
+		this.regionManager = regionManager;
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class BlockFromToEventListener implements Listener, IHoneypotEvent {
 			return;
 
 		Block toBlock = event.getToBlock();
-		if (blockManager.isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
+		if (regionManager.isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
 			event.setCancelled(true);
 		}
 	}

@@ -20,13 +20,21 @@ import com.google.inject.Inject;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
+import org.reprogle.bytelib.commands.CommandFactory;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.dsl.CommandDsl;
+import org.reprogle.bytelib.commands.dsl.LiteralNode;
+import org.reprogle.bytelib.commands.dsl.PermissionChecks;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
+import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
+import org.reprogle.honeypot.common.storageproviders.PlayerStore;
+import org.reprogle.honeypot.common.storageproviders.RegionStore;
 import org.reprogle.honeypot.common.utils.GhostHoneypotMonitor;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
+
+import java.util.Optional;
 
 public class Reload implements CommandCallback {
 
@@ -52,14 +60,37 @@ public class Reload implements CommandCallback {
             monitor.startTask();
         }
 
-        String providerName = config.config().getString("storage-method");
-        if (!Registry.getStorageProvider().getProviderName().equalsIgnoreCase(providerName)) {
-            StorageProvider provider = Registry.getStorageManagerRegistry().getStorageProvider(providerName);
-            if (provider != null) {
-                Registry.setStorageProvider(provider);
-                logger.info(Component.text("The storage provider was updated to \"" + providerName + "\""));
+        String regionStore = config.config().getString("storage-method.regions");
+        String playerStore = config.config().getString("storage-method.players");
+        String playerHistoryStore = config.config().getString("storage-method.player-history");
+
+        if (!Registry.getRegionStore().getProviderName().equalsIgnoreCase(regionStore)) {
+            Optional<RegionStore> provider = Registry.getStorageManagerRegistry().get(regionStore, RegionStore.class);
+            if (provider.isPresent()) {
+                Registry.setRegionStore(provider.get());
+                logger.info(Component.text("The region store was updated to \"" + regionStore + "\""));
             } else {
-                logger.severe(Component.text("The storage provider was updated to \"" + providerName + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE! Please validate your config"));
+                logger.severe(Component.text("The region store was updated to \"" + regionStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
+            }
+        }
+
+        if (!Registry.getPlayerStore().getProviderName().equalsIgnoreCase(playerStore)) {
+            Optional<PlayerStore> provider = Registry.getStorageManagerRegistry().get(playerStore, PlayerStore.class);
+            if (provider.isPresent()) {
+                Registry.setPlayerStore(provider.get());
+                logger.info(Component.text("The player store was updated to \"" + playerStore + "\""));
+            } else {
+                logger.severe(Component.text("The player store was updated to \"" + playerStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
+            }
+        }
+
+        if (!Registry.getPlayerHistoryStore().getProviderName().equalsIgnoreCase(playerHistoryStore)) {
+            Optional<PlayerHistoryStore> provider = Registry.getStorageManagerRegistry().get(playerHistoryStore, PlayerHistoryStore.class);
+            if (provider.isPresent()) {
+                Registry.setPlayerHistoryStore(provider.get());
+                logger.info(Component.text("The player history store was updated to \"" + playerHistoryStore + "\""));
+            } else {
+                logger.severe(Component.text("The player history store was updated to \"" + playerHistoryStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
             }
         }
 
@@ -67,5 +98,17 @@ public class Reload implements CommandCallback {
         logger.info(Component.text("Honeypot has successfully been reloaded"));
 
         return 0;
+    }
+
+    public static LiteralNode commandTree(CommandFactory factory) {
+        return CommandDsl.literal("reload")
+            .requires(
+                PermissionChecks.anyOf(
+                    PermissionChecks.permission("honeypot.reload"),
+                    PermissionChecks.permission("honeypot.*"),
+                    PermissionChecks.isOp()
+                )
+            )
+            .executes(Reload.class, factory);
     }
 }

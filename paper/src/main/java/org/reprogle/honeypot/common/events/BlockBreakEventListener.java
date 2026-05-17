@@ -31,7 +31,7 @@ import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
@@ -50,7 +50,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
     private final ActionHandler actionHandler;
     private final HoneypotLogger logger;
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
     private final HoneypotPlayerHistoryManager playerHistoryManager;
@@ -58,12 +58,12 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
     private final AdapterManager adapterManager;
 
     @Inject
-    public BlockBreakEventListener(ActionHandler actionHandler, HoneypotLogger logger, HoneypotBlockManager blockManager,
+    public BlockBreakEventListener(ActionHandler actionHandler, HoneypotLogger logger, HoneypotRegionManager regionManager,
                                    BytePluginConfig config, CommandFeedback commandFeedback,
                                    HoneypotPlayerHistoryManager playerHistoryManager, HoneypotPlayerManager playerManager, AdapterManager adapterManager) {
         this.actionHandler = actionHandler;
         this.logger = logger;
-        this.blockManager = blockManager;
+        this.regionManager = regionManager;
         this.config = config;
         this.commandFeedback = commandFeedback;
         this.playerHistoryManager = playerHistoryManager;
@@ -83,12 +83,12 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         Player player = event.getPlayer();
 
         // Early return if the block isn't a Honeypot
-        if (!blockManager.isHoneypotBlock(event.getBlock())) return;
+        if (!regionManager.isHoneypotBlock(event.getBlock())) return;
 
         // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
         // It really shouldn't be in this region anyway, so it's going to be removed
         if (!adapterManager.checkAllAdapters(player, event.getBlock().getLocation())) {
-            blockManager.deleteRegionContaining(event.getBlock());
+            regionManager.deleteRegionContaining(event.getBlock());
             return;
         }
 
@@ -99,7 +99,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
         // Check if the event was canceled. If it is, delete the block.
         if (hppbe.isCancelled()) {
-            blockManager.deleteRegionContaining(event.getBlock());
+            regionManager.deleteRegionContaining(event.getBlock());
             logger.debug(Component.text("HoneypotPrePlayerBreakEvent for " + player + " was cancelled, not continuing."), true);
             return;
         }
@@ -141,7 +141,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         // completed, otherwise the other actions will fail with NPEs
         if (deleteBlock) {
             logger.debug(Component.text("Block is flagged for deletion, removing it from storage"), true);
-            blockManager.deleteRegionContaining(event.getBlock());
+            regionManager.deleteRegionContaining(event.getBlock());
         }
     }
 
@@ -161,7 +161,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             return;
 
         // Check adjacent blocks to be sure an adjacent block wasn't broken either (e.g., A torch was broken due to its wall block being destroyed)
-        for (HoneypotRegionObject honeypot : blockManager.getNearbyHoneypots(event.getBlock().getLocation(), 1)) {
+        for (HoneypotRegionObject honeypot : regionManager.getNearbyHoneypots(event.getBlock().getLocation(), 1)) {
             // If a break took place in a region, then there won't be any side effects.
             if (!honeypot.isSingleBlockRegion()) continue;
 
@@ -169,7 +169,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             if (!block.getType().equals(Material.AIR)) continue;
 
             blockBreakEvent(new BlockBreakEvent(block, player));
-            blockManager.deleteRegionContaining(block);
+            regionManager.deleteRegionContaining(block);
             logger.warning(Component.text(
                 "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
                     + block.getX() + ", " + block.getY() + ", " + block.getZ()
@@ -192,7 +192,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         if (!player.hasPermission(EXEMPT_PERMISSION) && !player.hasPermission(BREAK_PERMISSION)
             && !player.hasPermission(WILDCARD_PERMISSION) && !player.isOp()) {
             // Grab the action from the block via the storage manager
-            String action = blockManager.getAction(block);
+            String action = regionManager.getAction(block);
 
             if (action == null) {
                 logger.debug(Component.text("A BlockBreakEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
@@ -262,7 +262,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             // Just count it
             playerManager.setPlayerCount(player, blocksBroken);
             // Log the event in the history table
-            playerHistoryManager.addPlayerHistory(player, event.getBlock(), blockManager.getAction(event.getBlock()), "prelimBreak");
+            playerHistoryManager.addPlayerHistory(player, event.getBlock(), regionManager.getAction(event.getBlock()), "prelimBreak");
 
             sendWebhook(event);
         }

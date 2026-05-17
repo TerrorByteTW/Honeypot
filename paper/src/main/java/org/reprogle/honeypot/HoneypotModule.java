@@ -26,8 +26,12 @@ import org.reprogle.honeypot.common.providers.included.Ban;
 import org.reprogle.honeypot.common.providers.included.Kick;
 import org.reprogle.honeypot.common.providers.included.Notify;
 import org.reprogle.honeypot.common.providers.included.Warn;
-import org.reprogle.honeypot.common.store.sqlite.HoneypotRepository;
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
+import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
+import org.reprogle.honeypot.common.storageproviders.PlayerStore;
+import org.reprogle.honeypot.common.storageproviders.RegionStore;
+import org.reprogle.honeypot.common.store.sqlite.HoneypotPlayerHistoryRepository;
+import org.reprogle.honeypot.common.store.sqlite.HoneypotPlayerRepository;
+import org.reprogle.honeypot.common.store.sqlite.HoneypotRegionRepository;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -50,8 +54,14 @@ public class HoneypotModule extends AbstractModule {
         behaviorBinder.addBinding().to(Kick.class);
         behaviorBinder.addBinding().to(Notify.class);
 
-        Multibinder<StorageProvider> storageBinder = Multibinder.newSetBinder(binder(), StorageProvider.class);
-        storageBinder.addBinding().to(HoneypotRepository.class);
+        Multibinder<PlayerHistoryStore> storageBinder = Multibinder.newSetBinder(binder(), PlayerHistoryStore.class);
+        storageBinder.addBinding().to(HoneypotPlayerHistoryRepository.class);
+
+        Multibinder<RegionStore> regionBinder = Multibinder.newSetBinder(binder(), RegionStore.class);
+        regionBinder.addBinding().to(HoneypotRegionRepository.class);
+
+        Multibinder<PlayerStore> playerBinder = Multibinder.newSetBinder(binder(), PlayerStore.class);
+        playerBinder.addBinding().to(HoneypotPlayerRepository.class);
 
         // Not really necessary but cool and I'm learning :P
         File file = new File(dataDir.toFile(), "honeypot.log");

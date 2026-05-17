@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * A class for managing Honeypot blocks. Interacts with the Registry to use the currently selected Store.
  */
-public class HoneypotBlockManager {
+public class HoneypotRegionManager {
 
     @Inject
     HoneypotLogger logger;
@@ -50,9 +50,22 @@ public class HoneypotBlockManager {
      * @param action The action of the Honeypot
      */
     public void createBlock(Block block, String action) {
-        Registry.getStorageProvider().createHoneypotRegion(block, action);
+        Registry.getRegionStore().createHoneypotRegion(block, action);
 
         logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
+    }
+
+    /**
+     * Creates a Honeypot region and adds it to the DB
+     *
+     * @param pos1   The first corner of the region
+     * @param pos2   The second corner of the region
+     * @param action The action of the Honeypot region
+     */
+    public void createRegion(Location pos1, Location pos2, String action) {
+        Registry.getRegionStore().createHoneypotRegion(pos1, pos2, action);
+
+        logger.debug(Component.text("Created Honeypot region with action " + action + " from " + pos1 + " to " + pos2), false);
     }
 
     /**
@@ -63,12 +76,12 @@ public class HoneypotBlockManager {
     public void deleteRegionContaining(Block block) {
         // Since the delete method may also be called on the wrong "half" of a block, we should use the same logical block resolver to obtain the "real" honeypot block
         Optional<Block> matched = resolveLogicalBlocks(block)
-                .filter(b -> Registry.getStorageProvider().isHoneypot(b.getLocation()))
-                .findFirst();
+            .filter(b -> Registry.getRegionStore().isHoneypot(b.getLocation()))
+            .findFirst();
 
         if (matched.isEmpty()) return;
 
-        Registry.getStorageProvider().removeHoneypotRegion(matched.get().getLocation());
+        Registry.getRegionStore().removeHoneypotRegion(matched.get().getLocation());
 
         logger.debug(Component.text("Deleted Honeypot block at " + matched.get().getX() + ", " + matched.get().getY() + ", " + matched.get().getZ()), false);
     }
@@ -81,8 +94,8 @@ public class HoneypotBlockManager {
      */
     public boolean isHoneypotBlock(Block block) {
         Optional<Block> matched = resolveLogicalBlocks(block)
-                .filter(b -> Registry.getStorageProvider().isHoneypot(b.getLocation()))
-                .findFirst();
+            .filter(b -> Registry.getRegionStore().isHoneypot(b.getLocation()))
+            .findFirst();
 
         return matched.isPresent();
     }
@@ -98,10 +111,10 @@ public class HoneypotBlockManager {
     private Stream<Block> resolveLogicalBlocks(Block block) {
         // Double chest
         if (block.getState() instanceof Chest chest
-                && chest.getInventory().getHolder() instanceof DoubleChest dc) {
+            && chest.getInventory().getHolder() instanceof DoubleChest dc) {
             return Stream.of(
-                    ((Chest) dc.getLeftSide()).getBlock(),
-                    ((Chest) dc.getRightSide()).getBlock()
+                ((Chest) dc.getLeftSide()).getBlock(),
+                ((Chest) dc.getRightSide()).getBlock()
             );
         }
 
@@ -111,16 +124,16 @@ public class HoneypotBlockManager {
         if (data instanceof Bed bed) {
             BlockFace facing = bed.getFacing();
             Block other = (bed.getPart() == Bed.Part.FOOT)
-                    ? block.getRelative(facing)
-                    : block.getRelative(facing.getOppositeFace());
+                ? block.getRelative(facing)
+                : block.getRelative(facing.getOppositeFace());
             return Stream.of(block, other);
         }
 
         // Door (top + bottom)
         if (data instanceof Door door) {
             Block other = (door.getHalf() == Bisected.Half.BOTTOM)
-                    ? block.getRelative(BlockFace.UP)
-                    : block.getRelative(BlockFace.DOWN);
+                ? block.getRelative(BlockFace.UP)
+                : block.getRelative(BlockFace.DOWN);
             return Stream.of(block, other);
         }
 
@@ -152,17 +165,17 @@ public class HoneypotBlockManager {
     public String getAction(Block block) {
         try {
             Optional<Block> matched = resolveLogicalBlocks(block)
-                    .filter(b -> Registry.getStorageProvider().isHoneypot(b.getLocation()))
-                    .findFirst();
+                .filter(b -> Registry.getRegionStore().isHoneypot(b.getLocation()))
+                .findFirst();
             if (matched.isEmpty()) throw new Exception("No action found");
 
-            return Registry.getStorageProvider().getAction(matched.get().getLocation());
+            return Registry.getRegionStore().getAction(matched.get().getLocation());
         } catch (Exception e) {
             logger.warning(Component.text("No action found for block, " +
-                            "this is likely due to a container being created using the special lock format. " +
-                            "This is only possible with commands, as Anvil's are not able to support strings that long." +
-                            "Honeypot assumes these are Honeypots for performance. This can be safely ignored, but you need to investigate the block at: ")
-                    .append((Component.text(block.getX() + ", " + block.getY() + ", " + block.getZ()))));
+                    "this is likely due to a container being created using the special lock format. " +
+                    "This is only possible with commands, as Anvil's are not able to support strings that long." +
+                    "Honeypot assumes these are Honeypots for performance. This can be safely ignored, but you need to investigate the block at: ")
+                .append((Component.text(block.getX() + ", " + block.getY() + ", " + block.getZ()))));
             return null;
         }
     }
@@ -171,7 +184,7 @@ public class HoneypotBlockManager {
      * Delete all Honeypots in the entire DB
      */
     public void deleteAllHoneypotBlocks() {
-        Registry.getStorageProvider().deleteAllHoneypotRegions();
+        Registry.getRegionStore().deleteAllHoneypotRegions();
 
         logger.debug(Component.text("Deleted all Honeypot blocks!"), false);
     }
@@ -179,10 +192,10 @@ public class HoneypotBlockManager {
     /**
      * Get all {@link HoneypotRegionObject} in the DB
      *
-     * @return An array list of all HoneypotBlockObjects
+     * @return An array list of all HoneypotRegionObjects
      */
     public List<HoneypotRegionObject> getAllHoneypots() {
-        return Registry.getStorageProvider().getAllHoneypotRegions();
+        return Registry.getRegionStore().getAllHoneypotRegions();
     }
 
     /**
@@ -190,11 +203,21 @@ public class HoneypotBlockManager {
      *
      * @param location The location to get nearby honeypots from
      * @param radius   The radius to search for nearby honeypots
-     * @return A list of nearby HoneypotBlockObjects
+     * @return A list of nearby HoneypotRegionObjects
      */
     public List<HoneypotRegionObject> getNearbyHoneypots(Location location, int radius) {
-        return Registry.getStorageProvider().getNearbyHoneypotRegions(location, radius);
+        return Registry.getRegionStore().getNearbyHoneypotRegions(location, radius);
     }
 
+    /**
+     * Checks if there is any overlap between two regions
+     *
+     * @param pos1 The first location to check for overlap
+     * @param pos2 The second location to check for overlap
+     * @return True if there is overlap, false otherwise
+     */
+    public boolean checkForOverlap(Location pos1, Location pos2) {
+        return Registry.getRegionStore().checkForOverlap(pos1, pos2);
+    }
 
 }

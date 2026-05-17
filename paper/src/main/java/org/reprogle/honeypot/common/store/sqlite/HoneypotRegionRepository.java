@@ -1,6 +1,8 @@
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
@@ -8,67 +10,85 @@ import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.api.RowMapper;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
+import org.reprogle.honeypot.common.storageproviders.RegionStore;
+import org.reprogle.honeypot.common.storageproviders.StoreType;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 
-public class HoneypotRegionRepository {
-    private static final RowMapper<HoneypotRegionObject> BLOCK_OBJECT_MAPPER =
-            row -> new HoneypotRegionObject(
-                    row.string("world"),
-                    row.i32("x_min"),
-                    row.i32("y_min"),
-                    row.i32("z_min"),
-                    row.i32("x_max"),
-                    row.i32("y_max"),
-                    row.i32("z_max"),
-                    row.string("action")
-            );
+/**
+ * Defines the SQLite Honeypot Store for Regions. You should NOT interact with this directly.
+ * Instead, use {@link HoneypotRegionManager}
+ */
+@Singleton
+@HoneypotStore(name = "sqlite-regions", type = StoreType.REGION)
+public class HoneypotRegionRepository implements RegionStore {
+    private static final RowMapper<HoneypotRegionObject> REGION_OBJECT_MAPPER =
+        row -> new HoneypotRegionObject(
+            row.string("world"),
+            row.i32("x_min"),
+            row.i32("y_min"),
+            row.i32("z_min"),
+            row.i32("x_max"),
+            row.i32("y_max"),
+            row.i32("z_max"),
+            row.string("action")
+        );
+
+    private final SqliteDatabase db;
 
     @Inject
-    SqliteDatabase db;
+    public HoneypotRegionRepository(HoneypotLogger logger, SqliteDatabase db) {
+        this.db = db;
+        logger.info(Component.text("Initializing Regions table..."));
+        createSchema();
+        logger.info(Component.text("Regions table initialized!"));
+    }
 
-    public void createSchema() {
+    private void createSchema() {
         // Honeypot Blocks Index, used for querying blocks. Honeypot Blocks table will reference the ID for the world and action
         db.execute("""
-                CREATE VIRTUAL TABLE IF NOT EXISTS honeypot_index USING rtree(id INTEGER PRIMARY KEY, x_min INTEGER, x_max INTEGER, y_min INTEGER, y_max INTEGER, z_min INTEGER, z_max INTEGER);
-                """);
+            CREATE VIRTUAL TABLE IF NOT EXISTS honeypot_index USING rtree(id INTEGER PRIMARY KEY, x_min INTEGER, x_max INTEGER, y_min INTEGER, y_max INTEGER, z_min INTEGER, z_max INTEGER);
+            """);
 
         // Honeypot Blocks Table
         db.execute("""
-                CREATE TABLE IF NOT EXISTS honeypot_regions (
-                    `id`     INTEGER PRIMARY KEY,
-                    `world`  TEXT NOT NULL,
-                    `action` TEXT NOT NULL,
-                    FOREIGN KEY (`id`) REFERENCES honeypot_index(`id`) ON DELETE CASCADE
-                );
-                """);
+            CREATE TABLE IF NOT EXISTS honeypot_regions (
+                `id`     INTEGER PRIMARY KEY,
+                `world`  TEXT NOT NULL,
+                `action` TEXT NOT NULL,
+                FOREIGN KEY (`id`) REFERENCES honeypot_index(`id`) ON DELETE CASCADE
+            );
+            """);
     }
 
     public void createHoneypotRegion(Block block, String action) {
         db.transaction(tx -> {
             // 1) Insert the “real” row and get its generated id
             tx.execute("""
-                            INSERT INTO honeypot_regions (world, action)
-                            VALUES (?, ?)
-                            """,
-                    Param.text(block.getWorld().getName()),
-                    Param.text(action)
+                    INSERT INTO honeypot_regions (world, action)
+                    VALUES (?, ?)
+                    """,
+                Param.text(block.getWorld().getName()),
+                Param.text(action)
             );
 
             Long id = tx.queryOne("SELECT last_insert_rowid() AS id;",
-                    row -> row.i64("id")
+                row -> row.i64("id")
             );
 
             // 2) Insert rtree row using that id
             int x = block.getX(), y = block.getY(), z = block.getZ();
             tx.execute("""
-                            INSERT INTO honeypot_index (id, x_min, x_max, y_min, y_max, z_min, z_max)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
-                            """,
-                    Param.i64(id),
-                    Param.i32(x), Param.i32(x),
-                    Param.i32(y), Param.i32(y),
-                    Param.i32(z), Param.i32(z)
+                    INSERT INTO honeypot_index (id, x_min, x_max, y_min, y_max, z_min, z_max)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                Param.i64(id),
+                Param.i32(x), Param.i32(x),
+                Param.i32(y), Param.i32(y),
+                Param.i32(z), Param.i32(z)
             );
 
             return null;
@@ -79,9 +99,9 @@ public class HoneypotRegionRepository {
         db.transaction(tx -> {
             // 1) Insert the “real” row and get its generated id
             tx.execute("""
-                            INSERT INTO honeypot_regions (world, action)
-                            VALUES (?, ?)
-                            """,
+                    INSERT INTO honeypot_regions (world, action)
+                    VALUES (?, ?)
+                    """,
                 Param.text(pos1.getWorld().getName()),
                 Param.text(action)
             );
@@ -96,9 +116,9 @@ public class HoneypotRegionRepository {
 
             // 2) Insert rtree row using that id
             tx.execute("""
-                            INSERT INTO honeypot_index (id, x_min, x_max, y_min, y_max, z_min, z_max)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
-                            """,
+                    INSERT INTO honeypot_index (id, x_min, x_max, y_min, y_max, z_min, z_max)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
                 Param.i64(id),
                 Param.i32(Math.min(pos1x, pos2x)), Param.i32(Math.max(pos1x, pos2x)),
                 Param.i32(Math.min(pos1y, pos2y)), Param.i32(Math.max(pos1y, pos2y)),
@@ -111,104 +131,104 @@ public class HoneypotRegionRepository {
 
     public void removeHoneypotRegion(Location location) {
         db.execute("""
-                        DELETE FROM honeypot_regions
-                        WHERE id IN (
-                            SELECT
-                                id
-                            FROM
-                                honeypot_index
-                            WHERE   x_min <= ? AND x_max >= ?
-                              AND   y_min <= ? AND y_max >= ?
-                              AND   z_min <= ? AND z_max >= ?
-                        );
-                        """,
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockZ()),
-                Param.i32(location.getBlockZ()));
+                DELETE FROM honeypot_regions
+                WHERE id IN (
+                    SELECT
+                        id
+                    FROM
+                        honeypot_index
+                    WHERE   x_min <= ? AND x_max >= ?
+                      AND   y_min <= ? AND y_max >= ?
+                      AND   z_min <= ? AND z_max >= ?
+                );
+                """,
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockZ()),
+            Param.i32(location.getBlockZ()));
         db.execute("""
-                        DELETE FROM honeypot_index
-                        WHERE   x_min <= ? AND x_max >= ?
-                          AND   y_min <= ? AND y_max >= ?
-                          AND   z_min <= ? AND z_max >= ?;
-                        """,
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockZ()),
-                Param.i32(location.getBlockZ()));
+                DELETE FROM honeypot_index
+                WHERE   x_min <= ? AND x_max >= ?
+                  AND   y_min <= ? AND y_max >= ?
+                  AND   z_min <= ? AND z_max >= ?;
+                """,
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockZ()),
+            Param.i32(location.getBlockZ()));
     }
 
     public boolean isHoneypot(Location location) {
         return db.queryOne("""
-                        SELECT EXISTS (
-                            SELECT 1 FROM honeypot_index
-                            JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
-                            WHERE x_min <= ? AND x_max >= ?
-                              AND y_min <= ? AND y_max >= ?
-                              AND z_min <= ? AND z_max >= ?
-                              AND world = ?
-                        ) AS hit;
-                        """,
-                row -> row.i32("hit") == 1,
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockZ()),
-                Param.i32(location.getBlockZ()),
-                Param.text(location.getWorld().getName()));
+                SELECT EXISTS (
+                    SELECT 1 FROM honeypot_index
+                    JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
+                    WHERE x_min <= ? AND x_max >= ?
+                      AND y_min <= ? AND y_max >= ?
+                      AND z_min <= ? AND z_max >= ?
+                      AND world = ?
+                ) AS hit;
+                """,
+            row -> row.i32("hit") == 1,
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockZ()),
+            Param.i32(location.getBlockZ()),
+            Param.text(location.getWorld().getName()));
     }
 
     public @Nullable HoneypotRegionObject getHoneypotRegion(Location location) {
         return db.queryOne("""
-                        SELECT
-                            honeypot_index.x_min,
-                            honeypot_index.y_min,
-                            honeypot_index.z_min,
-                            honeypot_index.x_max,
-                            honeypot_index.y_max,
-                            honeypot_index.z_max,
-                            honeypot_regions.world,
-                            honeypot_regions.action
-                        FROM honeypot_index
-                        JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
-                        WHERE x_min <= ? AND x_max >= ?
-                          AND y_min <= ? AND y_max >= ?
-                          AND z_min <= ? AND z_max >= ?
-                          AND world = ?;
-                        """,
-                BLOCK_OBJECT_MAPPER,
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockZ()),
-                Param.i32(location.getBlockZ()),
-                Param.text(location.getWorld().getName()));
+                SELECT
+                    honeypot_index.x_min,
+                    honeypot_index.y_min,
+                    honeypot_index.z_min,
+                    honeypot_index.x_max,
+                    honeypot_index.y_max,
+                    honeypot_index.z_max,
+                    honeypot_regions.world,
+                    honeypot_regions.action
+                FROM honeypot_index
+                JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
+                WHERE x_min <= ? AND x_max >= ?
+                  AND y_min <= ? AND y_max >= ?
+                  AND z_min <= ? AND z_max >= ?
+                  AND world = ?;
+                """,
+            REGION_OBJECT_MAPPER,
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockZ()),
+            Param.i32(location.getBlockZ()),
+            Param.text(location.getWorld().getName()));
     }
 
     public @Nullable String getAction(Location location) {
         return db.queryOne("""
-                        SELECT honeypot_regions.action
-                        FROM honeypot_index
-                        JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
-                        WHERE x_min <= ? AND x_max >= ?
-                          AND y_min <= ? AND y_max >= ?
-                          AND z_min <= ? AND z_max >= ?
-                          AND world = ? ;
-                        """,
-                row -> row.string("action"),
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockX()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockY()),
-                Param.i32(location.getBlockZ()),
-                Param.i32(location.getBlockZ()),
-                Param.text(location.getWorld().getName()));
+                SELECT honeypot_regions.action
+                FROM honeypot_index
+                JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
+                WHERE x_min <= ? AND x_max >= ?
+                  AND y_min <= ? AND y_max >= ?
+                  AND z_min <= ? AND z_max >= ?
+                  AND world = ? ;
+                """,
+            row -> row.string("action"),
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockX()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockY()),
+            Param.i32(location.getBlockZ()),
+            Param.i32(location.getBlockZ()),
+            Param.text(location.getWorld().getName()));
     }
 
     public void deleteAllHoneypotRegions() {
@@ -218,19 +238,19 @@ public class HoneypotRegionRepository {
 
     public List<HoneypotRegionObject> getAllHoneypotRegions() {
         return db.query("""
-                        SELECT
-                            honeypot_index.x_min,
-                            honeypot_index.y_min,
-                            honeypot_index.z_min,
-                            honeypot_index.x_max,
-                            honeypot_index.y_max,
-                            honeypot_index.z_max,
-                            honeypot_regions.world,
-                            honeypot_regions.action
-                        FROM honeypot_index
-                        JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id;
-                        """,
-                BLOCK_OBJECT_MAPPER);
+                SELECT
+                    honeypot_index.x_min,
+                    honeypot_index.y_min,
+                    honeypot_index.z_min,
+                    honeypot_index.x_max,
+                    honeypot_index.y_max,
+                    honeypot_index.z_max,
+                    honeypot_regions.world,
+                    honeypot_regions.action
+                FROM honeypot_index
+                JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id;
+                """,
+            REGION_OBJECT_MAPPER);
     }
 
     public List<HoneypotRegionObject> getNearbyHoneypotRegions(Location location, int radius) {
@@ -242,29 +262,61 @@ public class HoneypotRegionRepository {
         int zMax = Math.max(location.getBlockZ() - radius, location.getBlockZ() + radius);
 
         return db.query("""
-                        SELECT
-                            honeypot_index.x_min,
-                            honeypot_index.y_min,
-                            honeypot_index.z_min,
-                            honeypot_index.x_max,
-                            honeypot_index.y_max,
-                            honeypot_index.z_max,
-                            honeypot_regions.world,
-                            honeypot_regions.action
-                        FROM honeypot_index
-                        JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
-                        WHERE x_min <= ? AND x_max >= ?
-                          AND y_min <= ? AND y_max >= ?
-                          AND z_min <= ? AND z_max >= ?
-                          AND world = ?;
-                        """,
-                BLOCK_OBJECT_MAPPER,
-                Param.i32(xMax),
-                Param.i32(xMin),
-                Param.i32(yMax),
-                Param.i32(yMin),
-                Param.i32(zMax),
-                Param.i32(zMin),
-                Param.text(location.getWorld().getName()));
+                SELECT
+                    honeypot_index.x_min,
+                    honeypot_index.y_min,
+                    honeypot_index.z_min,
+                    honeypot_index.x_max,
+                    honeypot_index.y_max,
+                    honeypot_index.z_max,
+                    honeypot_regions.world,
+                    honeypot_regions.action
+                FROM honeypot_index
+                JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
+                WHERE x_min <= ? AND x_max >= ?
+                  AND y_min <= ? AND y_max >= ?
+                  AND z_min <= ? AND z_max >= ?
+                  AND world = ?;
+                """,
+            REGION_OBJECT_MAPPER,
+            Param.i32(xMax),
+            Param.i32(xMin),
+            Param.i32(yMax),
+            Param.i32(yMin),
+            Param.i32(zMax),
+            Param.i32(zMin),
+            Param.text(location.getWorld().getName()));
+    }
+
+    public boolean checkForOverlap(Location pos1, Location pos2) {
+        int minX = Math.min(pos1.getBlockX(), pos2.getBlockX());
+        int maxX = Math.max(pos1.getBlockX(), pos2.getBlockX());
+
+        int minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
+        int maxY = Math.max(pos1.getBlockY(), pos2.getBlockY());
+
+        int minZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
+        int maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
+
+        return db.queryOne("""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM honeypot_index
+                    JOIN honeypot_regions ON honeypot_index.id = honeypot_regions.id
+                    WHERE x_min <= ? AND x_max >= ?
+                      AND y_min <= ? AND y_max >= ?
+                      AND z_min <= ? AND z_max >= ?
+                      AND world = ?
+                ) AS hit;
+                """,
+            row -> row.i32("hit") == 1,
+            Param.i32(maxX),
+            Param.i32(minX),
+            Param.i32(maxY),
+            Param.i32(minY),
+            Param.i32(maxZ),
+            Param.i32(minZ),
+            Param.text(pos1.getWorld().getName())
+        );
     }
 }

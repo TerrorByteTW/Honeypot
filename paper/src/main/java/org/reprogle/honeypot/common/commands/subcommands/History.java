@@ -16,6 +16,7 @@
 
 package org.reprogle.honeypot.common.commands.subcommands;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import com.google.inject.Inject;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -23,23 +24,27 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.PlayerProfileListResolver;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.CommandFactory;
+import org.reprogle.bytelib.commands.dsl.*;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,32 +76,37 @@ public class History implements CommandCallback {
         assert args.player != null;
 
         var sender = ctx.getSource().getSender();
+        var id = args.player.getId();
+
+        if (id == null) {
+            sender.sendMessage(commandFeedback.sendCommandFeedback("player-not-found"));
+            return Command.SINGLE_SUCCESS;
+        }
+
+        Player player = Bukkit.getPlayer(id);
+        if (player == null || !player.isOnline()) {
+            player = Bukkit.getOfflinePlayer(id).getPlayer();
+            if (player == null) {
+                sender.sendMessage(commandFeedback.sendCommandFeedback("player-not-found"));
+                return Command.SINGLE_SUCCESS;
+            }
+        }
 
         switch (args.action) {
             case "delete":
-                if (!args.player.isOnline()) {
-                    sender.sendMessage(commandFeedback.sendCommandFeedback("not-online"));
-                    return Command.SINGLE_SUCCESS;
-                }
-
                 if (args.count >= 1) { // Since primitives are not nullable, the argument has a minimum of 1 but defaults to 0 if not provided. So, we know that args.count == 0 means not provided, and anything <= 0 is not possible thanks to Brigadier
-                    playerHistoryManager.deletePlayerHistory(args.player, args.count);
+                    playerHistoryManager.deletePlayerHistory(player, args.count);
                 } else {
-                    playerHistoryManager.deletePlayerHistory(args.player);
+                    playerHistoryManager.deletePlayerHistory(player);
                 }
 
                 sender.sendMessage(commandFeedback.sendCommandFeedback("success"));
 
                 break;
             case "query":
-                if (!args.player.isOnline()) {
-                    sender.sendMessage(commandFeedback.sendCommandFeedback("not-online"));
-                    return Command.SINGLE_SUCCESS;
-                }
-
                 sender.sendMessage(commandFeedback.sendCommandFeedback("searching"));
 
-                List<HoneypotPlayerHistoryObject> history = playerHistoryManager.getPlayerHistory(args.player);
+                List<HoneypotPlayerHistoryObject> history = playerHistoryManager.getPlayerHistory(player);
                 int length = config.config().getInt("history-length");
 
                 if (history.size() > length) {
@@ -129,8 +139,8 @@ public class History implements CommandCallback {
                         .append(Component.text(history.get(i).getLocation().getWorld().getName() + " ", NamedTextColor.GOLD))
                         .append(Component.text(String.join(", ", "" + history.get(i).getLocation().getBlockX(), "" + history.get(i).getLocation().getBlockY(), "" + history.get(i).getLocation().getBlockZ()), NamedTextColor.WHITE))
                         .clickEvent(ClickEvent.callback((Audience audience) -> {
-                            if (!(audience instanceof Player player)) return;
-                            player.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                            if (!(audience instanceof Player p)) return;
+                            p.teleportAsync(location, PlayerTeleportEvent.TeleportCause.PLUGIN);
                         }))
                         .hoverEvent(HoverEvent.showText(Component.text("Click to teleport").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC)));
 
@@ -154,12 +164,18 @@ public class History implements CommandCallback {
 
     private static HoneypotHistoryArgs parseArgumentsFromContext(CommandContext<CommandSourceStack> ctx) {
         @Nullable String actionArg = null;
-        @Nullable Player playerArg = null;
+        @Nullable PlayerProfile playerArg = null;
         int countArg = 0;
 
         try {
             actionArg = StringArgumentType.getString(ctx, "action");
-            playerArg = ctx.getArgument("player", PlayerSelectorArgumentResolver.class).resolve(ctx.getSource()).getFirst();
+
+            final Collection<PlayerProfile> profiles = ctx.getArgument("player", PlayerProfileListResolver.class).resolve(ctx.getSource());
+            if (profiles.isEmpty()) throw new IllegalArgumentException("Provided player is not a real player!");
+            if (profiles.size() > 1)
+                throw new IllegalArgumentException("Multiple players provided, please specify a single player!");
+            playerArg = profiles.iterator().next();
+
             countArg = IntegerArgumentType.getInteger(ctx, "count");
         } catch (IllegalArgumentException | CommandSyntaxException ignored) {
             return new HoneypotHistoryArgs(actionArg, playerArg, countArg);
@@ -168,9 +184,47 @@ public class History implements CommandCallback {
         return new HoneypotHistoryArgs(actionArg, playerArg, countArg);
     }
 
-    private record HoneypotHistoryArgs(@Nullable String action, @Nullable Player player, int count) {
+    private record HoneypotHistoryArgs(@Nullable String action, @Nullable PlayerProfile player, int count) {
         public boolean isValid() {
             return action != null && player != null;
         } // primitives can't be null, but we don't care if `count` is null or not
+    }
+
+    public static LiteralNode commandTree(CommandFactory factory) {
+        return CommandDsl.literal("history")
+            .requires(
+                PermissionChecks.anyOf(
+                    PermissionChecks.permission("honeypot.history"),
+                    PermissionChecks.permission("honeypot.*"),
+                    PermissionChecks.isOp()
+                )
+            )
+            .then(
+                CommandDsl.argument("action", StringArgumentType.string())
+                    .suggests(
+                        Suggest.fixedWithTooltip(java.util.List.of(
+                                Suggest.suggestion("delete", Component.text("Delete history record for a player")),
+                                Suggest.suggestion("query", Component.text("Query history for a player")),
+                                Suggest.suggestion("purge", Component.text("Purges all history for all players"))
+                            )
+                        )
+                    )
+                    .then(
+                        CommandDsl.argument("player", ArgumentTypes.playerProfiles())
+                            .suggests(
+                                Suggest.dynamic(
+                                    (ctx, remaining) ->
+                                        Bukkit.getOnlinePlayers()
+                                            .stream()
+                                            .filter(player -> player.getName().startsWith(remaining) || player.getName().equalsIgnoreCase(remaining))
+                                            .map(player -> Suggest.suggestion(player.getName()))
+                                            .toList()
+                                )
+                            )
+                            .then(
+                                CommandDsl.argument("count", IntegerArgumentType.integer(1, 100000))
+                            )
+                    )
+                    .executes(History.class, factory));
     }
 }

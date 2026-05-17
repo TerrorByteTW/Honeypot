@@ -24,7 +24,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 
@@ -35,16 +35,16 @@ import java.util.List;
 public class GhostHoneypotMonitor {
     private final BytePluginConfig config;
     private final HoneypotLogger logger;
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final JavaPlugin plugin;
     private ScheduledTask task;
 
     // Create package constructor to hide implicit one
     @Inject
-    public GhostHoneypotMonitor(JavaPlugin plugin, HoneypotLogger logger, HoneypotBlockManager blockManager, BytePluginConfig config) {
+    public GhostHoneypotMonitor(JavaPlugin plugin, HoneypotLogger logger, HoneypotRegionManager regionManager, BytePluginConfig config) {
         this.plugin = plugin;
         this.logger = logger;
-        this.blockManager = blockManager;
+        this.regionManager = regionManager;
         this.config = config;
 
         // Start the GhostHoneypotMonitor
@@ -70,7 +70,7 @@ public class GhostHoneypotMonitor {
             //  Git blame says I made this change on 2/20/2024, almost a year ago. I'll get around to it eventually) ^^^
             //  3/28/2026 - Lol still haven't
             //  5/12/2026 I FIXED IT :D :D :D :D :D
-            List<HoneypotRegionObject> regions = blockManager.getAllHoneypots();
+            List<HoneypotRegionObject> regions = regionManager.getAllHoneypots();
             for (HoneypotRegionObject region : regions) {
                 if (region.isSingleBlockRegion()) {
 
@@ -106,7 +106,7 @@ public class GhostHoneypotMonitor {
                      */
                     if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
                         logger.debug(Component.text("Found ghost Honeypot at " + coords + " in world " + region.getPos1().getWorld().getName() + ". Removing"), true);
-                        blockManager.deleteRegionContaining(region.getPos1().getBlock());
+                        regionManager.deleteRegionContaining(region.getPos1().getBlock());
                         removedPots++;
                     }
                 }

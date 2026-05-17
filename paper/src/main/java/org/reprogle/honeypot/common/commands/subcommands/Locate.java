@@ -23,7 +23,11 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.CommandFactory;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.dsl.CommandDsl;
+import org.reprogle.bytelib.commands.dsl.LiteralNode;
+import org.reprogle.bytelib.commands.dsl.PermissionChecks;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
@@ -58,7 +62,7 @@ public class Locate implements CommandCallback {
 
         boolean potFound = false;
 
-        List<HoneypotRegionObject> honeypots = Registry.getStorageProvider().getNearbyHoneypotRegions(p.getLocation(), radiusArg);
+        List<HoneypotRegionObject> honeypots = Registry.getRegionStore().getNearbyHoneypotRegions(p.getLocation(), radiusArg);
         if (!honeypots.isEmpty()) potFound = true;
 
         for (HoneypotRegionObject honeypot : honeypots) {
@@ -77,5 +81,23 @@ public class Locate implements CommandCallback {
         }
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    public static LiteralNode commandTree(CommandFactory factory) {
+        return CommandDsl.literal("locate")
+            .requires(
+                PermissionChecks.allOf(
+                    PermissionChecks.anyOf(
+                        PermissionChecks.permission("honeypot.locate"),
+                        PermissionChecks.permission("honeypot.*"),
+                        PermissionChecks.isOp()
+                    ),
+                    PermissionChecks.playerOnly()
+                )
+            )
+            .then(
+                CommandDsl.argument("radius", IntegerArgumentType.integer(1))
+            )
+            .executes(Locate.class, factory);
     }
 }

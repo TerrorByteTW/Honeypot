@@ -35,6 +35,8 @@ repositories {
 dependencies {
     compileOnly(libs.paper.api)
     compileOnly(libs.boosted.yaml)
+    compileOnly(libs.auto.service.annotations)
+    annotationProcessor(libs.auto.service)
 //    compileOnly(libs.folia.api)
 }
 

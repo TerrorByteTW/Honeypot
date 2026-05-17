@@ -25,15 +25,15 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 
 public class InventoryMoveItemEventListener implements Listener, IHoneypotEvent {
 
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
 
     @Inject
-    InventoryMoveItemEventListener(HoneypotBlockManager blockManager) {
-        this.blockManager = blockManager;
+    InventoryMoveItemEventListener(HoneypotRegionManager regionManager) {
+        this.regionManager = regionManager;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -54,8 +54,8 @@ public class InventoryMoveItemEventListener implements Listener, IHoneypotEvent 
         Block targetBlock = world.getBlockAt(destinationLocation);
         Block sourceBlock = world.getBlockAt(sourceLocation);
 
-        boolean isSourceHoneypot = blockManager.isHoneypotBlock(sourceBlock);
-        boolean isTargetHoneypot = blockManager.isHoneypotBlock(targetBlock);
+        boolean isSourceHoneypot = regionManager.isHoneypotBlock(sourceBlock);
+        boolean isTargetHoneypot = regionManager.isHoneypotBlock(targetBlock);
 
         // Check if the source or target is a Honeypot. If so, cancel the whole thing.
         if (isSourceHoneypot || isTargetHoneypot) event.setCancelled(true);

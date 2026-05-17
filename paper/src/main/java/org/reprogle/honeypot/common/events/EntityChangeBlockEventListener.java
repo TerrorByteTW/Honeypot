@@ -26,20 +26,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotLogger logger;
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final BytePluginConfig config;
     
     @Inject
-    EntityChangeBlockEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager, BytePluginConfig config) {
+    EntityChangeBlockEventListener(HoneypotLogger logger, HoneypotRegionManager regionManager, BytePluginConfig config) {
 
         this.logger = logger;
-        this.blockManager = blockManager;
+        this.regionManager = regionManager;
         this.config = config;
     }
 
@@ -51,7 +51,7 @@ public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent 
         // delete the
         // Honeypot, otherwise cancel it
         if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
-            if (blockManager.isHoneypotBlock(event.getBlock())) {
+            if (regionManager.isHoneypotBlock(event.getBlock())) {
 
                 logger.debug(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()), true);
 
@@ -61,13 +61,13 @@ public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent 
                 Bukkit.getPluginManager().callEvent(hnpbe);
 
                 if (Boolean.TRUE.equals(config.config().getBoolean("allow-enderman"))) {
-                    blockManager.deleteRegionContaining(event.getBlock());
+                    regionManager.deleteRegionContaining(event.getBlock());
                 } else {
                     event.setCancelled(true);
                 }
             }
         } else if (event.getEntity().getType().equals(EntityType.SILVERFISH)
-                && blockManager.isHoneypotBlock(event.getBlock())) {
+                && regionManager.isHoneypotBlock(event.getBlock())) {
 
             // Fire HoneypotNonPlayerBreakEvent
             HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), event.getBlock());

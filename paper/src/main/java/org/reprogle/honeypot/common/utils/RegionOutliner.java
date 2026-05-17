@@ -105,11 +105,11 @@ public class RegionOutliner {
         double z
     ) {
         Slime slime = (Slime) world.spawnEntity(
-            new Location(world, x + 0.5, y + 0.2, z + 0.5),
+            new Location(world, x + 0.5, y, z + 0.5),
             EntityType.SLIME
         );
 
-        slime.setSize(1);
+        slime.setSize(2);
         slime.setAI(false);
         slime.setGlowing(true);
         slime.setInvulnerable(true);

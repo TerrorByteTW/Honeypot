@@ -9,14 +9,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 
 public class BlockPlaceEventListener implements Listener, IHoneypotEvent {
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
 
     @Inject
-    public BlockPlaceEventListener(HoneypotBlockManager blockManager) {
-        this.blockManager = blockManager;
+    public BlockPlaceEventListener(HoneypotRegionManager regionManager) {
+        this.regionManager = regionManager;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -26,7 +26,7 @@ public class BlockPlaceEventListener implements Listener, IHoneypotEvent {
             return;
 
         // Early return if the block isn't a Honeypot
-        if (!blockManager.isHoneypotBlock(event.getBlock())) return;
+        if (!regionManager.isHoneypotBlock(event.getBlock())) return;
 
         event.setCancelled(true);
     }
@@ -51,8 +51,8 @@ public class BlockPlaceEventListener implements Listener, IHoneypotEvent {
         if (event.getItem().getType() != Material.BUCKET && event.getItem().getType() != Material.WATER_BUCKET && event.getItem().getType() != Material.LAVA_BUCKET)
             return;
 
-        if (!blockManager.isHoneypotBlock(event.getClickedBlock()) ||
-            blockManager.isHoneypotBlock(event.getClickedBlock().getRelative(event.getBlockFace())))
+        if (!regionManager.isHoneypotBlock(event.getClickedBlock()) ||
+            regionManager.isHoneypotBlock(event.getClickedBlock().getRelative(event.getBlockFace())))
             return;
 
         event.getInteractionPoint();

@@ -25,26 +25,26 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class BlockBurnEventListener implements Listener, IHoneypotEvent {
 
 	
 	private final HoneypotLogger logger;
-	private final HoneypotBlockManager blockManager;
+	private final HoneypotRegionManager regionManager;
 
 	@Inject
-	BlockBurnEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
+	BlockBurnEventListener(HoneypotLogger logger, HoneypotRegionManager regionManager) {
 		this.logger = logger;
-		this.blockManager = blockManager;
+		this.regionManager = regionManager;
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onBlockBurnEvent(BlockBurnEvent event) {
 		Block block = event.getBlock();
 
-		if (blockManager.isHoneypotBlock(block)) {
+		if (regionManager.isHoneypotBlock(block)) {
 			logger.debug(Component.text("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
 			event.setCancelled(true);
 

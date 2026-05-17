@@ -3,7 +3,7 @@
 ######################################################################
 
 # File verison (do NOT edit):
-file-version: 6
+file-version: 7
 
 ######################################################################
 #                       G U I   S E T T I N G S                      #
@@ -23,6 +23,10 @@ display-button-as-honeypot: true
 
 # If the above is false, which item should be used to represent honeypots in the GUI?
 default-gui-button: DIAMOND_ORE
+
+# The default creation mode for creating Honeypots from the GUI. Options are "block" or "region"
+# If this value matches neither of those, it will default to "block"
+default-creation-mode: "block"
 
 # The buttons to display in the main menu
 main-buttons:

@@ -1,6 +1,8 @@
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -8,14 +10,32 @@ import org.bukkit.entity.Player;
 import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
+import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
+import org.reprogle.honeypot.common.storageproviders.StoreType;
+import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 
-public class HoneypotPlayerHistoryRepository {
-    @Inject
-    SqliteDatabase db;
+/**
+ * Defines the SQLite Honeypot Store for PlayerHistory. You should NOT interact with this directly.
+ * Instead, use {@link HoneypotPlayerHistoryManager}
+ */
+@Singleton
+@HoneypotStore(name = "sqlite-player-history", type = StoreType.PLAYER_HISTORY)
+public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
+    private final SqliteDatabase db;
 
-    public void createSchema() {
+    @Inject
+    public HoneypotPlayerHistoryRepository(HoneypotLogger logger, SqliteDatabase db) {
+        this.db = db;
+        logger.info(Component.text("Initializing Player History table..."));
+        createSchema();
+        logger.info(Component.text("Player History table initialized!"));
+    }
+
+    private void createSchema() {
         // Honeypot History Table
         db.execute("""
             CREATE TABLE IF NOT EXISTS honeypot_history (

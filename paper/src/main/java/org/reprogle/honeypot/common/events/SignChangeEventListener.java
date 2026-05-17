@@ -23,13 +23,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 public class SignChangeEventListener implements Listener, IHoneypotEvent {
 
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final HoneypotLogger logger;
     private final AdapterManager adapterManager;
 
@@ -39,8 +39,8 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
     }
 
     @Inject
-    SignChangeEventListener(HoneypotBlockManager blockManager, HoneypotLogger logger, AdapterManager adapterManager) {
-        this.blockManager = blockManager;
+    SignChangeEventListener(HoneypotRegionManager regionManager, HoneypotLogger logger, AdapterManager adapterManager) {
+        this.regionManager = regionManager;
         this.logger = logger;
         this.adapterManager = adapterManager;
     }
@@ -49,7 +49,7 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
     public void onSignChangeEvent(SignChangeEvent event) {
         Block block = event.getBlock();
 
-        if (blockManager.isHoneypotBlock(block)) {
+        if (regionManager.isHoneypotBlock(block)) {
             // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
             if (!adapterManager.checkAllAdapters(event.getPlayer(), event.getBlock().getLocation())) {
                 return;

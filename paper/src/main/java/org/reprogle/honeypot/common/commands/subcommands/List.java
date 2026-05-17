@@ -21,7 +21,11 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.entity.Player;
+import org.reprogle.bytelib.commands.CommandFactory;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.dsl.CommandDsl;
+import org.reprogle.bytelib.commands.dsl.LiteralNode;
+import org.reprogle.bytelib.commands.dsl.PermissionChecks;
 
 public class List implements CommandCallback {
 
@@ -38,5 +42,20 @@ public class List implements CommandCallback {
 		Player p = (Player) ctx.getSource().getSender();
 		gui.callAllHoneypotsInventory(p);
 		return Command.SINGLE_SUCCESS;
+	}
+
+	public static LiteralNode commandTree(CommandFactory factory) {
+		return CommandDsl.literal("list")
+			.requires(
+				PermissionChecks.allOf(
+					PermissionChecks.anyOf(
+						PermissionChecks.permission("honeypot.gui"),
+						PermissionChecks.permission("honeypot.*"),
+						PermissionChecks.isOp()
+					),
+					PermissionChecks.playerOnly()
+				)
+			)
+			.executes(List.class, factory);
 	}
 }

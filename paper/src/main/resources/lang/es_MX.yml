@@ -1,4 +1,4 @@
-language-version: 10
+language-version: 11
 prefix: '<gold>[Honeypot]<reset>'
 kick-reason: "<prefix> Pateado por romper bloques de honeypot. ¡No te apenes!"
 ban-reason: "<prefix> Has sido baneado por romper bloques de honeypot"
@@ -28,7 +28,16 @@ staff-broke: "<prefix> Solo un FYI esto fue un honeypot. Desde que lo rompiste l
 exempt-no-break: "<prefix> Está exento de acciones de interrupción, pero no tiene permisos para eliminar bloques de trampas. ¡Lo siento!"
 searching: "<prefix> Buscando, espere por favor..."
 truncating: "<prefix> Recorte de resultados por ajustes de configuración..."
-not-online: "<prefix> <red>Este jugador no está en línea!</red>"
+player-not-found: "<prefix> <red>No se pudo encontrar a este jugador!</red>"
 no-history: "<prefix> No se ha encontrado historia para este jugador!"
 invalid-storage-provider: "<prefix> A storage provider with the name %s does not exist. Please check your config and try again"
 invalid-radius: "<prefix> Invalid search range. Defaulting to config value"
+not-valid-kind: "<prefix> The kind of Honeypot provided is not valid. Please use 'block' or 'region'"
+creating-region:
+  start: "<prefix> Right click with the Honeypot Wand to set a first position, the right click again to set a second one! Drop the item to cancel creation"
+  progress: "<prefix> Position 1 set, right click another block to set position 2 and create the region"
+  already-creating: "<prefix> You're already creating a region, please finish or cancel the current one before starting a new one"
+  overlap: "<prefix> <red>This region overlaps with an existing region. Please choose a different area! Highlighting nearby regions..."
+  end: "<prefix> Region created!"
+  error: "<prefix> The region was not created"
+  cancel: "<prefix> Region creation cancelled"

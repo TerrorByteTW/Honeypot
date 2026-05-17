@@ -5,7 +5,7 @@ lombok = "9.2.0"
 
 # Libraries
 paper-api = "26.1.2.build.+"
-inventory-framework = "0.12.0"
+inventory-framework = "0.12.1-SNAPSHOT"
 
 worldguard = "7.0.17-SNAPSHOT"
 griefprevention = "18.0.0"
@@ -20,6 +20,7 @@ guice = '7.0.0'
 okhttp = '5.3.0'
 
 bytelib = 'ByteLib-1.1.4'
+auto-service = "1.1.1"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
@@ -29,6 +30,8 @@ lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
 paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper-api" }
 bytelib = { module = "com.github.TerrorByteTW:ByteLib", version.ref = "bytelib" }
 inventory-framework = { module = "com.github.stefvanschie.inventoryframework:IF", version.ref = "inventory-framework" }
+auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service" }
+auto-service = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
 
 worldguard = { module = "com.sk89q.worldguard:worldguard-bukkit", version.ref = "worldguard" }
 griefprevention = { module = "com.github.GriefPrevention:GriefPrevention", version.ref = "griefprevention" }

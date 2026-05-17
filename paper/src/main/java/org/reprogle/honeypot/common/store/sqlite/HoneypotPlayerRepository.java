@@ -1,16 +1,36 @@
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
+import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
+import org.reprogle.honeypot.common.storageproviders.PlayerStore;
+import org.reprogle.honeypot.common.storageproviders.StoreType;
+import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-public class HoneypotPlayerRepository {
+/**
+ * Defines the SQLite Honeypot Store for Players. You should NOT interact with this directly.
+ * Instead, use {@link HoneypotPlayerManager}
+ */
+@Singleton
+@HoneypotStore(name = "sqlite-players", type = StoreType.PLAYER)
+public class HoneypotPlayerRepository implements PlayerStore {
+    private final SqliteDatabase db;
+
     @Inject
-    SqliteDatabase db;
+    public HoneypotPlayerRepository(HoneypotLogger logger, SqliteDatabase db) {
+        this.db = db;
+        logger.info(Component.text("Initializing Player table..."));
+        createSchema();
+        logger.info(Component.text("Player table initialized!"));
+    }
 
-    public void createSchema() {
+    private void createSchema() {
         // Honeypot Players Table
         db.execute("""
             CREATE TABLE IF NOT EXISTS honeypot_players (

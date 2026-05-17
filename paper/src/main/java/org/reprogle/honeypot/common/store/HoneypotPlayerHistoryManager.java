@@ -49,7 +49,7 @@ public class HoneypotPlayerHistoryManager {
      * @param b The honeypot block they triggered
      */
     public void addPlayerHistory(Player p, Block b, String action, String type) {
-        Registry.getStorageProvider().addPlayerHistory(p, b, action, type);
+        Registry.getPlayerHistoryStore().addPlayerHistory(p, b, action, type);
 
         logger.debug(Component.text("Added new history entry for player " + p.getName()), true);
     }
@@ -61,7 +61,7 @@ public class HoneypotPlayerHistoryManager {
      * @return A list of all HoneypotPlayerHistory objects
      */
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
-        return Registry.getStorageProvider().getPlayerHistory(p);
+        return Registry.getPlayerHistoryStore().getPlayerHistory(p);
     }
 
     /**
@@ -73,9 +73,9 @@ public class HoneypotPlayerHistoryManager {
      */
     public void deletePlayerHistory(Player p, int... n) {
         if (n.length > 0) {
-            Registry.getStorageProvider().deletePlayerHistory(p, n);
+            Registry.getPlayerHistoryStore().deletePlayerHistory(p, n);
         } else {
-            Registry.getStorageProvider().deletePlayerHistory(p);
+            Registry.getPlayerHistoryStore().deletePlayerHistory(p);
         }
 
         logger.debug(Component.text("Deleting player history for player " + p.getName()), true);
@@ -85,7 +85,7 @@ public class HoneypotPlayerHistoryManager {
      * A function to purge the entire history table
      */
     public void deleteAllHistory() {
-        Registry.getStorageProvider().deleteAllHistory();
+        Registry.getPlayerHistoryStore().deleteAllHistory();
     }
 
 }

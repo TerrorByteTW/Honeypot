@@ -1,4 +1,4 @@
-package org.reprogle.honeypot.common.store.sqlite.patches;
+package org.reprogle.honeypot.common.store.sqlite.migrations;
 
 import net.kyori.adventure.text.Component;
 import org.reprogle.bytelib.db.migrate.Migration;

@@ -6,14 +6,19 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.boot.lifecycle.PluginLifecycle;
 import org.reprogle.bytelib.config.BoostedYamlPluginConfig;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.commands.subcommands.Create;
 import org.reprogle.honeypot.common.events.Listeners;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
+import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
+import org.reprogle.honeypot.common.storageproviders.PlayerStore;
+import org.reprogle.honeypot.common.storageproviders.RegionStore;
+import org.reprogle.honeypot.common.store.sqlite.HoneypotMigrations;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
@@ -21,6 +26,8 @@ import javax.naming.ConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 
 public class HoneypotLifecycle implements PluginLifecycle {
@@ -32,7 +39,9 @@ public class HoneypotLifecycle implements PluginLifecycle {
     private final GhostHoneypotMonitor ghf;
     private final CommandFeedback commandFeedback;
     private final Set<BehaviorProvider> behaviorProviders;
-    private final Set<StorageProvider> storageProviders;
+    private final Set<RegionStore> regionStores;
+    private final Set<PlayerStore> playerStores;
+    private final Set<PlayerHistoryStore> playerHistoryStores;
     private final BytePluginConfig config;
     private final HoneypotSupportedVersions supportedVersions;
 
@@ -46,7 +55,10 @@ public class HoneypotLifecycle implements PluginLifecycle {
         GhostHoneypotMonitor ghf,
         CommandFeedback commandFeedback,
         Set<BehaviorProvider> behaviorProviders,
-        Set<StorageProvider> storageProviders,
+        Set<RegionStore> regionStores,
+        Set<PlayerStore> playerStores,
+        Set<PlayerHistoryStore> playerHistoryStores,
+        HoneypotMigrations migrations,
         BytePluginConfig config,
         HoneypotSupportedVersions supportedVersions
     ) {
@@ -57,9 +69,13 @@ public class HoneypotLifecycle implements PluginLifecycle {
         this.ghf = ghf;
         this.commandFeedback = commandFeedback;
         this.behaviorProviders = behaviorProviders;
-        this.storageProviders = storageProviders;
+        this.regionStores = regionStores;
+        this.playerStores = playerStores;
+        this.playerHistoryStores = playerHistoryStores;
         this.config = config;
         this.supportedVersions = supportedVersions;
+
+        migrations.migrate();
     }
 
     @Override
@@ -75,12 +91,27 @@ public class HoneypotLifecycle implements PluginLifecycle {
             logger.severe(Component.text("Could not create the behaviors folder! Honeypot will function without it, but custom behaviors may not load properly."));
         }
 
+        // Register all internal behavior providers
         for (BehaviorProvider behavior : behaviorProviders) {
             Registry.getBehaviorRegistry().register(behavior);
         }
 
-        for (StorageProvider provider : storageProviders) {
-            Registry.getStorageManagerRegistry().register(provider);
+        // Register all internal region storage providers
+        // Currently only exists 1, but others may be implemented in the future
+        for (RegionStore store : regionStores) {
+            Registry.getStorageManagerRegistry().register(store);
+        }
+
+        // Register all internal player storage providers
+        // Currently only exists 1, but others may be implemented in the future
+        for (PlayerStore store : playerStores) {
+            Registry.getStorageManagerRegistry().register(store);
+        }
+
+        // Register all internal player history storage providers
+        // Currently only exists 1, but others may be implemented in the future
+        for (PlayerHistoryStore store : playerHistoryStores) {
+            Registry.getStorageManagerRegistry().register(store);
         }
     }
 
@@ -102,25 +133,64 @@ public class HoneypotLifecycle implements PluginLifecycle {
         Registry.getStorageManagerRegistry().setInitialized(true);
         ghf.startTask();
 
-        String storageMethod = config.config().getString("storage-method");
+        String regionStoreName = config.config().getString("storage-method.regions");
+        Optional<RegionStore> regStore = Registry.getStorageManagerRegistry().get(regionStoreName, RegionStore.class);
+        String playerStoreName = config.config().getString("storage-method.players");
+        Optional<PlayerStore> playerStore = Registry.getStorageManagerRegistry().get(playerStoreName, PlayerStore.class);
+        String playerHistoryStoreName = config.config().getString("storage-method.player-history");
+        Optional<PlayerHistoryStore> playerHistoryStore = Registry.getStorageManagerRegistry().get(playerHistoryStoreName, PlayerHistoryStore.class);
 
-        if (Registry.getStorageManagerRegistry().getStorageProvider(storageMethod) != null || storageMethod.equalsIgnoreCase("pdc")) {
-            // Temporary workaround for PDC migration process, will be removed in the future
-            if (storageMethod.equalsIgnoreCase("pdc"))
-                Registry.setStorageProvider(Registry.getStorageManagerRegistry().getStorageProvider("sqlite"));
-            else
-                Registry.setStorageProvider(Registry.getStorageManagerRegistry().getStorageProvider(storageMethod));
+        if (regStore.isPresent()) {
+            try {
+                Registry.setRegionStore(regStore.get());
+            } catch (Exception e) {
+                plugin.getServer().getPluginManager().disablePlugin(plugin);
+                logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Region Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
+                throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", regionStoreName));
+            }
         } else {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
-            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. THE STORAGE PROVIDER IS NOT CORRECTLY DEFINED, CHECK WITH THE DEVELOPER OF THE PROVIDER!"));
-            throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", storageMethod));
+            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Region Store that is set in config could not be found, check with the developer of the provider!"));
+            throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", regionStoreName));
+        }
+
+        if (playerStore.isPresent()) {
+            try {
+                Registry.setPlayerStore(playerStore.get());
+            } catch (Exception e) {
+                plugin.getServer().getPluginManager().disablePlugin(plugin);
+                logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
+                throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerStoreName));
+            }
+        } else {
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player Store that is set in config could not be found, check with the developer of the provider!"));
+            throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerStoreName));
+        }
+
+        if (playerHistoryStore.isPresent()) {
+            try {
+                Registry.setPlayerHistoryStore(playerHistoryStore.get());
+            } catch (Exception e) {
+                plugin.getServer().getPluginManager().disablePlugin(plugin);
+                logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player History Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
+                throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerHistoryStoreName));
+            }
+        } else {
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player History Store that is set in config could not be found, check with the developer of the provider!"));
+            throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerHistoryStoreName));
         }
 
         logger.info(Component.text("Successfully registered " + Registry.getBehaviorRegistry().size()
             + " behavior providers. Further registrations are now locked."));
 
         logger.info(Component.text(Registry.getStorageManagerRegistry().size()
-            + " storage providers have been registered, the one Honeypot is configured to use is: " + Registry.getStorageProvider().getProviderName() + ". Further registrations are now locked, but the provider can be changed at any time by doing /honeypot reload."));
+            + " storage providers have been registered. Further registrations are now locked, but the provider can be changed at any time by doing /honeypot reload."));
+
+        logger.info(Component.text("Configured Region Store: " + regionStoreName));
+        logger.info(Component.text("Configured Player Store: " + playerStoreName));
+        logger.info(Component.text("Configured Player History Store: " + playerHistoryStoreName));
 
         // Start bstats and register event listeners
         new Metrics(plugin, 15425);
@@ -160,6 +230,12 @@ public class HoneypotLifecycle implements PluginLifecycle {
     public void onDisable() {
         logger.info(Component.text("Stopping the ghost checker task"));
         ghf.cancelTask();
+        logger.info(Component.text("Cancelling any in-progress region creations"));
+        Create.playersCreatingRegions.forEach((_, creating) ->
+            Arrays.stream(creating.player.getInventory().getContents())
+                .filter(item -> item != null && item.getPersistentDataContainer().has(new NamespacedKey(plugin, "region_wand")))
+                .forEach(item -> creating.player.getInventory().remove(item)));
+        Create.playersCreatingRegions.clear();
         logger.info(Component.text("Successfully shutdown Honeypot. Bye for now!"));
     }
 

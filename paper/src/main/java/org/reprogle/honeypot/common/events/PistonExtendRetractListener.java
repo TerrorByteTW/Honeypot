@@ -26,19 +26,19 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
 
 public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 
-	private final HoneypotBlockManager blockManager;
+	private final HoneypotRegionManager regionManager;
 	private final HoneypotLogger logger;
 
 	@Inject
-	PistonExtendRetractListener(HoneypotBlockManager blockManager, HoneypotLogger logger) {
-		this.blockManager = blockManager;
+	PistonExtendRetractListener(HoneypotRegionManager regionManager, HoneypotLogger logger) {
+		this.regionManager = regionManager;
 		this.logger = logger;
 	}
 
@@ -47,7 +47,7 @@ public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 	public void pistonPushEvent(BlockPistonExtendEvent event) {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
-			if (blockManager.isHoneypotBlock(b) || blockManager.isHoneypotBlock(b.getRelative(event.getDirection()))) {
+			if (regionManager.isHoneypotBlock(b) || regionManager.isHoneypotBlock(b.getRelative(event.getDirection()))) {
 				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()), true);
 
 				// Fire HoneypotNonPlayerBreakEvent
@@ -64,7 +64,7 @@ public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 	public void pistonPullEvent(BlockPistonRetractEvent event) {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
-			if (blockManager.isHoneypotBlock(b)) {
+			if (regionManager.isHoneypotBlock(b)) {
 				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()), true);
 
 				// Fire HoneypotNonPlayerBreakEvent

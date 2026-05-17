@@ -23,12 +23,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.LeavesDecayEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class LeavesDecayEventListener implements Listener, IHoneypotEvent {
 
-    private final HoneypotBlockManager honeypotBlockManager;
+    private final HoneypotRegionManager honeypotRegionManager;
     private final HoneypotLogger logger;
 
     @Override
@@ -37,8 +37,8 @@ public class LeavesDecayEventListener implements Listener, IHoneypotEvent {
     }
 
     @Inject
-    LeavesDecayEventListener(HoneypotBlockManager honeypotBlockManager, HoneypotLogger logger) {
-        this.honeypotBlockManager = honeypotBlockManager;
+    LeavesDecayEventListener(HoneypotRegionManager honeypotRegionManager, HoneypotLogger logger) {
+        this.honeypotRegionManager = honeypotRegionManager;
         this.logger = logger;
     }
 
@@ -46,7 +46,7 @@ public class LeavesDecayEventListener implements Listener, IHoneypotEvent {
     public void onLeavesDecayEvent(LeavesDecayEvent event) {
         Block block = event.getBlock();
 
-        if (honeypotBlockManager.isHoneypotBlock(block)) {
+        if (honeypotRegionManager.isHoneypotBlock(block)) {
             logger.debug(Component.text("LeavesDecayEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
             event.setCancelled(true);
         }

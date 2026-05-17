@@ -23,11 +23,12 @@ import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.CommandFactory;
+import org.reprogle.bytelib.commands.dsl.*;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 
 import java.util.List;
@@ -35,20 +36,20 @@ import java.util.List;
 public class Remove implements CommandCallback {
 
     private final BytePluginConfig config;
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final CommandFeedback commandFeedback;
 
     @Inject
-    public Remove(BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback) {
+    public Remove(BytePluginConfig config, HoneypotRegionManager regionManager, CommandFeedback commandFeedback) {
         this.config = config;
-        this.blockManager = blockManager;
+        this.regionManager = regionManager;
         this.commandFeedback = commandFeedback;
     }
 
     private void potRemovalCheck(Block block, Player p) {
-        if (block != null && blockManager.isHoneypotBlock(block)) {
-            blockManager.deleteRegionContaining(block);
-            p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
+        if (block != null && regionManager.isHoneypotBlock(block)) {
+            regionManager.deleteRegionContaining(block);
+            p.sendMessage(commandFeedback.sendCommandFeedback("success.removed"));
         } else {
             p.sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
         }
@@ -71,13 +72,13 @@ public class Remove implements CommandCallback {
         if (qualifierArg != null) {
             switch (qualifierArg) {
                 case "all" -> {
-                    blockManager.deleteAllHoneypotBlocks();
-                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
+                    regionManager.deleteAllHoneypotBlocks();
+                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted.all"));
                 }
 
                 case "near" -> {
                     final int radius = config.config().getInt("search-range");
-                    List<HoneypotRegionObject> honeypots = Registry.getStorageProvider().getNearbyHoneypotRegions(p.getLocation(), radius);
+                    List<HoneypotRegionObject> honeypots = Registry.getRegionStore().getNearbyHoneypotRegions(p.getLocation(), radius);
 
                     if (honeypots.isEmpty()) {
                         p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
@@ -85,10 +86,10 @@ public class Remove implements CommandCallback {
                     }
 
                     for (HoneypotRegionObject honeypot : honeypots) {
-                        blockManager.deleteRegionContaining(honeypot.getPos1().getBlock());
+                        regionManager.deleteRegionContaining(honeypot.getPos1().getBlock());
                     }
 
-                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));
+                    p.sendMessage(commandFeedback.sendCommandFeedback("deleted.near"));
                 }
 
                 default -> potRemovalCheck(block, p);
@@ -98,5 +99,24 @@ public class Remove implements CommandCallback {
         }
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    public static LiteralNode commandTree(CommandFactory factory) {
+        return CommandDsl.literal("remove")
+            .requires(
+                PermissionChecks.allOf(
+                    PermissionChecks.anyOf(
+                        PermissionChecks.permission("honeypot.remove"),
+                        PermissionChecks.permission("honeypot.*"),
+                        PermissionChecks.isOp()
+                    ),
+                    PermissionChecks.playerOnly()
+                )
+            )
+            .then(
+                CommandDsl.argument("qualifier", StringArgumentType.string())
+                    .suggests(Suggest.fixed("all", "near"))
+            )
+            .executes(Remove.class, factory);
     }
 }
