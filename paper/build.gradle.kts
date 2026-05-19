@@ -18,7 +18,7 @@ import org.gradle.kotlin.dsl.filter
  */
 
 group = "org.reprogle"
-version = "4.0.1"
+version = "4.0.2"
 
 extra["platform"] = "paper"
 
