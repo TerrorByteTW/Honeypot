@@ -5,7 +5,7 @@ lombok = "9.2.0"
 
 # Libraries
 paper-api = "26.1.2.build.+"
-inventory-framework = "0.12.0"
+inventory-framework = "0.12.1-SNAPSHOT"
 
 worldguard = "7.0.17-SNAPSHOT"
 griefprevention = "18.0.0"
