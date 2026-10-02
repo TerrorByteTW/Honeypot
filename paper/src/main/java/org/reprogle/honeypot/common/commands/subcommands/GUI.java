@@ -113,7 +113,7 @@ public class GUI implements CommandCallback {
             typeToggle.toggle();
         }
 
-        if (!p.hasPermission("honeypot.create.region")) {
+        if (!p.hasPermission("honeypot.create.region") && !p.hasPermission("honeypot.*")) {
             type.set("block");
             if (typeToggle.isEnabled()) typeToggle.toggle();
             typeToggle.allowToggle(false);
@@ -444,7 +444,7 @@ public class GUI implements CommandCallback {
 
         StaticPane navigation = new StaticPane(9, 1);
 
-        if (p.hasPermission("honeypot.create"))
+        if (p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*"))
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.create-button"),
                 "Create a Honeypot",
