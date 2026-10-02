@@ -31,6 +31,7 @@ public class HoneypotPlayerHistoryObject {
 	private final Location location;
 	private final String type;
 	private final String action;
+	private final String block;
 
 	/**
 	 * Constructor for creating a history entry
@@ -42,12 +43,27 @@ public class HoneypotPlayerHistoryObject {
 	 * @param action   The action assigned to this block
 	 */
 	public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, Location location, String type, String action) {
+		this(dateTime, player, UUID, location, type, action, null);
+	}
+
+	/**
+	 * Constructor for creating a history entry
+	 *
+	 * @param dateTime The Date and Time in string format. Really need to improve this to have standards but oh well
+	 * @param player   The player's name
+	 * @param UUID     The UUID of the player
+	 * @param location The location of the block they broke
+	 * @param action   The action assigned to this block
+	 * @param block    The material name of the block they broke, or null if unknown
+	 */
+	public HoneypotPlayerHistoryObject(String dateTime, String player, String UUID, Location location, String type, String action, String block) {
 		this.dateTime = dateTime;
 		this.player = player;
 		this.UUID = UUID;
 		this.location = location;
 		this.type = type;
 		this.action = action;
+		this.block = block;
 	}
 
 	/**
@@ -65,6 +81,7 @@ public class HoneypotPlayerHistoryObject {
 		this.location = location;
 		this.type = type;
 		this.action = action;
+		this.block = null;
 	}
 
 	/**
@@ -112,6 +129,11 @@ public class HoneypotPlayerHistoryObject {
 	 * Get the action assigned to this block
 	 */
 	public String getAction() { return action; }
+
+	/**
+	 * Get the material name of the block that was broken. May be null for entries recorded before this was tracked
+	 */
+	public String getBlock() { return block; }
 
 
 }

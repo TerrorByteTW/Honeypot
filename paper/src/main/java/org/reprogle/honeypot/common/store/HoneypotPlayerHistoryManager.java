@@ -65,6 +65,28 @@ public class HoneypotPlayerHistoryManager {
     }
 
     /**
+     * Get a single page of history for a player, newest first
+     *
+     * @param p      The player to grab history for
+     * @param offset The number of entries to skip
+     * @param limit  The maximum number of entries to return
+     * @return A list of HoneypotPlayerHistory objects within the requested range
+     */
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p, int offset, int limit) {
+        return Registry.getPlayerHistoryStore().getPlayerHistory(p, offset, limit);
+    }
+
+    /**
+     * Get the number of history entries for a player
+     *
+     * @param p The player to count history for
+     * @return The number of history entries
+     */
+    public int getPlayerHistoryCount(Player p) {
+        return Registry.getPlayerHistoryStore().getPlayerHistoryCount(p);
+    }
+
+    /**
      * Delete all history for a particular player. An optional n parameter for
      * specifying the number of most recent rows to delete
      *

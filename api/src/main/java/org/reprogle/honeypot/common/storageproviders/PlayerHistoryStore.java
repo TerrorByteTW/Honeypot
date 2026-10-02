@@ -23,6 +23,30 @@ public interface PlayerHistoryStore extends Store {
     List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p);
 
     /**
+     * Retrieve a single page of player history, newest first. Stores should override this with a native
+     * paginated query; the default implementation loads the entire history and slices it.
+     * @param p Player object
+     * @param offset Number of entries to skip
+     * @param limit Maximum number of entries to return
+     * @return List of HoneypotPlayerHistoryObject for the player within the requested range
+     */
+    default List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p, int offset, int limit) {
+        List<HoneypotPlayerHistoryObject> history = getPlayerHistory(p);
+        if (offset >= history.size()) return List.of();
+        return history.subList(Math.max(offset, 0), Math.min(offset + limit, history.size()));
+    }
+
+    /**
+     * Count the number of history entries for a player. Stores should override this with a native
+     * count query; the default implementation loads the entire history.
+     * @param p Player object
+     * @return The number of history entries for the player
+     */
+    default int getPlayerHistoryCount(Player p) {
+        return getPlayerHistory(p).size();
+    }
+
+    /**
      * Delete player history entries
      * @param p Player object
      * @param n Variable number of history entry IDs to delete

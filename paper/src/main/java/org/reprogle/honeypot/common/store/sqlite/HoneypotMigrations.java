@@ -35,7 +35,8 @@ public class HoneypotMigrations {
             // A fourth migration used to exist in Honeypot 4, but was simply for migrating users from 3.5.1 to 4 *if* they used PDC.
             // It no longer exists as it hard-coded some checks in place that have the potential to break servers moving forward if certain criteria were met.
             // UserVersionMigrator happily handles jumps in user versions without issue.
-            new MigrationStep(5, new RegionizeTables04(logger))
+            new MigrationStep(5, new RegionizeTables04(logger)),
+            new MigrationStep(6, new AddBlockToHistory05(logger))
         )));
         migrator.migrate(db);
 

@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.bytelib.db.api.Param;
+import org.reprogle.bytelib.db.api.Row;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
@@ -16,6 +17,7 @@ import org.reprogle.honeypot.common.storageproviders.StoreType;
 import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -47,15 +49,16 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
                 `z` INTEGER NOT NULL,
                 `world` VARCHAR NOT NULL,
                 `type` VARCHAR NOT NULL,
-                `action` VARCHAR NOT NULL
+                `action` VARCHAR NOT NULL,
+                `block` VARCHAR
             );
             """);
     }
 
     public void addPlayerHistory(Player p, Block block, String action, String type) {
         db.execute("""
-                INSERT INTO honeypot_history (datetime, playerName, playerUUID, x, y, z, world, type, action)
-                VALUES (DATETIME('now', 'localtime'), ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO honeypot_history (datetime, playerName, playerUUID, x, y, z, world, type, action, block)
+                VALUES (DATETIME('now', 'localtime'), ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
             Param.text(p.getName()),
             Param.text(p.getUniqueId().toString()),
@@ -64,7 +67,8 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
             Param.i32(block.getZ()),
             Param.text(block.getWorld().getName()),
             Param.text(type),
-            Param.text(action));
+            Param.text(action),
+            Param.text(block.getType().name()));
     }
 
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
@@ -74,20 +78,53 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
                 WHERE playerUUID = ?
                 ORDER BY datetime DESC;
                 """,
-            row -> new HoneypotPlayerHistoryObject(
-                row.string("datetime"),
-                row.string("playerName"),
-                row.string("playerUUID"),
-                new Location(
-                    Bukkit.getWorld(row.string("world")),
-                    row.i32("x"),
-                    row.i32("y"),
-                    row.i32("z")
-                ),
-                row.string("type"),
-                row.string("action")
-            ),
+            HoneypotPlayerHistoryRepository::mapRow,
             Param.text(p.getUniqueId().toString()));
+    }
+
+    @Override
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p, int offset, int limit) {
+        return db.query("""
+                SELECT *
+                FROM honeypot_history
+                WHERE playerUUID = ?
+                ORDER BY datetime DESC, rowid DESC
+                LIMIT ? OFFSET ?;
+                """,
+            HoneypotPlayerHistoryRepository::mapRow,
+            Param.text(p.getUniqueId().toString()),
+            Param.i32(limit),
+            Param.i32(offset));
+    }
+
+    @Override
+    public int getPlayerHistoryCount(Player p) {
+        Integer count = db.queryOne("""
+                SELECT COUNT(*) AS count
+                FROM honeypot_history
+                WHERE playerUUID = ?;
+                """,
+            row -> row.i32("count"),
+            Param.text(p.getUniqueId().toString()));
+
+        return count == null ? 0 : count;
+    }
+
+    private static HoneypotPlayerHistoryObject mapRow(Row row) throws SQLException {
+        return new HoneypotPlayerHistoryObject(
+            row.string("datetime"),
+            row.string("playerName"),
+            row.string("playerUUID"),
+            new Location(
+                Bukkit.getWorld(row.string("world")),
+                row.i32("x"),
+                row.i32("y"),
+                row.i32("z")
+            ),
+            row.string("type"),
+            row.string("action"),
+            row.string("block")
+        );
     }
 
     public void deletePlayerHistory(Player p, int... n) {
