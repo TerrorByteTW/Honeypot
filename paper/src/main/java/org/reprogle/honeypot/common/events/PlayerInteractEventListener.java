@@ -31,7 +31,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
 import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -42,17 +42,17 @@ import java.util.Objects;
 public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
 
     private final BytePluginConfig config;
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final HoneypotLogger logger;
     private final ActionHandler actionHandler;
     private final AdapterManager adapterManager;
 
     @Inject
-    PlayerInteractEventListener(BytePluginConfig config, HoneypotBlockManager blockManager,
+    PlayerInteractEventListener(BytePluginConfig config, HoneypotRegionManager regionManager,
                                 HoneypotLogger logger, ActionHandler actionHandler,
                                 AdapterManager adapterManager) {
         this.config = config;
-        this.blockManager = blockManager;
+        this.regionManager = regionManager;
         this.logger = logger;
         this.actionHandler = actionHandler;
         this.adapterManager = adapterManager;
@@ -96,7 +96,7 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
 
         try {
             if (!Objects.requireNonNull(block).getType().equals(Material.ENDER_CHEST)
-                    && blockManager.isHoneypotBlock(Objects.requireNonNull(block))) {
+                    && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
 
                 // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
                 if (!adapterManager.checkAllAdapters(player, Objects.requireNonNull(player.getTargetBlockExact(5)).getLocation())) {
@@ -135,7 +135,7 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
         Block block = player.getTargetBlockExact(5);
 
         assert block != null;
-        String action = blockManager.getAction(block);
+        String action = regionManager.getAction(block);
 
         if (action == null) {
             logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);

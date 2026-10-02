@@ -18,16 +18,22 @@ package org.reprogle.honeypot;
 
 import com.google.common.collect.Maps;
 import org.jetbrains.annotations.NotNull;
-import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
+import org.reprogle.honeypot.common.storageproviders.*;
 import org.reprogle.honeypot.common.storageproviders.exceptions.InvalidStorageManagerDefinitionException;
 import org.reprogle.honeypot.common.storageproviders.exceptions.StorageManagerConflictException;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Logger;
 
 public class StoreRegistry {
-    protected final ConcurrentMap<String, StorageProvider> storageProviders = Maps.newConcurrentMap();
+
+    protected final ConcurrentMap<String, Object> stores = Maps.newConcurrentMap();
+    protected final ConcurrentMap<StoreType, Set<String>> storeTypes = Maps.newConcurrentMap();
+
     private final Object lock = new Object();
     private boolean initialized = false;
 
@@ -39,13 +45,17 @@ public class StoreRegistry {
         this.initialized = initialized;
     }
 
-    public void register(@NotNull StorageProvider storageProvider) {
+    /**
+     * Registers a new storage provider.
+     * @param store The store to register. Must be one of {@link PlayerStore}, {@link RegionStore}, or {@link PlayerHistoryStore}.
+     */
+    public void register(@NotNull Object store) {
         synchronized (lock) {
             if (initialized)
                 throw new IllegalStateException("New storage providers cannot be registered at this time");
 
             try {
-                forceRegister(storageProvider);
+                forceRegister(store);
             } catch (InvalidStorageManagerDefinitionException | StorageManagerConflictException e) {
                 Logger.getLogger("minecraft").warning(e.getMessage());
                 Logger.getLogger("minecraft").warning("An error occurred while registering a behavior. Please see details above!");
@@ -54,45 +64,68 @@ public class StoreRegistry {
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    private StorageProvider forceRegister(StorageProvider provider) throws InvalidStorageManagerDefinitionException, StorageManagerConflictException {
+    private void forceRegister(Object store) throws InvalidStorageManagerDefinitionException, StorageManagerConflictException {
         synchronized (lock) {
-            if (!provider.getClass().isAnnotationPresent(HoneypotStore.class))
-                throw new InvalidStorageManagerDefinitionException("Storage manager " + provider.getClass().getName().toLowerCase() + " is improperly defined, and therefore cannot be registered. Please contact the author of the plugin attempting to register this provider");
+            Class<?> clazz = store.getClass();
 
-            if (storageProviders.containsKey(provider.getProviderName().toLowerCase())) {
-                throw new StorageManagerConflictException("Storage manager " + provider.getClass().getName().toLowerCase() + " is already registered under that name. Please rename the Behavior");
+            HoneypotStore annotation = clazz.getAnnotation(HoneypotStore.class);
+
+            if (annotation == null)
+                throw new InvalidStorageManagerDefinitionException("Storage manager in class " + clazz.getName().toLowerCase() + " is improperly defined, and therefore cannot be registered. Please contact the author of the plugin attempting to register this provider");
+
+            String name = annotation.name();
+
+            Object existing = stores.putIfAbsent(name, store);
+
+            if (existing != null) {
+                throw new StorageManagerConflictException("Storage manager " + name + " is already registered. Please use a different name for this provider");
             }
 
-            return storageProviders.put(provider.getProviderName().toLowerCase(), provider);
+            for (StoreType type : annotation.type()) {
+                storeTypes.computeIfAbsent(type, ignored -> ConcurrentHashMap.newKeySet()).add(name);
+            }
         }
     }
 
     /**
-     * Returns a storage provider based on registered name
-     *
-     * @param name The name of the provider to pull
-     * @return {@link StorageProvider} The storage provider you requested
+     * Get a specific store by name.
+     * @param name The name of the store to retrieve.
+     * @return An Optional containing the store if found, or empty if not found.
      */
-    public StorageProvider getStorageProvider(@NotNull String name) {
-        return storageProviders.get(name.toLowerCase());
+    public Optional<Object> get(String name) {
+        return Optional.ofNullable(stores.get(name));
     }
 
     /**
-     * Returns all storage providers
-     *
-     * @return A concurrent map of all storage providers in the form of String, StorageProvider
+     * Get a specific store by name and type.
+     * @param name The name of the store to retrieve.
+     * @param type The expected type of the store.
+     * @param <T> The type parameter for the expected store type.
+     * @return An Optional containing the store if found and of the expected type, or empty otherwise.
      */
-    public ConcurrentMap<String, StorageProvider> getStorageProviders() {
-        return storageProviders;
+    public <T> Optional<T> get(String name, Class<T> type) {
+        return Optional.ofNullable(stores.get(name))
+            .filter(type::isInstance)
+            .map(type::cast);
     }
 
     /**
-     * Get the size of the registry
-     *
-     * @return An int representing how many Behavior Providers are registered
+     * Get a list of stores by type and expected type.
+     * @param type The type of stores to retrieve.
+     * @param expectedType The expected type of the stores.
+     * @param <T> The type parameter for the expected store type.
+     * @return A list of stores that match the type and expected type criteria.
      */
+    public <T> List<T> getByType(StoreType type, Class<T> expectedType) {
+        return storeTypes.getOrDefault(type, Set.of())
+            .stream()
+            .map(stores::get)
+            .filter(expectedType::isInstance)
+            .map(expectedType::cast)
+            .toList();
+    }
+
     public int size() {
-        return storageProviders.size();
+        return stores.size();
     }
-
 }

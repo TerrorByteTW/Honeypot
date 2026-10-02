@@ -1,4 +1,4 @@
-language-version: 10
+language-version: 11
 prefix: '<gold>[Honeypot]<reset>'
 kick-reason: "<prefix> あなたはハニーポットを破壊しました。これらの行為は許可されていません。"
 ban-reason: "<prefix> あなたはハニーポットを破壊したためBANされました。"
@@ -28,7 +28,16 @@ staff-broke: "<prefix> 今あなたが破壊したブロックはハニーポッ
 exempt-no-break: "<prefix> あなたにはこのブロックを破壊する権限がありません。"
 searching: "<prefix> 検索しています、しばらくお待ちください..."
 truncating: "<prefix> 構成設定ごとに結果をトリミングしています..."
-not-online: "<prefix> <red>指定されたプレイヤーはオフラインです</red>"
+player-not-found: "<prefix> <red>このプレイヤーは見つかりませんでした!</red>"
 no-history: "<prefix> 指定されたプレイヤーの履歴が見つかりませんでした。"
 invalid-storage-provider: "<prefix> A storage provider with the name %s does not exist. Please check your config and try again"
 invalid-radius: "<prefix> Invalid search range. Defaulting to config value"
+not-valid-kind: "<prefix> The kind of Honeypot provided is not valid. Please use 'block' or 'region'"
+creating-region:
+  start: "<prefix> Right click with the Honeypot Wand to set a first position, the right click again to set a second one! Drop the item to cancel creation"
+  progress: "<prefix> Position 1 set, right click another block to set position 2 and create the region"
+  already-creating: "<prefix> You're already creating a region, please finish or cancel the current one before starting a new one"
+  overlap: "<prefix> <red>This region overlaps with an existing region. Please choose a different area! Highlighting nearby regions..."
+  end: "<prefix> Region created!"
+  error: "<prefix> The region was not created"
+  cancel: "<prefix> Region creation cancelled"

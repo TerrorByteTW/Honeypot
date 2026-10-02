@@ -1,5 +1,5 @@
 # File version (do NOT edit):
-file-version: 29
+file-version: 30
 
 ######################################################################
 #                     P L U G I N   S E T T I N G S                  #
@@ -53,7 +53,7 @@ ghost-honeypot-checker:
 enable-logging: true
 
 # Silences more noisy log messages, such as events from non-player triggered actions (Pistons, leaf decay, etc.) or log messages that occur frequently
-# This only applies to DEBUG log messages, INFO, WARNING, etc. messages are not affected
+# This only applies to DEBUG log messages; INFO, WARNING, etc. messages are not affected
 silence-noisy-logs: false
 
 # Enable Discord Webhooks. This will send messages to Discord via your webhook URL if a Honeypot is broken and/or activated
@@ -64,6 +64,11 @@ discord:
   enable: false
   url: "https://www.example.com"
   send-when: action
+
+# The "wand" used when creating a Honeypot Region. This will be automatically taken from the player once the region is created.
+# Honeypot does its best to prevent the wand from being stolen (moved into an inventory, taken to a new world, player disconnecting, etc.)
+# However, you should assume this item *can* get stolen and should not be something valuable
+region-wand: HONEY_BOTTLE
 
 ######################################################################
 #                      C H A T   S E T T I N G S                     #
@@ -85,6 +90,7 @@ history-length: 5
 ######################################################################
 
 # Enabling these filters will prevent staff from creating honeypot blocks that AREN'T in the respective list below.
+# Filters do not apply to regions, only single Honeypot blocks
 filters:
   blocks: false
   inventories: false
@@ -117,10 +123,14 @@ respect-griefprevention: false
 #                       E X P E R I M E N T A L                      #
 ######################################################################
 
-# Allows you to change the storage provider from SQLite to a separate provider if one exists.
-# If you have a custom storage provider, set its name (The author of the provider should give this to you) here and enable third party providers.
+# Allows you to set the storage provider for all the internal Honeypot datatypes.
+# This allows you to do things like save blocks to SQLite, while saving player history to a text file (if you have a Store that provides that)
+# Honeypot, by default, only provides a single store for each type, so you should not change this unless you are sure you know what you're doing.
 # Believe it or not, this *can* be changed on the fly with /honeypot reload! As long as the storage provider was registered on startup, you can switch between them at any time.
-storage-method: sqlite
+storage-method:
+  regions: "sqlite-regions"
+  players: "sqlite-players"
+  player-history: "sqlite-player-history"
 
 ######################################################################
 #                    S Q L I T E    S E T T I N G S                  #

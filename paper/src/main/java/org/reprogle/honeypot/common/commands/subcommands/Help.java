@@ -21,6 +21,8 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.dsl.CommandDsl;
+import org.reprogle.bytelib.commands.dsl.LiteralNode;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 
 public class Help implements CommandCallback {
@@ -36,5 +38,9 @@ public class Help implements CommandCallback {
 	public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
 		ctx.getSource().getSender().sendMessage(commandFeedback.sendCommandFeedback("usage"));
 		return Command.SINGLE_SUCCESS;
+	}
+
+	public static LiteralNode commandTree() {
+		return CommandDsl.literal("help");
 	}
 }

@@ -35,7 +35,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
@@ -47,14 +47,14 @@ import java.util.Objects;
 public class InventoryClickDragEventListener implements Listener, IHoneypotEvent {
 
     private final ActionHandler actionHandler;
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final BytePluginConfig config;
     private final HoneypotLogger logger;
 
     @Inject
-    InventoryClickDragEventListener(ActionHandler actionHandler, HoneypotBlockManager blockManager, BytePluginConfig config, HoneypotLogger logger) {
+    InventoryClickDragEventListener(ActionHandler actionHandler, HoneypotRegionManager regionManager, BytePluginConfig config, HoneypotLogger logger) {
         this.actionHandler = actionHandler;
-        this.blockManager = blockManager;
+        this.regionManager = regionManager;
         this.config = config;
         this.logger = logger;
     }
@@ -90,13 +90,13 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
             block = ((Container) event.getClickedInventory().getHolder()).getBlock();
         }
 
-        if (!blockManager.isHoneypotBlock(block)) return;
+        if (!regionManager.isHoneypotBlock(block)) return;
 
         final Inventory inventory = event.getInventory();
 
         if (!checkFilter(block)) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST) && blockManager.isHoneypotBlock(Objects.requireNonNull(block))) {
+        if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
             // Fire HoneypotPreInventoryClickEvent
             HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             Bukkit.getPluginManager().callEvent(hpice);
@@ -134,7 +134,7 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
 
         if (!checkFilter(block)) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST) && blockManager.isHoneypotBlock(Objects.requireNonNull(block))) {
+        if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
             // Fire HoneypotPreInventoryClickEvent
             HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             Bukkit.getPluginManager().callEvent(hpice);
@@ -151,7 +151,7 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
     }
 
     private void executeAction(Player player, Block block, Inventory inventory) {
-        String action = blockManager.getAction(block);
+        String action = regionManager.getAction(block);
 
         if (action == null) {
             logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);

@@ -22,10 +22,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.Consumer;
 
@@ -43,47 +45,57 @@ public class HoneypotSupportedVersions {
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public void checkIfServerSupported() {
+        // Modern versions of Paper return Bukkit.getBukkitVersion() as "YY.D[.H].build.BBB", where YY is the year, D is the drop, and H is the potential hotfix, followed by ".build.BBB", where "BBB" is the build number
+        // In the past it used to be "1.M.R-SNAPSHOT-R0.N", where M was the minor version, R was the revision, and N was the revision number. This has changed.
+        // Paper has never been nor has ever promised to be SemVer compliant, and that's fine.
         String[] serverVersion = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
-        int serverMajorVer = Integer.parseInt(serverVersion[0]);
-        int serverMinorVer = Integer.parseInt(serverVersion[1]);
-        int serverRevisionVer = serverVersion.length > 2 ? Integer.parseInt(serverVersion[2]) : 0;
-
         String pluginVersion = plugin.getPluginMeta().getVersion();
-        // Check for any updates
-        new SupportedVersions(plugin, pluginVersion).getSupportedVersions(value -> {
-            if (value.pulled()) {
-                logger.warning(Component.text(value.message()));
-                return;
-            }
-            // Get the least supported and most supported server versions for this version
-            // of Honeypot
-            String[] lowerVersion = value.message().split("-")[0].split("\\.");
-            String[] upperVersion = value.message().split("-")[1].split("\\.");
 
-            int lowerMajorVer = Integer.parseInt(lowerVersion[0]);
-            int lowerMinorVer = Integer.parseInt(lowerVersion[1]);
-            int lowerRevisionVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
+        try {
+            final int serverYearVer = Integer.parseInt(serverVersion[0]);
+            final int serverDropVer = Integer.parseInt(serverVersion[1]);
+            // This is required because, otherwise, Java may attempt to unbox the tryParseInt method, resulting in an NPE
+            final int serverHotfixVer = Optional.ofNullable(serverVersion.length > 2 ? HoneypotSupportedVersions.tryParseInt(serverVersion[2]) : null)
+                .orElse(0);
 
-            int upperMajorVer = Integer.parseInt(upperVersion[0]);
-            int upperMinorVer = Integer.parseInt(upperVersion[1]);
-            int upperRevisionVer = upperVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
+            // Check for any updates
+            new SupportedVersions(plugin, pluginVersion).getSupportedVersions(value -> {
+                if (value.pulled()) {
+                    logger.warning(Component.text(value.message()));
+                    return;
+                }
+                // Get the least supported and most supported server versions for this version
+                // of Honeypot
+                String[] lowerVersion = value.message().split("-")[0].split("\\.");
+                String[] upperVersion = value.message().split("-")[1].split("\\.");
 
-            // Check if the version the server is running is within the bounds of the
-            // supported versions
-            // This check is done because it allows the plugin to verify and
-            // disable version check messages without updating the plugin code
-            // This means if a minor MC version rolls out and doesn't affect functionality
-            // to the plugin, we can update it on the GitHub side and server admins will not
-            // see an error message
-            if ((serverMajorVer < lowerMajorVer || serverMajorVer > upperMajorVer)
-                    && (serverMinorVer < lowerMinorVer || serverMinorVer >= upperMinorVer)
-                    && (serverRevisionVer < lowerRevisionVer || serverRevisionVer > upperRevisionVer)) {
-                logger.warning(
+                int lowerYearVer = Integer.parseInt(lowerVersion[0]);
+                int lowerDropVer = Integer.parseInt(lowerVersion[1]);
+                int lowerHotfixVer = lowerVersion.length > 2 ? Integer.parseInt(lowerVersion[2]) : 0;
+
+                int upperYearVer = Integer.parseInt(upperVersion[0]);
+                int upperDropVer = Integer.parseInt(upperVersion[1]);
+                int upperHotfixVer = upperVersion.length > 2 ? Integer.parseInt(upperVersion[2]) : 0;
+
+                // Check if the version the server is running is within the bounds of the
+                // supported versions
+                // This check is done because it allows the plugin to verify and
+                // disable version check messages without updating the plugin code
+                // This means if a minor MC version rolls out and doesn't affect functionality
+                // to the plugin, we can update it on the GitHub side and server admins will not
+                // see an error message
+                if ((serverYearVer < lowerYearVer || serverYearVer > upperYearVer)
+                    && (serverDropVer < lowerDropVer || serverDropVer >= upperDropVer)
+                    && (serverHotfixVer < lowerHotfixVer || serverHotfixVer > upperHotfixVer)) {
+                    logger.warning(
                         Component.text("Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but functionality is not guaranteed. If you experience any issues please report them to the developer."));
-                logger.warning(Component.text("Honeypot " + pluginVersion + " supports server versions " + value));
-            }
-        }, logger);
-
+                    logger.warning(Component.text("Honeypot " + pluginVersion + " supports server versions " + value));
+                }
+            }, logger);
+        } catch (NumberFormatException e) {
+            logger.warning(
+                Component.text("Failed to parse Server Version number, cannot confirm Honeypot compatibility. We won't prevent you from using it, but functionality is not guaranteed. If you experience any issues please report them to the developer."));
+        }
     }
 
     public record SupportedVersions(Plugin plugin, String version) {
@@ -111,6 +123,20 @@ public class HoneypotSupportedVersions {
                     logger.warning(Component.text("Unable to check supported versions: " + exception.getMessage()));
                 }
             });
+        }
+    }
+
+    /**
+     * Tries to parse a string to an Integer, returning null if not possible.
+     * @param text The text to try to parse to an Integer
+     * @return The parsed Integer, or null if not possible
+     */
+    @Nullable
+    private static Integer tryParseInt(String text) {
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 }

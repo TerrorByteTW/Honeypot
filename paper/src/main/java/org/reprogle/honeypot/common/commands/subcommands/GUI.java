@@ -23,6 +23,7 @@ import com.github.stefvanschie.inventoryframework.pane.PaginatedPane;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import com.github.stefvanschie.inventoryframework.pane.component.PagingButtons;
+import com.github.stefvanschie.inventoryframework.pane.component.ToggleButton;
 import com.github.stefvanschie.inventoryframework.pane.util.Slot;
 import com.google.inject.Inject;
 import com.mojang.brigadier.Command;
@@ -33,17 +34,20 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.CommandFactory;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.dsl.CommandDsl;
+import org.reprogle.bytelib.commands.dsl.LiteralNode;
+import org.reprogle.bytelib.commands.dsl.PermissionChecks;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.bytelib.config.Translator;
 import org.reprogle.honeypot.Registry;
@@ -51,8 +55,11 @@ import org.reprogle.honeypot.api.events.HoneypotCreateEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreCreateEvent;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.providers.BehaviorProvider;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
+import org.reprogle.honeypot.common.utils.HoneypotCreatingPlayer;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
+import org.reprogle.honeypot.common.utils.RegionOutliner;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 import org.reprogle.honeypot.common.utils.integrations.GriefPreventionAdapter;
 import org.reprogle.honeypot.common.utils.integrations.LandsAdapter;
@@ -61,6 +68,9 @@ import org.reprogle.honeypot.common.utils.integrations.WorldGuardAdapter;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 // Some Paper methods are marked with the Obsolete annotation instead of Deprecated, and Sonarlint treats that as deprecated. 
@@ -70,24 +80,44 @@ public class GUI implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final BytePluginConfig config;
-    private final HoneypotBlockManager blockManager;
+    private final HoneypotRegionManager regionManager;
     private final CommandFeedback commandFeedback;
     private final AdapterManager adapterManager;
     private final Translator translator;
+    private final HoneypotLogger logger;
 
     @Inject
-    GUI(JavaPlugin plugin, BytePluginConfig config, HoneypotBlockManager blockManager, CommandFeedback commandFeedback, AdapterManager adapterManager, Translator translator) {
+    GUI(JavaPlugin plugin, BytePluginConfig config, HoneypotRegionManager regionManager, CommandFeedback commandFeedback, AdapterManager adapterManager, Translator translator, HoneypotLogger logger) {
         this.plugin = plugin;
         this.config = config;
-        this.blockManager = blockManager;
+        this.regionManager = regionManager;
         this.commandFeedback = commandFeedback;
         this.adapterManager = adapterManager;
         this.translator = translator;
+        this.logger = logger;
     }
 
     @SuppressWarnings({"java:S1192", "java:S1121"})
     private void customHoneypotsInventory(Player p) {
         PaginatedPane pages = new PaginatedPane(9, 2);
+        AtomicReference<String> type = new AtomicReference<>("block");
+
+        ToggleButton typeToggle = new ToggleButton(1, 1, Pane.Priority.HIGH);
+        typeToggle.setDisabledItem(button("SPYGLASS", "As Block", "Create the Honeypot as a single block"));
+        typeToggle.setEnabledItem(button("FILLED_MAP", "As Region", "Create the Honeypot as a region"));
+        typeToggle.setOnClick(_ -> type.set(typeToggle.isEnabled() ? "region" : "block"));
+
+        String defaultMode = config.require("gui").getString("default-creation-mode", "block");
+        if (defaultMode.equalsIgnoreCase("region")) {
+            type.set("region");
+            typeToggle.toggle();
+        }
+
+        if (!p.hasPermission("honeypot.create.region") && !p.hasPermission("honeypot.*") && !p.isOp()) {
+            type.set("block");
+            if (typeToggle.isEnabled()) typeToggle.toggle();
+            typeToggle.allowToggle(false);
+        }
 
         // Collect + dedupe types (config keys + behavior providers)
         Set<String> typeSet = new HashSet<>();
@@ -102,28 +132,31 @@ public class GUI implements CommandCallback {
         List<String> types = new ArrayList<>(typeSet);
         types.sort(String.CASE_INSENSITIVE_ORDER);
 
-        fillPages(pages, types, 18, type -> {
-            BehaviorProvider provider = Registry.getBehaviorRegistry().getBehaviorProvider(type);
+        fillPages(pages, types, 18, action -> {
+            BehaviorProvider provider = Registry.getBehaviorRegistry().getBehaviorProvider(action);
 
             // Provider not present => type came from config; use config icon
             String iconMaterial = (provider == null)
-                ? config.require("honeypots").getString(type + ".icon")
+                ? config.require("honeypots").getString(action + ".icon")
                 : provider.getIcon().name();
 
             return button(
                 iconMaterial,
-                type,
+                action,
                 "Click to create a Honeypot of this type",
-                event -> createHoneypotFromGUI(event, type)
+                event -> createHoneypotFromGUI(event, action, type.get())
             );
         });
 
         ChestGui gui = createPagedGui("Custom Honeypot", 3, pages);
+
+        gui.addPane(Slot.fromXY(4, 2), typeToggle);
+
         gui.show(p);
     }
 
     private void allHoneypotsInventory(Player p) {
-        if (!p.hasPermission("honeypot.locate")) {
+        if (!p.hasPermission("honeypot.locate") && !p.hasPermission("honeypot.*") && !p.isOp()) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
@@ -131,22 +164,28 @@ public class GUI implements CommandCallback {
         PaginatedPane pages = new PaginatedPane(9, 2);
 
         boolean displayAsPot = config.require("gui").getBoolean("display-button-as-honeypot");
-        String defaultButton = config.require("gui").getString("default-gui-button");
 
-        List<HoneypotBlockObject> blocks = new ArrayList<>(blockManager.getAllHoneypots(p.getWorld()));
+        List<HoneypotRegionObject> blocks = new ArrayList<>(regionManager.getAllHoneypots());
         // Sort based on distance to player
-        blocks.sort(Comparator.comparingDouble(b -> b.getLocation().distanceSquared(p.getLocation())));
+        blocks.sort(Comparator.comparingDouble(b -> b.getPos1().distanceSquared(p.getLocation())));
 
         fillPages(pages, blocks, 18, block -> {
-            String mat = displayAsPot ? block.getBlock().getType().name() : defaultButton;
+            BehaviorProvider provider = Registry.getBehaviorRegistry().getBehaviorProvider(block.getAction());
+
+            // Provider not present => type came from config; use config icon
+            String iconMaterial = (provider == null)
+                ? config.require("honeypots").getString(block.getAction() + ".icon")
+                : provider.getIcon().name();
+
+            String mat = displayAsPot && block.isSingleBlockRegion() ? block.getPos1().getBlock().getType().name() : iconMaterial;
 
             return button(mat,
-                "Honeypot: " + block.getCoordinates(),
+                "Region: " + block.getPos1().getBlockX() + ", " + block.getPos1().getBlockY() + ", " + block.getPos1().getBlockZ(),
                 "Click to teleport to Honeypot",
                 e -> {
                     Player clicker = (Player) e.getWhoClicked();
                     clicker.sendMessage(Component.text("Whoosh!", NamedTextColor.GRAY).decorate(TextDecoration.ITALIC));
-                    clicker.teleportAsync(block.getLocation().add(0.5, 1, 0.5));
+                    clicker.teleportAsync(block.getPos1().add(0.5, 1, 0.5));
                     clicker.closeInventory();
                 }
             );
@@ -157,7 +196,7 @@ public class GUI implements CommandCallback {
     }
 
     private void historyQueryInventory(Player p) {
-        if (!p.hasPermission("honeypot.history")) {
+        if (!p.hasPermission("honeypot.history") && !p.hasPermission("honeypot.*") && !p.isOp()) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
@@ -198,7 +237,7 @@ public class GUI implements CommandCallback {
 
     @SuppressWarnings({"java:S3776", "java:S1192"})
     private void removeHoneypotInventory(Player p) {
-        if (!(p.hasPermission("honeypot.remove"))) {
+        if (!p.hasPermission("honeypot.remove") && !p.hasPermission("honeypot.*") && !p.isOp()) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
@@ -212,8 +251,8 @@ public class GUI implements CommandCallback {
             null,
             event -> {
                 event.getWhoClicked().closeInventory();
-                blockManager.deleteAllHoneypotBlocks(p.getWorld());
-                p.sendMessage(commandFeedback.sendCommandFeedback("deleted", true));
+                regionManager.deleteAllHoneypotBlocks();
+                p.sendMessage(commandFeedback.sendCommandFeedback("deleted.all"));
             }
         ), 3, 0);
 
@@ -224,18 +263,19 @@ public class GUI implements CommandCallback {
             event -> {
                 event.getWhoClicked().closeInventory();
                 final int radius = config.config().getInt("search-range");
-                List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+                List<HoneypotRegionObject> honeypots = Registry.getRegionStore().getNearbyHoneypotRegions(p.getLocation(), radius);
 
                 if (honeypots.isEmpty()) {
                     p.sendMessage(commandFeedback.sendCommandFeedback("no-pots-found"));
                     return;
                 }
 
-                for (HoneypotBlockObject honeypot : honeypots) {
-                    blockManager.deleteBlock(honeypot.getBlock());
+                // We want to delete the region, so we can just pass in one of the corners and delete it that way
+                for (HoneypotRegionObject honeypot : honeypots) {
+                    regionManager.deleteRegionContaining(honeypot.getPos1().getBlock());
                 }
 
-                p.sendMessage(commandFeedback.sendCommandFeedback("deleted", false));
+                p.sendMessage(commandFeedback.sendCommandFeedback("deleted.near"));
             }
         ), 4, 0);
 
@@ -259,9 +299,9 @@ public class GUI implements CommandCallback {
                     return;
                 }
 
-                if (blockManager.isHoneypotBlock(block)) {
-                    blockManager.deleteBlock(block);
-                    p.sendMessage(commandFeedback.sendCommandFeedback("success", false));
+                if (regionManager.isHoneypotBlock(block)) {
+                    regionManager.deleteRegionContaining(block);
+                    p.sendMessage(commandFeedback.sendCommandFeedback("success.removed"));
                 } else {
                     event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("not-a-honeypot"));
                 }
@@ -273,7 +313,40 @@ public class GUI implements CommandCallback {
     }
 
     @SuppressWarnings({"unchecked", "java:S3776", "java:S6541"})
-    private void createHoneypotFromGUI(InventoryClickEvent event, String action) {
+    private void createHoneypotFromGUI(InventoryClickEvent event, String action, String type) {
+        event.getWhoClicked().closeInventory();
+
+        if (type.equalsIgnoreCase("region")) {
+            if (!(event.getWhoClicked() instanceof Player p)) return;
+
+            if (Create.playersCreatingRegions.containsKey(p.getUniqueId())) {
+                event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("creating-region.already-creating"));
+                return;
+            }
+
+            Create.playersCreatingRegions.put(p.getUniqueId(), new HoneypotCreatingPlayer(p, action));
+
+            Material mat = safeGetMaterial(config.config().getString("region-wand"));
+            ItemStack item = new ItemStack(mat, 1);
+            item.editMeta(meta -> meta.displayName(Component.text("Honeypot Wand")));
+            item.editPersistentDataContainer(pdc -> pdc.set(new NamespacedKey(plugin, "region_wand"), PersistentDataType.BOOLEAN, true));
+            item.editMeta(meta -> meta.lore(List.of(Component.text("Right click two blocks to create a region, drop the wand to cancel creation"))));
+            p.give(item);
+
+            // Schedule region creation to automatically end after 10 minutes if the player hasn't created a region or canceled it themselves.
+            Bukkit.getAsyncScheduler().runDelayed(plugin, _ -> {
+                if (!p.isOnline()) return;
+                if (!Create.playersCreatingRegions.containsKey(p.getUniqueId())) return;
+
+                Create.playersCreatingRegions.remove(p.getUniqueId());
+                p.getInventory().remove(item);
+                p.sendMessage(commandFeedback.sendCommandFeedback("creating-region.cancel"));
+            }, 10L, TimeUnit.MINUTES);
+
+            p.sendMessage(commandFeedback.sendCommandFeedback("creating-region.start"));
+            return;
+        }
+
         Block block;
         WorldGuardAdapter wga = adapterManager.getWorldGuardAdapter();
         GriefPreventionAdapter gpa = adapterManager.getGriefPreventionAdapter();
@@ -342,8 +415,7 @@ public class GUI implements CommandCallback {
             }
         }
 
-        event.getWhoClicked().closeInventory();
-        if (blockManager.isHoneypotBlock(block)) {
+        if (regionManager.isHoneypotBlock(block)) {
             event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("already-exists"));
 
             // If it does not have a honeypot tag or the honeypot tag does not equal 1,
@@ -357,8 +429,8 @@ public class GUI implements CommandCallback {
             if (hpce.isCancelled())
                 return;
 
-            blockManager.createBlock(block, action);
-            event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("success", true));
+            regionManager.createBlock(block, action);
+            event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("success.created"));
 
             // Fire HoneypotCreateEvent
             HoneypotCreateEvent hce = new HoneypotCreateEvent((Player) event.getWhoClicked(), block);
@@ -372,7 +444,7 @@ public class GUI implements CommandCallback {
 
         StaticPane navigation = new StaticPane(9, 1);
 
-        if (p.hasPermission("honeypot.create"))
+        if (p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.create-button"),
                 "Create a Honeypot",
@@ -387,7 +459,7 @@ public class GUI implements CommandCallback {
                 event -> p.sendMessage(translator.tr("no-permission"))
             ), 2, 0);
 
-        if (p.hasPermission("honeypot.remove"))
+        if (p.hasPermission("honeypot.remove") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.remove-button"),
                 "Remove a Honeypot",
@@ -410,14 +482,14 @@ public class GUI implements CommandCallback {
             event -> this.allHoneypotsInventory(p)
         ), 4, 0);
 
-        if (p.hasPermission("honeypot.locate"))
+        if (p.hasPermission("honeypot.locate") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.locate-button"),
                 "Locate nearby Honeypots",
                 null,
                 event -> {
                     event.getWhoClicked().closeInventory();
-                    if (!(p.hasPermission("honeypot.locate"))) {
+                    if (!p.hasPermission("honeypot.locate") && !p.hasPermission("honeypot.*") && !p.isOp()) {
                         p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
                         return;
                     }
@@ -426,22 +498,15 @@ public class GUI implements CommandCallback {
 
                     boolean potFound = false;
 
-                    List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radius);
+                    List<HoneypotRegionObject> honeypots = Registry.getRegionStore().getNearbyHoneypotRegions(p.getLocation(), radius);
                     if (!honeypots.isEmpty()) potFound = true;
 
-                    for (HoneypotBlockObject honeypot : honeypots) {
-                        Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(honeypot.getBlock().getWorld().getName()))
-                            .spawnEntity(honeypot.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
-                        slime.setSize(2);
-                        slime.setAI(false);
-                        slime.setGlowing(true);
-                        slime.setInvulnerable(true);
-                        slime.setHealth(slime.getAttribute(Attribute.MAX_HEALTH).getValue());
-                        slime.setInvisible(true);
-
-                        // Remove the slime after 5 seconds
-                        // If we kill it, a death animation plays and the slime splits and drops items
-                        slime.getScheduler().runDelayed(plugin, scheduledTask -> slime.remove(), null, 20L * 5);
+                    for (HoneypotRegionObject honeypot : honeypots) {
+                        if (honeypot.isSingleBlockRegion()) {
+                            RegionOutliner.spawnSlime(plugin, p.getWorld(), honeypot.getPos1().getX(), honeypot.getPos1().getY(), honeypot.getPos1().getZ());
+                        } else {
+                            RegionOutliner.outlineBoundingBox(plugin, p, honeypot.getPos1(), honeypot.getPos2());
+                        }
                     }
 
                     // Let the player know if a pot was found or not
@@ -460,7 +525,7 @@ public class GUI implements CommandCallback {
                 event -> p.sendMessage(translator.tr("no-permission"))
             ), 5, 0);
 
-        if (p.hasPermission("honeypot.history"))
+        if (p.hasPermission("honeypot.history") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.history-button"),
                 "Query player history",
@@ -480,17 +545,34 @@ public class GUI implements CommandCallback {
         gui.show(p);
     }
 
-    private Material safeGetMaterial(String materialName) {
-        Material material = Material.getMaterial(materialName);
-        return material != null && material.asItemType() != null ? material : Material.PAPER;
-    }
-
     public void callAllHoneypotsInventory(Player p) {
         allHoneypotsInventory(p);
     }
 
     private GuiItem button(String materialName, String name, @Nullable String lore, Consumer<InventoryClickEvent> onClick) {
-        ItemStack item = new ItemStack(safeGetMaterial(materialName));
+        return button(
+            materialName,
+            name,
+            lore,
+            (event, _) -> onClick.accept(event)
+        );
+    }
+
+    private GuiItem button(String materialName, String name, @Nullable String lore) {
+        return button(
+            materialName,
+            name,
+            lore,
+            (_, _) -> {
+            }
+        );
+    }
+
+    private GuiItem button(String materialName, String name, @Nullable String lore, BiConsumer<InventoryClickEvent, ItemStack> onClick) {
+        // This seems confusing, but basically it's a bunch of fallbacks. We use the material provided, and if that doeesn't work
+        // then we use the default-gui-button material, and if that doesn't work then we use Material.PAPER
+        Material defaultButton = safeGetMaterial(config.require("gui").getString("default-gui-button"));
+        ItemStack item = new ItemStack(safeGetMaterial(materialName, defaultButton));
 
         if (item.getType().equals(Material.AIR)) {
             // The only time a Honeypot can be AIR is if it was broken somehow (Such as by flowing water if optional events are turned off). The Ghost Honeypot Monitor will clean it up eventually.
@@ -511,7 +593,7 @@ public class GUI implements CommandCallback {
 
         return new GuiItem(item, e -> {
             e.setCancelled(true);
-            onClick.accept(e);
+            onClick.accept(e, e.getCurrentItem());
         });
     }
 
@@ -558,6 +640,15 @@ public class GUI implements CommandCallback {
         }
     }
 
+    public static Material safeGetMaterial(String materialName) {
+        return safeGetMaterial(materialName, Material.PAPER);
+    }
+
+    public static Material safeGetMaterial(String materialName, Material defaultMaterial) {
+        Material material = Material.getMaterial(materialName);
+        return material != null && material.asItemType() != null ? material : defaultMaterial;
+    }
+
     @Override
     public int execute(CommandContext<CommandSourceStack> ctx) throws Exception {
         Player player = (Player) ctx.getSource().getSender(); // This is safe because we guarantee it's a player based on the requirement
@@ -566,5 +657,20 @@ public class GUI implements CommandCallback {
         player.updateCommands();
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    public static LiteralNode commandTree(BytePluginConfig config, CommandFactory factory) {
+        return CommandDsl.literal("gui")
+            .requires(
+                PermissionChecks.allOf(
+                    PermissionChecks.anyOf(
+                        PermissionChecks.permission("honeypot.gui"),
+                        PermissionChecks.permission("honeypot.*"),
+                        PermissionChecks.isOp()
+                    ),
+                    PermissionChecks.playerOnly()
+                )
+            )
+            .executes(GUI.class, factory);
     }
 }

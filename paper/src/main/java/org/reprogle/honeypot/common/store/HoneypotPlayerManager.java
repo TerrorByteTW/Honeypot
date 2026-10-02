@@ -29,70 +29,70 @@ import org.reprogle.honeypot.common.utils.HoneypotLogger;
  */
 public class HoneypotPlayerManager {
 
-	private final HoneypotLogger logger;
+    private final HoneypotLogger logger;
 
-	@Inject
-	public HoneypotPlayerManager(HoneypotLogger logger) {
-		this.logger = logger;
-	}
+    @Inject
+    public HoneypotPlayerManager(HoneypotLogger logger) {
+        this.logger = logger;
+    }
 
-	/**
-	 * Create a honeypot block by calling the SQLite DB. In the future this will be
-	 * a switch case statement to handle
-	 * multiple DB types
-	 *
-	 * @param player       The Player object
-	 * @param blocksBroken The amount of Blocks broken
-	 */
-	public void addPlayer(Player player, int blocksBroken) {
-		Registry.getStorageProvider().addPlayer(player, blocksBroken);
-		logger.debug(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()), true);
-	}
+    /**
+     * Create a honeypot block by calling the SQLite DB. In the future this will be
+     * a switch case statement to handle
+     * multiple DB types
+     *
+     * @param player       The Player object
+     * @param blocksBroken The amount of Blocks broken
+     */
+    public void addPlayer(Player player, int blocksBroken) {
+        Registry.getPlayerStore().addPlayer(player, blocksBroken);
+        logger.debug(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()), true);
+    }
 
-	/**
-	 * Set the number of blocks broken by the player by calling the SQLite
-	 * setPlayerCount function. In the future this
-	 * will be a switch case statement to handle multiple DB types without changing
-	 * code
-	 *
-	 * @param player       The Player object
-	 * @param blocksBroken The amount of blocks broken by the player
-	 */
-	public void setPlayerCount(Player player, int blocksBroken) {
-		Registry.getStorageProvider().setPlayerCount(player, blocksBroken);
-		logger.debug(Component.text("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken), true);
-	}
+    /**
+     * Set the number of blocks broken by the player by calling the SQLite
+     * setPlayerCount function. In the future this
+     * will be a switch case statement to handle multiple DB types without changing
+     * code
+     *
+     * @param player       The Player object
+     * @param blocksBroken The number of blocks broken by the player
+     */
+    public void setPlayerCount(Player player, int blocksBroken) {
+        Registry.getPlayerStore().setPlayerCount(player, blocksBroken);
+        logger.debug(Component.text("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken), true);
+    }
 
-	/**
-	 * Gets the amount of Honeypots the player has broken. This is NOT the total,
-	 * but rather the current amount until it
-	 * loops to 0, based on the config
-	 *
-	 * @param player the Player object
-	 * @return The amount of Honeypot blocks the player has broken
-	 */
-	public int getCount(Player player) {
-		return Registry.getStorageProvider().getCount(player);
-	}
+    /**
+     * Gets the number of Honeypots the player has broken. This is NOT the total,
+     * but rather the current amount until it
+     * loops to 0, based on the config
+     *
+     * @param player the Player object
+     * @return The number of Honeypot blocks the player has broken
+     */
+    public int getCount(Player player) {
+        return Registry.getPlayerStore().getCount(player);
+    }
 
-	/**
-	 * Gets the amount of Honeypots the player has broken. This is NOT the total,
-	 * but rather the current amount until it
-	 * loops to 0, based on the config
-	 *
-	 * @param player the Player name
-	 * @return The amount of Honeypot blocks the player has broken
-	 */
-	public int getCount(OfflinePlayer player) {
-		return Registry.getStorageProvider().getCount(player);
-	}
+    /**
+     * Gets the number of Honeypots the player has broken. This is NOT the total,
+     * but rather the current amount until it
+     * loops to 0, based on the config
+     *
+     * @param player the Player name
+     * @return The number of Honeypot blocks the player has broken
+     */
+    public int getCount(OfflinePlayer player) {
+        return Registry.getPlayerStore().getCount(player);
+    }
 
-	/**
-	 * Delete's all players in the DB
-	 */
-	public void deleteAllHoneypotPlayers() {
-		Registry.getStorageProvider().deleteAllHoneypotPlayers();
-		logger.debug(Component.text("Deleted all Honeypot players from DB"), false);
-	}
+    /**
+     * Delete all players in the DB
+     */
+    public void deleteAllHoneypotPlayers() {
+        Registry.getPlayerStore().deleteAllHoneypotPlayers();
+        logger.debug(Component.text("Deleted all Honeypot players from DB"), false);
+    }
 
 }

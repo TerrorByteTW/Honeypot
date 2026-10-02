@@ -15,7 +15,7 @@
  */
 
 group = "org.reprogle"
-version = "4.0.2"
+version = "5.0.0"
 
 extra["platform"] = "api"
 
@@ -35,6 +35,8 @@ repositories {
 dependencies {
     compileOnly(libs.paper.api)
     compileOnly(libs.boosted.yaml)
+    compileOnly(libs.auto.service.annotations)
+    annotationProcessor(libs.auto.service)
 //    compileOnly(libs.folia.api)
 }
 

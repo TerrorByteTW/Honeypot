@@ -17,30 +17,20 @@
 package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
-import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
-import org.reprogle.honeypot.common.utils.HoneypotLogger;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 
 public class BlockFromToEventListener implements Listener, IHoneypotEvent {
+	private final HoneypotRegionManager regionManager;
 
-	private final HoneypotLogger logger;
-	private final HoneypotBlockManager blockManager;
-
-	@Override
-	public boolean isOptional() {
-		return true;
-	}
-	
 	@Inject
-	BlockFromToEventListener(HoneypotLogger logger, HoneypotBlockManager blockManager) {
-		this.logger = logger;
-		this.blockManager = blockManager;
+	BlockFromToEventListener(HoneypotRegionManager regionManager) {
+		this.regionManager = regionManager;
 	}
 
 	/**
@@ -55,8 +45,7 @@ public class BlockFromToEventListener implements Listener, IHoneypotEvent {
 			return;
 
 		Block toBlock = event.getToBlock();
-		if (blockManager.isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
-			logger.debug(Component.text("BlockFromToEvent being called for Honeypot: " + toBlock.getX() + ", " + toBlock.getY() + ", " + toBlock.getZ()), true);
+		if (regionManager.isHoneypotBlock(toBlock) && event.getFace() != BlockFace.DOWN) {
 			event.setCancelled(true);
 		}
 	}

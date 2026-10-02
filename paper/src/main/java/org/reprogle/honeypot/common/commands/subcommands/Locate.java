@@ -21,20 +21,20 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import org.bukkit.Bukkit;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.CommandFactory;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.dsl.CommandDsl;
+import org.reprogle.bytelib.commands.dsl.LiteralNode;
+import org.reprogle.bytelib.commands.dsl.PermissionChecks;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
+import org.reprogle.honeypot.common.utils.RegionOutliner;
 
 import java.util.List;
-import java.util.Objects;
 
 public class Locate implements CommandCallback {
 
@@ -62,22 +62,15 @@ public class Locate implements CommandCallback {
 
         boolean potFound = false;
 
-        List<HoneypotBlockObject> honeypots = Registry.getStorageProvider().getNearbyHoneypots(p.getLocation(), radiusArg);
+        List<HoneypotRegionObject> honeypots = Registry.getRegionStore().getNearbyHoneypotRegions(p.getLocation(), radiusArg);
         if (!honeypots.isEmpty()) potFound = true;
 
-        for (HoneypotBlockObject honeypot : honeypots) {
-            Slime slime = (Slime) Objects.requireNonNull(Bukkit.getWorld(honeypot.getBlock().getWorld().getName()))
-                    .spawnEntity(honeypot.getBlock().getLocation().add(0.5, 0, 0.5), EntityType.SLIME);
-            slime.setSize(2);
-            slime.setAI(false);
-            slime.setGlowing(true);
-            slime.setInvulnerable(true);
-            slime.setHealth(slime.getAttribute(Attribute.MAX_HEALTH).getValue());
-            slime.setInvisible(true);
-
-            // Remove the slime after 5 seconds
-            // If we kill it, a death animation plays and the slime splits and drops items
-            slime.getScheduler().runDelayed(plugin, scheduledTask -> slime.remove(), null, 20L * 5);
+        for (HoneypotRegionObject honeypot : honeypots) {
+            if (honeypot.isSingleBlockRegion()) {
+                RegionOutliner.spawnSlime(plugin, p.getWorld(), honeypot.getPos1().getX(), honeypot.getPos1().getY(), honeypot.getPos1().getZ());
+            } else {
+                RegionOutliner.outlineBoundingBox(plugin, p, honeypot.getPos1(), honeypot.getPos2());
+            }
         }
 
         // Let the player know if a pot was found or not
@@ -88,5 +81,23 @@ public class Locate implements CommandCallback {
         }
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    public static LiteralNode commandTree(CommandFactory factory) {
+        return CommandDsl.literal("locate")
+            .requires(
+                PermissionChecks.allOf(
+                    PermissionChecks.anyOf(
+                        PermissionChecks.permission("honeypot.locate"),
+                        PermissionChecks.permission("honeypot.*"),
+                        PermissionChecks.isOp()
+                    ),
+                    PermissionChecks.playerOnly()
+                )
+            )
+            .then(
+                CommandDsl.argument("radius", IntegerArgumentType.integer(1))
+            )
+            .executes(Locate.class, factory);
     }
 }

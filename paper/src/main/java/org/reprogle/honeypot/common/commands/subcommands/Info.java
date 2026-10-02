@@ -24,7 +24,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.bytelib.commands.CommandFactory;
 import org.reprogle.bytelib.commands.dsl.CommandCallback;
+import org.reprogle.bytelib.commands.dsl.CommandDsl;
+import org.reprogle.bytelib.commands.dsl.LiteralNode;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.utils.HoneypotSupportedVersions;
 
@@ -53,5 +56,10 @@ public class Info implements CommandCallback {
         supportedVersions.checkIfServerSupported();
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    public static LiteralNode commandTree(CommandFactory factory) {
+        return CommandDsl.literal("info")
+            .executes(Info.class, factory);
     }
 }

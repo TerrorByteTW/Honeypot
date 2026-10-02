@@ -34,4 +34,11 @@ public @interface HoneypotStore {
      * @return The name of the {@link HoneypotStore}
      */
     String name();
+
+    /**
+     * The type of storage manager. Each storage manager must provide one or more types that the store supports
+     *
+     * @return The type of {@link HoneypotStore}
+     */
+    StoreType[] type();
 }

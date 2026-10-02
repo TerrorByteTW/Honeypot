@@ -31,62 +31,34 @@ public class CommandFeedback {
 
     /**
      * A helper class that helps to reduce boilerplate player.sendMessage code by
-     * providing the strings to send instead
-     * of having to copy and paste them.
+     * providing the strings to send instead of having to copy and paste them.
      *
      * @param feedback The string to send back
-     * @param success  An optional Boolean that is used for the success feedback.
-     *                 If none is passed, this method just
-     *                 replies with the default
      * @return The Feedback string
      */
     @SuppressWarnings("java:S1192")
-    public Component sendCommandFeedback(String feedback, Boolean... success) {
+    public Component sendCommandFeedback(String feedback) {
         Component feedbackMessage;
 
-        switch (feedback.toLowerCase()) {
-            case "usage" -> {
-                final Component prefixComponent = translator.tr("prefix");
-                feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
-                        .append(prefixComponent)
-                        .append(Component.text(" Need help?\n\n", NamedTextColor.WHITE))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("create [type]\n", NamedTextColor.GRAY))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("list\n", NamedTextColor.GRAY))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near)\n", NamedTextColor.GRAY))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("reload\n", NamedTextColor.GRAY))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("locate\n", NamedTextColor.GRAY))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("gui\n", NamedTextColor.GRAY))
-                        .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("history [query | delete | purge] \n", NamedTextColor.GRAY))
-                        .append(Component.text("-----------------------", NamedTextColor.WHITE))
-                        .build();
-            }
-
-            case "success" -> {
-                if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = translator.tr("success.created");
-
-                } else if (success.length > 0 && success[0].equals(false)) {
-                    feedbackMessage = translator.tr("success.removed");
-
-                } else {
-                    feedbackMessage = translator.tr("success.default");
-                }
-            }
-
-            case "deleted" -> {
-                if (success.length > 0 && success[0].equals(true)) {
-                    feedbackMessage = translator.tr("deleted.all");
-                } else {
-                    feedbackMessage = translator.tr("deleted.near");
-                }
-            }
-
-            default -> {
-                try {
-                    feedbackMessage = translator.tr(feedback.toLowerCase());
-                } catch (Exception e) {
-                    feedbackMessage = translator.tr("unknown-error");
-                }
+        if (feedback.equalsIgnoreCase("usage")) {
+            final Component prefixComponent = translator.tr("prefix");
+            feedbackMessage = Component.text().content("\n \n \n \n \n \n-----------------------\n \n").color(NamedTextColor.WHITE)
+                .append(prefixComponent)
+                .append(Component.text(" Need help?\n\n", NamedTextColor.WHITE))
+                .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("create [block | region] [type]\n", NamedTextColor.GRAY))
+                .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("list\n", NamedTextColor.GRAY))
+                .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("remove (all | near)\n", NamedTextColor.GRAY))
+                .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("reload\n", NamedTextColor.GRAY))
+                .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("locate\n", NamedTextColor.GRAY))
+                .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("gui\n", NamedTextColor.GRAY))
+                .append(Component.text(" /honeypot ", NamedTextColor.WHITE)).append(Component.text("history [query | delete | purge] \n", NamedTextColor.GRAY))
+                .append(Component.text("-----------------------", NamedTextColor.WHITE))
+                .build();
+        } else {
+            try {
+                feedbackMessage = translator.tr(feedback.toLowerCase());
+            } catch (Exception e) {
+                feedbackMessage = translator.tr("unknown-error");
             }
         }
         return feedbackMessage;

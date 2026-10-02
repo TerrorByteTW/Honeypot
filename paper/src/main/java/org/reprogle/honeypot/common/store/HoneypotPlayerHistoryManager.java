@@ -18,9 +18,9 @@ package org.reprogle.honeypot.common.store;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Registry;
-import org.reprogle.honeypot.common.storageproviders.HoneypotBlockObject;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
@@ -48,8 +48,8 @@ public class HoneypotPlayerHistoryManager {
      * @param p The player to add
      * @param b The honeypot block they triggered
      */
-    public void addPlayerHistory(Player p, HoneypotBlockObject b, String type) {
-        Registry.getStorageProvider().addPlayerHistory(p, b, type);
+    public void addPlayerHistory(Player p, Block b, String action, String type) {
+        Registry.getPlayerHistoryStore().addPlayerHistory(p, b, action, type);
 
         logger.debug(Component.text("Added new history entry for player " + p.getName()), true);
     }
@@ -61,7 +61,29 @@ public class HoneypotPlayerHistoryManager {
      * @return A list of all HoneypotPlayerHistory objects
      */
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
-        return Registry.getStorageProvider().getPlayerHistory(p);
+        return Registry.getPlayerHistoryStore().getPlayerHistory(p);
+    }
+
+    /**
+     * Get a single page of history for a player, newest first
+     *
+     * @param p      The player to grab history for
+     * @param offset The number of entries to skip
+     * @param limit  The maximum number of entries to return
+     * @return A list of HoneypotPlayerHistory objects within the requested range
+     */
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p, int offset, int limit) {
+        return Registry.getPlayerHistoryStore().getPlayerHistory(p, offset, limit);
+    }
+
+    /**
+     * Get the number of history entries for a player
+     *
+     * @param p The player to count history for
+     * @return The number of history entries
+     */
+    public int getPlayerHistoryCount(Player p) {
+        return Registry.getPlayerHistoryStore().getPlayerHistoryCount(p);
     }
 
     /**
@@ -73,9 +95,9 @@ public class HoneypotPlayerHistoryManager {
      */
     public void deletePlayerHistory(Player p, int... n) {
         if (n.length > 0) {
-            Registry.getStorageProvider().deletePlayerHistory(p, n);
+            Registry.getPlayerHistoryStore().deletePlayerHistory(p, n);
         } else {
-            Registry.getStorageProvider().deletePlayerHistory(p);
+            Registry.getPlayerHistoryStore().deletePlayerHistory(p);
         }
 
         logger.debug(Component.text("Deleting player history for player " + p.getName()), true);
@@ -85,7 +107,7 @@ public class HoneypotPlayerHistoryManager {
      * A function to purge the entire history table
      */
     public void deleteAllHistory() {
-        Registry.getStorageProvider().deleteAllHistory();
+        Registry.getPlayerHistoryStore().deleteAllHistory();
     }
 
 }

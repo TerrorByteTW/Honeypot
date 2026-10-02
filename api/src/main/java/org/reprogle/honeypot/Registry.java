@@ -16,34 +16,94 @@
 
 package org.reprogle.honeypot;
 
-import org.reprogle.honeypot.common.storageproviders.StorageProvider;
+import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
+import org.reprogle.honeypot.common.storageproviders.PlayerStore;
+import org.reprogle.honeypot.common.storageproviders.RegionStore;
 
 public class Registry {
     private static BehaviorRegistry behaviorRegistry = new BehaviorRegistry();
     private static StoreRegistry storeRegistry = new StoreRegistry();
-    private static StorageProvider provider = null;
+    private static RegionStore regionStore = null;
+    private static PlayerStore playerStore = null;
+    private static PlayerHistoryStore playerHistoryStore = null;
 
+    /**
+     * Gets the current behavior registry instance.
+     * @return The behavior registry.
+     */
     public static BehaviorRegistry getBehaviorRegistry() {
         return behaviorRegistry;
     }
 
+    /**
+     * Sets the behavior registry instance.
+     * @param behaviorRegistry The behavior registry to set.
+     */
     public static void setBehaviorRegistry(BehaviorRegistry behaviorRegistry) {
         Registry.behaviorRegistry = behaviorRegistry;
     }
 
+    /**
+     * Gets the current storage manager registry instance.
+     * @return The storage manager registry.
+     */
     public static StoreRegistry getStorageManagerRegistry() {
         return storeRegistry;
     }
 
+    /**
+     * Sets the storage manager registry instance.
+     * @param storeRegistry The storage manager registry to set.
+     */
     public static void setStorageManagerRegistry(StoreRegistry storeRegistry) {
         Registry.storeRegistry = storeRegistry;
     }
 
-    public static StorageProvider getStorageProvider() {
-        return provider;
+    /**
+     * Gets the current storage provider instance.
+     * @return The storage provider.
+     */
+    public static RegionStore getRegionStore() {
+        return regionStore;
     }
 
-    public static void setStorageProvider(StorageProvider provider) {
-        Registry.provider = provider;
+    /**
+     * Gets the current player store instance.
+     * @return The player store.
+     */
+    public static PlayerStore getPlayerStore() {
+        return playerStore;
+    }
+
+    /**
+     * Gets the current player history store instance.
+     * @return The player history store.
+     */
+    public static PlayerHistoryStore getPlayerHistoryStore() {
+        return playerHistoryStore;
+    }
+
+    /**
+     * Sets the storage provider instance.
+     * @param provider The storage provider to set.
+     */
+    public static void setRegionStore(RegionStore provider) {
+        Registry.regionStore = provider;
+    }
+
+    /**
+     * Sets the player store instance.
+     * @param playerStore The player store to set.
+     */
+    public static void setPlayerStore(PlayerStore playerStore) {
+        Registry.playerStore = playerStore;
+    }
+
+    /**
+     * Sets the player history store instance.
+     * @param playerHistoryStore The player history store to set.
+     */
+    public static void setPlayerHistoryStore(PlayerHistoryStore playerHistoryStore) {
+        Registry.playerHistoryStore = playerHistoryStore;
     }
 }

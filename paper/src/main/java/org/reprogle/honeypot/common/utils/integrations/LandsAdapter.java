@@ -18,7 +18,6 @@ package org.reprogle.honeypot.common.utils.integrations;
 
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.reprogle.honeypot.Honeypot;
 
 import me.angeschossen.lands.api.LandsIntegration;
 import me.angeschossen.lands.api.land.Land;
@@ -38,25 +37,23 @@ public class LandsAdapter {
 
     /**
      * Checks if a Honeypot is allowed to be placed at the location
-     * @param location The location of the block
+     *
+     * @param location The locations of the blocks
      * @return True if the action is allowed (No lands claim surrounding it), false if not OR if the land is
      * unclaimed/lands is not integrated.
      */
     public boolean isAllowed(Location location) {
+        // Honeypots are required to be created in a single world
         LandWorld world = api.getWorld(location.getWorld());
         if (world == null)
             return true;
 
-        // This should *always* be acceptable, because in order for this method to be called,
-        // that means a block must have been interacted with, which requires a loaded chunk.
-        // HOWEVER, if, for whatever reason, this is *not* acceptable, then #getLandByUnloadedChunk(x, y) is also a
-        // valid option
-        Land land = world.getLandByChunk(location.getChunk().getX(), location.getChunk().getZ());
+        Land land = location.isChunkLoaded() ?
+            world.getLandByChunk(location.getChunk().getX(), location.getChunk().getZ()) :
+            world.getLandByUnloadedChunk(location.getChunk().getX(), location.getChunk().getZ());
 
-        // Land is null if the chunk isn't claimed or isn't loaded. However, as stated, logically the chunk should
-        // always be loaded if this method is called, so this should be fine.
+        // Block creation of Honeypots that exist in a Land chunk
         return land == null;
-
     }
 
 }

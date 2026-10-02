@@ -23,17 +23,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.StructureGrowEvent;
-import org.reprogle.honeypot.common.store.HoneypotBlockManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class StructureGrowEventListener implements Listener, IHoneypotEvent {
 
-	private final HoneypotBlockManager blockManager;
+	private final HoneypotRegionManager regionManager;
 	private final HoneypotLogger logger;
 
 	@Inject
-	StructureGrowEventListener(HoneypotBlockManager blockManager, HoneypotLogger logger) {
-		this.blockManager = blockManager;
+	StructureGrowEventListener(HoneypotRegionManager regionManager, HoneypotLogger logger) {
+		this.regionManager = regionManager;
 		this.logger = logger;
 	}
 
@@ -42,7 +42,7 @@ public class StructureGrowEventListener implements Listener, IHoneypotEvent {
 		for (int i = 0; i < event.getBlocks().size(); i++) {
 			BlockState block = event.getBlocks().get(i);
 
-			if (blockManager.isHoneypotBlock(block.getBlock())) {
+			if (regionManager.isHoneypotBlock(block.getBlock())) {
 				logger.debug(Component.text("StuctureGrowEvent being cancelled for Honeypot located at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
 				event.setCancelled(true);
 			}
