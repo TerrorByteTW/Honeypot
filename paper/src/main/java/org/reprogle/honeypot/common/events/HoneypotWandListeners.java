@@ -52,6 +52,8 @@ public class HoneypotWandListeners implements Listener, IHoneypotEvent {
         this.key = new NamespacedKey(plugin, "region_wand");
     }
 
+    // TODO - Block placing wand in armor stand
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         // Check if the player is creating a region

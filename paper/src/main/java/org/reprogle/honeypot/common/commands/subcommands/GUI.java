@@ -113,7 +113,7 @@ public class GUI implements CommandCallback {
             typeToggle.toggle();
         }
 
-        if (!p.hasPermission("honeypot.create.region") && !p.hasPermission("honeypot.*")) {
+        if (!p.hasPermission("honeypot.create.region") && !p.hasPermission("honeypot.*") && !p.isOp()) {
             type.set("block");
             if (typeToggle.isEnabled()) typeToggle.toggle();
             typeToggle.allowToggle(false);
@@ -156,7 +156,7 @@ public class GUI implements CommandCallback {
     }
 
     private void allHoneypotsInventory(Player p) {
-        if (!p.hasPermission("honeypot.locate")) {
+        if (!p.hasPermission("honeypot.locate") && !p.hasPermission("honeypot.*") && !p.isOp()) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
@@ -196,7 +196,7 @@ public class GUI implements CommandCallback {
     }
 
     private void historyQueryInventory(Player p) {
-        if (!p.hasPermission("honeypot.history")) {
+        if (!p.hasPermission("honeypot.history") && !p.hasPermission("honeypot.*") && !p.isOp()) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
@@ -237,7 +237,7 @@ public class GUI implements CommandCallback {
 
     @SuppressWarnings({"java:S3776", "java:S1192"})
     private void removeHoneypotInventory(Player p) {
-        if (!(p.hasPermission("honeypot.remove"))) {
+        if (!p.hasPermission("honeypot.remove") && !p.hasPermission("honeypot.*") && !p.isOp()) {
             p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
             return;
         }
@@ -444,7 +444,7 @@ public class GUI implements CommandCallback {
 
         StaticPane navigation = new StaticPane(9, 1);
 
-        if (p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*"))
+        if (p.hasPermission("honeypot.create") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.create-button"),
                 "Create a Honeypot",
@@ -459,7 +459,7 @@ public class GUI implements CommandCallback {
                 event -> p.sendMessage(translator.tr("no-permission"))
             ), 2, 0);
 
-        if (p.hasPermission("honeypot.remove"))
+        if (p.hasPermission("honeypot.remove") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.remove-button"),
                 "Remove a Honeypot",
@@ -482,14 +482,14 @@ public class GUI implements CommandCallback {
             event -> this.allHoneypotsInventory(p)
         ), 4, 0);
 
-        if (p.hasPermission("honeypot.locate"))
+        if (p.hasPermission("honeypot.locate") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.locate-button"),
                 "Locate nearby Honeypots",
                 null,
                 event -> {
                     event.getWhoClicked().closeInventory();
-                    if (!(p.hasPermission("honeypot.locate"))) {
+                    if (!p.hasPermission("honeypot.locate") && !p.hasPermission("honeypot.*") && !p.isOp()) {
                         p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
                         return;
                     }
@@ -525,7 +525,7 @@ public class GUI implements CommandCallback {
                 event -> p.sendMessage(translator.tr("no-permission"))
             ), 5, 0);
 
-        if (p.hasPermission("honeypot.history"))
+        if (p.hasPermission("honeypot.history") || p.hasPermission("honeypot.*") || p.isOp())
             navigation.addItem(button(
                 config.require("gui").getString("main-buttons.history-button"),
                 "Query player history",
