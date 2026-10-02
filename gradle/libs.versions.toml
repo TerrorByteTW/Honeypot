@@ -1,7 +1,7 @@
 [versions]
 # Plugins
 shadow = "9.4.1"
-lombok = "9.2.0"
+lombok = "9.7.0"
 
 # Libraries
 paper-api = "26.1.2.build.+"
