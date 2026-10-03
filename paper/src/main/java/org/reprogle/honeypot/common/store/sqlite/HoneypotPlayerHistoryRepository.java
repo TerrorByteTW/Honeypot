@@ -30,8 +30,10 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
     private final SqliteDatabase db;
 
     @Inject
-    public HoneypotPlayerHistoryRepository(HoneypotLogger logger, SqliteDatabase db) {
+    public HoneypotPlayerHistoryRepository(HoneypotLogger logger, SqliteDatabase db, HoneypotMigrations migrations) {
         this.db = db;
+        // Migrations must run before the schema is created, otherwise new tables may conflict with migrations
+        migrations.migrate();
         logger.info(Component.text("Initializing Player History table..."));
         createSchema();
         logger.info(Component.text("Player History table initialized!"));

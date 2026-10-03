@@ -1,6 +1,7 @@
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import org.reprogle.bytelib.db.migrate.MigrationStep;
 import org.reprogle.bytelib.db.migrate.UserVersionMigrator;
@@ -12,11 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Contains all Honeypot database migrations.
+ * Contains all Honeypot database migrations. Repositories depend on this class so that migrations
+ * are guaranteed to run before any repository creates its schema.
  */
+@Singleton
 public class HoneypotMigrations {
     private final HoneypotLogger logger;
     private final SqliteDatabase db;
+    private boolean migrated = false;
 
     @Inject
     public HoneypotMigrations(HoneypotLogger logger,
@@ -25,7 +29,9 @@ public class HoneypotMigrations {
         this.db = db;
     }
 
-    public void migrate() {
+    public synchronized void migrate() {
+        if (migrated) return;
+
         logger.info(Component.text("Checking and applying any necessary database migrations..."));
 
         UserVersionMigrator migrator = new UserVersionMigrator("honeypot_players", new ArrayList<>(List.of(
@@ -40,6 +46,7 @@ public class HoneypotMigrations {
         )));
         migrator.migrate(db);
 
+        migrated = true;
         logger.info(Component.text("Database migrations completed"));
     }
 }

@@ -40,8 +40,10 @@ public class HoneypotRegionRepository implements RegionStore {
     private final SqliteDatabase db;
 
     @Inject
-    public HoneypotRegionRepository(HoneypotLogger logger, SqliteDatabase db) {
+    public HoneypotRegionRepository(HoneypotLogger logger, SqliteDatabase db, HoneypotMigrations migrations) {
         this.db = db;
+        // Migrations must run before the schema is created, otherwise new tables may conflict with migrations
+        migrations.migrate();
         logger.info(Component.text("Initializing Regions table..."));
         createSchema();
         logger.info(Component.text("Regions table initialized!"));
@@ -58,8 +60,7 @@ public class HoneypotRegionRepository implements RegionStore {
             CREATE TABLE IF NOT EXISTS honeypot_regions (
                 `id`     INTEGER PRIMARY KEY,
                 `world`  TEXT NOT NULL,
-                `action` TEXT NOT NULL,
-                FOREIGN KEY (`id`) REFERENCES honeypot_index(`id`) ON DELETE CASCADE
+                `action` TEXT NOT NULL
             );
             """);
     }

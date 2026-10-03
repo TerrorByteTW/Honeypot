@@ -79,8 +79,7 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
 
         InventoryHolder holder = event.getInventory().getHolder();
 
-        // Stupid hack because DoubleChest is the ONLY inventory in the entire Paper API that EXTENDS InventoryHolder instead of implementing Container.
-        // There is nothing more permanent than a temporary solution. Put in the work and do things right, geeze....
+        // Stupid hack because DoubleChest is the ONLY inventory in the entire game that implements InventoryHolder instead of extending Container.
         Block block;
         if (holder instanceof DoubleChest doubleChest) {
             //noinspection DataFlowIssue Same issue as above, getBlockAt() is claiming to be nullable when it clearly is marked @NotNull
@@ -129,7 +128,18 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
             return;
         if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
 
-        final Block block = ((Container) event.getInventory().getHolder()).getBlock();
+        InventoryHolder holder = event.getInventory().getHolder();
+
+        Block block;
+        // Stupid hack because DoubleChest is the ONLY inventory in the entire game that implements InventoryHolder instead of extending Container.
+        if (holder instanceof DoubleChest doubleChest) {
+            //noinspection DataFlowIssue Same issue as above, getBlockAt() is claiming to be nullable when it clearly is marked @NotNull
+            block = doubleChest.getWorld().getBlockAt(doubleChest.getLocation());
+        } else {
+            //noinspection DataFlowIssue
+            block = ((Container) event.getInventory().getHolder()).getBlock();
+        }
+
         final Inventory inventory = event.getInventory();
 
         if (!checkFilter(block)) return;
