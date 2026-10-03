@@ -60,8 +60,7 @@ public class HoneypotRegionRepository implements RegionStore {
             CREATE TABLE IF NOT EXISTS honeypot_regions (
                 `id`     INTEGER PRIMARY KEY,
                 `world`  TEXT NOT NULL,
-                `action` TEXT NOT NULL,
-                FOREIGN KEY (`id`) REFERENCES honeypot_index(`id`) ON DELETE CASCADE
+                `action` TEXT NOT NULL
             );
             """);
     }

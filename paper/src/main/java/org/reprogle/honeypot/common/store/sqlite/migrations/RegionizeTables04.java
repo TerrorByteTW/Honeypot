@@ -14,7 +14,11 @@ public class RegionizeTables04  implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) throws Exception {
-        logger.debug(Component.text("Applying RegionizeTbles04 migration: Renaming honeypot_blocks to honeypot_regions"), false);
+        // Honeypot 5.0.0 created an empty `honeypot_regions` table before running migrations, causing the rename below to fail.
+        // The plugin couldn't enable in that state, so the table can't contain any data and is safe to drop.
+        tx.execute("DROP TABLE IF EXISTS honeypot_regions;");
+
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_blocks to honeypot_regions"), false);
         // Rename `honeypot_blocks` to `honeypot_regions`
         tx.execute("ALTER TABLE honeypot_blocks RENAME TO honeypot_regions;");
 
