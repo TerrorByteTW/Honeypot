@@ -14,7 +14,8 @@ public class RegionizeTables04  implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) throws Exception {
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_blocks to honeypot_regions"), false);
+        logger.debug(Component.text("Applying RegionizeTbles04 migration: Renaming honeypot_blocks to honeypot_regions"), false);
+        // Rename `honeypot_blocks` to `honeypot_regions`
         tx.execute("ALTER TABLE honeypot_blocks RENAME TO honeypot_regions;");
 
         logger.debug(Component.text("Applying RegionizeTables04 migration: Creating honeypot_history_temp"), false);

@@ -44,6 +44,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     private final Set<PlayerHistoryStore> playerHistoryStores;
     private final BytePluginConfig config;
     private final HoneypotSupportedVersions supportedVersions;
+    private final HoneypotMigrations migrations;
 
 
     @Inject
@@ -72,15 +73,16 @@ public class HoneypotLifecycle implements PluginLifecycle {
         this.regionStores = regionStores;
         this.playerStores = playerStores;
         this.playerHistoryStores = playerHistoryStores;
+        this.migrations = migrations;
         this.config = config;
         this.supportedVersions = supportedVersions;
-
-        migrations.migrate();
     }
 
     @Override
     @SuppressWarnings("java:S2696")
     public void onLoad() {
+        migrations.migrate();
+
         // Register adapters which must be registered on load
         adapterManager.onLoadAdapters(plugin.getServer());
 

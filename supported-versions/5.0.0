@@ -1,1 +1,2 @@
-26.1-26.2
+pulled
+A bug exists in a DB migration which causes Honeypot 5.0.0 to crash on startup. 5.0.1 fixes this bug and another unrelated but important bug related to Double Chests.

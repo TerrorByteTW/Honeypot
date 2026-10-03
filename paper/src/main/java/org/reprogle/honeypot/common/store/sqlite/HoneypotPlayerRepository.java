@@ -23,8 +23,10 @@ public class HoneypotPlayerRepository implements PlayerStore {
     private final SqliteDatabase db;
 
     @Inject
-    public HoneypotPlayerRepository(HoneypotLogger logger, SqliteDatabase db) {
+    public HoneypotPlayerRepository(HoneypotLogger logger, SqliteDatabase db, HoneypotMigrations migrations) {
         this.db = db;
+        // Migrations must run before the schema is created, otherwise new tables may conflict with migrations
+        migrations.migrate();
         logger.info(Component.text("Initializing Player table..."));
         createSchema();
         logger.info(Component.text("Player table initialized!"));
