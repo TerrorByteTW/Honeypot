@@ -1,5 +1,6 @@
 package org.reprogle.honeypot.common.storageproviders;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -14,6 +15,24 @@ public interface PlayerHistoryStore extends Store {
      * @param type Type of action (e.g., break, place)
      */
     void addPlayerHistory(Player p, Block b, String action, String type);
+
+    /**
+     * Add player history entry, recording {@code blockType} as the block's type rather than the block's current type.
+     * This is used when the Honeypot block has already been destroyed by the time it's logged, such as a torch that
+     * broke because the block it was attached to was broken.
+     * <p>
+     * The default implementation exists only for providers built for older versions of Honeypot, and records the
+     * block's current type.
+     *
+     * @param p         Player object
+     * @param b         Block object
+     * @param blockType The type of the block when it was triggered
+     * @param action    Action performed on the block
+     * @param type      Type of action (e.g., break, place)
+     */
+    default void addPlayerHistory(Player p, Block b, Material blockType, String action, String type) {
+        addPlayerHistory(p, b, action, type);
+    }
 
     /**
      * Retrieve player history

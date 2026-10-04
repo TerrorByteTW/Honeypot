@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.bytelib.db.api.Param;
@@ -58,6 +59,11 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
     }
 
     public void addPlayerHistory(Player p, Block block, String action, String type) {
+        addPlayerHistory(p, block, block.getType(), action, type);
+    }
+
+    @Override
+    public void addPlayerHistory(Player p, Block block, Material blockType, String action, String type) {
         db.execute("""
                 INSERT INTO honeypot_history (datetime, playerName, playerUUID, x, y, z, world, type, action, block)
                 VALUES (DATETIME('now', 'localtime'), ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -70,7 +76,7 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
             Param.text(block.getWorld().getName()),
             Param.text(type),
             Param.text(action),
-            Param.text(block.getType().name()));
+            Param.text(blockType.name()));
     }
 
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {

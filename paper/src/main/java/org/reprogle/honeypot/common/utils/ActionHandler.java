@@ -25,6 +25,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -119,6 +120,21 @@ public class ActionHandler {
      * @return The outcome of the trigger
      */
     public TriggerResult checkAndHandle(Player player, Block block, TriggerType triggerType) {
+        return checkAndHandle(player, block, block.getType(), triggerType);
+    }
+
+    /**
+     * Same as {@link #checkAndHandle(Player, Block, TriggerType)}, but records {@code blockType} in the player's history
+     * rather than the block's current type. Use this when the Honeypot block has already been destroyed, such as a torch
+     * that broke because the block it was attached to was broken.
+     *
+     * @param player      The player that triggered the Honeypot
+     * @param block       The Honeypot block that was triggered
+     * @param blockType   The type of the block when it was triggered
+     * @param triggerType The type of trigger. Must not be {@link TriggerType#NON_PLAYER}
+     * @return The outcome of the trigger
+     */
+    public TriggerResult checkAndHandle(Player player, Block block, Material blockType, TriggerType triggerType) {
         if (triggerType == TriggerType.NON_PLAYER)
             throw new IllegalArgumentException("NON_PLAYER triggers aren't tracked against players");
 
@@ -140,7 +156,7 @@ public class ActionHandler {
 
         if (limit > 1 && count < limit) {
             logger.debug(Component.text("Player " + player.getName() + " is at " + count + "/" + limit + " " + triggerType + " triggers, counting it without taking action"));
-            playerHistoryManager.addPlayerHistory(player, block, action, historyType(triggerType, false));
+            playerHistoryManager.addPlayerHistory(player, block, blockType, action, historyType(triggerType, false));
 
             // Don't send on "onaction", otherwise the notification would incorrectly be tagged as an action
             if (config.config().getString("discord.send-when").equalsIgnoreCase("onbreak"))
@@ -152,7 +168,7 @@ public class ActionHandler {
         logger.debug(Component.text("Player " + player.getName() + " has reached the " + triggerType + " trigger limit, taking action against them"));
         playerManager.playerTriggeredAction(player);
         playerManager.resetPlayerCount(player, triggerType);
-        playerHistoryManager.addPlayerHistory(player, block, action, historyType(triggerType, true));
+        playerHistoryManager.addPlayerHistory(player, block, blockType, action, historyType(triggerType, true));
 
         handle(action, block, player);
         logger.debug(Component.text("Action successfully taken for block " + block + " on player " + player.getName() + " via " + triggerType + " trigger"));

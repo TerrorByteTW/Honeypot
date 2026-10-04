@@ -18,6 +18,7 @@ package org.reprogle.honeypot.common.store;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Registry;
@@ -49,7 +50,18 @@ public class HoneypotPlayerHistoryManager {
      * @param b The honeypot block they triggered
      */
     public void addPlayerHistory(Player p, Block b, String action, String type) {
-        Registry.getPlayerHistoryStore().addPlayerHistory(p, b, action, type);
+        addPlayerHistory(p, b, b.getType(), action, type);
+    }
+
+    /**
+     * Add an entry to the player history table, recording {@code blockType} rather than the block's current type
+     *
+     * @param p         The player to add
+     * @param b         The honeypot block they triggered
+     * @param blockType The type of the block when it was triggered, in case it has since been destroyed
+     */
+    public void addPlayerHistory(Player p, Block b, Material blockType, String action, String type) {
+        Registry.getPlayerHistoryStore().addPlayerHistory(p, b, blockType, action, type);
 
         logger.debug(Component.text("Added new history entry for player " + p.getName()));
     }

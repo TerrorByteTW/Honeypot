@@ -68,6 +68,17 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
     // Player block break event
     @EventHandler(priority = EventPriority.LOWEST)
     public void blockBreakEvent(BlockBreakEvent event) {
+        processBreak(event, event.getBlock().getType());
+    }
+
+    /**
+     * Processes a player breaking a Honeypot
+     *
+     * @param event     The break event
+     * @param blockType The type of the Honeypot block when it was broken, which is recorded in the player's history.
+     *                  This differs from the block's current type if it has already been destroyed
+     */
+    private void processBreak(BlockBreakEvent event, Material blockType) {
         // Check to see if the event is canceled before doing any logic.
         // Ex: Creative mode player with Sword in hand
         if (event.isCancelled())
@@ -122,7 +133,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         }
 
         // Count the break, log it, and run the action if the player has hit the trigger limit
-        if (actionHandler.checkAndHandle(player, event.getBlock(), TriggerType.BREAK) == ActionHandler.TriggerResult.EXEMPT
+        if (actionHandler.checkAndHandle(player, event.getBlock(), blockType, TriggerType.BREAK) == ActionHandler.TriggerResult.EXEMPT
             && (player.hasPermission(BREAK_PERMISSION) || player.hasPermission(WILDCARD_PERMISSION) || player.isOp())) {
             player.sendMessage(commandFeedback.sendCommandFeedback("staff-broke"));
         }
@@ -170,7 +181,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             if (block.getType() == originalType || !regionManager.isHoneypotBlock(block)) return;
 
             if (player.isOnline()) {
-                blockBreakEvent(new BlockBreakEvent(block, player));
+                processBreak(new BlockBreakEvent(block, player), originalType);
             }
 
             // The block is already gone, so the Honeypot is removed even if allow-player-destruction is false
