@@ -191,10 +191,9 @@ public class Create implements CommandCallback {
         } else {
 
             // Fire HoneypotPreCreateEvent and cancel the command execution if any other plugin cancels the event itself
-            HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent(p, block);
-            Bukkit.getPluginManager().callEvent(hpce);
+            var hpce = new HoneypotPreCreateEvent(p, block);
 
-            if (hpce.isCancelled())
+            if (!hpce.callEvent())
                 return Command.SINGLE_SUCCESS;
 
 
@@ -202,8 +201,7 @@ public class Create implements CommandCallback {
             p.sendMessage(commandFeedback.sendCommandFeedback("success.created"));
 
             // Fire HoneypotCreateEvent
-            HoneypotCreateEvent hce = new HoneypotCreateEvent(p, block);
-            Bukkit.getPluginManager().callEvent(hce);
+            new HoneypotCreateEvent(p, block).callEvent();
         }
 
         return Command.SINGLE_SUCCESS;

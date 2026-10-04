@@ -33,8 +33,7 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
-import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
+import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 
@@ -97,10 +96,10 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
 
         if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
             // Fire HoneypotPreInventoryClickEvent
-            HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
-            Bukkit.getPluginManager().callEvent(hpice);
+            var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
+            var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
 
-            if (hpice.isCancelled()) return;
+            if (!(hpice.callEvent() || hpte.callEvent())) return;
 
             if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
 
@@ -146,10 +145,10 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
 
         if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
             // Fire HoneypotPreInventoryClickEvent
-            HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
-            Bukkit.getPluginManager().callEvent(hpice);
+            var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
+            var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
 
-            if (hpice.isCancelled()) return;
+            if (!(hpice.callEvent() || hpte.callEvent())) return;
 
             if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
 
@@ -172,8 +171,8 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
 
         actionHandler.handle(action, block, player);
 
-        HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player, inventory);
-        Bukkit.getPluginManager().callEvent(hice);
+        new HoneypotInventoryClickEvent(player, inventory).callEvent();
+        new HoneypotTriggerEvent(block, TriggerType.INVENTORY_INTERACT).callEvent();
 
     }
 

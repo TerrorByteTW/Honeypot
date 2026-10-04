@@ -26,6 +26,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
+import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
+import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
@@ -51,8 +53,8 @@ public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()));
 
 				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
-				Bukkit.getPluginManager().callEvent(hnpbe);
+				new HoneypotNonPlayerBreakEvent(event.getBlock(), b).callEvent();
+				new HoneypotTriggerEvent(b, TriggerType.NON_PLAYER).callEvent();
 
 				event.setCancelled(true);
 				break;
@@ -68,8 +70,8 @@ public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()));
 
 				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
-				Bukkit.getPluginManager().callEvent(hnpbe);
+				new HoneypotNonPlayerBreakEvent(event.getBlock(), b).callEvent();
+				new HoneypotTriggerEvent(b, TriggerType.NON_PLAYER).callEvent();
 
 				event.setCancelled(true);
 				break;

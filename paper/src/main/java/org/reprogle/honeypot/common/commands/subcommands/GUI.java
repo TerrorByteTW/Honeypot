@@ -423,18 +423,16 @@ public class GUI implements CommandCallback {
         } else {
 
             // Fire HoneypotPreCreateEvent
-            HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
-            Bukkit.getPluginManager().callEvent(hpce);
+            var hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
 
-            if (hpce.isCancelled())
+            if (!hpce.callEvent())
                 return;
 
             regionManager.createBlock(block, action);
             event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("success.created"));
 
             // Fire HoneypotCreateEvent
-            HoneypotCreateEvent hce = new HoneypotCreateEvent((Player) event.getWhoClicked(), block);
-            Bukkit.getPluginManager().callEvent(hce);
+            new HoneypotCreateEvent((Player) event.getWhoClicked(), block).callEvent();
         }
     }
 

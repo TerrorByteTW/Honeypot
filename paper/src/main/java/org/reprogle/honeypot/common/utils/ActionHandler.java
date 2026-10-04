@@ -31,14 +31,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.BehaviorProcessor;
 import org.reprogle.honeypot.Registry;
+import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.List;
 
 public class ActionHandler {
+    private static final String BREAK_PERMISSION = "honeypot.break";
+    private static final String WILDCARD_PERMISSION = "honeypot.*";
+    private static final String EXEMPT_PERMISSION = "honeypot.exempt";
 
     private final JavaPlugin plugin;
+    private final HoneypotPlayerManager playerManager;
+    private final HoneypotPlayerHistoryManager playerHistoryManager;
     private final HoneypotLogger logger;
     private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
@@ -47,12 +55,30 @@ public class ActionHandler {
     private final MiniMessage mm = MiniMessage.miniMessage();
 
     @Inject
-    public ActionHandler(JavaPlugin plugin, HoneypotLogger logger, BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager) {
+    public ActionHandler(JavaPlugin plugin, HoneypotLogger logger, HoneypotPlayerManager playerManager, HoneypotPlayerHistoryManager playerHistoryManager, BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager) {
         this.plugin = plugin;
         this.logger = logger;
+        this.playerManager = playerManager;
+        this.playerHistoryManager = playerHistoryManager;
         this.config = config;
         this.commandFeedback = commandFeedback;
         this.adapterManager = adapterManager;
+    }
+
+    public void checkAndHandle(Player player, TriggerType triggerType) {
+        if (player.hasPermission(EXEMPT_PERMISSION) || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
+            if (triggerType == TriggerType.BREAK && player.hasPermission(BREAK_PERMISSION)) {
+                logger.debug(Component.text("Player " + player.getName() + " is exempt from honeypot break actions."));
+                return;
+            }
+
+            logger.debug(Component.text("Player " + player.getName() + " is exempt from honeypot actions."));
+            return;
+        }
+
+        logger.debug(Component.text("Checking if player " + player.getName() + " requires action handling for trigger type: " + triggerType));
+
+
     }
 
     public void handle(String action, Block block, Player player) {
@@ -77,7 +103,7 @@ public class ActionHandler {
             if (!commands.isEmpty()) {
                 for (String command : commands) {
                     Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(),
-                            PlainTextComponentSerializer.plainText().serialize(formatMessage(command, block, player, true)));
+                        PlainTextComponentSerializer.plainText().serialize(formatMessage(command, block, player, true)));
                 }
             }
 
@@ -118,9 +144,9 @@ public class ActionHandler {
 
     private Component formatMessage(String message, Block block, Player player, boolean command) {
         String formattedString = message.replace("%player%", player.getName())
-                .replace("%pLocation%", player.getLocation().getX() + " " + player.getLocation().getY() + " " + player.getLocation().getZ())
-                .replace("%bLocation%", block.getLocation().getX() + " " + block.getLocation().getY() + " " + block.getLocation().getZ())
-                .replace("%world%", block.getLocation().getWorld().getName());
+            .replace("%pLocation%", player.getLocation().getX() + " " + player.getLocation().getY() + " " + player.getLocation().getZ())
+            .replace("%bLocation%", block.getLocation().getX() + " " + block.getLocation().getY() + " " + block.getLocation().getZ())
+            .replace("%world%", block.getLocation().getWorld().getName());
 
         // Support for Placeholder API, this will parse any remaining placeholders in the message
         if (plugin.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null)

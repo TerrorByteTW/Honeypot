@@ -92,21 +92,19 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         }
 
         // Fire HoneypotPrePlayerBreakEvent
-        HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(player, event.getBlock());
-        HoneypotPreTriggerEvent hpte = new HoneypotPreTriggerEvent(player, event.getBlock(), TriggerType.BREAK);
-        Bukkit.getPluginManager().callEvent(hppbe);
-        Bukkit.getPluginManager().callEvent(hpte);
+        var hppbe = new HoneypotPrePlayerBreakEvent(player, event.getBlock());
+        var hpte = new HoneypotPreTriggerEvent(player, event.getBlock(), TriggerType.BREAK);
         logger.debug(Component.text("HoneypotPrePlayerBreakEvent is being called for " + player));
 
         // Check if the event was canceled. If it is, delete the block.
-        if (hppbe.isCancelled()) {
+        if (!hppbe.callEvent()) {
             regionManager.deleteRegionContaining(event.getBlock());
             logger.debug(Component.text("DEPRECATED HoneypotPrePlayerBreakEvent for " + player + " was cancelled, not continuing."));
             return;
         }
 
         // Check if the event was canceled. If it is, delete the block.
-        if (hpte.isCancelled()) {
+        if (!hpte.callEvent()) {
             regionManager.deleteRegionContaining(event.getBlock());
             logger.debug(Component.text("HoneypotPreTriggerEvent for " + player + " was cancelled, not continuing."));
             return;
@@ -141,10 +139,8 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         }
 
         // Fire HoneypotPlayerBreakEvent
-        HoneypotPlayerBreakEvent hpbe = new HoneypotPlayerBreakEvent(player, event.getBlock());
-        HoneypotTriggerEvent hte = new HoneypotTriggerEvent(player, event.getBlock(), TriggerType.BREAK);
-        Bukkit.getPluginManager().callEvent(hpbe);
-        Bukkit.getPluginManager().callEvent(hte);
+        new HoneypotPlayerBreakEvent(player, event.getBlock()).callEvent();
+        new HoneypotTriggerEvent(player, event.getBlock(), TriggerType.BREAK).callEvent();
         logger.debug(Component.text("HoneypotPlayerBreakEvent is being called for " + player));
 
         // If we flagged the block for deletion, remove it from the DB. Do this after

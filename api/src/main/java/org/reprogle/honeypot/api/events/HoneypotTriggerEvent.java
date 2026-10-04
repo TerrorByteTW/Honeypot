@@ -13,9 +13,7 @@ import org.jetbrains.annotations.Nullable;
  * This event is called <i>after</i> the Honeypot is triggered, not before.
  * This event is not cancellable. If you need to cancel it, use {@link HoneypotPreTriggerEvent}.
  */
-public class HoneypotTriggerEvent extends Event {
-
-    private static final HandlerList HANDLERS = new HandlerList();
+public class HoneypotTriggerEvent extends HoneypotEvent {
 
     private final Entity entity;
 
@@ -56,23 +54,16 @@ public class HoneypotTriggerEvent extends Event {
     }
 
     /**
-     * Boilerplate function for Bukkit
+     * Called after action a trigger if caused by a block, such as redstone or pistons.
      *
-     * @return HandlerList
+     * @param block   The Honeypot block
+     * @param trigger The type of trigger that caused the event
      */
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @SuppressWarnings("java:S4144")
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
+    public HoneypotTriggerEvent(Block block, TriggerType trigger) {
+        this.entity = null;
+        this.player = null;
+        this.block = block;
+        this.trigger = trigger;
     }
 
     /**
@@ -87,6 +78,7 @@ public class HoneypotTriggerEvent extends Event {
 
     /**
      * Gets the entity that triggered the Honeypot
+     *
      * @return {@link Entity}
      */
     @Nullable

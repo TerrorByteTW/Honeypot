@@ -104,11 +104,10 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
                 }
 
                 // Fire HoneypotPrePlayerInteractEvent
-                HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(player,
+                var hppie = new HoneypotPrePlayerInteractEvent(player,
                         event.getClickedBlock());
-                Bukkit.getPluginManager().callEvent(hppie);
 
-                if (hppie.isCancelled())
+                if (!hppie.callEvent())
                     return;
 
                 if (!(player.hasPermission("honeypot.exempt")
@@ -118,9 +117,8 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
                     executeAction(event);
                 }
 
-                HoneypotPlayerInteractEvent hpie = new HoneypotPlayerInteractEvent(player,
-                        event.getClickedBlock());
-                Bukkit.getPluginManager().callEvent(hpie);
+                new HoneypotPlayerInteractEvent(player,
+                        event.getClickedBlock()).callEvent();
             }
         } catch (NullPointerException npe) {
             // Do nothing as it's most likely an entity. If this event is triggered, the

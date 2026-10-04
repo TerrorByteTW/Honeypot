@@ -19,10 +19,16 @@ package org.reprogle.honeypot.common.events;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.reprogle.honeypot.api.events.HoneypotPreTriggerEvent;
+import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
+import org.reprogle.honeypot.api.events.TriggerType;
+import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
+import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -30,6 +36,8 @@ import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 public class SignChangeEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotRegionManager regionManager;
+    private final HoneypotPlayerManager playerManager;
+    private final HoneypotPlayerHistoryManager playerHistoryManager;
     private final HoneypotLogger logger;
     private final AdapterManager adapterManager;
 
@@ -39,8 +47,10 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
     }
 
     @Inject
-    SignChangeEventListener(HoneypotRegionManager regionManager, HoneypotLogger logger, AdapterManager adapterManager) {
+    SignChangeEventListener(HoneypotRegionManager regionManager, HoneypotPlayerManager playerManager, HoneypotPlayerHistoryManager playerHistoryManager, HoneypotLogger logger, AdapterManager adapterManager) {
         this.regionManager = regionManager;
+        this.playerManager = playerManager;
+        this.playerHistoryManager = playerHistoryManager;
         this.logger = logger;
         this.adapterManager = adapterManager;
     }
@@ -56,7 +66,21 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
             }
 
             logger.debug(Component.text("SignChangeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+
+            Player player = event.getPlayer();
+
+            var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.GENERIC);
+            if (!hpte.callEvent()) {
+                logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, allowing SignChangeEvent to be called on Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+                return;
+            }
+
             event.setCancelled(true);
+
+            playerManager.addPlayer(player, TriggerType.GENERIC, 1);
+            playerHistoryManager.addPlayerHistory(player, block, regionManager.getAction(block), "prelimBreak");
+
+            new HoneypotTriggerEvent(player, block, TriggerType.GENERIC);
         }
     }
 

@@ -9,9 +9,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HoneypotPreTriggerEvent extends Event implements Cancellable {
-
-    private static final HandlerList HANDLERS = new HandlerList();
+public class HoneypotPreTriggerEvent extends HoneypotEvent implements Cancellable {
 
     private boolean isCancelled;
 
@@ -56,23 +54,16 @@ public class HoneypotPreTriggerEvent extends Event implements Cancellable {
     }
 
     /**
-     * Boilerplate function for Bukkit
+     * Called before a trigger is processed for a Honeypot, but the source of the trigger is unknown, such as blocks burning.
      *
-     * @return HandlerList
+     * @param block The Honeypot block
+     * @param trigger The type of trigger
      */
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @SuppressWarnings("java:S4144")
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
+    public HoneypotPreTriggerEvent(Block block, TriggerType trigger) {
+        this.player = null;
+        this.entity = null;
+        this.block = block;
+        this.trigger = trigger;
     }
 
     /**

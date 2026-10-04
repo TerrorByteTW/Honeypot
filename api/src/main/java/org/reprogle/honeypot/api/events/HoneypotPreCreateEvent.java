@@ -28,9 +28,7 @@ import org.jetbrains.annotations.NotNull;
  * This event is called <i>before</i> the block is created, not after.
  * This event is cancellable. If cancelled, the creation does not happen.
  */
-public class HoneypotPreCreateEvent extends Event implements Cancellable {
-
-    private static final HandlerList HANDLERS = new HandlerList();
+public class HoneypotPreCreateEvent extends HoneypotEvent implements Cancellable {
 
     private boolean isCancelled;
 
@@ -48,26 +46,6 @@ public class HoneypotPreCreateEvent extends Event implements Cancellable {
     public HoneypotPreCreateEvent(Player player, Block block) {
         this.player = player;
         this.block = block;
-    }
-
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @SuppressWarnings("java:S4144")
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
     }
 
     /**

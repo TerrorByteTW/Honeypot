@@ -75,11 +75,10 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
                 logger.debug(Component.text("EntityExplodeEvent was caused by a player! Processing it as a break by " + igniter.getName()));
                 Bukkit.getPluginManager().callEvent(new ExplosionBlockBreakEvent(block, igniter));
             } else {
-                HoneypotPreTriggerEvent hpte = new HoneypotPreTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER);
-                Bukkit.getPluginManager().callEvent(hpte);
+                var hpte = new HoneypotPreTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER);
 
-                // Same as a cancelled player break, the block is no longer treated as a Honeypot
-                if (hpte.isCancelled()) {
+                // Same as a canceled player break, the block is no longer treated as a Honeypot
+                if (!hpte.callEvent()) {
                     logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, removing the Honeypot at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
                     regionManager.deleteRegionContaining(block);
                 }
@@ -89,20 +88,16 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
             if (!regionManager.isHoneypotBlock(block)) continue;
 
             // Fire HoneypotNonPlayerBreakEvent
-            HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), block);
-            Bukkit.getPluginManager().callEvent(hnpbe);
+            new HoneypotNonPlayerBreakEvent(event.getEntity(), block).callEvent();
 
             // Player-lit explosions already fired a BREAK trigger through BlockBreakEventListener
-            if (igniter == null) {
-                HoneypotTriggerEvent hte = new HoneypotTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER);
-                Bukkit.getPluginManager().callEvent(hte);
-            }
+            if (igniter == null)
+                new HoneypotTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER).callEvent();
 
-            if (allowExplosions) {
+            if (allowExplosions)
                 regionManager.deleteRegionContaining(block);
-            } else {
+            else
                 foundHoneypotBlocks.add(block);
-            }
         }
 
         destroyedBlocks.removeAll(foundHoneypotBlocks);
