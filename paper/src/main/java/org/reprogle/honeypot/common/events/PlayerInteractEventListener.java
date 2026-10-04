@@ -130,6 +130,38 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
         }
     }
 
+    // Detects players trying to set a Honeypot on fire, such as lighting it with flint and steel or a fire charge
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void playerIgniteEvent(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        // getItem() is the item in the hand this event fired for, so each hand is only checked once
+        if (event.getItem() == null) return;
+        Material item = event.getItem().getType();
+        if (item != Material.FLINT_AND_STEEL && item != Material.FIRE_CHARGE) return;
+
+        Block block = event.getClickedBlock();
+        if (block == null || !regionManager.isHoneypotBlock(block)) return;
+
+        Player player = event.getPlayer();
+
+        // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
+        if (!adapterManager.checkAllAdapters(player, block.getLocation())) return;
+
+        logger.debug(Component.text("Player " + player.getName() + " tried to ignite Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+
+        if (!new HoneypotPreTriggerEvent(player, block, TriggerType.GENERIC).callEvent()) {
+            logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, allowing " + player.getName() + " to ignite Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            return;
+        }
+
+        // Exempt players may light Honeypots, everyone else is stopped from doing so
+        if (actionHandler.checkAndHandle(player, block, TriggerType.GENERIC) != ActionHandler.TriggerResult.EXEMPT)
+            event.setCancelled(true);
+
+        new HoneypotTriggerEvent(player, block, TriggerType.GENERIC).callEvent();
+    }
+
     private void executeAction(PlayerInteractEvent event) {
 
         Player player = event.getPlayer();
