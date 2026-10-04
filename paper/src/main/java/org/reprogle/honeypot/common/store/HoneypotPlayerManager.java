@@ -94,6 +94,26 @@ public class HoneypotPlayerManager {
     }
 
     /**
+     * Gets the total number of Honeypots a player has ever triggered, across all trigger types. This is never reset
+     *
+     * @param player The player
+     * @return The player's lifetime trigger count
+     */
+    public int getLifetimeTriggers(OfflinePlayer player) {
+        return Registry.getPlayerStore().getLifetimeTriggers(player);
+    }
+
+    /**
+     * Gets the total number of times an action has been run against a player
+     *
+     * @param player The player
+     * @return The player's lifetime action count
+     */
+    public int getLifetimeActions(OfflinePlayer player) {
+        return Registry.getPlayerStore().getLifetimeActions(player);
+    }
+
+    /**
      * Logs a warning if the given store was built for an older version of Honeypot. Such stores still work through the
      * deprecated {@link PlayerStore} methods, but only track block breaks and don't track lifetime statistics.
      *

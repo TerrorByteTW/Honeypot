@@ -30,6 +30,28 @@ import org.jetbrains.annotations.NotNull;
  */
 public class HoneypotPreCreateEvent extends HoneypotEvent implements Cancellable {
 
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    /**
+     * Boilerplate function for Bukkit
+     *
+     * @return HandlerList
+     */
+    @Override
+    public @NotNull HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    /**
+     * Boilerplate function for Bukkit
+     *
+     * @return HandlerList
+     */
+    @SuppressWarnings("java:S4144")
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     private boolean isCancelled;
 
     private final Player player;

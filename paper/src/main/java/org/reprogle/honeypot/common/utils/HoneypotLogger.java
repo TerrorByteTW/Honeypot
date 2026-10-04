@@ -41,23 +41,26 @@ public class HoneypotLogger {
     private final BytePluginConfig config;
 
     /**
-     * A one-shot override of the minimum log level, applied to the next log call only. Null if not overridden
+     * Lock shared by every logger instance (Guice creates one per injection point), so concurrent writes to the log file don't interleave
      */
-    private LogLevel overrideMinLevel = null;
+    private static final Object FILE_LOCK = new Object();
 
     /**
-     * A one-shot override of the log-to-file setting, applied to the next log call only. Null if not overridden
+     * Override of the minimum log level for this logger instance. Null if not overridden
      */
-    private Boolean overrideLogToFile = null;
+    private final LogLevel overrideMinLevel;
+
+    /**
+     * Override of the log-to-file setting for this logger instance. Null if not overridden
+     */
+    private final Boolean overrideLogToFile;
 
     /**
      * Initialize the Honeypot logger and create it if it doesn't exist
      */
     @Inject
     public HoneypotLogger(@Named("HoneypotLogFile") File logFile, JavaPlugin plugin, BytePluginConfig config) {
-        this.logFile = logFile;
-        this.plugin = plugin;
-        this.config = config;
+        this(logFile, plugin, config, null, null);
 
         try {
             if (logFile.createNewFile()) {
@@ -68,32 +71,40 @@ public class HoneypotLogger {
         }
     }
 
+    private HoneypotLogger(File logFile, JavaPlugin plugin, BytePluginConfig config, LogLevel overrideMinLevel, Boolean overrideLogToFile) {
+        this.logFile = logFile;
+        this.plugin = plugin;
+        this.config = config;
+        this.overrideMinLevel = overrideMinLevel;
+        this.overrideLogToFile = overrideLogToFile;
+    }
+
     /**
-     * Method to temporarily override the log level. Only applies to the next log call
+     * Returns a logger that uses the given minimum log level instead of the configured one.
+     * This logger is not modified, so this is safe to use across threads, e.g. {@code logger.level(LogLevel.INFO).info(...)}
      *
-     * @param level The level to set the logger to.
-     * @return The HoneypotLogger instance for chaining
+     * @param level The minimum level for the returned logger
+     * @return A HoneypotLogger with the override applied
      */
     public HoneypotLogger level(LogLevel level) {
-        this.overrideMinLevel = level;
-        return this;
+        return new HoneypotLogger(logFile, plugin, config, level, overrideLogToFile);
     }
 
     /**
-     * Method to temporarily override the log file setting. Only applies to the next log call
+     * Returns a logger that uses the given log-to-file setting instead of the configured one.
+     * This logger is not modified, so this is safe to use across threads
      *
-     * @param logToFile Whether to log to the file or not
-     * @return The HoneypotLogger instance for chaining
+     * @param logToFile Whether the returned logger logs to the file or not
+     * @return A HoneypotLogger with the override applied
      */
     public HoneypotLogger logToFile(boolean logToFile) {
-        this.overrideLogToFile = logToFile;
-        return this;
+        return new HoneypotLogger(logFile, plugin, config, overrideMinLevel, logToFile);
     }
 
     /**
-     * Method to temporarily force logging to the log file. Only applies to the next log call
+     * Returns a logger that always logs to the log file. This logger is not modified
      *
-     * @return The HoneypotLogger instance for chaining
+     * @return A HoneypotLogger with the override applied
      */
     public HoneypotLogger logToFile() {
         return logToFile(true);
@@ -146,14 +157,8 @@ public class HoneypotLogger {
 
     private void log(LogLevel level, Component message) {
         // Settings are read on every call so that /honeypot reload takes effect, even for singletons holding a logger
-        LogLevel minLevel;
-        boolean logToFile;
-        synchronized (this) {
-            minLevel = overrideMinLevel != null ? overrideMinLevel : configuredMinLevel();
-            logToFile = overrideLogToFile != null ? overrideLogToFile : config.config().getBoolean("logging.log-to-file");
-            overrideMinLevel = null;
-            overrideLogToFile = null;
-        }
+        LogLevel minLevel = overrideMinLevel != null ? overrideMinLevel : configuredMinLevel();
+        boolean logToFile = overrideLogToFile != null ? overrideLogToFile : config.config().getBoolean("logging.log-to-file");
 
         if (!level.isAtLeast(minLevel))
             return;
@@ -174,11 +179,13 @@ public class HoneypotLogger {
         if (!logToFile)
             return;
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-            bw.append("[").append(TIMESTAMP_FORMAT.format(LocalDateTime.now())).append("] ")
-                .append(level.name()).append(": ").append(text).append("\n");
-        } catch (IOException e) {
-            plugin.getLogger().warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
+        String line = "[" + TIMESTAMP_FORMAT.format(LocalDateTime.now()) + "] " + level.name() + ": " + text + "\n";
+        synchronized (FILE_LOCK) {
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
+                bw.append(line);
+            } catch (IOException e) {
+                plugin.getLogger().warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
+            }
         }
     }
 

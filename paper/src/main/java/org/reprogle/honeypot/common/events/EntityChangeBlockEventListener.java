@@ -18,7 +18,7 @@ package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,6 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
+import org.reprogle.honeypot.api.events.HoneypotPreTriggerEvent;
 import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
 import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
@@ -45,36 +46,32 @@ public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent 
         this.config = config;
     }
 
-    // Enderman event
+    // Enderman and silverfish event
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void entityChangeBlockEvent(EntityChangeBlockEvent event) {
+        EntityType type = event.getEntity().getType();
+        if (type != EntityType.ENDERMAN && type != EntityType.SILVERFISH) return;
 
-        // If the entity grabbing the block is an enderman, if they are allowed to,
-        // delete the
-        // Honeypot, otherwise cancel it
-        if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
-            if (regionManager.isHoneypotBlock(event.getBlock())) {
+        Block block = event.getBlock();
+        if (!regionManager.isHoneypotBlock(block)) return;
 
-                logger.verbose(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()));
+        logger.verbose(Component.text("EntityChangeBlockEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 
-                // Fire HoneypotNonPlayerBreakEvent
-                new HoneypotNonPlayerBreakEvent(event.getEntity(),
-                        event.getBlock()).callEvent();
-                new HoneypotTriggerEvent(event.getEntity(), event.getBlock(), TriggerType.NON_PLAYER).callEvent();
+        // If cancelled, the Honeypot is ignored. Remove it, since the block is about to be taken or infested
+        if (!new HoneypotPreTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER).callEvent()) {
+            logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, removing the Honeypot at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            regionManager.deleteRegionContaining(block);
+            return;
+        }
 
-                if (config.config().getBoolean("allow-enderman")) {
-                    regionManager.deleteRegionContaining(event.getBlock());
-                } else {
-                    event.setCancelled(true);
-                }
-            }
-        } else if (event.getEntity().getType().equals(EntityType.SILVERFISH)
-                && regionManager.isHoneypotBlock(event.getBlock())) {
+        // Fire HoneypotNonPlayerBreakEvent
+        new HoneypotNonPlayerBreakEvent(event.getEntity(), block).callEvent();
+        new HoneypotTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER).callEvent();
 
-            // Fire HoneypotNonPlayerBreakEvent
-            new HoneypotNonPlayerBreakEvent(event.getEntity(), event.getBlock()).callEvent();
-            new HoneypotTriggerEvent(event.getEntity(), event.getBlock(), TriggerType.NON_PLAYER).callEvent();
-
+        // Endermen may take Honeypots if allowed, deleting the Honeypot. Silverfish are always blocked
+        if (type == EntityType.ENDERMAN && config.config().getBoolean("allow-enderman")) {
+            regionManager.deleteRegionContaining(block);
+        } else {
             event.setCancelled(true);
         }
     }

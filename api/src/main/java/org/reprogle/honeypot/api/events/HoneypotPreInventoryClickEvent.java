@@ -28,7 +28,7 @@ import org.jetbrains.annotations.NotNull;
  * Event that is triggered when a player triggers a Honeypot via interacting with its container inventory.
  * This event is called <i>before</i> the action is taken, not after.
  * This event is cancellable. If cancelled, the action is not taken.
- * @deprecated This event is deprecated and is only called for block breaks. For tracking all triggers, use {@link HoneypotPreTriggerEvent}
+ * @deprecated This event is deprecated and is only called for container interactions. For tracking all triggers, use {@link HoneypotPreTriggerEvent}
  */
 @Deprecated
 public class HoneypotPreInventoryClickEvent extends Event implements Cancellable {

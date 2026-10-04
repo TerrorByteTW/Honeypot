@@ -122,6 +122,30 @@ public class HoneypotPlayerRepository implements PlayerStore {
         return count == null ? 0 : count;
     }
 
+    public int getLifetimeTriggers(OfflinePlayer player) {
+        Integer count = db.queryOne("""
+                SELECT lifetimeTriggers
+                FROM honeypot_players
+                WHERE playerName = ?;
+                """,
+            row -> row.i32("lifetimeTriggers"),
+            Param.uuid(player.getUniqueId()));
+
+        return count == null ? 0 : count;
+    }
+
+    public int getLifetimeActions(OfflinePlayer player) {
+        Integer count = db.queryOne("""
+                SELECT lifetimeActions
+                FROM honeypot_players
+                WHERE playerName = ?;
+                """,
+            row -> row.i32("lifetimeActions"),
+            Param.uuid(player.getUniqueId()));
+
+        return count == null ? 0 : count;
+    }
+
     public HashMap<TriggerType, Integer> getTriggerCounts(Player player) {
         List<Map.Entry<String, Integer>> rows = db.query("""
                 SELECT triggerType, count

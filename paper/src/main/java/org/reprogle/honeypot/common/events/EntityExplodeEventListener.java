@@ -31,13 +31,16 @@ import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreTriggerEvent;
 import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
 import org.reprogle.honeypot.api.events.TriggerType;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
 
@@ -70,11 +73,20 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
         Entity triggerer = igniter != null ? igniter : event.getEntity();
         TriggerType triggerType = igniter != null ? TriggerType.GENERIC : TriggerType.NON_PLAYER;
 
+        // An explosion counts as one trigger per region, even if it hits several blocks of a multi-block region
+        Set<HoneypotRegionObject> triggeredRegions = new HashSet<>();
+
         // For every block, check if it was a Honeypot. If it was, check if explosions
         // are allowed.
         // If so, just delete the Honeypot. If not, cancel the explosion
         for (Block block : destroyedBlocks) {
             if (!regionManager.isHoneypotBlock(block)) continue;
+
+            HoneypotRegionObject region = regionManager.getHoneypotRegion(block);
+            if (region != null && !triggeredRegions.add(region)) {
+                if (!allowExplosions) foundHoneypotBlocks.add(block);
+                continue;
+            }
 
             logger.verbose(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 

@@ -72,9 +72,10 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
                 return;
             }
 
-            event.setCancelled(true);
-
-            actionHandler.checkAndHandle(player, block, TriggerType.GENERIC);
+            // Exempt players may edit Honeypot signs, everyone else is blocked
+            if (actionHandler.checkAndHandle(player, block, TriggerType.GENERIC) != ActionHandler.TriggerResult.EXEMPT) {
+                event.setCancelled(true);
+            }
 
             new HoneypotTriggerEvent(player, block, TriggerType.GENERIC).callEvent();
         }

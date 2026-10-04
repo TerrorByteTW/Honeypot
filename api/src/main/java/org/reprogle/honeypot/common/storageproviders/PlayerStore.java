@@ -63,6 +63,33 @@ public interface PlayerStore extends Store {
     }
 
     /**
+     * Gets the total number of Honeypots a player has ever triggered, across all trigger types. Unlike
+     * {@link #getCount(OfflinePlayer, TriggerType)}, this is never reset.
+     * <p>
+     * The default implementation exists only for providers built for older versions of Honeypot, which don't track
+     * lifetime statistics, and returns 0.
+     *
+     * @param player The player to retrieve the total for
+     * @return The player's lifetime trigger count, or 0 if the player doesn't exist
+     */
+    default int getLifetimeTriggers(OfflinePlayer player) {
+        return 0;
+    }
+
+    /**
+     * Gets the total number of times an action has been run against a player.
+     * <p>
+     * The default implementation exists only for providers built for older versions of Honeypot, which don't track
+     * lifetime statistics, and returns 0.
+     *
+     * @param player The player to retrieve the total for
+     * @return The player's lifetime action count, or 0 if the player doesn't exist
+     */
+    default int getLifetimeActions(OfflinePlayer player) {
+        return 0;
+    }
+
+    /**
      * Sets the number of blocks broken for a player in the storage provider.
      *
      * @param player       The player to update.

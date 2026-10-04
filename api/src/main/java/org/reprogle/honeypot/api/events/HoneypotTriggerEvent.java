@@ -15,6 +15,28 @@ import org.jetbrains.annotations.Nullable;
  */
 public class HoneypotTriggerEvent extends HoneypotEvent {
 
+    private static final HandlerList HANDLERS = new HandlerList();
+
+    /**
+     * Boilerplate function for Bukkit
+     *
+     * @return HandlerList
+     */
+    @Override
+    public @NotNull HandlerList getHandlers() {
+        return HANDLERS;
+    }
+
+    /**
+     * Boilerplate function for Bukkit
+     *
+     * @return HandlerList
+     */
+    @SuppressWarnings("java:S4144")
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     private final Entity entity;
 
     private final Player player;

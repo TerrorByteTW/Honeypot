@@ -1,30 +1,13 @@
 package org.reprogle.honeypot.api.events;
 
-import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
-import org.jetbrains.annotations.NotNull;
 
-public class HoneypotEvent extends Event {
-    private static final HandlerList HANDLERS = new HandlerList();
-
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    /**
-     * Boilerplate function for Bukkit
-     *
-     * @return HandlerList
-     */
-    @SuppressWarnings("java:S4144")
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+/**
+ * Base class for Honeypot events.
+ * <p>
+ * Bukkit requires every event class to declare its own static {@code HandlerList} and {@code getHandlerList()}, so
+ * each subclass must provide them itself. A shared list here would register every listener of every subclass into the
+ * same list.
+ */
+public abstract class HoneypotEvent extends Event {
 }

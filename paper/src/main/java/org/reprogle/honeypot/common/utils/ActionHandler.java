@@ -168,12 +168,22 @@ public class ActionHandler {
      * @return The configured limit
      */
     public int getTriggerLimit(TriggerType triggerType) {
-        return config.config().getInt(switch (triggerType) {
+        return config.config().getInt(triggerLimitPath(triggerType), 1);
+    }
+
+    /**
+     * Gets the config path of the trigger limit for a trigger type
+     *
+     * @param triggerType The trigger type
+     * @return The config path holding that trigger type's limit
+     */
+    public static String triggerLimitPath(TriggerType triggerType) {
+        return switch (triggerType) {
             case BREAK -> "trigger-limits.blocks-broken";
             case INVENTORY_OPEN -> "trigger-limits.inventories-opened";
             case INVENTORY_INTERACT -> "trigger-limits.inventories-interacted";
             case GENERIC, NON_PLAYER -> "trigger-limits.generic";
-        }, 1);
+        };
     }
 
     private static String historyType(TriggerType triggerType, boolean actionTaken) {

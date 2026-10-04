@@ -65,7 +65,7 @@ public class HoneypotPlayerObject {
      * Gets the number of blocks broken by the player
      *
      * @return Number of blocks broken
-     * @deprecated Breaks can now be categorized. Use {@link getCountByTrigger}. This method will only return block breaks
+     * @deprecated Breaks can now be categorized. Use {@link #getCountByTrigger(TriggerType)}. This method will only return block breaks
      */
     @Deprecated
     public int getBlocksBroken() {
@@ -76,7 +76,7 @@ public class HoneypotPlayerObject {
      * Set the number of blocks broken
      *
      * @param blocksBroken The number of blocks the player has broken
-     * @deprecated Breaks can now be categorized. Use {@link setCountByTrigger}. This method will only set block breaks
+     * @deprecated Breaks can now be categorized. Use {@link #setCountByTrigger(TriggerType, int)}. This method will only set block breaks
      */
     @Deprecated
     public void setBlocksBroken(int blocksBroken) {
