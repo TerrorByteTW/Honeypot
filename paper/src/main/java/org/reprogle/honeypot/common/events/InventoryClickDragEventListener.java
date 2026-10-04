@@ -61,6 +61,8 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
     @SuppressWarnings({"java:S3776"})
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void inventoryClickEvent(InventoryClickEvent event) {
+        if (!useInventoryClick()) return;
+
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -124,6 +126,8 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
     @SuppressWarnings({"java:S3776"})
     @EventHandler(priority = EventPriority.HIGHEST)
     public void inventoryDragEvent(InventoryDragEvent event) {
+        if (!useInventoryClick()) return;
+
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -166,6 +170,16 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
                 executeAction(player, block, inventory);
             }
         }
+    }
+
+    /**
+     * Container actions on click only apply if they're enabled and inventory clicks are being used instead of opening
+     *
+     * @return True if inventory clicks and drags should be processed
+     */
+    private boolean useInventoryClick() {
+        return config.config().getBoolean("container-actions.enable-container-actions")
+            && config.config().getBoolean("container-actions.use-inventory-click");
     }
 
     private void executeAction(Player player, Block block, Inventory inventory) {

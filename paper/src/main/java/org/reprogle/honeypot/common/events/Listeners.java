@@ -71,15 +71,11 @@ public class Listeners {
                     "Registering optional event: " + event.getClass().getSimpleName()));
             }
 
-            if (listener instanceof InventoryClickDragEventListener) {
-                if (enableContainerActions && useInventoryClick) {
-                    logger.info(Component.text("Using inventory click for containers"));
-                    manager.registerEvents(listener, plugin);
-                }
-                return;
+            // Both container listeners are always registered and check the container config themselves, so /honeypot reload can switch between them
+            if (listener instanceof InventoryClickDragEventListener && enableContainerActions && useInventoryClick) {
+                logger.info(Component.text("Using inventory click for containers"));
             }
 
-            // PlayerInteractEventListener is always registered, since it handles more than containers. It checks the container config itself
             if (listener instanceof PlayerInteractEventListener && enableContainerActions && !useInventoryClick) {
                 logger.info(Component.text("Using player interact for containers"));
             }

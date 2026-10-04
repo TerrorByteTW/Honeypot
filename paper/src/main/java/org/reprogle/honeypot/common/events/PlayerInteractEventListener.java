@@ -68,8 +68,8 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
 
         Player player = event.getPlayer();
 
-        // Sneaking with an item in hand uses the item instead of opening the container
-        if (player.isSneaking() && event.getItem() != null)
+        // Sneaking with an item in either hand uses the item instead of opening the container
+        if (player.isSneaking() && (!player.getInventory().getItemInMainHand().isEmpty() || !player.getInventory().getItemInOffHand().isEmpty()))
             return;
 
         if (player.getTargetBlockExact(5) == null)
@@ -156,7 +156,7 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
 
         Player player = event.getPlayer();
 
-        // Right-clicking a container without sneaking opens it instead of lighting it, which playerInteractEvent handles
+        // Right-clicking a container opens it instead of lighting it (which playerInteractEvent handles), unless sneaking with an item in either hand
         if (block.getState() instanceof Container && !player.isSneaking()) return;
 
         // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked

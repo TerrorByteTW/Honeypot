@@ -18,6 +18,7 @@ package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -25,6 +26,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
@@ -33,6 +35,9 @@ import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
@@ -46,16 +51,18 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
     private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
     private final AdapterManager adapterManager;
+    private final JavaPlugin plugin;
 
     @Inject
     public BlockBreakEventListener(ActionHandler actionHandler, HoneypotLogger logger, HoneypotRegionManager regionManager,
-                                   BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager) {
+                                   BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager, JavaPlugin plugin) {
         this.actionHandler = actionHandler;
         this.logger = logger;
         this.regionManager = regionManager;
         this.config = config;
         this.commandFeedback = commandFeedback;
         this.adapterManager = adapterManager;
+        this.plugin = plugin;
     }
 
     // Player block break event
@@ -134,36 +141,45 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         }
     }
 
-    // This is a separate event from the one above. We want to know if any Honeypots
-    // were broken due to breaking a
-    // supporting block, such as torches breaking due to
-    // the block they're on being broken
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    // This is a separate event from the one above. We want to know if any Honeypots were broken due to breaking a
+    // supporting block, such as torches breaking due to the block they're on being broken
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void checkBlockBreakSideEffects(BlockBreakEvent event) {
-        if (!config.config().getBoolean("allow-player-destruction"))
-            return;
-
         Player player = event.getPlayer();
+        Block broken = event.getBlock();
 
-        if (!player.hasPermission(BREAK_PERMISSION)
-            && !player.hasPermission(WILDCARD_PERMISSION) && !player.isOp())
-            return;
-
-        // Check adjacent blocks to be sure an adjacent block wasn't broken either (e.g., A torch was broken due to its wall block being destroyed)
-        for (HoneypotRegionObject honeypot : regionManager.getNearbyHoneypots(event.getBlock().getLocation(), 1)) {
-            // If a break took place in a region, then there won't be any side effects.
+        // BlockBreakEvent fires before the block (and anything attached to it) is broken, so record what the adjacent
+        // Honeypots are now, and check whether they're gone once physics has run
+        Map<Block, Material> attached = new HashMap<>();
+        for (HoneypotRegionObject honeypot : regionManager.getNearbyHoneypots(broken.getLocation(), 1)) {
+            // Only single blocks can be attached to another block
             if (!honeypot.isSingleBlockRegion()) continue;
 
             Block block = honeypot.getPos1().getBlock();
-            if (!block.getType().equals(Material.AIR)) continue;
 
-            blockBreakEvent(new BlockBreakEvent(block, player));
+            // The broken block itself is handled by blockBreakEvent
+            if (block.equals(broken)) continue;
+
+            attached.put(block, block.getType());
+        }
+
+        if (attached.isEmpty()) return;
+
+        Bukkit.getRegionScheduler().runDelayed(plugin, broken.getLocation(), task -> attached.forEach((block, originalType) -> {
+            // Still intact, or no longer a Honeypot (e.g. it was removed by another listener)
+            if (block.getType() == originalType || !regionManager.isHoneypotBlock(block)) return;
+
+            if (player.isOnline()) {
+                blockBreakEvent(new BlockBreakEvent(block, player));
+            }
+
+            // The block is already gone, so the Honeypot is removed even if allow-player-destruction is false
             regionManager.deleteRegionContaining(block);
             logger.warning(Component.text(
                 "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
                     + block.getX() + ", " + block.getY() + ", " + block.getZ()
                     + ". " + player.getName()
-                    + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot"));
-        }
+                    + " is the player that indirectly broke it, so it was treated as them breaking the Honeypot. If needed, please recreate the Honeypot"));
+        }), 1L);
     }
 }
