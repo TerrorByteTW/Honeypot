@@ -50,7 +50,6 @@ import org.reprogle.bytelib.commands.dsl.*;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.storageproviders.HoneypotPlayerHistoryObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 

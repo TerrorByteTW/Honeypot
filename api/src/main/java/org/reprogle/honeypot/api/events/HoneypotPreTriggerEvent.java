@@ -7,6 +7,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class HoneypotPreTriggerEvent extends Event implements Cancellable {
 
@@ -77,10 +78,21 @@ public class HoneypotPreTriggerEvent extends Event implements Cancellable {
     /**
      * Get the player that broke the block
      *
-     * @return {@link Player}
+     * @return {@link Player}, or null if the Honeypot was not triggered by a player
      */
+    @Nullable
     public Player getPlayer() {
         return player;
+    }
+
+    /**
+     * Gets the entity that triggered the Honeypot
+     *
+     * @return {@link Entity}, or null if the trigger has no known source (e.g., TNT lit by redstone)
+     */
+    @Nullable
+    public Entity getEntity() {
+        return entity;
     }
 
     /**

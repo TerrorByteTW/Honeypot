@@ -14,6 +14,10 @@ import org.reprogle.honeypot.common.storageproviders.StoreType;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Defines the SQLite Honeypot Store for Players. You should NOT interact with this directly.
  * Instead, use {@link HoneypotPlayerManager}
@@ -72,6 +76,11 @@ public class HoneypotPlayerRepository implements PlayerStore {
 
     public void resetPlayerCount(Player player, TriggerType trigger) {
         db.execute("""
+                INSERT INTO honeypot_players (playerName) VALUES (?) ON CONFLICT (playerName) DO NOTHING;
+                """,
+            Param.uuid(player.getUniqueId()));
+
+        db.execute("""
                 INSERT INTO honeypot_triggers (playerUUID, triggerType, count)
                 VALUES (?, ?, 0)
                 ON CONFLICT (playerUUID, triggerType) DO UPDATE SET count = 0;
@@ -113,8 +122,30 @@ public class HoneypotPlayerRepository implements PlayerStore {
         return count == null ? 0 : count;
     }
 
+    public HashMap<TriggerType, Integer> getTriggerCounts(Player player) {
+        List<Map.Entry<String, Integer>> rows = db.query("""
+                SELECT triggerType, count
+                FROM honeypot_triggers
+                WHERE playerUUID = ?;
+                """,
+            row -> Map.entry(row.string("triggerType"), row.i32("count")),
+            Param.uuid(player.getUniqueId()));
+
+        HashMap<TriggerType, Integer> counts = new HashMap<>();
+        for (Map.Entry<String, Integer> row : rows) {
+            // Skip trigger types that no longer exist rather than failing the whole lookup
+            try {
+                counts.put(TriggerType.valueOf(row.getKey()), row.getValue());
+            } catch (IllegalArgumentException ignored) {
+                // Unknown trigger type
+            }
+        }
+
+        return counts;
+    }
+
     public void deleteAllHoneypotPlayers() {
-        db.execute("DELETE FROM honeypot_players;");
         db.execute("DELETE FROM honeypot_triggers;");
+        db.execute("DELETE FROM honeypot_players;");
     }
 }

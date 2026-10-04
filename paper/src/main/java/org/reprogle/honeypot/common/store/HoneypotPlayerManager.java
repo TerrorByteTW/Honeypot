@@ -18,11 +18,11 @@ package org.reprogle.honeypot.common.store;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
-import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Registry;
 import org.reprogle.honeypot.api.events.TriggerType;
+import org.reprogle.honeypot.common.storageproviders.PlayerStore;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 /**
@@ -46,12 +46,7 @@ public class HoneypotPlayerManager {
      * @param triggered   The number of triggers fired
      */
     public void addPlayer(Player player, TriggerType triggerType, int triggered) {
-        try {
-            Registry.getPlayerStore().addPlayer(player, triggerType, triggered);
-        } catch (NotImplementedException e) {
-            logger.debug(Component.text("The current Storage Provider is outdated and is using the deprecated implementation of addPlayer(). Please update your storage provider, or use Honeypot's built-in ones. It will stop working in the next version of Honeypot"));
-            Registry.getPlayerStore().addPlayer(player, triggered);
-        }
+        Registry.getPlayerStore().addPlayer(player, triggerType, triggered);
         logger.debug(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()));
     }
 
@@ -77,12 +72,7 @@ public class HoneypotPlayerManager {
      * @return The number of Honeypot blocks the player has broken
      */
     public int getCount(Player player, TriggerType triggerType) {
-        try {
-            return Registry.getPlayerStore().getCount(player, triggerType);
-        } catch (NotImplementedException e) {
-            logger.debug(Component.text("The current Storage Provider is outdated and is using the deprecated implementation of getCount(). Please update your storage provider, or use Honeypot's built-in ones. It will stop working in the next version of Honeypot"));
-            return Registry.getPlayerStore().getCount(player);
-        }
+        return Registry.getPlayerStore().getCount(player, triggerType);
     }
 
     public void playerTriggeredAction(Player player) {
@@ -100,12 +90,25 @@ public class HoneypotPlayerManager {
      * @return The number of Honeypot blocks the player has broken
      */
     public int getCount(OfflinePlayer player, TriggerType triggerType) {
+        return Registry.getPlayerStore().getCount(player, triggerType);
+    }
+
+    /**
+     * Logs a warning if the given store was built for an older version of Honeypot. Such stores still work through the
+     * deprecated {@link PlayerStore} methods, but only track block breaks and don't track lifetime statistics.
+     *
+     * @param store The store to check
+     */
+    public void warnIfOutdated(PlayerStore store) {
         try {
-            return Registry.getPlayerStore().getCount(player, triggerType);
-        } catch (NotImplementedException e) {
-            logger.debug(Component.text("The current Storage Provider is outdated and is using the deprecated implementation of getCount(). Please update your storage provider, or use Honeypot's built-in ones. It will stop working in the next version of Honeypot"));
-            return Registry.getPlayerStore().getCount(player);
+            if (store.getClass().getMethod("addPlayer", Player.class, TriggerType.class, int.class).getDeclaringClass() != PlayerStore.class)
+                return;
+        } catch (NoSuchMethodException e) {
+            // Unreachable, the method is declared on PlayerStore
+            return;
         }
+
+        logger.warning(Component.text("The player store \"" + store.getProviderName() + "\" was built for an older version of Honeypot. Only block breaks will be tracked, and lifetime statistics will not be recorded. Please update the storage provider, or use Honeypot's built-in one. Support for outdated player stores will be removed in a future version of Honeypot"));
     }
 
     /**

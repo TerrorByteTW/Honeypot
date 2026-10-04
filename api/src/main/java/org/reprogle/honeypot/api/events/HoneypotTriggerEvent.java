@@ -47,7 +47,10 @@ public class HoneypotTriggerEvent extends Event {
      */
     public HoneypotTriggerEvent(Entity entity, Block block, TriggerType trigger) {
         this.entity = entity;
-        this.player = null;
+        if (entity instanceof Player p)
+            this.player = p;
+        else
+            this.player = null;
         this.block = block;
         this.trigger = trigger;
     }

@@ -118,7 +118,10 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         // If Allow Player Destruction is true, the player has permissions, or is Op,
         // flag the block for deletion from the DB
         // Otherwise, set the BlockBreakEvent to canceled
-        if (config.config().getBoolean("allow-player-destruction")
+        // Explosions are exempt, since EntityExplodeEventListener decides whether the Honeypot survives based on allow-explode
+        if (event instanceof ExplosionBlockBreakEvent) {
+            logger.debug(Component.text("Player " + player + " blew up this Honeypot. Whether it is removed is decided by allow-explode"));
+        } else if (config.config().getBoolean("allow-player-destruction")
             || player.hasPermission(BREAK_PERMISSION)
             || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
             deleteBlock = true;
@@ -159,6 +162,10 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
     // the block they're on being broken
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void checkBlockBreakSideEffects(BlockBreakEvent event) {
+        // Explosions handle every affected block themselves
+        if (event instanceof ExplosionBlockBreakEvent)
+            return;
+
         if (!config.config().getBoolean("allow-player-destruction"))
             return;
 

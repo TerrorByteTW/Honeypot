@@ -18,6 +18,7 @@ import org.reprogle.honeypot.common.providers.BehaviorProvider;
 import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
 import org.reprogle.honeypot.common.storageproviders.PlayerStore;
 import org.reprogle.honeypot.common.storageproviders.RegionStore;
+import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.store.sqlite.HoneypotMigrations;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -45,6 +46,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     private final BytePluginConfig config;
     private final HoneypotSupportedVersions supportedVersions;
     private final HoneypotMigrations migrations;
+    private final HoneypotPlayerManager playerManager;
 
 
     @Inject
@@ -61,7 +63,8 @@ public class HoneypotLifecycle implements PluginLifecycle {
         Set<PlayerHistoryStore> playerHistoryStores,
         HoneypotMigrations migrations,
         BytePluginConfig config,
-        HoneypotSupportedVersions supportedVersions
+        HoneypotSupportedVersions supportedVersions,
+        HoneypotPlayerManager playerManager
     ) {
         this.plugin = plugin;
         this.adapterManager = adapterManager;
@@ -73,6 +76,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         this.regionStores = regionStores;
         this.playerStores = playerStores;
         this.playerHistoryStores = playerHistoryStores;
+        this.playerManager = playerManager;
         this.migrations = migrations;
         this.config = config;
         this.supportedVersions = supportedVersions;
@@ -159,6 +163,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         if (playerStore.isPresent()) {
             try {
                 Registry.setPlayerStore(playerStore.get());
+                playerManager.warnIfOutdated(playerStore.get());
             } catch (Exception e) {
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
                 logger.error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));

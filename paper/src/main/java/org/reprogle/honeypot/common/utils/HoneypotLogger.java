@@ -34,25 +34,21 @@ import java.util.Set;
 
 public class HoneypotLogger {
 
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+
     private final File logFile;
     private final JavaPlugin plugin;
-    private LogLevel minLevel;
-    private boolean logToFile;
+    private final BytePluginConfig config;
 
     /**
-     * A variable to store the log level temporarily when using the override methods
+     * A one-shot override of the minimum log level, applied to the next log call only. Null if not overridden
      */
-    private LogLevel tempMinLevel = LogLevel.INFO;
+    private LogLevel overrideMinLevel = null;
 
     /**
-     * A variable to store the log file setting temporarily when using the override methods
+     * A one-shot override of the log-to-file setting, applied to the next log call only. Null if not overridden
      */
-    private boolean tempLogToFile = false;
-
-    /**
-     * A variable to store whether the logger has been overridden
-     */
-    private boolean overriden = false;
+    private Boolean overrideLogToFile = null;
 
     /**
      * Initialize the Honeypot logger and create it if it doesn't exist
@@ -61,18 +57,7 @@ public class HoneypotLogger {
     public HoneypotLogger(@Named("HoneypotLogFile") File logFile, JavaPlugin plugin, BytePluginConfig config) {
         this.logFile = logFile;
         this.plugin = plugin;
-
-        if (!config.config().getBoolean("logging.enable-logging")) {
-            this.minLevel = LogLevel.DISABLED;
-        } else {
-            this.minLevel = LogLevel.fromString(config.config().getString("logging.minimum-log-level"), LogLevel.INFO);
-        }
-
-        if (this.minLevel == LogLevel.VERBOSE || this.minLevel == LogLevel.DEBUG) {
-            this.logToFile = true;
-        } else {
-            this.logToFile = config.config().getBoolean("logging.log-to-file");
-        }
+        this.config = config;
 
         try {
             if (logFile.createNewFile()) {
@@ -84,66 +69,43 @@ public class HoneypotLogger {
     }
 
     /**
+     * Method to temporarily override the log level. Only applies to the next log call
+     *
+     * @param level The level to set the logger to.
+     * @return The HoneypotLogger instance for chaining
+     */
+    public HoneypotLogger level(LogLevel level) {
+        this.overrideMinLevel = level;
+        return this;
+    }
+
+    /**
+     * Method to temporarily override the log file setting. Only applies to the next log call
+     *
+     * @param logToFile Whether to log to the file or not
+     * @return The HoneypotLogger instance for chaining
+     */
+    public HoneypotLogger logToFile(boolean logToFile) {
+        this.overrideLogToFile = logToFile;
+        return this;
+    }
+
+    /**
+     * Method to temporarily force logging to the log file. Only applies to the next log call
+     *
+     * @return The HoneypotLogger instance for chaining
+     */
+    public HoneypotLogger logToFile() {
+        return logToFile(true);
+    }
+
+    /**
      * Log verbose messages to the log file. Automatically prepends date and time
      *
      * @param message The message to log
      */
     public void verbose(Component message) {
-        if (!minLevel.isAtLeast(LogLevel.VERBOSE))
-            return;
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            bw.append("[").append(dtf.format(now)).append("] VERBOSE: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
-        } catch (IOException e) {
-            plugin.getLogger().warning("An error occurred while attempting to log to the honeypot.log file for logging! " + e.getMessage());
-        }
-    }
-
-    /**
-     * Method to temporarily override the log level
-     * @param level The level to set the logger to.
-     * @return The HoneypotLogger instance for chaining
-     */
-    public HoneypotLogger level(LogLevel level) {
-        this.tempMinLevel = this.minLevel;
-        this.minLevel = (level != null) ? level : this.minLevel;
-        return this;
-    }
-
-    /**
-     * Method to temporarily override the log file setting
-     * @param logToFile Whether to log to the file or not
-     * @return The HoneypotLogger instance for chaining
-     */
-    public HoneypotLogger logToFile(boolean logToFile) {
-        this.tempLogToFile = this.logToFile;
-        this.logToFile = logToFile;
-        return this;
-    }
-
-    /**
-     * Method to temporarily override the log file setting
-     * @return The HoneypotLogger instance for chaining
-     */
-    public HoneypotLogger logToFile() {
-        this.tempLogToFile = this.logToFile;
-        this.logToFile = true;
-        return this;
-    }
-
-    /**
-     * Resets the overridden values to their originals for the next call.
-     * This is not always necessary since Guice will inject a Logger each time it's needed, but for
-     * situations in which the same logger is reused, this method is required.
-     */
-    private void reset() {
-        this.overriden = false;
-        this.logToFile = this.tempLogToFile;
-        this.minLevel = this.tempMinLevel;
-        this.tempMinLevel = LogLevel.INFO;
-        this.tempLogToFile = false;
+        log(LogLevel.VERBOSE, message);
     }
 
     /**
@@ -152,101 +114,79 @@ public class HoneypotLogger {
      * @param message The message to log
      */
     public void debug(Component message) {
-        if (!minLevel.isAtLeast(LogLevel.DEBUG))
-            return;
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            bw.append("[").append(dtf.format(now)).append("] DEBUG: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
-        } catch (IOException e) {
-            plugin.getLogger()
-                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
-        }
-
-        if (overriden)
-            this.reset();
+        log(LogLevel.DEBUG, message);
     }
 
     /**
-     * Log a message to the log file. Automatically prepends date and time
+     * Log a message to the console, and the log file if enabled. Automatically prepends date and time
      *
      * @param message The message to log
      */
     public void info(Component message) {
-        if (!minLevel.isAtLeast(LogLevel.INFO))
-            return;
-
-        plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(message));
-
-        if (!logToFile)
-            return;
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            bw.append("[").append(dtf.format(now)).append("] INFO: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
-        } catch (IOException e) {
-            plugin.getLogger()
-                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
-        }
-
-        if (overriden)
-            this.reset();
+        log(LogLevel.INFO, message);
     }
 
     /**
-     * Log a warning message to the log file. Automatically prepends date and time
+     * Log a warning message to the console, and the log file if enabled. Automatically prepends date and time
      *
      * @param message The message to log
      */
     public void warning(Component message) {
-        if (!minLevel.isAtLeast(LogLevel.WARNING))
-            return;
-
-        plugin.getLogger().warning(PlainTextComponentSerializer.plainText().serialize(message));
-
-        if (!logToFile)
-            return;
-
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            bw.append("[").append(dtf.format(now)).append("] WARNING: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
-        } catch (IOException e) {
-            plugin.getLogger()
-                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
-        }
-
-        if (overriden)
-            this.reset();
+        log(LogLevel.WARNING, message);
     }
 
     /**
-     * Log a severe message to the log file. Automatically prepends date and time
+     * Log an error message to the console, and the log file if enabled. Automatically prepends date and time
      *
      * @param message The message to log
      */
     public void error(Component message) {
-        if (!minLevel.isAtLeast(LogLevel.ERROR))
+        log(LogLevel.ERROR, message);
+    }
+
+    private void log(LogLevel level, Component message) {
+        // Settings are read on every call so that /honeypot reload takes effect, even for singletons holding a logger
+        LogLevel minLevel;
+        boolean logToFile;
+        synchronized (this) {
+            minLevel = overrideMinLevel != null ? overrideMinLevel : configuredMinLevel();
+            logToFile = overrideLogToFile != null ? overrideLogToFile : config.config().getBoolean("logging.log-to-file");
+            overrideMinLevel = null;
+            overrideLogToFile = null;
+        }
+
+        if (!level.isAtLeast(minLevel))
             return;
 
-        plugin.getLogger().severe(PlainTextComponentSerializer.plainText().serialize(message));
+        String text = PlainTextComponentSerializer.plainText().serialize(message);
+
+        // VERBOSE and DEBUG are never output to console, and are always written to file
+        switch (level) {
+            case INFO -> plugin.getLogger().info(text);
+            case WARNING -> plugin.getLogger().warning(text);
+            case ERROR -> plugin.getLogger().severe(text);
+            default -> logToFile = true;
+        }
+
+        if (minLevel == LogLevel.VERBOSE || minLevel == LogLevel.DEBUG)
+            logToFile = true;
 
         if (!logToFile)
             return;
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            LocalDateTime now = LocalDateTime.now();
-            bw.append("[").append(dtf.format(now)).append("] SEVERE: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
+            bw.append("[").append(TIMESTAMP_FORMAT.format(LocalDateTime.now())).append("] ")
+                .append(level.name()).append(": ").append(text).append("\n");
         } catch (IOException e) {
-            plugin.getLogger()
-                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
+            plugin.getLogger().warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
         }
+    }
 
-        if (overriden)
-            this.reset();
+    private LogLevel configuredMinLevel() {
+        if (!config.config().getBoolean("logging.enable-logging"))
+            return LogLevel.DISABLED;
+
+        return LogLevel.fromString(config.config().getString("logging.minimum-log-level"), LogLevel.INFO);
     }
 
     public enum LogLevel {
@@ -267,17 +207,31 @@ public class HoneypotLogger {
             } catch (IllegalArgumentException e) {
                 return fallback;
             }
-
         }
 
+        /**
+         * Checks whether a message at this level should be logged when the logger's minimum level is {@code minLevel}
+         *
+         * @param minLevel The minimum level the logger is configured for
+         * @return True if this level is at or above the minimum level, and neither level is DISABLED
+         */
         public boolean isAtLeast(LogLevel minLevel) {
-            if (this == DISABLED) {
+            if (this == DISABLED || minLevel == DISABLED) {
                 return false;
             }
             return this.compareTo(minLevel) >= 0;
         }
 
+        /**
+         * Gets every level that will be logged when the logger's minimum level is {@code minLevel}
+         *
+         * @param minLevel The minimum level the logger is configured for
+         * @return The set of active levels, empty if {@code minLevel} is DISABLED
+         */
         public static Set<LogLevel> getActiveLevels(LogLevel minLevel) {
+            if (minLevel == DISABLED) {
+                return EnumSet.noneOf(LogLevel.class);
+            }
             return EnumSet.range(minLevel, LogLevel.ERROR);
         }
     }
