@@ -29,12 +29,30 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.EnumSet;
+import java.util.Set;
 
 public class HoneypotLogger {
 
-    private final BytePluginConfig config;
     private final File logFile;
     private final JavaPlugin plugin;
+    private LogLevel minLevel;
+    private boolean logToFile;
+
+    /**
+     * A variable to store the log level temporarily when using the override methods
+     */
+    private LogLevel tempMinLevel = LogLevel.INFO;
+
+    /**
+     * A variable to store the log file setting temporarily when using the override methods
+     */
+    private boolean tempLogToFile = false;
+
+    /**
+     * A variable to store whether the logger has been overridden
+     */
+    private boolean overriden = false;
 
     /**
      * Initialize the Honeypot logger and create it if it doesn't exist
@@ -43,7 +61,18 @@ public class HoneypotLogger {
     public HoneypotLogger(@Named("HoneypotLogFile") File logFile, JavaPlugin plugin, BytePluginConfig config) {
         this.logFile = logFile;
         this.plugin = plugin;
-        this.config = config;
+
+        if (!config.config().getBoolean("logging.enable-logging")) {
+            this.minLevel = LogLevel.DISABLED;
+        } else {
+            this.minLevel = LogLevel.fromString(config.config().getString("logging.minimum-log-level"), LogLevel.INFO);
+        }
+
+        if (this.minLevel == LogLevel.VERBOSE || this.minLevel == LogLevel.DEBUG) {
+            this.logToFile = true;
+        } else {
+            this.logToFile = config.config().getBoolean("logging.log-to-file");
+        }
 
         try {
             if (logFile.createNewFile()) {
@@ -55,22 +84,88 @@ public class HoneypotLogger {
     }
 
     /**
+     * Log verbose messages to the log file. Automatically prepends date and time
+     *
+     * @param message The message to log
+     */
+    public void verbose(Component message) {
+        if (!minLevel.isAtLeast(LogLevel.VERBOSE))
+            return;
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+            LocalDateTime now = LocalDateTime.now();
+            bw.append("[").append(dtf.format(now)).append("] VERBOSE: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
+        } catch (IOException e) {
+            plugin.getLogger().warning("An error occurred while attempting to log to the honeypot.log file for logging! " + e.getMessage());
+        }
+    }
+
+    /**
+     * Method to temporarily override the log level
+     * @param level The level to set the logger to.
+     * @return The HoneypotLogger instance for chaining
+     */
+    public HoneypotLogger level(LogLevel level) {
+        this.tempMinLevel = this.minLevel;
+        this.minLevel = (level != null) ? level : this.minLevel;
+        return this;
+    }
+
+    /**
+     * Method to temporarily override the log file setting
+     * @param logToFile Whether to log to the file or not
+     * @return The HoneypotLogger instance for chaining
+     */
+    public HoneypotLogger logToFile(boolean logToFile) {
+        this.tempLogToFile = this.logToFile;
+        this.logToFile = logToFile;
+        return this;
+    }
+
+    /**
+     * Method to temporarily override the log file setting
+     * @return The HoneypotLogger instance for chaining
+     */
+    public HoneypotLogger logToFile() {
+        this.tempLogToFile = this.logToFile;
+        this.logToFile = true;
+        return this;
+    }
+
+    /**
+     * Resets the overridden values to their originals for the next call.
+     * This is not always necessary since Guice will inject a Logger each time it's needed, but for
+     * situations in which the same logger is reused, this method is required.
+     */
+    private void reset() {
+        this.overriden = false;
+        this.logToFile = this.tempLogToFile;
+        this.minLevel = this.tempMinLevel;
+        this.tempMinLevel = LogLevel.INFO;
+        this.tempLogToFile = false;
+    }
+
+    /**
      * Log debug messages to the log file. Automatically prepends date and time
      *
      * @param message The message to log
      */
-    public void debug(Component message, boolean noisy) {
-        // If logging is disabled OR the message is classified as a "noisy" message and Honeypot is configured to silence those, return
-        if (!config.config().getBoolean("enable-logging") || (noisy && config.config().getBoolean("silence-noisy-logs")))
+    public void debug(Component message) {
+        if (!minLevel.isAtLeast(LogLevel.DEBUG))
             return;
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             bw.append("[").append(dtf.format(now)).append("] DEBUG: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
         } catch (IOException e) {
             plugin.getLogger()
-                    .warning("An error occured while attempting to log to the honeypot.log file! " + e);
+                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
         }
+
+        if (overriden)
+            this.reset();
     }
 
     /**
@@ -79,17 +174,25 @@ public class HoneypotLogger {
      * @param message The message to log
      */
     public void info(Component message) {
-        plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(message));
-        if (!config.config().getBoolean("enable-logging"))
+        if (!minLevel.isAtLeast(LogLevel.INFO))
             return;
+
+        plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(message));
+
+        if (!logToFile)
+            return;
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             bw.append("[").append(dtf.format(now)).append("] INFO: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
         } catch (IOException e) {
             plugin.getLogger()
-                    .warning("An error occured while attempting to log to the honeypot.log file! " + e);
+                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
         }
+
+        if (overriden)
+            this.reset();
     }
 
     /**
@@ -98,17 +201,25 @@ public class HoneypotLogger {
      * @param message The message to log
      */
     public void warning(Component message) {
-        plugin.getLogger().warning(PlainTextComponentSerializer.plainText().serialize(message));
-        if (!config.config().getBoolean("enable-logging"))
+        if (!minLevel.isAtLeast(LogLevel.WARNING))
             return;
+
+        plugin.getLogger().warning(PlainTextComponentSerializer.plainText().serialize(message));
+
+        if (!logToFile)
+            return;
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             bw.append("[").append(dtf.format(now)).append("] WARNING: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
         } catch (IOException e) {
             plugin.getLogger()
-                    .warning("An error occured while attempting to log to the honeypot.log file! " + e);
+                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
         }
+
+        if (overriden)
+            this.reset();
     }
 
     /**
@@ -116,18 +227,58 @@ public class HoneypotLogger {
      *
      * @param message The message to log
      */
-    public void severe(Component message) {
-        plugin.getLogger().severe(PlainTextComponentSerializer.plainText().serialize(message));
-        if (!config.config().getBoolean("enable-logging"))
+    public void error(Component message) {
+        if (!minLevel.isAtLeast(LogLevel.ERROR))
             return;
+
+        plugin.getLogger().severe(PlainTextComponentSerializer.plainText().serialize(message));
+
+        if (!logToFile)
+            return;
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile, true))) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
             LocalDateTime now = LocalDateTime.now();
             bw.append("[").append(dtf.format(now)).append("] SEVERE: ").append(PlainTextComponentSerializer.plainText().serialize(message)).append("\n");
         } catch (IOException e) {
             plugin.getLogger()
-                    .warning("An error occured while attempting to log to the honeypot.log file! " + e);
+                .warning("An error occurred while attempting to log to the honeypot.log file! " + e.getMessage());
         }
+
+        if (overriden)
+            this.reset();
     }
 
+    public enum LogLevel {
+        VERBOSE,
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR,
+        DISABLED;
+
+        public static LogLevel fromString(String input, LogLevel fallback) {
+            if (input == null || input.isBlank()) {
+                return fallback;
+            }
+
+            try {
+                return LogLevel.valueOf(input.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return fallback;
+            }
+
+        }
+
+        public boolean isAtLeast(LogLevel minLevel) {
+            if (this == DISABLED) {
+                return false;
+            }
+            return this.compareTo(minLevel) >= 0;
+        }
+
+        public static Set<LogLevel> getActiveLevels(LogLevel minLevel) {
+            return EnumSet.range(minLevel, LogLevel.ERROR);
+        }
+    }
 }

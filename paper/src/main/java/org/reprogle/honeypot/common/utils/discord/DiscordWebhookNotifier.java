@@ -71,7 +71,7 @@ public class DiscordWebhookNotifier {
             this.CLIENT.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    logger.severe(Component.text("Failed to send webhook: " + e.getMessage()));
+                    logger.error(Component.text("Failed to send webhook: " + e.getMessage()));
                 }
 
                 @Override

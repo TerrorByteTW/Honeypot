@@ -48,7 +48,7 @@ public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
 			if (regionManager.isHoneypotBlock(b) || regionManager.isHoneypotBlock(b.getRelative(event.getDirection()))) {
-				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()), true);
+				logger.debug(Component.text("PistonExtendEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + "," + b.getZ()));
 
 				// Fire HoneypotNonPlayerBreakEvent
 				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);
@@ -65,7 +65,7 @@ public class PistonExtendRetractListener implements Listener, IHoneypotEvent {
 		List<Block> blocks = event.getBlocks();
 		for (Block b : blocks) {
 			if (regionManager.isHoneypotBlock(b)) {
-				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()), true);
+				logger.debug(Component.text("PistonRetractEvent being called for Honeypot: " + b.getX() + ", " + b.getY() + ", " + b.getZ()));
 
 				// Fire HoneypotNonPlayerBreakEvent
 				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getBlock(), b);

@@ -18,14 +18,16 @@ package org.reprogle.honeypot.common.store;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
+import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Registry;
+import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 /**
  * A class for managing Players in the context of Honeypot. Does not interact with the Store, but rather uses the HoneypotRepository, as all player data
- * is stored within SQLite (For now)
+ * is stored within SQLite
  */
 public class HoneypotPlayerManager {
 
@@ -37,42 +39,32 @@ public class HoneypotPlayerManager {
     }
 
     /**
-     * Create a honeypot block by calling the SQLite DB. In the future this will be
-     * a switch case statement to handle
-     * multiple DB types
+     * Adds a player to the database by calling the SQLite DB, setting the count for the trigger to 1, or incrementing it by `triggered` if the player already exists
      *
-     * @param player       The Player object
-     * @param blocksBroken The amount of Blocks broken
+     * @param player      The Player object
+     * @param triggerType The type of trigger that was executed
+     * @param triggered   The number of triggers fired
      */
-    public void addPlayer(Player player, int blocksBroken) {
-        Registry.getPlayerStore().addPlayer(player, blocksBroken);
-        logger.debug(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()), true);
+    public void addPlayer(Player player, TriggerType triggerType, int triggered) {
+        try {
+            Registry.getPlayerStore().addPlayer(player, triggerType, triggered);
+        } catch (NotImplementedException e) {
+            logger.debug(Component.text("The current Storage Provider is outdated and is using the deprecated implementation of addPlayer(). Please update your storage provider, or use Honeypot's built-in ones. It will stop working in the next version of Honeypot"));
+            Registry.getPlayerStore().addPlayer(player, triggered);
+        }
+        logger.debug(Component.text("Create Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId()));
     }
 
     /**
-     * Set the number of blocks broken by the player by calling the SQLite
-     * setPlayerCount function. In the future this
-     * will be a switch case statement to handle multiple DB types without changing
-     * code
+     * Resets the count for a given trigger for a given player by calling the SQLite
+     * resetPlayerCount function.
      *
-     * @param player       The Player object
-     * @param blocksBroken The number of blocks broken by the player
+     * @param player      The Player object
+     * @param triggerType The type of trigger that was executed
      */
-    public void setPlayerCount(Player player, int blocksBroken) {
-        Registry.getPlayerStore().setPlayerCount(player, blocksBroken);
-        logger.debug(Component.text("Updated Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + ". New count: " + blocksBroken), true);
-    }
-
-    /**
-     * Gets the number of Honeypots the player has broken. This is NOT the total,
-     * but rather the current amount until it
-     * loops to 0, based on the config
-     *
-     * @param player the Player object
-     * @return The number of Honeypot blocks the player has broken
-     */
-    public int getCount(Player player) {
-        return Registry.getPlayerStore().getCount(player);
+    public void resetPlayerCount(Player player, TriggerType triggerType) {
+        Registry.getPlayerStore().resetPlayerCount(player, triggerType);
+        logger.debug(Component.text("Reset Honeypot player: " + player.getName() + ", UUID of: " + player.getUniqueId() + " count for trigger type: " + triggerType));
     }
 
     /**
@@ -80,11 +72,40 @@ public class HoneypotPlayerManager {
      * but rather the current amount until it
      * loops to 0, based on the config
      *
-     * @param player the Player name
+     * @param player      the Player object
+     * @param triggerType the type of trigger that was executed
      * @return The number of Honeypot blocks the player has broken
      */
-    public int getCount(OfflinePlayer player) {
-        return Registry.getPlayerStore().getCount(player);
+    public int getCount(Player player, TriggerType triggerType) {
+        try {
+            return Registry.getPlayerStore().getCount(player, triggerType);
+        } catch (NotImplementedException e) {
+            logger.debug(Component.text("The current Storage Provider is outdated and is using the deprecated implementation of getCount(). Please update your storage provider, or use Honeypot's built-in ones. It will stop working in the next version of Honeypot"));
+            return Registry.getPlayerStore().getCount(player);
+        }
+    }
+
+    public void playerTriggeredAction(Player player) {
+        Registry.getPlayerStore().playerTriggeredAction(player);
+        logger.debug(Component.text("Incremented lifetime value of actions triggered for player " + player.getName()));
+    }
+
+    /**
+     * Gets the number of Honeypots the player has broken. This is NOT the total,
+     * but rather the current amount until it
+     * loops to 0, based on the config
+     *
+     * @param player      the Player name
+     * @param triggerType the type of trigger that was executed
+     * @return The number of Honeypot blocks the player has broken
+     */
+    public int getCount(OfflinePlayer player, TriggerType triggerType) {
+        try {
+            return Registry.getPlayerStore().getCount(player, triggerType);
+        } catch (NotImplementedException e) {
+            logger.debug(Component.text("The current Storage Provider is outdated and is using the deprecated implementation of getCount(). Please update your storage provider, or use Honeypot's built-in ones. It will stop working in the next version of Honeypot"));
+            return Registry.getPlayerStore().getCount(player);
+        }
     }
 
     /**
@@ -92,7 +113,7 @@ public class HoneypotPlayerManager {
      */
     public void deleteAllHoneypotPlayers() {
         Registry.getPlayerStore().deleteAllHoneypotPlayers();
-        logger.debug(Component.text("Deleted all Honeypot players from DB"), false);
+        logger.debug(Component.text("Deleted all Honeypot players from DB"));
     }
 
 }

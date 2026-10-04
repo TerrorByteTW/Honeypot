@@ -50,7 +50,7 @@ public class GhostHoneypotMonitor {
         // Start the GhostHoneypotMonitor
         if (config.config().getBoolean("ghost-honeypot-checker.enable")) {
             logger.debug(
-                Component.text("Ghost Honeypot Checker is enabled, starting the monitoring task. If you need to change the settings for this function, edit the config then do /honeypot reload"), false);
+                Component.text("Ghost Honeypot Checker is enabled, starting the monitoring task. If you need to change the settings for this function, edit the config then do /honeypot reload"));
         }
     }
 
@@ -59,7 +59,7 @@ public class GhostHoneypotMonitor {
      */
     public void startTask() {
         task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> {
-            logger.debug(Component.text("Checking for Ghost Honeypots..."), true);
+            logger.debug(Component.text("Checking for Ghost Honeypots..."));
             int removedPots = 0;
             List<World> worlds = Bukkit.getWorlds();
 
@@ -105,14 +105,14 @@ public class GhostHoneypotMonitor {
                      * in some instances (Such as if a Honeypot was set as a torch)
                      */
                     if (block.equals(Material.AIR) || block.equals(Material.WATER) || block.equals(Material.LAVA)) {
-                        logger.debug(Component.text("Found ghost Honeypot at " + coords + " in world " + region.getPos1().getWorld().getName() + ". Removing"), true);
+                        logger.debug(Component.text("Found ghost Honeypot at " + coords + " in world " + region.getPos1().getWorld().getName() + ". Removing"));
                         regionManager.deleteRegionContaining(region.getPos1().getBlock());
                         removedPots++;
                     }
                 }
             }
 
-            logger.debug(Component.text("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots."), true);
+            logger.debug(Component.text("Finished ghost Honeypot checks! Removed " + removedPots + " ghost Honeypots."));
         }, 10L, 20L * 60 * config.config().getInt("ghost-honeypot-checker.check-interval"));
     }
 

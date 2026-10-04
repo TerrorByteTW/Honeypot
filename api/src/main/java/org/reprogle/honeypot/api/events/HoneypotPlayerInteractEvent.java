@@ -26,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
  * Event that is triggered each time a Honeypot inventory is interacted with.
  * This event is called <i>after</i> the interaction is triggered, not before.
  * This event is not cancellable. If you need to cancel it, use {@link HoneypotPrePlayerInteractEvent}.
+ * @deprecated This event is deprecated and is only called for block breaks. For tracking all triggers, use {@link HoneypotTriggerEvent}
  */
+@Deprecated
 public class HoneypotPlayerInteractEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();

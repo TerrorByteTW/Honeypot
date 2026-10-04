@@ -16,7 +16,7 @@ public class RemoveFKConstraint02 implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) {
-        logger.debug(Component.text("Applying RemoveFKConstraint02 migration to SQLite database"), false);
+        logger.debug(Component.text("Applying RemoveFKConstraint02 migration to SQLite database"));
         tx.execute("PRAGMA foreign_keys = OFF;");
 
         tx.execute("""
@@ -43,6 +43,6 @@ public class RemoveFKConstraint02 implements Migration {
                 """);
         tx.execute("PRAGMA foreign_keys = ON;");
 
-        logger.debug(Component.text("Completed RemoveFKConstraint02 migration."), false);
+        logger.debug(Component.text("Completed RemoveFKConstraint02 migration."));
     }
 }

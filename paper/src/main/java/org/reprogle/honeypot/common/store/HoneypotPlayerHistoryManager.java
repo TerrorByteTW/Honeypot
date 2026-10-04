@@ -51,7 +51,7 @@ public class HoneypotPlayerHistoryManager {
     public void addPlayerHistory(Player p, Block b, String action, String type) {
         Registry.getPlayerHistoryStore().addPlayerHistory(p, b, action, type);
 
-        logger.debug(Component.text("Added new history entry for player " + p.getName()), true);
+        logger.debug(Component.text("Added new history entry for player " + p.getName()));
     }
 
     /**
@@ -100,7 +100,7 @@ public class HoneypotPlayerHistoryManager {
             Registry.getPlayerHistoryStore().deletePlayerHistory(p);
         }
 
-        logger.debug(Component.text("Deleting player history for player " + p.getName()), true);
+        logger.debug(Component.text("Deleting player history for player " + p.getName()));
     }
 
     /**

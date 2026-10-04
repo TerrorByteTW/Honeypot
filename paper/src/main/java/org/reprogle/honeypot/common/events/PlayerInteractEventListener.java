@@ -138,11 +138,11 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
         String action = regionManager.getAction(block);
 
         if (action == null) {
-            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
+            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
             return;
         }
 
-        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
+        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
 
         actionHandler.handle(action, block, player);
     }

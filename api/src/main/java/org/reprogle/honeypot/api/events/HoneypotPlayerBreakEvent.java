@@ -26,7 +26,9 @@ import org.jetbrains.annotations.NotNull;
  * Event that is triggered each time a Honeypot is broken by a player.
  * This event is called <i>after</i> the block is broken, not before.
  * This event is not cancellable. If you need to cancel a break event, use {@link HoneypotPrePlayerBreakEvent}.
+ * @deprecated This event is deprecated and is only called for block breaks. For tracking all triggers, use {@link HoneypotTriggerEvent}
  */
+@Deprecated
 public class HoneypotPlayerBreakEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();

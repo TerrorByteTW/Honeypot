@@ -31,7 +31,7 @@ public class AddBlockToHistory05 implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) {
-        logger.debug(Component.text("Applying DB patch: AddBlockToHistory05"), false);
+        logger.debug(Component.text("Applying DB patch: AddBlockToHistory05"));
 
         // The history table may have been created with the column already, so only add it if it's missing.
         // Entries recorded before this patch will have a NULL block
@@ -42,6 +42,6 @@ public class AddBlockToHistory05 implements Migration {
             tx.execute("ALTER TABLE honeypot_history ADD `block` VARCHAR;");
         }
 
-        logger.debug(Component.text("Applied patch: AddBlockToHistory05"), false);
+        logger.debug(Component.text("Applied patch: AddBlockToHistory05"));
     }
 }

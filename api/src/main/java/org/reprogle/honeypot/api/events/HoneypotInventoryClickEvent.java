@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
  * Event that is triggered after a player triggers a container action
  * This event is called <i>after</i> a container action is triggered, not before. This means the state of the player may be unknown, for example if they were kicked as a result.
  * This event is not cancellable, you cannot cancel the action of a Honeypot container already interacted with by a player. If you need to cancel it, please use {@link HoneypotPreInventoryClickEvent}
+ * @deprecated This event is deprecated and is only called for block breaks. For tracking all triggers, use {@link HoneypotTriggerEvent}
  */
+@Deprecated
 public class HoneypotInventoryClickEvent extends Event {
 
 	private static final HandlerList HANDLERS = new HandlerList();

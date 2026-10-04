@@ -27,8 +27,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
-import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
+import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
@@ -94,13 +93,22 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
         // Fire HoneypotPrePlayerBreakEvent
         HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(player, event.getBlock());
+        HoneypotPreTriggerEvent hpte = new HoneypotPreTriggerEvent(player, event.getBlock(), TriggerType.BREAK);
         Bukkit.getPluginManager().callEvent(hppbe);
-        logger.debug(Component.text("HoneypotPrePlayerBreakEvent is being called for " + player), true);
+        Bukkit.getPluginManager().callEvent(hpte);
+        logger.debug(Component.text("HoneypotPrePlayerBreakEvent is being called for " + player));
 
         // Check if the event was canceled. If it is, delete the block.
         if (hppbe.isCancelled()) {
             regionManager.deleteRegionContaining(event.getBlock());
-            logger.debug(Component.text("HoneypotPrePlayerBreakEvent for " + player + " was cancelled, not continuing."), true);
+            logger.debug(Component.text("DEPRECATED HoneypotPrePlayerBreakEvent for " + player + " was cancelled, not continuing."));
+            return;
+        }
+
+        // Check if the event was canceled. If it is, delete the block.
+        if (hpte.isCancelled()) {
+            regionManager.deleteRegionContaining(event.getBlock());
+            logger.debug(Component.text("HoneypotPreTriggerEvent for " + player + " was cancelled, not continuing."));
             return;
         }
 
@@ -114,18 +122,16 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             || player.hasPermission(BREAK_PERMISSION)
             || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
             deleteBlock = true;
-            logger.debug(Component.text("Player " + player + " is either allowed to break Honeypots or has some sort of permission. This Honeypot will be removed from the world"), false);
+            logger.debug(Component.text("Player " + player + " is either allowed to break Honeypots or has some sort of permission. This Honeypot will be removed from the world"));
         } else {
             event.setCancelled(true);
         }
 
-        // If "blocks-broken-before-action-taken" is less than or equal to 1, go to the break action.
+        // If the trigger limit for blocks-broken is less than or equal to 1, go to the break action.
         // Otherwise, check if the player should have the action triggered
-        if (config.config().getInt("blocks-broken-before-action-taken") <= 1) {
+        if (config.config().getInt("trigger-limits.blocks-broken") <= 1) {
             // This is just a precaution to ensure that the player count is always less than
-            // 1 if the value in the
-            // config is 1
-            playerManager.setPlayerCount(player, 0);
+            // 1 if the value in the config is 1
             breakAction(event);
         } else {
             countBreak(event);
@@ -133,14 +139,16 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
         // Fire HoneypotPlayerBreakEvent
         HoneypotPlayerBreakEvent hpbe = new HoneypotPlayerBreakEvent(player, event.getBlock());
+        HoneypotTriggerEvent hte = new HoneypotTriggerEvent(player, event.getBlock(), TriggerType.BREAK);
         Bukkit.getPluginManager().callEvent(hpbe);
-        logger.debug(Component.text("HoneypotPlayerBreakEvent is being called for " + player), true);
+        Bukkit.getPluginManager().callEvent(hte);
+        logger.debug(Component.text("HoneypotPlayerBreakEvent is being called for " + player));
 
         // If we flagged the block for deletion, remove it from the DB. Do this after
         // other actions have been
         // completed, otherwise the other actions will fail with NPEs
         if (deleteBlock) {
-            logger.debug(Component.text("Block is flagged for deletion, removing it from storage"), true);
+            logger.debug(Component.text("Block is flagged for deletion, removing it from storage"));
             regionManager.deleteRegionContaining(event.getBlock());
         }
     }
@@ -180,7 +188,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
     private void breakAction(BlockBreakEvent event) {
 
-        logger.debug(Component.text("Action should be taken for this block, attempting to take action"), true);
+        logger.debug(Component.text("Action should be taken for this block, attempting to take action"));
 
         // Get the block broken and the chat prefix for prettiness
         Block block = event.getBlock();
@@ -195,9 +203,13 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             String action = regionManager.getAction(block);
 
             if (action == null) {
-                logger.debug(Component.text("A BlockBreakEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
+                logger.debug(Component.text("A BlockBreakEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
                 return;
             }
+
+            playerManager.addPlayer(player, TriggerType.BREAK, 1);
+            playerManager.playerTriggeredAction(player);
+            playerManager.resetPlayerCount(player, TriggerType.BREAK);
 
             // Log the event in the history table
             playerHistoryManager.addPlayerHistory(player,
@@ -205,7 +217,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
             // Run certain actions based on the action of the Honeypot Block
             actionHandler.handle(action, block, player);
-            logger.debug(Component.text("Action successfully taken for block " + block + " on player " + player + " via BlockBreakEvent"), false);
+            logger.debug(Component.text("Action successfully taken for block " + block + " on player " + player + " via BlockBreakEvent"));
 
             sendWebhook(event);
 
@@ -214,17 +226,17 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             return;
         } else if (player.hasPermission(BREAK_PERMISSION)
             || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
-            logger.debug(Component.text("Action was not taken for this event, player " + player + " has permission to break Honeypots"), false);
+            logger.debug(Component.text("Action was not taken for this event nor was anything logged/updated in the DB, player " + player + " has permission to break Honeypots"));
             player.sendMessage(commandFeedback.sendCommandFeedback("staff-broke"));
             return;
         }
 
         // If it got to here, then they are exempt but don't explicitly have break privileges
-        logger.debug(Component.text("Action was not taken for this event, the player is exempt from having action taken against them. However, they are not allowed to break Honeypots, so the block still exists."), false);
+        logger.debug(Component.text("Action was not taken for this event, the player is exempt from having action taken against them. However, they are not allowed to break Honeypots, so the block still exists."));
     }
 
     private void countBreak(BlockBreakEvent event) {
-        logger.debug(Component.text("Attempting to count the break for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId()), true);
+        logger.debug(Component.text("Attempting to count the break for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId()));
 
         Player player = event.getPlayer();
 
@@ -233,38 +245,32 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         if (player.hasPermission(EXEMPT_PERMISSION) || player.isOp()
             || player.hasPermission(BREAK_PERMISSION)
             || player.hasPermission(WILDCARD_PERMISSION)) {
-            logger.debug(Component.text("This break was not counted, player " + player + " is either exempt or has permission to break Honeypots."), false);
+            logger.debug(Component.text("This break was not counted nor was anything logged/updated in the DB, player " + player + " is either exempt or has permission to break Honeypots."));
             return;
         }
 
         // Get the config value and the number of blocks broken
-        int breaksBeforeAction = config.config().getInt("blocks-broken-before-action-taken");
-        int blocksBroken = playerManager.getCount(player);
+        int breaksBeforeAction = config.config().getInt("trigger-limits.blocks-broken");
+        int blocksBroken = playerManager.getCount(player, TriggerType.BREAK);
 
-        // getCount returns -1 if the player doesn't exist in the DB. If that's the
-        // case, add the player to the DB
-        if (blocksBroken == -1) {
-            playerManager.addPlayer(player, 0);
-            blocksBroken = 0;
-        }
-
-        // Increment the blocks broken counter
+        // Increment the blocks-broken counter
         blocksBroken += 1;
 
         // If the blocks broken are larger than or equals 'breaks before action' or if
         // breaks before action equal 1, reset the count and perform the break
         if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
-            logger.debug(Component.text("Player " + player + " has crossed the blocks broken threshold, triggering action against them"), false);
-            playerManager.setPlayerCount(player, 0);
+            logger.debug(Component.text("Player " + player + " has crossed the trigger limit for blocks-broken, triggering action against them"));
             breakAction(event);
         } else {
-            logger.debug(Component.text("Player " + player + " has not yet crossed the blocks broken threshold, break is being counted and no action is being taken"), false);
+            logger.debug(Component.text("Player " + player + " has not yet crossed the blocks broken threshold, break is being counted and no action is being taken"));
             // Just count it
-            playerManager.setPlayerCount(player, blocksBroken);
+            playerManager.addPlayer(player, TriggerType.BREAK, 1);
             // Log the event in the history table
             playerHistoryManager.addPlayerHistory(player, event.getBlock(), regionManager.getAction(event.getBlock()), "prelimBreak");
 
-            sendWebhook(event);
+            // Only send the webhook if send-when is onbreak, as we don't want to send if counting the break and send-when is onaction, incorrectly tagging the notification as an action
+            if (config.config().getString("discord.send-when").equalsIgnoreCase("onbreak"))
+                sendWebhook(event);
         }
     }
 

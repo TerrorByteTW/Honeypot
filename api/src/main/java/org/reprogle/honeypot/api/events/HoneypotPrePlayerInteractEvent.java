@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
  * Event that is triggered before a Honeypot inventory is interacted with.
  * This event is called <i>before</i> the interaction, not after.
  * This event is cancellable. If cancelled, the inventory is opened as if it was a regular block.
+ * @deprecated This event is deprecated and is only called for block breaks. For tracking all triggers, use {@link HoneypotPreTriggerEvent}
  */
+@Deprecated
 public class HoneypotPrePlayerInteractEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();

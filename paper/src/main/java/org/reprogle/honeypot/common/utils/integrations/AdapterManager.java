@@ -82,7 +82,7 @@ public class AdapterManager {
         }
 
         if (server.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            logger.debug(Component.text("PlaceholderAPI is installed on this server, hooking into it"), false);
+            logger.debug(Component.text("PlaceholderAPI is installed on this server, hooking into it"));
             injector.getInstance(PlaceholderAPIExpansion.class).register();
         }
     }

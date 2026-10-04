@@ -60,7 +60,7 @@ public class HoneypotWandListeners implements Listener, IHoneypotEvent {
         if (!Create.playersCreatingRegions.containsKey(event.getPlayer().getUniqueId()))
             return;
 
-        logger.debug(Component.text("Player " + event.getPlayer() + " is creating a region & interacted with a block, running checks"), false);
+        logger.debug(Component.text("Player " + event.getPlayer() + " is creating a region & interacted with a block, running checks"));
 
         // Check that it was a right-click
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -86,7 +86,7 @@ public class HoneypotWandListeners implements Listener, IHoneypotEvent {
 
         event.setCancelled(true);
 
-        logger.debug(Component.text("Player " + event.getPlayer() + " is creating a region, checks passed. Assigning positions"), false);
+        logger.debug(Component.text("Player " + event.getPlayer() + " is creating a region, checks passed. Assigning positions"));
 
         var region = Create.playersCreatingRegions.get(event.getPlayer().getUniqueId());
         if (region.pos1 == null) {
@@ -135,7 +135,7 @@ public class HoneypotWandListeners implements Listener, IHoneypotEvent {
 
     @EventHandler
     public void onPlayerDisconnect(PlayerQuitEvent event) {
-        logger.debug(Component.text("Player " + event.getPlayer() + " disconnected, removing region wand from inventory if it exists"), true);
+        logger.debug(Component.text("Player " + event.getPlayer() + " disconnected, removing region wand from inventory if it exists"));
         removeItemFromPlayer(event.getPlayer());
     }
 
@@ -149,7 +149,7 @@ public class HoneypotWandListeners implements Listener, IHoneypotEvent {
         Create.playersCreatingRegions.remove(event.getPlayer().getUniqueId());
         event.getItemDrop().remove();
 
-        logger.debug(Component.text("Region wand dropped by " + event.getPlayer() + ", cancelling region creation"), true);
+        logger.debug(Component.text("Region wand dropped by " + event.getPlayer() + ", cancelling region creation"));
         event.getPlayer().sendMessage(commandFeedback.sendCommandFeedback("creating-region.cancel"));
     }
 

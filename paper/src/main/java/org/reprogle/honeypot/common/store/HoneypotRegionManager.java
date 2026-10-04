@@ -52,7 +52,7 @@ public class HoneypotRegionManager {
     public void createBlock(Block block, String action) {
         Registry.getRegionStore().createHoneypotRegion(block, action);
 
-        logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
+        logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
     }
 
     /**
@@ -65,7 +65,7 @@ public class HoneypotRegionManager {
     public void createRegion(Location pos1, Location pos2, String action) {
         Registry.getRegionStore().createHoneypotRegion(pos1, pos2, action);
 
-        logger.debug(Component.text("Created Honeypot region with action " + action + " from " + pos1 + " to " + pos2), false);
+        logger.debug(Component.text("Created Honeypot region with action " + action + " from " + pos1 + " to " + pos2));
     }
 
     /**
@@ -83,7 +83,7 @@ public class HoneypotRegionManager {
 
         Registry.getRegionStore().removeHoneypotRegion(matched.get().getLocation());
 
-        logger.debug(Component.text("Deleted Honeypot block at " + matched.get().getX() + ", " + matched.get().getY() + ", " + matched.get().getZ()), false);
+        logger.debug(Component.text("Deleted Honeypot block at " + matched.get().getX() + ", " + matched.get().getY() + ", " + matched.get().getZ()));
     }
 
     /**
@@ -186,7 +186,7 @@ public class HoneypotRegionManager {
     public void deleteAllHoneypotBlocks() {
         Registry.getRegionStore().deleteAllHoneypotRegions();
 
-        logger.debug(Component.text("Deleted all Honeypot blocks!"), false);
+        logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }
 
     /**

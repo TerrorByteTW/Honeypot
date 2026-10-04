@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
  * This event is not cancellable, you cannot cancel the editing of a Honeypot moved by a non-object.
  * Currently, this class can only return the Honeypot {@link Block} and a generic Object representing
  * the thing that attempted to edit the block.
+ * @deprecated This event is deprecated and is only called for block breaks. For tracking all triggers, use {@link HoneypotTriggerEvent}
  */
+@Deprecated
 public class HoneypotNonPlayerBreakEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();

@@ -50,7 +50,7 @@ public class ConvertToSpatialIndexing01 implements Migration {
     @Override
     public void apply(SqliteDatabase.Tx tx) {
         logger.info(Component.text("A rather large DB patch is going to be applied to the Honeypot DB. This may take a second..."));
-        logger.debug(Component.text("Applying patch: ConvertToSpatialIndexing01"), false);
+        logger.debug(Component.text("Applying patch: ConvertToSpatialIndexing01"));
         List<HoneypotRegionObject> blocks = tx.query("""
                 SELECT worldName, coordinates, action
                 FROM honeypot_blocks
@@ -81,6 +81,6 @@ public class ConvertToSpatialIndexing01 implements Migration {
 
         tx.execute(DROP_OLD_HONEYPOT_DATA);
         tx.execute(RENAME_NEW_HONEYPOT_DATA_TABLE);
-        logger.debug(Component.text("Applied patch: ConvertToSpatialIndexing01"), false);
+        logger.debug(Component.text("Applied patch: ConvertToSpatialIndexing01"));
     }
 }

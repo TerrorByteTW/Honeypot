@@ -62,13 +62,13 @@ public class Listeners {
 
             if (event.isOptional() && !enableExtraEvents) {
                 logger.debug(Component.text(
-                    "Skipping registration of optional event: " + event.getClass().getSimpleName()), true);
+                    "Skipping registration of optional event: " + event.getClass().getSimpleName()));
                 return;
             }
 
             if (event.isOptional()) {
                 logger.debug(Component.text(
-                    "Registering optional event: " + event.getClass().getSimpleName()), true);
+                    "Registering optional event: " + event.getClass().getSimpleName()));
             }
 
             if (listener instanceof InventoryClickDragEventListener) {

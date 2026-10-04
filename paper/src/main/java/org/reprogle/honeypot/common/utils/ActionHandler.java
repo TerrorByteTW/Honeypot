@@ -57,7 +57,7 @@ public class ActionHandler {
 
     public void handle(String action, Block block, Player player) {
 
-        logger.debug(Component.text("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation()), false);
+        logger.debug(Component.text("Handling action " + action + " for player " + player.getName() + " at location " + block.getLocation()));
 
         // Behavior providers take higher precedence over custom config actions.
         if (Registry.getBehaviorRegistry().getBehaviorProvider(action) != null) {

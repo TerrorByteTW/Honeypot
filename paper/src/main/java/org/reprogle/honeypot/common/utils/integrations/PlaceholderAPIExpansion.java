@@ -23,6 +23,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.reprogle.bytelib.config.BytePluginConfig;
+import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -65,23 +66,23 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public String onRequest(OfflinePlayer player, @NotNull String params) {
-        logger.debug(Component.text("Param received was: " + params), false);
+        logger.debug(Component.text("Param received was: " + params));
         if (params.equalsIgnoreCase("current_count_broken")) {
             if (player == null)
                 return null;
-            int count = playerManager.getCount(player);
+            int count = playerManager.getCount(player, TriggerType.BREAK);
             return count < 0 ? "0" : String.valueOf(count);
         }
 
         if (params.startsWith("current_count_broken_")) {
             String playerName = params.split("current_count_broken_")[1];
             OfflinePlayer p = Bukkit.getOfflinePlayer(playerName);
-            int count = playerManager.getCount(p);
+            int count = playerManager.getCount(p, TriggerType.BREAK);
             return count < 0 ? "0" : String.valueOf(count);
         }
 
         if (params.equalsIgnoreCase("breaks_before_action")) {
-            return String.valueOf(config.config().getInt("blocks-broken-before-action-taken"));
+            return String.valueOf(config.config().getInt("trigger-limits.blocks-broken"));
         }
 
         return null;

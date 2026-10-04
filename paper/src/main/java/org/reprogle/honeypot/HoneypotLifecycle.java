@@ -90,7 +90,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
             Path dir = plugin.getDataFolder().toPath().resolve("behaviors");
             if (Files.notExists(dir)) Files.createDirectories(dir);
         } catch (IOException e) {
-            logger.severe(Component.text("Could not create the behaviors folder! Honeypot will function without it, but custom behaviors may not load properly."));
+            logger.error(Component.text("Could not create the behaviors folder! Honeypot will function without it, but custom behaviors may not load properly."));
         }
 
         // Register all internal behavior providers
@@ -147,12 +147,12 @@ public class HoneypotLifecycle implements PluginLifecycle {
                 Registry.setRegionStore(regStore.get());
             } catch (Exception e) {
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
-                logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Region Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
+                logger.error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Region Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
                 throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", regionStoreName));
             }
         } else {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
-            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Region Store that is set in config could not be found, check with the developer of the provider!"));
+            logger.error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Region Store that is set in config could not be found, check with the developer of the provider!"));
             throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", regionStoreName));
         }
 
@@ -161,12 +161,12 @@ public class HoneypotLifecycle implements PluginLifecycle {
                 Registry.setPlayerStore(playerStore.get());
             } catch (Exception e) {
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
-                logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
+                logger.error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
                 throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerStoreName));
             }
         } else {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
-            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player Store that is set in config could not be found, check with the developer of the provider!"));
+            logger.error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player Store that is set in config could not be found, check with the developer of the provider!"));
             throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerStoreName));
         }
 
@@ -175,12 +175,12 @@ public class HoneypotLifecycle implements PluginLifecycle {
                 Registry.setPlayerHistoryStore(playerHistoryStore.get());
             } catch (Exception e) {
                 plugin.getServer().getPluginManager().disablePlugin(plugin);
-                logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player History Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
+                logger.error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player History Store that is set in config is not properly defined, please report this to the developer of the plugin that created the storage provider!"));
                 throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerHistoryStoreName));
             }
         } else {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
-            logger.severe(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player History Store that is set in config could not be found, check with the developer of the provider!"));
+            logger.error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Player History Store that is set in config could not be found, check with the developer of the provider!"));
             throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", playerHistoryStoreName));
         }
 

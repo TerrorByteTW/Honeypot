@@ -14,15 +14,16 @@ public class RegionizeTables04  implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) throws Exception {
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_blocks to honeypot_regions"));
+
         // Honeypot 5.0.0 created an empty `honeypot_regions` table before running migrations, causing the rename below to fail.
         // The plugin couldn't enable in that state, so the table can't contain any data and is safe to drop.
         tx.execute("DROP TABLE IF EXISTS honeypot_regions;");
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_blocks to honeypot_regions"), false);
         // Rename `honeypot_blocks` to `honeypot_regions`
         tx.execute("ALTER TABLE honeypot_blocks RENAME TO honeypot_regions;");
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Creating honeypot_history_temp"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Creating honeypot_history_temp"));
         tx.execute("""
             CREATE TABLE IF NOT EXISTS honeypot_history_temp (
                     `datetime` VARCHAR NOT NULL,
@@ -37,7 +38,7 @@ public class RegionizeTables04  implements Migration {
                 );
             """);
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Migrating honeypot_history to honeypot_history_temp"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Migrating honeypot_history to honeypot_history_temp"));
         tx.execute("""
             INSERT INTO honeypot_history_temp (
                     `datetime`, `playerName`, `playerUUID`, `x`, `y`, `z`, `world`, `type`, `action`
@@ -67,12 +68,12 @@ public class RegionizeTables04  implements Migration {
             FROM honeypot_history;
             """);
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Dropping honeypot_history"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Dropping honeypot_history"));
         tx.execute("DROP TABLE honeypot_history;");
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_history_temp to honeypot_history"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_history_temp to honeypot_history"));
         tx.execute("ALTER TABLE honeypot_history_temp RENAME TO honeypot_history;");
 
-        logger.debug(Component.text("RegionizeTables04 migration applied successfully"), false);
+        logger.debug(Component.text("RegionizeTables04 migration applied successfully"));
     }
 }

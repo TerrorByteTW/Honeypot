@@ -72,16 +72,14 @@ public class History implements CommandCallback {
     private final CommandFeedback commandFeedback;
     private final BytePluginConfig config;
     private final HoneypotPlayerHistoryManager playerHistoryManager;
-    private final HoneypotPlayerManager playerManager;
     private final HoneypotLogger logger;
 
     @Inject
-    public History(JavaPlugin plugin, CommandFeedback commandFeedback, BytePluginConfig config, HoneypotPlayerHistoryManager playerHistoryManager, HoneypotPlayerManager playerManager, HoneypotLogger logger) {
+    public History(JavaPlugin plugin, CommandFeedback commandFeedback, BytePluginConfig config, HoneypotPlayerHistoryManager playerHistoryManager, HoneypotLogger logger) {
         this.plugin = plugin;
         this.commandFeedback = commandFeedback;
         this.config = config;
         this.playerHistoryManager = playerHistoryManager;
-        this.playerManager = playerManager;
         this.logger = logger;
     }
 
@@ -153,12 +151,10 @@ public class History implements CommandCallback {
     private void openHistoryGui(Player viewer, Player target) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             int total;
-            int breaks;
             List<HoneypotPlayerHistoryObject> firstPage;
 
             try {
                 total = playerHistoryManager.getPlayerHistoryCount(target);
-                breaks = Math.max(playerManager.getCount(target), 0); // getCount returns -1 if the player isn't in the DB
                 firstPage = total > 0 ? playerHistoryManager.getPlayerHistory(target, 0, PAGE_SIZE) : List.of();
             } catch (Exception e) {
                 logger.warning(Component.text("Failed to load history for player " + target.getName() + ": " + e.getMessage()));
@@ -174,7 +170,7 @@ public class History implements CommandCallback {
                     return;
                 }
 
-                new HistoryView(viewer, target, total, breaks, firstPage).show();
+                new HistoryView(viewer, target, total, firstPage).show();
             });
         });
     }
@@ -192,7 +188,7 @@ public class History implements CommandCallback {
         private int page = 0;
         private boolean loading = false;
 
-        private HistoryView(Player viewer, Player target, int total, int breaks, List<HoneypotPlayerHistoryObject> firstPage) {
+        private HistoryView(Player viewer, Player target, int total, List<HoneypotPlayerHistoryObject> firstPage) {
             this.viewer = viewer;
             this.target = target;
             this.lastPage = (total - 1) / PAGE_SIZE;
@@ -205,8 +201,7 @@ public class History implements CommandCallback {
             gui.addPane(Slot.fromXY(0, HISTORY_ROWS + 1), background());
 
             StaticPane header = new StaticPane(9, 1);
-            header.addItem(new GuiItem(playerHead(total)), Slot.fromXY(3, 0));
-            header.addItem(new GuiItem(breaksItem(breaks)), Slot.fromXY(5, 0));
+            header.addItem(new GuiItem(playerHead(total)), Slot.fromXY(4, 0));
             gui.addPane(Slot.fromXY(0, 0), header);
 
             gui.addPane(Slot.fromXY(0, 1), entries);
@@ -295,12 +290,6 @@ public class History implements CommandCallback {
 
             return named(head, Component.text(target.getName(), NamedTextColor.GOLD),
                 List.of(Component.text(total + " history " + (total == 1 ? "entry" : "entries"), NamedTextColor.GRAY)));
-        }
-
-        private ItemStack breaksItem(int breaks) {
-            int breaksBeforeAction = config.config().getInt("blocks-broken-before-action-taken");
-            return namedItem(Material.PAPER, Component.text(breaks + (breaks == 1 ? " Break" : " Breaks"), NamedTextColor.GOLD),
-                List.of(Component.text("Action is taken at " + breaksBeforeAction + (breaksBeforeAction == 1 ? " break" : " breaks"), NamedTextColor.GRAY)));
         }
 
         private GuiItem historyItem(HoneypotPlayerHistoryObject entry) {

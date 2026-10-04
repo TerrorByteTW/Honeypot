@@ -45,7 +45,7 @@ public class BlockBurnEventListener implements Listener, IHoneypotEvent {
 		Block block = event.getBlock();
 
 		if (regionManager.isHoneypotBlock(block)) {
-			logger.debug(Component.text("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
+			logger.debug(Component.text("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 			event.setCancelled(true);
 
 			Block[] adjacentBlocks = new Block[] {

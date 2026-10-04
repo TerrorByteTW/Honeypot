@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.reprogle.bytelib.db.api.Param;
 import org.reprogle.bytelib.db.sqlite.SqliteDatabase;
+import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.storageproviders.HoneypotStore;
 import org.reprogle.honeypot.common.storageproviders.PlayerStore;
 import org.reprogle.honeypot.common.storageproviders.StoreType;
@@ -37,53 +38,83 @@ public class HoneypotPlayerRepository implements PlayerStore {
         db.execute("""
             CREATE TABLE IF NOT EXISTS honeypot_players (
                 `playerName` VARCHAR NOT NULL,
-                `blocksBroken` INT NOT NULL,
+                `lifetimeActions` INT NOT NULL DEFAULT 0,
+                `lifetimeTriggers` INT NOT NULL DEFAULT 0,
                 PRIMARY KEY (`playerName`)
+            );
+            """);
+
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS honeypot_triggers (
+                `playerUUID` VARCHAR NOT NULL,
+                `triggerType` VARCHAR NOT NULL,
+                `count` INT NOT NULL,
+                PRIMARY KEY (`playerUUID`, `triggerType`),
+                FOREIGN KEY (`playerUUID`) REFERENCES honeypot_players (`playerName`)
             );
             """);
     }
 
-    public void addPlayer(Player player, int blocksBroken) {
+    public void addPlayer(Player player, TriggerType triggerType, int triggered) {
         db.execute("""
-                INSERT INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
+                INSERT INTO honeypot_players (playerName, lifetimeTriggers) VALUES (?, ?) ON CONFLICT(playerName) DO UPDATE SET lifetimeTriggers = lifetimeTriggers + excluded.lifetimeTriggers;
                 """,
-            Param.text(player.getUniqueId().toString()),
-            Param.i32(blocksBroken));
-    }
+            Param.uuid(player.getUniqueId()),
+            Param.i32(triggered));
 
-    public void setPlayerCount(Player playerName, int blocksBroken) {
         db.execute("""
-                REPLACE INTO honeypot_players (playerName, blocksBroken) VALUES (?, ?);
+                INSERT INTO honeypot_triggers (playerUUID, triggerType, count) VALUES (?, ?, ?) ON CONFLICT (playerUUID, triggerType) DO UPDATE SET count = count + excluded.count;
                 """,
-            Param.text(playerName.getUniqueId().toString()),
-            Param.i32(blocksBroken));
+            Param.uuid(player.getUniqueId()),
+            Param.text(triggerType.name()),
+            Param.i32(triggered));
     }
 
-    public int getCount(Player player) {
-        Integer count = db.queryOne("""
-                SELECT *
-                FROM honeypot_players
-                WHERE playerName = ?;
+    public void resetPlayerCount(Player player, TriggerType trigger) {
+        db.execute("""
+                INSERT INTO honeypot_triggers (playerUUID, triggerType, count)
+                VALUES (?, ?, 0)
+                ON CONFLICT (playerUUID, triggerType) DO UPDATE SET count = 0;
                 """,
-            row -> row.i32("blocksBroken"),
-            Param.text(player.getUniqueId().toString()));
-
-        return count == null ? -1 : count;
+            Param.uuid(player.getUniqueId()),
+            Param.text(trigger.name()));
     }
 
-    public int getCount(OfflinePlayer player) {
-        Integer count = db.queryOne("""
-                SELECT *
-                FROM honeypot_players
-                WHERE playerName = ?;
+    public void playerTriggeredAction(Player player) {
+        db.execute("""
+                UPDATE honeypot_players SET lifetimeActions = lifetimeActions + 1 WHERE playerName = ?;
                 """,
-            row -> row.i32("blocksBroken"),
-            Param.text(player.getUniqueId().toString()));
+            Param.uuid(player.getUniqueId()));
+    }
 
-        return count == null ? -1 : count;
+    public int getCount(Player player, TriggerType triggerType) {
+        Integer count = db.queryOne("""
+                SELECT count
+                FROM honeypot_triggers
+                WHERE playerUUID = ? AND triggerType = ?;
+                """,
+            row -> row.i32("count"),
+            Param.uuid(player.getUniqueId()),
+            Param.text(triggerType.name()));
+
+        return count == null ? 0 : count;
+    }
+
+    public int getCount(OfflinePlayer player, TriggerType triggerType) {
+        Integer count = db.queryOne("""
+                SELECT count
+                FROM honeypot_triggers
+                WHERE playerUUID = ? AND triggerType = ?;
+                """,
+            row -> row.i32("count"),
+            Param.uuid(player.getUniqueId()),
+            Param.text(triggerType.name()));
+
+        return count == null ? 0 : count;
     }
 
     public void deleteAllHoneypotPlayers() {
         db.execute("DELETE FROM honeypot_players;");
+        db.execute("DELETE FROM honeypot_triggers;");
     }
 }

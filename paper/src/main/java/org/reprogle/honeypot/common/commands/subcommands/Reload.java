@@ -70,7 +70,7 @@ public class Reload implements CommandCallback {
                 Registry.setRegionStore(provider.get());
                 logger.info(Component.text("The region store was updated to \"" + regionStore + "\""));
             } else {
-                logger.severe(Component.text("The region store was updated to \"" + regionStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
+                logger.error(Component.text("The region store was updated to \"" + regionStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
             }
         }
 
@@ -80,7 +80,7 @@ public class Reload implements CommandCallback {
                 Registry.setPlayerStore(provider.get());
                 logger.info(Component.text("The player store was updated to \"" + playerStore + "\""));
             } else {
-                logger.severe(Component.text("The player store was updated to \"" + playerStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
+                logger.error(Component.text("The player store was updated to \"" + playerStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
             }
         }
 
@@ -90,7 +90,7 @@ public class Reload implements CommandCallback {
                 Registry.setPlayerHistoryStore(provider.get());
                 logger.info(Component.text("The player history store was updated to \"" + playerHistoryStore + "\""));
             } else {
-                logger.severe(Component.text("The player history store was updated to \"" + playerHistoryStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
+                logger.error(Component.text("The player history store was updated to \"" + playerHistoryStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));
             }
         }
 

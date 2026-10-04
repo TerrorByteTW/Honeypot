@@ -42,7 +42,8 @@ public class HoneypotMigrations {
             // It no longer exists as it hard-coded some checks in place that have the potential to break servers moving forward if certain criteria were met.
             // UserVersionMigrator happily handles jumps in user versions without issue.
             new MigrationStep(5, new RegionizeTables04(logger)),
-            new MigrationStep(6, new AddBlockToHistory05(logger))
+            new MigrationStep(6, new AddBlockToHistory05(logger)),
+            new MigrationStep(7, new DropBlockCountColumn06(logger))
         )));
         migrator.migrate(db);
 
