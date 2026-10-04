@@ -306,7 +306,7 @@ public class History implements CommandCallback {
                 loreLine("Date", entry.getDateTime()),
                 loreLine("Location", (world == null ? "Unknown world" : world.getName()) + " @ " + coordinates),
                 loreLine("Action", entry.getAction()),
-                loreLine("Break type", entry.getType())
+                loreLine("Trigger type", entry.getType())
             ));
 
             if (world != null) {

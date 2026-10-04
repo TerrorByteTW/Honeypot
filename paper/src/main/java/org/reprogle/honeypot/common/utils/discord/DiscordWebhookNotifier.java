@@ -110,6 +110,7 @@ public class DiscordWebhookNotifier {
         String tempBody = switch (webhookType) {
             case ACTION -> jsonTemplate.replace("%webhookType%", "Action Taken");
             case BREAK -> jsonTemplate.replace("%webhookType%", "Block Broken");
+            case TRIGGER -> jsonTemplate.replace("%webhookType%", "Honeypot Triggered");
         };
 
         return tempBody

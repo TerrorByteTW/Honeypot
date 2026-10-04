@@ -18,8 +18,8 @@ package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
@@ -32,7 +32,9 @@ import org.reprogle.honeypot.api.events.HoneypotPreTriggerEvent;
 import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
 import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
+import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +44,17 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
     private final HoneypotLogger logger;
     private final BytePluginConfig config;
     private final HoneypotRegionManager regionManager;
+    private final ActionHandler actionHandler;
+    private final AdapterManager adapterManager;
 
     @Inject
-    EntityExplodeEventListener(HoneypotLogger logger, BytePluginConfig config, HoneypotRegionManager regionManager) {
+    EntityExplodeEventListener(HoneypotLogger logger, BytePluginConfig config, HoneypotRegionManager regionManager,
+                               ActionHandler actionHandler, AdapterManager adapterManager) {
         this.logger = logger;
         this.config = config;
         this.regionManager = regionManager;
+        this.actionHandler = actionHandler;
+        this.adapterManager = adapterManager;
     }
 
     // Explosion listener
@@ -58,8 +65,10 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
         ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
         boolean allowExplosions = config.config().getBoolean("allow-explode");
 
-        // If a block of TNT was lit by a player, the explosion is treated as that player breaking the Honeypot
+        // If a block of TNT was lit by a player, the explosion is a GENERIC trigger by that player. Otherwise, it's a NON_PLAYER trigger
         Player igniter = event.getEntity() instanceof TNTPrimed tnt && tnt.getSource() instanceof Player p ? p : null;
+        Entity triggerer = igniter != null ? igniter : event.getEntity();
+        TriggerType triggerType = igniter != null ? TriggerType.GENERIC : TriggerType.NON_PLAYER;
 
         // For every block, check if it was a Honeypot. If it was, check if explosions
         // are allowed.
@@ -69,30 +78,26 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
 
             logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 
-            if (igniter != null) {
-                // BlockBreakEventListener handles adapters, trigger events, counting, history, and actions for the player.
-                // If the break is disallowed or cancelled, it removes the Honeypot, which is checked for below
-                logger.debug(Component.text("EntityExplodeEvent was caused by a player! Processing it as a break by " + igniter.getName()));
-                Bukkit.getPluginManager().callEvent(new ExplosionBlockBreakEvent(block, igniter));
-            } else {
-                var hpte = new HoneypotPreTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER);
-
-                // Same as a canceled player break, the block is no longer treated as a Honeypot
-                if (!hpte.callEvent()) {
-                    logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, removing the Honeypot at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
-                    regionManager.deleteRegionContaining(block);
-                }
+            // Same as a player break, a Honeypot in a location an adapter disallows shouldn't exist, so it's removed and blown up
+            if (igniter != null && !adapterManager.checkAllAdapters(igniter, block.getLocation())) {
+                regionManager.deleteRegionContaining(block);
+                continue;
             }
 
-            // If the Honeypot was removed above, the block gets blown up like any other
-            if (!regionManager.isHoneypotBlock(block)) continue;
+            // Same as a canceled player break, the block is no longer treated as a Honeypot and is blown up
+            if (!new HoneypotPreTriggerEvent(triggerer, block, triggerType).callEvent()) {
+                logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, removing the Honeypot at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+                regionManager.deleteRegionContaining(block);
+                continue;
+            }
 
-            // Fire HoneypotNonPlayerBreakEvent
+            if (igniter != null) {
+                logger.debug(Component.text("EntityExplodeEvent was caused by a player! Processing it as a trigger by " + igniter.getName()));
+                actionHandler.checkAndHandle(igniter, block, triggerType);
+            }
+
             new HoneypotNonPlayerBreakEvent(event.getEntity(), block).callEvent();
-
-            // Player-lit explosions already fired a BREAK trigger through BlockBreakEventListener
-            if (igniter == null)
-                new HoneypotTriggerEvent(event.getEntity(), block, TriggerType.NON_PLAYER).callEvent();
+            new HoneypotTriggerEvent(triggerer, block, triggerType).callEvent();
 
             if (allowExplosions)
                 regionManager.deleteRegionContaining(block);

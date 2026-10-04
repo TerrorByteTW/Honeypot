@@ -35,6 +35,9 @@ import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.utils.discord.DiscordWebhookNotifier;
+import org.reprogle.honeypot.common.utils.discord.WebhookActionType;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.List;
@@ -51,12 +54,14 @@ public class ActionHandler {
     private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
     private final AdapterManager adapterManager;
+    private final HoneypotRegionManager regionManager;
 
     private final MiniMessage mm = MiniMessage.miniMessage();
 
     @Inject
-    public ActionHandler(JavaPlugin plugin, HoneypotLogger logger, HoneypotPlayerManager playerManager, HoneypotPlayerHistoryManager playerHistoryManager, BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager) {
+    public ActionHandler(JavaPlugin plugin, HoneypotLogger logger, HoneypotPlayerManager playerManager, HoneypotPlayerHistoryManager playerHistoryManager, BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager, HoneypotRegionManager regionManager) {
         this.plugin = plugin;
+        this.regionManager = regionManager;
         this.logger = logger;
         this.playerManager = playerManager;
         this.playerHistoryManager = playerHistoryManager;
@@ -65,20 +70,135 @@ public class ActionHandler {
         this.adapterManager = adapterManager;
     }
 
-    public void checkAndHandle(Player player, TriggerType triggerType) {
-        if (player.hasPermission(EXEMPT_PERMISSION) || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
-            if (triggerType == TriggerType.BREAK && player.hasPermission(BREAK_PERMISSION)) {
-                logger.debug(Component.text("Player " + player.getName() + " is exempt from honeypot break actions."));
-                return;
-            }
+    /**
+     * The outcome of {@link #checkAndHandle(Player, Block, TriggerType)}
+     */
+    public enum TriggerResult {
+        /**
+         * The player is exempt from this trigger type. Nothing was counted, logged, or run
+         */
+        EXEMPT,
+        /**
+         * The Honeypot has no action, so nothing was counted, logged, or run
+         */
+        NO_ACTION,
+        /**
+         * The trigger was counted and logged, but the player hasn't reached the trigger limit, so the action wasn't run
+         */
+        COUNTED,
+        /**
+         * The player reached the trigger limit. The trigger was counted and logged, and the action was run
+         */
+        ACTION_TAKEN
+    }
 
-            logger.debug(Component.text("Player " + player.getName() + " is exempt from honeypot actions."));
-            return;
+    /**
+     * Checks whether a player is exempt from having a trigger counted or an action run against them.
+     * Players with {@code honeypot.exempt}, {@code honeypot.*}, or op are exempt from every trigger type, and players
+     * with {@code honeypot.break} are exempt from {@link TriggerType#BREAK}.
+     *
+     * @param player      The player to check
+     * @param triggerType The type of trigger
+     * @return True if the player is exempt
+     */
+    public boolean isExempt(Player player, TriggerType triggerType) {
+        return player.hasPermission(EXEMPT_PERMISSION) || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()
+            || (triggerType == TriggerType.BREAK && player.hasPermission(BREAK_PERMISSION));
+    }
+
+    /**
+     * Processes a player triggering a Honeypot. Unless the player is exempt, this counts the trigger, records it in the
+     * player's history, and sends a Discord webhook if configured. If the player has reached the trigger limit for the
+     * trigger type, it also runs the Honeypot's action, updates their lifetime stats, and resets their count.
+     * <p>
+     * This does not fire any Honeypot API events or cancel the underlying Bukkit event; that is left to the caller.
+     *
+     * @param player      The player that triggered the Honeypot
+     * @param block       The Honeypot block that was triggered
+     * @param triggerType The type of trigger. Must not be {@link TriggerType#NON_PLAYER}
+     * @return The outcome of the trigger
+     */
+    public TriggerResult checkAndHandle(Player player, Block block, TriggerType triggerType) {
+        if (triggerType == TriggerType.NON_PLAYER)
+            throw new IllegalArgumentException("NON_PLAYER triggers aren't tracked against players");
+
+        if (isExempt(player, triggerType)) {
+            logger.debug(Component.text("Player " + player.getName() + " is exempt from Honeypot triggers of type " + triggerType + ", nothing was counted or logged"));
+            return TriggerResult.EXEMPT;
         }
 
-        logger.debug(Component.text("Checking if player " + player.getName() + " requires action handling for trigger type: " + triggerType));
+        String action = regionManager.getAction(block);
+        if (action == null) {
+            logger.debug(Component.text("A " + triggerType + " trigger was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            return TriggerResult.NO_ACTION;
+        }
 
+        int limit = getTriggerLimit(triggerType);
+        int count = playerManager.getCount(player, triggerType) + 1;
 
+        playerManager.addPlayer(player, triggerType, 1);
+
+        if (limit > 1 && count < limit) {
+            logger.debug(Component.text("Player " + player.getName() + " is at " + count + "/" + limit + " " + triggerType + " triggers, counting it without taking action"));
+            playerHistoryManager.addPlayerHistory(player, block, action, historyType(triggerType, false));
+
+            // Don't send on "onaction", otherwise the notification would incorrectly be tagged as an action
+            if (config.config().getString("discord.send-when").equalsIgnoreCase("onbreak"))
+                sendWebhook(player, block, triggerType, false);
+
+            return TriggerResult.COUNTED;
+        }
+
+        logger.debug(Component.text("Player " + player.getName() + " has reached the " + triggerType + " trigger limit, taking action against them"));
+        playerManager.playerTriggeredAction(player);
+        playerManager.resetPlayerCount(player, triggerType);
+        playerHistoryManager.addPlayerHistory(player, block, action, historyType(triggerType, true));
+
+        handle(action, block, player);
+        logger.debug(Component.text("Action successfully taken for block " + block + " on player " + player.getName() + " via " + triggerType + " trigger"));
+
+        sendWebhook(player, block, triggerType, true);
+        return TriggerResult.ACTION_TAKEN;
+    }
+
+    /**
+     * Gets the configured number of triggers a player may cause before action is taken
+     *
+     * @param triggerType The type of trigger
+     * @return The configured limit
+     */
+    public int getTriggerLimit(TriggerType triggerType) {
+        return config.config().getInt(switch (triggerType) {
+            case BREAK -> "trigger-limits.blocks-broken";
+            case INVENTORY_OPEN -> "trigger-limits.inventories-opened";
+            case INVENTORY_INTERACT -> "trigger-limits.inventories-interacted";
+            case GENERIC, NON_PLAYER -> "trigger-limits.generic";
+        }, 1);
+    }
+
+    private static String historyType(TriggerType triggerType, boolean actionTaken) {
+        // BREAK keeps its original names so existing history (and DropBlockCountColumn06) stays consistent
+        String name = switch (triggerType) {
+            case BREAK -> "break";
+            case INVENTORY_OPEN -> "inventoryOpen";
+            case INVENTORY_INTERACT -> "inventoryInteract";
+            case GENERIC, NON_PLAYER -> "generic";
+        };
+
+        return actionTaken ? name : "prelim" + Character.toUpperCase(name.charAt(0)) + name.substring(1);
+    }
+
+    private void sendWebhook(Player player, Block block, TriggerType triggerType, boolean actionTaken) {
+        if (!config.config().getBoolean("discord.enable")) return;
+
+        WebhookActionType webhookType;
+        if (actionTaken && !config.config().getString("discord.send-when").equalsIgnoreCase("onbreak")) {
+            webhookType = WebhookActionType.ACTION;
+        } else {
+            webhookType = triggerType == TriggerType.BREAK ? WebhookActionType.BREAK : WebhookActionType.TRIGGER;
+        }
+
+        new DiscordWebhookNotifier(webhookType, config.config().getString("discord.url"), block, player, logger).send();
     }
 
     public void handle(String action, Block block, Player player) {

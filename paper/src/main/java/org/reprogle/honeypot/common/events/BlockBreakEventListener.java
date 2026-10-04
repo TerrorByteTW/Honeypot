@@ -31,12 +31,8 @@ import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
-import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
-import org.reprogle.honeypot.common.utils.discord.DiscordWebhookNotifier;
-import org.reprogle.honeypot.common.utils.discord.WebhookActionType;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 public class BlockBreakEventListener implements Listener, IHoneypotEvent {
@@ -45,28 +41,21 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
     private static final String WILDCARD_PERMISSION = "honeypot.*";
 
-    private static final String EXEMPT_PERMISSION = "honeypot.exempt";
-
     private final ActionHandler actionHandler;
     private final HoneypotLogger logger;
     private final HoneypotRegionManager regionManager;
     private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
-    private final HoneypotPlayerHistoryManager playerHistoryManager;
-    private final HoneypotPlayerManager playerManager;
     private final AdapterManager adapterManager;
 
     @Inject
     public BlockBreakEventListener(ActionHandler actionHandler, HoneypotLogger logger, HoneypotRegionManager regionManager,
-                                   BytePluginConfig config, CommandFeedback commandFeedback,
-                                   HoneypotPlayerHistoryManager playerHistoryManager, HoneypotPlayerManager playerManager, AdapterManager adapterManager) {
+                                   BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager) {
         this.actionHandler = actionHandler;
         this.logger = logger;
         this.regionManager = regionManager;
         this.config = config;
         this.commandFeedback = commandFeedback;
-        this.playerHistoryManager = playerHistoryManager;
-        this.playerManager = playerManager;
         this.adapterManager = adapterManager;
     }
 
@@ -116,10 +105,7 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         // If Allow Player Destruction is true, the player has permissions, or is Op,
         // flag the block for deletion from the DB
         // Otherwise, set the BlockBreakEvent to canceled
-        // Explosions are exempt, since EntityExplodeEventListener decides whether the Honeypot survives based on allow-explode
-        if (event instanceof ExplosionBlockBreakEvent) {
-            logger.debug(Component.text("Player " + player + " blew up this Honeypot. Whether it is removed is decided by allow-explode"));
-        } else if (config.config().getBoolean("allow-player-destruction")
+        if (config.config().getBoolean("allow-player-destruction")
             || player.hasPermission(BREAK_PERMISSION)
             || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
             deleteBlock = true;
@@ -128,14 +114,10 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             event.setCancelled(true);
         }
 
-        // If the trigger limit for blocks-broken is less than or equal to 1, go to the break action.
-        // Otherwise, check if the player should have the action triggered
-        if (config.config().getInt("trigger-limits.blocks-broken") <= 1) {
-            // This is just a precaution to ensure that the player count is always less than
-            // 1 if the value in the config is 1
-            breakAction(event);
-        } else {
-            countBreak(event);
+        // Count the break, log it, and run the action if the player has hit the trigger limit
+        if (actionHandler.checkAndHandle(player, event.getBlock(), TriggerType.BREAK) == ActionHandler.TriggerResult.EXEMPT
+            && (player.hasPermission(BREAK_PERMISSION) || player.hasPermission(WILDCARD_PERMISSION) || player.isOp())) {
+            player.sendMessage(commandFeedback.sendCommandFeedback("staff-broke"));
         }
 
         // Fire HoneypotPlayerBreakEvent
@@ -158,10 +140,6 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
     // the block they're on being broken
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void checkBlockBreakSideEffects(BlockBreakEvent event) {
-        // Explosions handle every affected block themselves
-        if (event instanceof ExplosionBlockBreakEvent)
-            return;
-
         if (!config.config().getBoolean("allow-player-destruction"))
             return;
 
@@ -186,106 +164,6 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
                     + block.getX() + ", " + block.getY() + ", " + block.getZ()
                     + ". " + player.getName()
                     + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot"));
-        }
-    }
-
-    private void breakAction(BlockBreakEvent event) {
-
-        logger.debug(Component.text("Action should be taken for this block, attempting to take action"));
-
-        // Get the block broken and the chat prefix for prettiness
-        Block block = event.getBlock();
-        Player player = event.getPlayer();
-
-        // Ensure that the player has no exemption and isn't allowed to bypass it. This means that the player:
-        // 1. Cannot have `honeypot.exempt`, `honeypot.break`, or `honeypot.*`
-        // 2. Cannot be /op
-        if (!player.hasPermission(EXEMPT_PERMISSION) && !player.hasPermission(BREAK_PERMISSION)
-            && !player.hasPermission(WILDCARD_PERMISSION) && !player.isOp()) {
-            // Grab the action from the block via the storage manager
-            String action = regionManager.getAction(block);
-
-            if (action == null) {
-                logger.debug(Component.text("A BlockBreakEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
-                return;
-            }
-
-            playerManager.addPlayer(player, TriggerType.BREAK, 1);
-            playerManager.playerTriggeredAction(player);
-            playerManager.resetPlayerCount(player, TriggerType.BREAK);
-
-            // Log the event in the history table
-            playerHistoryManager.addPlayerHistory(player,
-                event.getBlock(), action, "break");
-
-            // Run certain actions based on the action of the Honeypot Block
-            actionHandler.handle(action, block, player);
-            logger.debug(Component.text("Action successfully taken for block " + block + " on player " + player + " via BlockBreakEvent"));
-
-            sendWebhook(event);
-
-            // At this point we know the player has one of those permissions above. Now we
-            // need to figure out which
-            return;
-        } else if (player.hasPermission(BREAK_PERMISSION)
-            || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
-            logger.debug(Component.text("Action was not taken for this event nor was anything logged/updated in the DB, player " + player + " has permission to break Honeypots"));
-            player.sendMessage(commandFeedback.sendCommandFeedback("staff-broke"));
-            return;
-        }
-
-        // If it got to here, then they are exempt but don't explicitly have break privileges
-        logger.debug(Component.text("Action was not taken for this event, the player is exempt from having action taken against them. However, they are not allowed to break Honeypots, so the block still exists."));
-    }
-
-    private void countBreak(BlockBreakEvent event) {
-        logger.debug(Component.text("Attempting to count the break for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId()));
-
-        Player player = event.getPlayer();
-
-        // Don't count the break if they are exempt, have the remove permission,
-        // wildcard permission, or are Op
-        if (player.hasPermission(EXEMPT_PERMISSION) || player.isOp()
-            || player.hasPermission(BREAK_PERMISSION)
-            || player.hasPermission(WILDCARD_PERMISSION)) {
-            logger.debug(Component.text("This break was not counted nor was anything logged/updated in the DB, player " + player + " is either exempt or has permission to break Honeypots."));
-            return;
-        }
-
-        // Get the config value and the number of blocks broken
-        int breaksBeforeAction = config.config().getInt("trigger-limits.blocks-broken");
-        int blocksBroken = playerManager.getCount(player, TriggerType.BREAK);
-
-        // Increment the blocks-broken counter
-        blocksBroken += 1;
-
-        // If the blocks broken are larger than or equals 'breaks before action' or if
-        // breaks before action equal 1, reset the count and perform the break
-        if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
-            logger.debug(Component.text("Player " + player + " has crossed the trigger limit for blocks-broken, triggering action against them"));
-            breakAction(event);
-        } else {
-            logger.debug(Component.text("Player " + player + " has not yet crossed the blocks broken threshold, break is being counted and no action is being taken"));
-            // Just count it
-            playerManager.addPlayer(player, TriggerType.BREAK, 1);
-            // Log the event in the history table
-            playerHistoryManager.addPlayerHistory(player, event.getBlock(), regionManager.getAction(event.getBlock()), "prelimBreak");
-
-            // Only send the webhook if send-when is onbreak, as we don't want to send if counting the break and send-when is onaction, incorrectly tagging the notification as an action
-            if (config.config().getString("discord.send-when").equalsIgnoreCase("onbreak"))
-                sendWebhook(event);
-        }
-    }
-
-    private void sendWebhook(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-
-        if (config.config().getBoolean("discord.enable")) {
-            WebhookActionType actionType;
-            String sendWhen = config.config().getString("discord.send-when");
-            actionType = sendWhen.equalsIgnoreCase("onbreak") ? WebhookActionType.BREAK : WebhookActionType.ACTION;
-
-            new DiscordWebhookNotifier(actionType, config.config().getString("discord.url"), event.getBlock(), player, logger).send();
         }
     }
 }

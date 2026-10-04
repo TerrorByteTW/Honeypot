@@ -29,8 +29,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
-import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
+import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
@@ -106,8 +105,10 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
                 // Fire HoneypotPrePlayerInteractEvent
                 var hppie = new HoneypotPrePlayerInteractEvent(player,
                         event.getClickedBlock());
+                var hpte = new HoneypotPreTriggerEvent(player,
+                        event.getClickedBlock(), TriggerType.INVENTORY_INTERACT);
 
-                if (!hppie.callEvent())
+                if (!(hppie.callEvent() || hpte.callEvent()))
                     return;
 
                 if (!(player.hasPermission("honeypot.exempt")
@@ -119,6 +120,8 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
 
                 new HoneypotPlayerInteractEvent(player,
                         event.getClickedBlock()).callEvent();
+                new HoneypotTriggerEvent(event.getClickedBlock(),
+                        TriggerType.INVENTORY_INTERACT).callEvent();
             }
         } catch (NullPointerException npe) {
             // Do nothing as it's most likely an entity. If this event is triggered, the

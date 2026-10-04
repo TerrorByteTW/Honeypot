@@ -27,17 +27,15 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.reprogle.honeypot.api.events.HoneypotPreTriggerEvent;
 import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
 import org.reprogle.honeypot.api.events.TriggerType;
-import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 public class SignChangeEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotRegionManager regionManager;
-    private final HoneypotPlayerManager playerManager;
-    private final HoneypotPlayerHistoryManager playerHistoryManager;
+    private final ActionHandler actionHandler;
     private final HoneypotLogger logger;
     private final AdapterManager adapterManager;
 
@@ -47,10 +45,9 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
     }
 
     @Inject
-    SignChangeEventListener(HoneypotRegionManager regionManager, HoneypotPlayerManager playerManager, HoneypotPlayerHistoryManager playerHistoryManager, HoneypotLogger logger, AdapterManager adapterManager) {
+    SignChangeEventListener(HoneypotRegionManager regionManager, ActionHandler actionHandler, HoneypotLogger logger, AdapterManager adapterManager) {
         this.regionManager = regionManager;
-        this.playerManager = playerManager;
-        this.playerHistoryManager = playerHistoryManager;
+        this.actionHandler = actionHandler;
         this.logger = logger;
         this.adapterManager = adapterManager;
     }
@@ -77,10 +74,9 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
 
             event.setCancelled(true);
 
-            playerManager.addPlayer(player, TriggerType.GENERIC, 1);
-            playerHistoryManager.addPlayerHistory(player, block, regionManager.getAction(block), "prelimBreak");
+            actionHandler.checkAndHandle(player, block, TriggerType.GENERIC);
 
-            new HoneypotTriggerEvent(player, block, TriggerType.GENERIC);
+            new HoneypotTriggerEvent(player, block, TriggerType.GENERIC).callEvent();
         }
     }
 
