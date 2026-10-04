@@ -47,7 +47,7 @@ public class BlockFormEventListener implements Listener, IHoneypotEvent {
 		Block block = event.getBlock();
 
 		if (regionManager.isHoneypotBlock(block)) {
-			logger.debug(Component.text("BlockFormEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+			logger.verbose(Component.text("BlockFormEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 			event.setCancelled(true);
 		}
 	}

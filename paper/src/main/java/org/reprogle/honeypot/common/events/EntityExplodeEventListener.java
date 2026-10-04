@@ -76,7 +76,7 @@ public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
         for (Block block : destroyedBlocks) {
             if (!regionManager.isHoneypotBlock(block)) continue;
 
-            logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.verbose(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 
             // Same as a player break, a Honeypot in a location an adapter disallows shouldn't exist, so it's removed and blown up
             if (igniter != null && !adapterManager.checkAllAdapters(igniter, block.getLocation())) {

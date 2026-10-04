@@ -95,13 +95,18 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
         if (!checkFilter(block)) return;
 
         if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
+            logger.verbose(Component.text("InventoryClickEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+
             // Fire HoneypotPreInventoryClickEvent
             var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
 
-            if (!(hpice.callEvent() || hpte.callEvent())) return;
+            // Both events are always fired, and cancelling either one stops processing
+            boolean preClick = hpice.callEvent();
+            boolean preTrigger = hpte.callEvent();
+            if (!preClick || !preTrigger) return;
 
-            if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
+            if (!actionHandler.isExempt(player, TriggerType.INVENTORY_INTERACT)) {
 
                 // If the clicked slot is null, that means the slot didn't have something in it,
                 // whether the player placed something in that slot. slot == null
@@ -144,13 +149,17 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
         if (!checkFilter(block)) return;
 
         if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
+            logger.verbose(Component.text("InventoryClickEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
             // Fire HoneypotPreInventoryClickEvent
             var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
 
-            if (!(hpice.callEvent() || hpte.callEvent())) return;
+            // Both events are always fired, and cancelling either one stops processing
+            boolean preClick = hpice.callEvent();
+            boolean preTrigger = hpte.callEvent();
+            if (!preClick || !preTrigger) return;
 
-            if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
+            if (!actionHandler.isExempt(player, TriggerType.INVENTORY_INTERACT)) {
 
                 event.setCancelled(true);
 
@@ -160,20 +169,10 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
     }
 
     private void executeAction(Player player, Block block, Inventory inventory) {
-        String action = regionManager.getAction(block);
-
-        if (action == null) {
-            logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
-            return;
-        }
-
-        logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
-
-        actionHandler.handle(action, block, player);
+        actionHandler.checkAndHandle(player, block, TriggerType.INVENTORY_INTERACT);
 
         new HoneypotInventoryClickEvent(player, inventory).callEvent();
-        new HoneypotTriggerEvent(block, TriggerType.INVENTORY_INTERACT).callEvent();
-
+        new HoneypotTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT).callEvent();
     }
 
     /**

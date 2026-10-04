@@ -18,7 +18,6 @@ package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -83,7 +82,8 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         // Fire HoneypotPrePlayerBreakEvent
         var hppbe = new HoneypotPrePlayerBreakEvent(player, event.getBlock());
         var hpte = new HoneypotPreTriggerEvent(player, event.getBlock(), TriggerType.BREAK);
-        logger.debug(Component.text("HoneypotPrePlayerBreakEvent is being called for " + player));
+        logger.debug(Component.text("DEPRECATED HoneypotPrePlayerBreakEvent is being called for " + player));
+        logger.debug(Component.text("HoneypotPreTriggerEvent is being called for " + player));
 
         // Check if the event was canceled. If it is, delete the block.
         if (!hppbe.callEvent()) {

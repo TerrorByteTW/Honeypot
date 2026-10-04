@@ -1,6 +1,7 @@
 package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -10,13 +11,16 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class BlockPlaceEventListener implements Listener, IHoneypotEvent {
     private final HoneypotRegionManager regionManager;
+    private final HoneypotLogger logger;
 
     @Inject
-    public BlockPlaceEventListener(HoneypotRegionManager regionManager) {
+    public BlockPlaceEventListener(HoneypotRegionManager regionManager, HoneypotLogger logger) {
         this.regionManager = regionManager;
+        this.logger = logger;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -27,6 +31,8 @@ public class BlockPlaceEventListener implements Listener, IHoneypotEvent {
 
         // Early return if the block isn't a Honeypot
         if (!regionManager.isHoneypotBlock(event.getBlock())) return;
+
+        logger.verbose(Component.text("BlockPlaceEvent (placement within region) being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()));
 
         event.setCancelled(true);
     }
@@ -55,7 +61,7 @@ public class BlockPlaceEventListener implements Listener, IHoneypotEvent {
             regionManager.isHoneypotBlock(event.getClickedBlock().getRelative(event.getBlockFace())))
             return;
 
-        event.getInteractionPoint();
+        logger.verbose(Component.text("PlayerInteractEvent (fluid buckets within region) being called for Honeypot: " + event.getClickedBlock().getX() + ", " + event.getClickedBlock().getY() + ", " + event.getClickedBlock().getZ()));
 
         event.setCancelled(true);
     }

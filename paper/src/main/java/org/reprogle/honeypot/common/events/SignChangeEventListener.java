@@ -62,7 +62,7 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
                 return;
             }
 
-            logger.debug(Component.text("SignChangeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.verbose(Component.text("SignChangeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 
             Player player = event.getPlayer();
 

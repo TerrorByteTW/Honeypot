@@ -79,12 +79,9 @@ public class Listeners {
                 return;
             }
 
-            if (listener instanceof PlayerInteractEventListener) {
-                if (enableContainerActions && !useInventoryClick) {
-                    logger.info(Component.text("Using player interact for containers"));
-                    manager.registerEvents(listener, plugin);
-                }
-                return;
+            // PlayerInteractEventListener is always registered, since it handles more than containers. It checks the container config itself
+            if (listener instanceof PlayerInteractEventListener && enableContainerActions && !useInventoryClick) {
+                logger.info(Component.text("Using player interact for containers"));
             }
 
             manager.registerEvents(listener, plugin);

@@ -55,7 +55,7 @@ public class EntityChangeBlockEventListener implements Listener, IHoneypotEvent 
         if (event.getEntity().getType().equals(EntityType.ENDERMAN)) {
             if (regionManager.isHoneypotBlock(event.getBlock())) {
 
-                logger.debug(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()));
+                logger.verbose(Component.text("EntityChangeBlockEvent being called for Honeypot: " + event.getBlock().getX() + ", " + event.getBlock().getY() + ", " + event.getBlock().getZ()));
 
                 // Fire HoneypotNonPlayerBreakEvent
                 new HoneypotNonPlayerBreakEvent(event.getEntity(),

@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -26,14 +27,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 public class InventoryMoveItemEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotRegionManager regionManager;
 
+    private final HoneypotLogger logger;
+
     @Inject
-    InventoryMoveItemEventListener(HoneypotRegionManager regionManager) {
+    InventoryMoveItemEventListener(HoneypotRegionManager regionManager, HoneypotLogger logger) {
         this.regionManager = regionManager;
+        this.logger = logger;
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -58,6 +63,9 @@ public class InventoryMoveItemEventListener implements Listener, IHoneypotEvent 
         boolean isTargetHoneypot = regionManager.isHoneypotBlock(targetBlock);
 
         // Check if the source or target is a Honeypot. If so, cancel the whole thing.
-        if (isSourceHoneypot || isTargetHoneypot) event.setCancelled(true);
+        if (isSourceHoneypot || isTargetHoneypot) {
+            logger.verbose(Component.text("InventoryMoveItemEvent being called for Honeypot: " + targetBlock.getX() + ", " + targetBlock.getY() + ", " + targetBlock.getZ()));
+            event.setCancelled(true);
+        }
     }
 }

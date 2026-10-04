@@ -47,7 +47,7 @@ public class LeavesDecayEventListener implements Listener, IHoneypotEvent {
         Block block = event.getBlock();
 
         if (honeypotRegionManager.isHoneypotBlock(block)) {
-            logger.debug(Component.text("LeavesDecayEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+            logger.verbose(Component.text("LeavesDecayEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
             event.setCancelled(true);
         }
     }

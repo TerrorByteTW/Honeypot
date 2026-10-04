@@ -61,6 +61,11 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     @SuppressWarnings({"unchecked"})
     public void playerInteractEvent(PlayerInteractEvent event) {
+        // Container actions on open only apply if they're enabled and inventory clicks aren't being used instead
+        if (!config.config().getBoolean("container-actions.enable-container-actions")
+                || config.config().getBoolean("container-actions.use-inventory-click"))
+            return;
+
         Player player = event.getPlayer();
 
         if (player.getTargetBlockExact(5) == null)
@@ -106,22 +111,24 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
                 var hppie = new HoneypotPrePlayerInteractEvent(player,
                         event.getClickedBlock());
                 var hpte = new HoneypotPreTriggerEvent(player,
-                        event.getClickedBlock(), TriggerType.INVENTORY_INTERACT);
+                        event.getClickedBlock(), TriggerType.INVENTORY_OPEN);
 
-                if (!(hppie.callEvent() || hpte.callEvent()))
+                // Both events are always fired, and cancelling either one stops processing
+                boolean preInteract = hppie.callEvent();
+                boolean preTrigger = hpte.callEvent();
+                if (!preInteract || !preTrigger)
                     return;
 
-                if (!(player.hasPermission("honeypot.exempt")
-                        || player.hasPermission("honeypot.*") || player.isOp())) {
-                    if (!config.config().getBoolean("always-allow-container-access"))
-                        event.setCancelled(true);
-                    executeAction(event);
-                }
+                logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + " on Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+
+                if (actionHandler.checkAndHandle(player, block, TriggerType.INVENTORY_OPEN) != ActionHandler.TriggerResult.EXEMPT
+                        && !config.config().getBoolean("always-allow-container-access"))
+                    event.setCancelled(true);
 
                 new HoneypotPlayerInteractEvent(player,
                         event.getClickedBlock()).callEvent();
-                new HoneypotTriggerEvent(event.getClickedBlock(),
-                        TriggerType.INVENTORY_INTERACT).callEvent();
+                new HoneypotTriggerEvent(player, block,
+                        TriggerType.INVENTORY_OPEN).callEvent();
             }
         } catch (NullPointerException npe) {
             // Do nothing as it's most likely an entity. If this event is triggered, the
@@ -160,23 +167,5 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
             event.setCancelled(true);
 
         new HoneypotTriggerEvent(player, block, TriggerType.GENERIC).callEvent();
-    }
-
-    private void executeAction(PlayerInteractEvent event) {
-
-        Player player = event.getPlayer();
-        Block block = player.getTargetBlockExact(5);
-
-        assert block != null;
-        String action = regionManager.getAction(block);
-
-        if (action == null) {
-            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
-            return;
-        }
-
-        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action));
-
-        actionHandler.handle(action, block, player);
     }
 }
