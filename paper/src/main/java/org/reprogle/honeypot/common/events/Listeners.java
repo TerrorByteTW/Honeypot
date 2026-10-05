@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -62,29 +62,22 @@ public class Listeners {
 
             if (event.isOptional() && !enableExtraEvents) {
                 logger.debug(Component.text(
-                    "Skipping registration of optional event: " + event.getClass().getSimpleName()), true);
+                    "Skipping registration of optional event: " + event.getClass().getSimpleName()));
                 return;
             }
 
             if (event.isOptional()) {
                 logger.debug(Component.text(
-                    "Registering optional event: " + event.getClass().getSimpleName()), true);
+                    "Registering optional event: " + event.getClass().getSimpleName()));
             }
 
-            if (listener instanceof InventoryClickDragEventListener) {
-                if (enableContainerActions && useInventoryClick) {
-                    logger.info(Component.text("Using inventory click for containers"));
-                    manager.registerEvents(listener, plugin);
-                }
-                return;
+            // Both container listeners are always registered and check the container config themselves, so /honeypot reload can switch between them
+            if (listener instanceof InventoryClickDragEventListener && enableContainerActions && useInventoryClick) {
+                logger.info(Component.text("Using inventory click for containers"));
             }
 
-            if (listener instanceof PlayerInteractEventListener) {
-                if (enableContainerActions && !useInventoryClick) {
-                    logger.info(Component.text("Using player interact for containers"));
-                    manager.registerEvents(listener, plugin);
-                }
-                return;
+            if (listener instanceof PlayerInteractEventListener && enableContainerActions && !useInventoryClick) {
+                logger.info(Component.text("Using player interact for containers"));
             }
 
             manager.registerEvents(listener, plugin);

@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -18,15 +18,16 @@ package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
 
+import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.utils.HoneypotLogger;
+import org.reprogle.honeypot.common.utils.ChangelogGUI;
 import org.reprogle.honeypot.common.utils.HoneypotUpdateChecker;
 
 import net.kyori.adventure.text.Component;
@@ -35,14 +36,14 @@ import net.kyori.adventure.text.event.ClickEvent;
 public class PlayerJoinEventListener implements Listener, IHoneypotEvent {
 
     private final CommandFeedback commandFeedback;
-    private final HoneypotLogger logger;
-    private final JavaPlugin plugin;
+    private final HoneypotUpdateChecker updateChecker;
+    private final ChangelogGUI changelogGUI;
 
     @Inject
-    PlayerJoinEventListener(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotLogger logger) {
-        this.plugin = plugin;
+    PlayerJoinEventListener(CommandFeedback commandFeedback, HoneypotUpdateChecker updateChecker, ChangelogGUI changelogGUI) {
         this.commandFeedback = commandFeedback;
-        this.logger = logger;
+        this.updateChecker = updateChecker;
+        this.changelogGUI = changelogGUI;
     }
 
     // Player join event
@@ -51,17 +52,28 @@ public class PlayerJoinEventListener implements Listener, IHoneypotEvent {
         Player p = event.getPlayer();
 
         if (p.hasPermission("honeypot.update") || p.hasPermission("honeypot.*") || p.isOp()) {
-            new HoneypotUpdateChecker(plugin,
-                    "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt").getVersion(latest -> {
-                if (Integer.parseInt(latest.replace(".", "")) > Integer
-                        .parseInt(plugin.getPluginMeta().getVersion().replace(".", ""))) {
-                    Component message = commandFeedback.sendCommandFeedback("update-available")
-                            .clickEvent(ClickEvent.openUrl("https://github.com/TerrorByteTW/Honeypot"))
-                            .hoverEvent(HoverEvent.showText(Component.text("Click me to download the latest update!")));
-                    
-                    p.sendMessage(message);
-                }
-            }, logger);
+            String currentVersion = updateChecker.currentVersion();
+            updateChecker.fetchManifest(manifest -> {
+                if (!manifest.hasUpdate(currentVersion)) return;
+
+                Component updateMessage = commandFeedback.sendCommandFeedback("update-available")
+                    .clickEvent(ClickEvent.openUrl(manifest.downloadUrl()))
+                    .hoverEvent(HoverEvent.showText(commandFeedback.sendCommandFeedback("updater.download-hover")));
+
+                Component whatsNew = commandFeedback.sendCommandFeedback("updater.whats-new")
+                    .hoverEvent(HoverEvent.showText(commandFeedback.sendCommandFeedback("updater.whats-new-hover",
+                        Placeholder.unparsed("version", currentVersion))))
+                    .clickEvent(ClickEvent.callback(audience -> {
+                        if (audience instanceof Player player) {
+                            changelogGUI.open(player, manifest, currentVersion);
+                        }
+                    }, ClickCallback.Options.builder().uses(ClickCallback.UNLIMITED_USES).build()));
+
+                p.sendMessage(Component.text()
+                    .append(updateMessage)
+                    .append(Component.space())
+                    .append(whatsNew));
+            });
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -154,10 +154,10 @@ public class HoneypotRegionObject {
             return true;
 
         // Don't really care about the action since action doesn't determine a Honeypot
-        int x1 = pos1.getBlockX(), y1 = pos1.getBlockY(), z1 = pos1.getBlockZ();
+        int x1 = honeypot.pos1.getBlockX(), y1 = honeypot.pos1.getBlockY(), z1 = honeypot.pos1.getBlockZ();
         int thisX1 = this.pos1.getBlockX(), thisY1 = this.pos1.getBlockY(), thisZ1 = this.pos1.getBlockZ();
 
-        int x2 = pos2.getBlockX(), y2 = pos2.getBlockY(), z2 = pos2.getBlockZ();
+        int x2 = honeypot.pos2.getBlockX(), y2 = honeypot.pos2.getBlockY(), z2 = honeypot.pos2.getBlockZ();
         int thisX2 = this.pos2.getBlockX(), thisY2 = this.pos2.getBlockY(), thisZ2 = this.pos2.getBlockZ();
 
         return x1 == thisX1 && y1 == thisY1 && z1 == thisZ1 &&

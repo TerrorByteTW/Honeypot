@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
  * This event is not cancellable, you cannot cancel the editing of a Honeypot moved by a non-object.
  * Currently, this class can only return the Honeypot {@link Block} and a generic Object representing
  * the thing that attempted to edit the block.
+ * @deprecated This event is deprecated and is only called for non-player changes. For tracking all triggers, use {@link HoneypotTriggerEvent}
  */
+@Deprecated
 public class HoneypotNonPlayerBreakEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();

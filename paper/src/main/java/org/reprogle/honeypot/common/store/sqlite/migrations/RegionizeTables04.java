@@ -1,3 +1,19 @@
+/*
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
+ *
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
+ *
+ * This program is free software: You can redistribute it and/or modify it under
+ *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including,
+ * without limitation, warranties that the Covered Software is free of defects, merchantable,
+ * fit for a particular purpose or non-infringing. See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.common.store.sqlite.migrations;
 
 import net.kyori.adventure.text.Component;
@@ -14,15 +30,16 @@ public class RegionizeTables04  implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) throws Exception {
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_blocks to honeypot_regions"));
+
         // Honeypot 5.0.0 created an empty `honeypot_regions` table before running migrations, causing the rename below to fail.
         // The plugin couldn't enable in that state, so the table can't contain any data and is safe to drop.
         tx.execute("DROP TABLE IF EXISTS honeypot_regions;");
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_blocks to honeypot_regions"), false);
         // Rename `honeypot_blocks` to `honeypot_regions`
         tx.execute("ALTER TABLE honeypot_blocks RENAME TO honeypot_regions;");
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Creating honeypot_history_temp"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Creating honeypot_history_temp"));
         tx.execute("""
             CREATE TABLE IF NOT EXISTS honeypot_history_temp (
                     `datetime` VARCHAR NOT NULL,
@@ -37,7 +54,7 @@ public class RegionizeTables04  implements Migration {
                 );
             """);
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Migrating honeypot_history to honeypot_history_temp"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Migrating honeypot_history to honeypot_history_temp"));
         tx.execute("""
             INSERT INTO honeypot_history_temp (
                     `datetime`, `playerName`, `playerUUID`, `x`, `y`, `z`, `world`, `type`, `action`
@@ -67,12 +84,12 @@ public class RegionizeTables04  implements Migration {
             FROM honeypot_history;
             """);
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Dropping honeypot_history"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Dropping honeypot_history"));
         tx.execute("DROP TABLE honeypot_history;");
 
-        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_history_temp to honeypot_history"), false);
+        logger.debug(Component.text("Applying RegionizeTables04 migration: Renaming honeypot_history_temp to honeypot_history"));
         tx.execute("ALTER TABLE honeypot_history_temp RENAME TO honeypot_history;");
 
-        logger.debug(Component.text("RegionizeTables04 migration applied successfully"), false);
+        logger.debug(Component.text("RegionizeTables04 migration applied successfully"));
     }
 }

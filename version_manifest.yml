@@ -1,0 +1,95 @@
+# Honeypot version manifest
+#
+# This file is downloaded by every Honeypot server to check for updates and to build the "What's new" GUI.
+# Players running an older version will see every feature and bug fix from EVERY version newer than theirs.
+#
+# Structure:
+#   manifest-version: Schema version of this file. Only bump this if the structure changes in a breaking way.
+#   download-url:     Where players are sent when they click the update message or the honey bottle in the GUI.
+#   versions:         A list of releases. Order doesn't matter; Honeypot sorts them newest-first.
+#     - version:      The version string. Always quote it so YAML doesn't treat it as a number (e.g. "5.1" vs 5.1).
+#       supported-server-versions:
+#         min:        (Optional) The oldest Minecraft version this release supports, inclusive (e.g. "26.1").
+#         max:        (Optional) The newest Minecraft version this release supports, inclusive. Only as many segments
+#                     as you specify are compared, so "26.3" covers every 26.3.x hotfix, while "26.3.1" excludes 26.3.2.
+#       pulled:       (Optional) true if this release has been pulled. Pulled releases are never offered as an update,
+#                     and servers running them are warned to update. Defaults to false.
+#       pulled-reason: (Optional) Shown to servers running a pulled release.
+#       features:     (Optional) A list of new features.
+#       bug-fixes:    (Optional) A list of bug fixes.
+#
+# Each feature / bug fix supports:
+#   name:         (Required) The item name shown in the GUI.
+#   description:  (Optional) Either a single string, which is word-wrapped automatically, or a list of strings,
+#                 where each string is shown as its own line exactly as written.
+#   material:     (Optional) Any Bukkit item material (e.g. NETHER_STAR). Invalid or missing materials fall back to
+#                 PAPER for features and SPIDER_EYE for bug fixes.
+#
+# NOTE: version.txt and the supported-versions folder are kept for servers running Honeypot versions older than this
+# manifest. Keep them in sync until those versions are no longer in use.
+
+manifest-version: 1
+download-url: "https://github.com/TerrorByteTW/Honeypot/releases"
+
+versions:
+  - version: "5.1.0"
+    supported-server-versions:
+      min: "26.1"
+      max: "26.3"
+    features:
+      - name: "Fire Protection"
+        description: "Players can no longer light Honeypot blocks on fire to sneakily destroy them."
+        material: FLINT_AND_STEEL
+      - name: "Per-Type Player Records"
+        description: "The Player Store now tracks Honeypot triggers per action type, allowing finer control over punishments."
+        material: WRITABLE_BOOK
+      - name: "Updated PlaceholderAPI Placeholders"
+        description: "PlaceholderAPI placeholders have been updated to reflect the new per-type player records."
+        material: NAME_TAG
+      - name: "Improved Logging"
+        description: "Logging has been overhauled to be clearer and more consistent."
+        material: PAPER
+      - name: "What's New Menu"
+        description: "Update notifications now include a clickable menu showing every new feature and bug fix since your version."
+        material: HONEY_BOTTLE
+    bug-fixes:
+      - name: "History Query on Offline Players"
+        description: "/honeypot history query no longer fails when querying a player who is offline."
+        material: PLAYER_HEAD
+      - name: "History Purge"
+        description: "/honeypot history purge no longer requires a player profile."
+        material: LAVA_BUCKET
+      - name: "Spatial Index Migration"
+        description: "Fixed a migration bug affecting servers upgrading from older versions, and improved spatial indexing performance."
+        material: MAP
+      - name: "Version Comparison"
+        description: "Version numbers are now compared correctly, so multi-digit versions no longer produce false update notifications."
+        material: COMPARATOR
+      - name: "AIR Honeypots"
+        description: "Indirect block breaks no longer add AIR blocks to the database."
+        material: GLASS
+      - name: "Inventory Event Handling"
+        description: "Fixed several bugs with block break and inventory listeners, including inventory interactions not logging player history."
+        material: CHEST
+      - name: "Explosion Handling"
+        description: "Fixed bugs related to logging and the entity explosion listener."
+        material: TNT
+
+  - version: "5.0.1"
+    supported-server-versions:
+      min: "26.1"
+      max: "26.3"
+    bug-fixes:
+      - name: "RegionizeTables Migration"
+        description: "Fixed a critical bug in the region table migration. Migrations now always run before tables are created."
+        material: STRUCTURE_VOID
+      - name: "Double Chest Dragging"
+        description: "Fixed a crash caused by dragging items within a double chest inventory."
+        material: CHEST
+      - name: "Newer Server Support"
+        description: "Additional fixes for running Honeypot on newer server versions."
+        material: COMMAND_BLOCK
+
+  - version: "5.0.0"
+    pulled: true
+    pulled-reason: "A bug exists in a DB migration which causes Honeypot 5.0.0 to crash on startup. 5.0.1 fixes this bug and another unrelated but important bug related to Double Chests."

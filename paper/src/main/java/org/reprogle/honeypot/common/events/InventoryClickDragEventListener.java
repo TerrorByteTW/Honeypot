@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -33,8 +33,7 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.api.events.HoneypotInventoryClickEvent;
-import org.reprogle.honeypot.api.events.HoneypotPreInventoryClickEvent;
+import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 
@@ -62,6 +61,8 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
     @SuppressWarnings({"java:S3776"})
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void inventoryClickEvent(InventoryClickEvent event) {
+        if (!useInventoryClick()) return;
+
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -96,13 +97,18 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
         if (!checkFilter(block)) return;
 
         if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
+            logger.verbose(Component.text("InventoryClickEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+
             // Fire HoneypotPreInventoryClickEvent
-            HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
-            Bukkit.getPluginManager().callEvent(hpice);
+            var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
+            var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
 
-            if (hpice.isCancelled()) return;
+            // Both events are always fired, and cancelling either one stops processing
+            boolean preClick = hpice.callEvent();
+            boolean preTrigger = hpte.callEvent();
+            if (!preClick || !preTrigger) return;
 
-            if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
+            if (!actionHandler.isExempt(player, TriggerType.INVENTORY_INTERACT)) {
 
                 // If the clicked slot is null, that means the slot didn't have something in it,
                 // whether the player placed something in that slot. slot == null
@@ -120,6 +126,8 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
     @SuppressWarnings({"java:S3776"})
     @EventHandler(priority = EventPriority.HIGHEST)
     public void inventoryDragEvent(InventoryDragEvent event) {
+        if (!useInventoryClick()) return;
+
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
@@ -145,13 +153,17 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
         if (!checkFilter(block)) return;
 
         if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
+            logger.verbose(Component.text("InventoryClickEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
             // Fire HoneypotPreInventoryClickEvent
-            HoneypotPreInventoryClickEvent hpice = new HoneypotPreInventoryClickEvent(player, inventory);
-            Bukkit.getPluginManager().callEvent(hpice);
+            var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
+            var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
 
-            if (hpice.isCancelled()) return;
+            // Both events are always fired, and cancelling either one stops processing
+            boolean preClick = hpice.callEvent();
+            boolean preTrigger = hpte.callEvent();
+            if (!preClick || !preTrigger) return;
 
-            if (!(player.hasPermission("honeypot.exempt") || player.hasPermission("honeypot.*") || player.isOp())) {
+            if (!actionHandler.isExempt(player, TriggerType.INVENTORY_INTERACT)) {
 
                 event.setCancelled(true);
 
@@ -160,21 +172,21 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
         }
     }
 
+    /**
+     * Container actions on click only apply if they're enabled and inventory clicks are being used instead of opening
+     *
+     * @return True if inventory clicks and drags should be processed
+     */
+    private boolean useInventoryClick() {
+        return config.config().getBoolean("container-actions.enable-container-actions")
+            && config.config().getBoolean("container-actions.use-inventory-click");
+    }
+
     private void executeAction(Player player, Block block, Inventory inventory) {
-        String action = regionManager.getAction(block);
+        actionHandler.checkAndHandle(player, block, TriggerType.INVENTORY_INTERACT);
 
-        if (action == null) {
-            logger.debug(Component.text("An InventoryClickEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
-            return;
-        }
-
-        logger.debug(Component.text("InventoryClickEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
-
-        actionHandler.handle(action, block, player);
-
-        HoneypotInventoryClickEvent hice = new HoneypotInventoryClickEvent(player, inventory);
-        Bukkit.getPluginManager().callEvent(hice);
-
+        new HoneypotInventoryClickEvent(player, inventory).callEvent();
+        new HoneypotTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT).callEvent();
     }
 
     /**

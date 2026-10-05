@@ -1,3 +1,19 @@
+/*
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
+ *
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
+ *
+ * This program is free software: You can redistribute it and/or modify it under
+ *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including,
+ * without limitation, warranties that the Covered Software is free of defects, merchantable,
+ * fit for a particular purpose or non-infringing. See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
@@ -42,7 +58,9 @@ public class HoneypotMigrations {
             // It no longer exists as it hard-coded some checks in place that have the potential to break servers moving forward if certain criteria were met.
             // UserVersionMigrator happily handles jumps in user versions without issue.
             new MigrationStep(5, new RegionizeTables04(logger)),
-            new MigrationStep(6, new AddBlockToHistory05(logger))
+            new MigrationStep(6, new AddBlockToHistory05(logger)),
+            new MigrationStep(7, new DropBlockCountColumn06(logger)),
+            new MigrationStep(8, new ConvertIndexToInt32_07(logger))
         )));
         migrator.migrate(db);
 

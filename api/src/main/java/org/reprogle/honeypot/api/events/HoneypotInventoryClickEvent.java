@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
  * Event that is triggered after a player triggers a container action
  * This event is called <i>after</i> a container action is triggered, not before. This means the state of the player may be unknown, for example if they were kicked as a result.
  * This event is not cancellable, you cannot cancel the action of a Honeypot container already interacted with by a player. If you need to cancel it, please use {@link HoneypotPreInventoryClickEvent}
+ * @deprecated This event is deprecated and is only called for container interactions. For tracking all triggers, use {@link HoneypotTriggerEvent}
  */
+@Deprecated
 public class HoneypotInventoryClickEvent extends Event {
 
 	private static final HandlerList HANDLERS = new HandlerList();

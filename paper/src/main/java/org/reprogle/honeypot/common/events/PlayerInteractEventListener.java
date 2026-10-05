@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -29,8 +29,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.api.events.HoneypotPlayerInteractEvent;
-import org.reprogle.honeypot.api.events.HoneypotPrePlayerInteractEvent;
+import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
@@ -62,7 +61,16 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     @SuppressWarnings({"unchecked"})
     public void playerInteractEvent(PlayerInteractEvent event) {
+        // Container actions on open only apply if they're enabled and inventory clicks aren't being used instead
+        if (!config.config().getBoolean("container-actions.enable-container-actions")
+                || config.config().getBoolean("container-actions.use-inventory-click"))
+            return;
+
         Player player = event.getPlayer();
+
+        // Sneaking with an item in either hand uses the item instead of opening the container
+        if (player.isSneaking() && (!player.getInventory().getItemInMainHand().isEmpty() || !player.getInventory().getItemInOffHand().isEmpty()))
+            return;
 
         if (player.getTargetBlockExact(5) == null)
             return;
@@ -104,23 +112,27 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
                 }
 
                 // Fire HoneypotPrePlayerInteractEvent
-                HoneypotPrePlayerInteractEvent hppie = new HoneypotPrePlayerInteractEvent(player,
+                var hppie = new HoneypotPrePlayerInteractEvent(player,
                         event.getClickedBlock());
-                Bukkit.getPluginManager().callEvent(hppie);
+                var hpte = new HoneypotPreTriggerEvent(player,
+                        event.getClickedBlock(), TriggerType.INVENTORY_OPEN);
 
-                if (hppie.isCancelled())
+                // Both events are always fired, and cancelling either one stops processing
+                boolean preInteract = hppie.callEvent();
+                boolean preTrigger = hpte.callEvent();
+                if (!preInteract || !preTrigger)
                     return;
 
-                if (!(player.hasPermission("honeypot.exempt")
-                        || player.hasPermission("honeypot.*") || player.isOp())) {
-                    if (!config.config().getBoolean("always-allow-container-access"))
-                        event.setCancelled(true);
-                    executeAction(event);
-                }
+                logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + " on Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 
-                HoneypotPlayerInteractEvent hpie = new HoneypotPlayerInteractEvent(player,
-                        event.getClickedBlock());
-                Bukkit.getPluginManager().callEvent(hpie);
+                if (actionHandler.checkAndHandle(player, block, TriggerType.INVENTORY_OPEN) != ActionHandler.TriggerResult.EXEMPT
+                        && !config.config().getBoolean("always-allow-container-access"))
+                    event.setCancelled(true);
+
+                new HoneypotPlayerInteractEvent(player,
+                        event.getClickedBlock()).callEvent();
+                new HoneypotTriggerEvent(player, block,
+                        TriggerType.INVENTORY_OPEN).callEvent();
             }
         } catch (NullPointerException npe) {
             // Do nothing as it's most likely an entity. If this event is triggered, the
@@ -129,21 +141,38 @@ public class PlayerInteractEventListener implements Listener, IHoneypotEvent {
         }
     }
 
-    private void executeAction(PlayerInteractEvent event) {
+    // Detects players trying to set a Honeypot on fire, such as lighting it with flint and steel or a fire charge
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void playerIgniteEvent(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        // getItem() is the item in the hand this event fired for, so each hand is only checked once
+        if (event.getItem() == null) return;
+        Material item = event.getItem().getType();
+        if (item != Material.FLINT_AND_STEEL && item != Material.FIRE_CHARGE) return;
+
+        Block block = event.getClickedBlock();
+        if (block == null || !regionManager.isHoneypotBlock(block)) return;
 
         Player player = event.getPlayer();
-        Block block = player.getTargetBlockExact(5);
 
-        assert block != null;
-        String action = regionManager.getAction(block);
+        // Right-clicking a container opens it instead of lighting it (which playerInteractEvent handles), unless sneaking with an item in either hand
+        if (block.getState() instanceof Container && !player.isSneaking()) return;
 
-        if (action == null) {
-            logger.debug(Component.text("A PlayerInteractEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
+        // If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
+        if (!adapterManager.checkAllAdapters(player, block.getLocation())) return;
+
+        logger.debug(Component.text("Player " + player.getName() + " tried to ignite Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+
+        if (!new HoneypotPreTriggerEvent(player, block, TriggerType.GENERIC).callEvent()) {
+            logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, allowing " + player.getName() + " to ignite Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
             return;
         }
 
-        logger.debug(Component.text("PlayerInteractEvent being called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". Action is: " + action), false);
+        // Exempt players may light Honeypots, everyone else is stopped from doing so
+        if (actionHandler.checkAndHandle(player, block, TriggerType.GENERIC) != ActionHandler.TriggerResult.EXEMPT)
+            event.setCancelled(true);
 
-        actionHandler.handle(action, block, player);
+        new HoneypotTriggerEvent(player, block, TriggerType.GENERIC).callEvent();
     }
 }

@@ -1,3 +1,19 @@
+/*
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
+ *
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
+ *
+ * This program is free software: You can redistribute it and/or modify it under
+ *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including,
+ * without limitation, warranties that the Covered Software is free of defects, merchantable,
+ * fit for a particular purpose or non-infringing. See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
@@ -52,7 +68,7 @@ public class HoneypotRegionRepository implements RegionStore {
     private void createSchema() {
         // Honeypot Blocks Index, used for querying blocks. Honeypot Blocks table will reference the ID for the world and action
         db.execute("""
-            CREATE VIRTUAL TABLE IF NOT EXISTS honeypot_index USING rtree(id INTEGER PRIMARY KEY, x_min INTEGER, x_max INTEGER, y_min INTEGER, y_max INTEGER, z_min INTEGER, z_max INTEGER);
+            CREATE VIRTUAL TABLE IF NOT EXISTS honeypot_index USING rtree_i32(id INTEGER PRIMARY KEY, x_min INTEGER, x_max INTEGER, y_min INTEGER, y_max INTEGER, z_min INTEGER, z_max INTEGER);
             """);
 
         // Honeypot Blocks Table
@@ -131,36 +147,34 @@ public class HoneypotRegionRepository implements RegionStore {
     }
 
     public void removeHoneypotRegion(Location location) {
-        db.execute("""
-                DELETE FROM honeypot_regions
-                WHERE id IN (
-                    SELECT
-                        id
-                    FROM
-                        honeypot_index
-                    WHERE   x_min <= ? AND x_max >= ?
-                      AND   y_min <= ? AND y_max >= ?
-                      AND   z_min <= ? AND z_max >= ?
-                );
+        // .queryOne() can return null if no rows are found, so this must be Integer and not int, since int is a primitive and cannot be null
+        // As well, even though there *could*, in theory, be more than one region, createHoneypotRegion() ensures that there is only one region per location, so this is safe.
+        Integer rowId = db.queryOne("""
+                SELECT r.id
+                FROM honeypot_regions r
+                JOIN honeypot_index i ON r.id = i.id
+                WHERE   i.x_min <= ? AND i.x_max >= ?
+                  AND   i.y_min <= ? AND i.y_max >= ?
+                  AND   i.z_min <= ? AND i.z_max >= ?
+                  AND   r.world = ?;
                 """,
+            row -> row.i32("id"),
             Param.i32(location.getBlockX()),
             Param.i32(location.getBlockX()),
             Param.i32(location.getBlockY()),
             Param.i32(location.getBlockY()),
             Param.i32(location.getBlockZ()),
-            Param.i32(location.getBlockZ()));
-        db.execute("""
-                DELETE FROM honeypot_index
-                WHERE   x_min <= ? AND x_max >= ?
-                  AND   y_min <= ? AND y_max >= ?
-                  AND   z_min <= ? AND z_max >= ?;
-                """,
-            Param.i32(location.getBlockX()),
-            Param.i32(location.getBlockX()),
-            Param.i32(location.getBlockY()),
-            Param.i32(location.getBlockY()),
             Param.i32(location.getBlockZ()),
-            Param.i32(location.getBlockZ()));
+            Param.text(location.getWorld().getName()));
+
+        if (rowId != null) {
+            db.transaction(tx -> {
+                tx.execute("DELETE FROM honeypot_regions WHERE id = ?;", Param.i32(rowId));
+                tx.execute("DELETE FROM honeypot_index WHERE id = ?;", Param.i32(rowId));
+                return null;
+            });
+        }
+
     }
 
     public boolean isHoneypot(Location location) {

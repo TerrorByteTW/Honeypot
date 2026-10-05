@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -19,17 +19,23 @@ package org.reprogle.honeypot.common.events;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.reprogle.honeypot.api.events.HoneypotPreTriggerEvent;
+import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
+import org.reprogle.honeypot.api.events.TriggerType;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 public class SignChangeEventListener implements Listener, IHoneypotEvent {
 
     private final HoneypotRegionManager regionManager;
+    private final ActionHandler actionHandler;
     private final HoneypotLogger logger;
     private final AdapterManager adapterManager;
 
@@ -39,8 +45,9 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
     }
 
     @Inject
-    SignChangeEventListener(HoneypotRegionManager regionManager, HoneypotLogger logger, AdapterManager adapterManager) {
+    SignChangeEventListener(HoneypotRegionManager regionManager, ActionHandler actionHandler, HoneypotLogger logger, AdapterManager adapterManager) {
         this.regionManager = regionManager;
+        this.actionHandler = actionHandler;
         this.logger = logger;
         this.adapterManager = adapterManager;
     }
@@ -55,8 +62,22 @@ public class SignChangeEventListener implements Listener, IHoneypotEvent {
                 return;
             }
 
-            logger.debug(Component.text("SignChangeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
-            event.setCancelled(true);
+            logger.verbose(Component.text("SignChangeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+
+            Player player = event.getPlayer();
+
+            var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.GENERIC);
+            if (!hpte.callEvent()) {
+                logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, allowing SignChangeEvent to be called on Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+                return;
+            }
+
+            // Exempt players may edit Honeypot signs, everyone else is blocked
+            if (actionHandler.checkAndHandle(player, block, TriggerType.GENERIC) != ActionHandler.TriggerResult.EXEMPT) {
+                event.setCancelled(true);
+            }
+
+            new HoneypotTriggerEvent(player, block, TriggerType.GENERIC).callEvent();
         }
     }
 

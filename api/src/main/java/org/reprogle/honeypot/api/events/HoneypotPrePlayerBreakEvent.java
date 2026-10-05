@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -27,7 +27,9 @@ import org.jetbrains.annotations.NotNull;
  * Event that is triggered before a Honeypot is broken.
  * This event is called <i>before</i> the block is broken, not after.
  * This event is cancellable. If cancelled, the Honeypot is broken as if it was a regular block.
+ * @deprecated This event is deprecated and is only called for block breaks. For tracking all triggers, use {@link HoneypotPreTriggerEvent}
  */
+@Deprecated
 public class HoneypotPrePlayerBreakEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();

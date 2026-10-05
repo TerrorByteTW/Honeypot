@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -29,19 +29,19 @@ import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.commands.dsl.CommandDsl;
 import org.reprogle.bytelib.commands.dsl.LiteralNode;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.utils.HoneypotSupportedVersions;
+import org.reprogle.honeypot.common.utils.HoneypotUpdateChecker;
 
 public class Info implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final CommandFeedback commandFeedback;
-    private final HoneypotSupportedVersions supportedVersions;
+    private final HoneypotUpdateChecker updateChecker;
 
     @Inject
-    public Info(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotSupportedVersions supportedVersions) {
+    public Info(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotUpdateChecker updateChecker) {
         this.plugin = plugin;
         this.commandFeedback = commandFeedback;
-        this.supportedVersions = supportedVersions;
+        this.updateChecker = updateChecker;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class Info implements CommandCallback {
         sender.sendMessage(commandFeedback.getChatPrefix()
             .append(Component.text(" "))
             .append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion(), NamedTextColor.WHITE)));
-        supportedVersions.checkIfServerSupported();
+        updateChecker.checkIfServerSupported();
 
         return Command.SINGLE_SUCCESS;
     }

@@ -1,3 +1,19 @@
+/*
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
+ *
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
+ *
+ * This program is free software: You can redistribute it and/or modify it under
+ *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including,
+ * without limitation, warranties that the Covered Software is free of defects, merchantable,
+ * fit for a particular purpose or non-infringing. See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
 package org.reprogle.honeypot.common.store.sqlite;
 
 import com.google.inject.Inject;
@@ -5,6 +21,7 @@ import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.bytelib.db.api.Param;
@@ -19,6 +36,7 @@ import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Defines the SQLite Honeypot Store for PlayerHistory. You should NOT interact with this directly.
@@ -58,6 +76,11 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
     }
 
     public void addPlayerHistory(Player p, Block block, String action, String type) {
+        addPlayerHistory(p, block, block.getType(), action, type);
+    }
+
+    @Override
+    public void addPlayerHistory(Player p, Block block, Material blockType, String action, String type) {
         db.execute("""
                 INSERT INTO honeypot_history (datetime, playerName, playerUUID, x, y, z, world, type, action, block)
                 VALUES (DATETIME('now', 'localtime'), ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -70,7 +93,7 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
             Param.text(block.getWorld().getName()),
             Param.text(type),
             Param.text(action),
-            Param.text(block.getType().name()));
+            Param.text(blockType.name()));
     }
 
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p) {
@@ -86,6 +109,11 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
 
     @Override
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p, int offset, int limit) {
+        return getPlayerHistory(p.getUniqueId(), offset, limit);
+    }
+
+    @Override
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(UUID uuid, int offset, int limit) {
         return db.query("""
                 SELECT *
                 FROM honeypot_history
@@ -94,20 +122,25 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
                 LIMIT ? OFFSET ?;
                 """,
             HoneypotPlayerHistoryRepository::mapRow,
-            Param.text(p.getUniqueId().toString()),
+            Param.text(uuid.toString()),
             Param.i32(limit),
             Param.i32(offset));
     }
 
     @Override
     public int getPlayerHistoryCount(Player p) {
+        return getPlayerHistoryCount(p.getUniqueId());
+    }
+
+    @Override
+    public int getPlayerHistoryCount(UUID uuid) {
         Integer count = db.queryOne("""
                 SELECT COUNT(*) AS count
                 FROM honeypot_history
                 WHERE playerUUID = ?;
                 """,
             row -> row.i32("count"),
-            Param.text(p.getUniqueId().toString()));
+            Param.text(uuid.toString()));
 
         return count == null ? 0 : count;
     }
@@ -130,6 +163,11 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
     }
 
     public void deletePlayerHistory(Player p, int... n) {
+        deletePlayerHistory(p.getUniqueId(), n);
+    }
+
+    @Override
+    public void deletePlayerHistory(UUID uuid, int... n) {
         if (n.length > 0) {
             db.execute("""
                     DELETE FROM honeypot_history
@@ -140,14 +178,14 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
                         LIMIT ?
                     );
                     """,
-                Param.text(p.getUniqueId().toString()),
+                Param.text(uuid.toString()),
                 Param.i32(n[0]));
         } else {
             db.execute("""
                     DELETE FROM honeypot_history
                     WHERE playerUUID = ?;
                     """,
-                Param.text(p.getUniqueId().toString()));
+                Param.text(uuid.toString()));
         }
     }
 

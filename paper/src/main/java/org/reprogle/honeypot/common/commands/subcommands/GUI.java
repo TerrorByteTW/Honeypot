@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -157,7 +157,7 @@ public class GUI implements CommandCallback {
 
     private void allHoneypotsInventory(Player p) {
         if (!p.hasPermission("honeypot.locate") && !p.hasPermission("honeypot.*") && !p.isOp()) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
             return;
         }
 
@@ -197,7 +197,7 @@ public class GUI implements CommandCallback {
 
     private void historyQueryInventory(Player p) {
         if (!p.hasPermission("honeypot.history") && !p.hasPermission("honeypot.*") && !p.isOp()) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
             return;
         }
 
@@ -238,7 +238,7 @@ public class GUI implements CommandCallback {
     @SuppressWarnings({"java:S3776", "java:S1192"})
     private void removeHoneypotInventory(Player p) {
         if (!p.hasPermission("honeypot.remove") && !p.hasPermission("honeypot.*") && !p.isOp()) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
             return;
         }
 
@@ -423,18 +423,16 @@ public class GUI implements CommandCallback {
         } else {
 
             // Fire HoneypotPreCreateEvent
-            HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
-            Bukkit.getPluginManager().callEvent(hpce);
+            var hpce = new HoneypotPreCreateEvent((Player) event.getWhoClicked(), block);
 
-            if (hpce.isCancelled())
+            if (!hpce.callEvent())
                 return;
 
             regionManager.createBlock(block, action);
             event.getWhoClicked().sendMessage(commandFeedback.sendCommandFeedback("success.created"));
 
             // Fire HoneypotCreateEvent
-            HoneypotCreateEvent hce = new HoneypotCreateEvent((Player) event.getWhoClicked(), block);
-            Bukkit.getPluginManager().callEvent(hce);
+            new HoneypotCreateEvent((Player) event.getWhoClicked(), block).callEvent();
         }
     }
 

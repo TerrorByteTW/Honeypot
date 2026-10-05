@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -18,7 +18,6 @@ package org.reprogle.honeypot.common.events;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -26,88 +25,100 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.HoneypotNonPlayerBreakEvent;
+import org.reprogle.honeypot.api.events.HoneypotPreTriggerEvent;
+import org.reprogle.honeypot.api.events.HoneypotTriggerEvent;
+import org.reprogle.honeypot.api.events.TriggerType;
+import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
-import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
+import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EntityExplodeEventListener implements Listener, IHoneypotEvent {
 
-	private final HoneypotLogger logger;
-	private final BytePluginConfig config;
-	private final HoneypotRegionManager regionManager;
-	private final HoneypotPlayerHistoryManager playerHistoryManager;
-	private final AdapterManager adapterManager;
+    private final HoneypotLogger logger;
+    private final BytePluginConfig config;
+    private final HoneypotRegionManager regionManager;
+    private final ActionHandler actionHandler;
+    private final AdapterManager adapterManager;
 
-	@Inject
-	EntityExplodeEventListener(HoneypotLogger logger, BytePluginConfig config, HoneypotRegionManager regionManager,
-							   HoneypotPlayerHistoryManager playerHistoryManager, AdapterManager adapterManager) {
-		this.logger = logger;
-		this.config = config;
-		this.regionManager = regionManager;
-		this.playerHistoryManager = playerHistoryManager;
-		this.adapterManager = adapterManager;
-	}
+    @Inject
+    EntityExplodeEventListener(HoneypotLogger logger, BytePluginConfig config, HoneypotRegionManager regionManager,
+                               ActionHandler actionHandler, AdapterManager adapterManager) {
+        this.logger = logger;
+        this.config = config;
+        this.regionManager = regionManager;
+        this.actionHandler = actionHandler;
+        this.adapterManager = adapterManager;
+    }
 
-	// Explosion listener
-	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void entityExplodeEvent(EntityExplodeEvent event) {
-		// Get every block that would've been blown up
-		List<Block> destroyedBlocks = event.blockList();
-		ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
-		boolean allowExplosions = config.config().getBoolean("allow-explode");
-		Entity e = event.getEntity();
-		Entity source = null;
+    // Explosion listener
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void entityExplodeEvent(EntityExplodeEvent event) {
+        // Get every block that would've been blown up
+        List<Block> destroyedBlocks = event.blockList();
+        ArrayList<Block> foundHoneypotBlocks = new ArrayList<>();
+        boolean allowExplosions = config.config().getBoolean("allow-explode");
 
-		// If a block of TNT was used to destroy the Honeypot, get its igniter. This is to allow us to track if a Player lit it
-		if (e instanceof TNTPrimed tnt) {
-			source = tnt.getSource();
-		}
+        // If a block of TNT was lit by a player, the explosion is a GENERIC trigger by that player. Otherwise, it's a NON_PLAYER trigger
+        Player igniter = event.getEntity() instanceof TNTPrimed tnt && tnt.getSource() instanceof Player p ? p : null;
+        Entity triggerer = igniter != null ? igniter : event.getEntity();
+        TriggerType triggerType = igniter != null ? TriggerType.GENERIC : TriggerType.NON_PLAYER;
 
-		// For every block, check if it was a Honeypot. If it was, check if explosions
-		// are allowed.
-		// If so, just delete the Honeypot. If not, cancel the explosion
-		for (Block block : destroyedBlocks) {
-			if (regionManager.isHoneypotBlock(block)) {
-				logger.debug(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
+        // An explosion counts as one trigger per region, even if it hits several blocks of a multi-block region
+        Set<HoneypotRegionObject> triggeredRegions = new HashSet<>();
 
-				if (source instanceof Player) {
-					// If any of the adapters state that this is a disallowed action, don't bother doing anything since it was already blocked
-					if (!adapterManager.checkAllAdapters(((Player) source).getPlayer(), block.getLocation())) {
-						continue;
-					}
+        // For every block, check if it was a Honeypot. If it was, check if explosions
+        // are allowed.
+        // If so, just delete the Honeypot. If not, cancel the explosion
+        for (Block block : destroyedBlocks) {
+            if (!regionManager.isHoneypotBlock(block)) continue;
 
-					playerHistoryManager.addPlayerHistory((Player) source,
-							block, regionManager.getAction(block),"break");
-					logger.debug(Component.text("EntityExplodeEvent was caused by a player! It has been logged in the history, and the Honeypot's action has been triggered for that player. Player was: " + source.getName()), false);
+            HoneypotRegionObject region = regionManager.getHoneypotRegion(block);
+            if (region != null && !triggeredRegions.add(region)) {
+                if (!allowExplosions) foundHoneypotBlocks.add(block);
+                continue;
+            }
 
-					// Call a BlockBreakEvent for that player, as they attempted to break the block
-					// in the first place.
-					BlockBreakEvent blockBreakEvent = new BlockBreakEvent(block, (Player) source);
-					Bukkit.getPluginManager().callEvent(blockBreakEvent);
-				}
+            logger.verbose(Component.text("EntityExplodeEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 
-				// Fire HoneypotNonPlayerBreakEvent
-				HoneypotNonPlayerBreakEvent hnpbe = new HoneypotNonPlayerBreakEvent(event.getEntity(), block);
-				Bukkit.getPluginManager().callEvent(hnpbe);
+            // Same as a player break, a Honeypot in a location an adapter disallows shouldn't exist, so it's removed and blown up
+            if (igniter != null && !adapterManager.checkAllAdapters(igniter, block.getLocation())) {
+                regionManager.deleteRegionContaining(block);
+                continue;
+            }
 
-				if (allowExplosions) {
-					regionManager.deleteRegionContaining(block);
-				} else {
-					foundHoneypotBlocks.add(block);
-				}
-			}
-		}
+            // Same as a canceled player break, the block is no longer treated as a Honeypot and is blown up
+            if (!new HoneypotPreTriggerEvent(triggerer, block, triggerType).callEvent()) {
+                logger.debug(Component.text("HoneypotPreTriggerEvent was cancelled, removing the Honeypot at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+                regionManager.deleteRegionContaining(block);
+                continue;
+            }
 
-		destroyedBlocks.removeAll(foundHoneypotBlocks);
+            if (igniter != null) {
+                logger.debug(Component.text("EntityExplodeEvent was caused by a player! Processing it as a trigger by " + igniter.getName()));
+                actionHandler.checkAndHandle(igniter, block, triggerType);
+            }
 
-	}
+            new HoneypotNonPlayerBreakEvent(event.getEntity(), block).callEvent();
+            new HoneypotTriggerEvent(triggerer, block, triggerType).callEvent();
+
+            if (allowExplosions)
+                regionManager.deleteRegionContaining(block);
+            else
+                foundHoneypotBlocks.add(block);
+        }
+
+        destroyedBlocks.removeAll(foundHoneypotBlocks);
+
+    }
 
 }

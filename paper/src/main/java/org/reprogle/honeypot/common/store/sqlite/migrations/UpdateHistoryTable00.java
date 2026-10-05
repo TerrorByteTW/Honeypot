@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -32,8 +32,8 @@ public class UpdateHistoryTable00 implements Migration {
 
     @Override
     public void apply(SqliteDatabase.Tx tx) {
-        logger.debug(Component.text("Applying DB patch: UpdateHistoryTable00"), false);
+        logger.debug(Component.text("Applying DB patch: UpdateHistoryTable00"));
         tx.execute("ALTER TABLE honeypot_history ADD `type` VARCHAR NOT NULL default 'prelimBreak';");
-        logger.debug(Component.text("Applied patch: UpdateHistoryTable00"), false);
+        logger.debug(Component.text("Applied patch: UpdateHistoryTable00"));
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -82,7 +82,7 @@ public class AdapterManager {
         }
 
         if (server.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            logger.debug(Component.text("PlaceholderAPI is installed on this server, hooking into it"), false);
+            logger.debug(Component.text("PlaceholderAPI is installed on this server, hooking into it"));
             injector.getInstance(PlaceholderAPIExpansion.class).register();
         }
     }

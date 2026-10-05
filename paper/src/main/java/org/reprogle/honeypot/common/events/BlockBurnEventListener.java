@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -45,7 +45,7 @@ public class BlockBurnEventListener implements Listener, IHoneypotEvent {
 		Block block = event.getBlock();
 
 		if (regionManager.isHoneypotBlock(block)) {
-			logger.debug(Component.text("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()), true);
+			logger.verbose(Component.text("BlockBurnEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
 			event.setCancelled(true);
 
 			Block[] adjacentBlocks = new Block[] {

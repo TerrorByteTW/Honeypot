@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -28,27 +28,9 @@ import org.jetbrains.annotations.NotNull;
  * This event is called <i>before</i> the block is created, not after.
  * This event is cancellable. If cancelled, the creation does not happen.
  */
-public class HoneypotPreCreateEvent extends Event implements Cancellable {
+public class HoneypotPreCreateEvent extends HoneypotEvent implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
-
-    private boolean isCancelled;
-
-    private final Player player;
-
-    private final Block block;
-
-    /**
-     * Called before a Honeypot is created is taken on a player who broke with Honeypot inventory. If cancelled, the
-     * creation of the Honeypot is cancelled
-     *
-     * @param player The Player breaking with the Honeypot
-     * @param block  The Honeypot block
-     */
-    public HoneypotPreCreateEvent(Player player, Block block) {
-        this.player = player;
-        this.block = block;
-    }
 
     /**
      * Boilerplate function for Bukkit
@@ -68,6 +50,24 @@ public class HoneypotPreCreateEvent extends Event implements Cancellable {
     @SuppressWarnings("java:S4144")
     public static HandlerList getHandlerList() {
         return HANDLERS;
+    }
+
+    private boolean isCancelled;
+
+    private final Player player;
+
+    private final Block block;
+
+    /**
+     * Called before a Honeypot is created is taken on a player who broke with Honeypot inventory. If cancelled, the
+     * creation of the Honeypot is cancelled
+     *
+     * @param player The Player breaking with the Honeypot
+     * @param block  The Honeypot block
+     */
+    public HoneypotPreCreateEvent(Player player, Block block) {
+        this.player = player;
+        this.block = block;
     }
 
     /**

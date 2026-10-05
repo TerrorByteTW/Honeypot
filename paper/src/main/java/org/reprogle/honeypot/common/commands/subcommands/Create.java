@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -191,10 +191,9 @@ public class Create implements CommandCallback {
         } else {
 
             // Fire HoneypotPreCreateEvent and cancel the command execution if any other plugin cancels the event itself
-            HoneypotPreCreateEvent hpce = new HoneypotPreCreateEvent(p, block);
-            Bukkit.getPluginManager().callEvent(hpce);
+            var hpce = new HoneypotPreCreateEvent(p, block);
 
-            if (hpce.isCancelled())
+            if (!hpce.callEvent())
                 return Command.SINGLE_SUCCESS;
 
 
@@ -202,8 +201,7 @@ public class Create implements CommandCallback {
             p.sendMessage(commandFeedback.sendCommandFeedback("success.created"));
 
             // Fire HoneypotCreateEvent
-            HoneypotCreateEvent hce = new HoneypotCreateEvent(p, block);
-            Bukkit.getPluginManager().callEvent(hce);
+            new HoneypotCreateEvent(p, block).callEvent();
         }
 
         return Command.SINGLE_SUCCESS;

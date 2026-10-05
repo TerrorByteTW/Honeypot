@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -26,19 +26,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.BytePluginConfig;
-import org.reprogle.honeypot.api.events.HoneypotPlayerBreakEvent;
-import org.reprogle.honeypot.api.events.HoneypotPrePlayerBreakEvent;
+import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
 import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
-import org.reprogle.honeypot.common.store.HoneypotPlayerHistoryManager;
-import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
 import org.reprogle.honeypot.common.utils.ActionHandler;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
-import org.reprogle.honeypot.common.utils.discord.DiscordWebhookNotifier;
-import org.reprogle.honeypot.common.utils.discord.WebhookActionType;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
@@ -46,34 +45,40 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
 
     private static final String WILDCARD_PERMISSION = "honeypot.*";
 
-    private static final String EXEMPT_PERMISSION = "honeypot.exempt";
-
     private final ActionHandler actionHandler;
     private final HoneypotLogger logger;
     private final HoneypotRegionManager regionManager;
     private final BytePluginConfig config;
     private final CommandFeedback commandFeedback;
-    private final HoneypotPlayerHistoryManager playerHistoryManager;
-    private final HoneypotPlayerManager playerManager;
     private final AdapterManager adapterManager;
+    private final JavaPlugin plugin;
 
     @Inject
     public BlockBreakEventListener(ActionHandler actionHandler, HoneypotLogger logger, HoneypotRegionManager regionManager,
-                                   BytePluginConfig config, CommandFeedback commandFeedback,
-                                   HoneypotPlayerHistoryManager playerHistoryManager, HoneypotPlayerManager playerManager, AdapterManager adapterManager) {
+                                   BytePluginConfig config, CommandFeedback commandFeedback, AdapterManager adapterManager, JavaPlugin plugin) {
         this.actionHandler = actionHandler;
         this.logger = logger;
         this.regionManager = regionManager;
         this.config = config;
         this.commandFeedback = commandFeedback;
-        this.playerHistoryManager = playerHistoryManager;
-        this.playerManager = playerManager;
         this.adapterManager = adapterManager;
+        this.plugin = plugin;
     }
 
     // Player block break event
     @EventHandler(priority = EventPriority.LOWEST)
     public void blockBreakEvent(BlockBreakEvent event) {
+        processBreak(event, event.getBlock().getType());
+    }
+
+    /**
+     * Processes a player breaking a Honeypot
+     *
+     * @param event     The break event
+     * @param blockType The type of the Honeypot block when it was broken, which is recorded in the player's history.
+     *                  This differs from the block's current type if it has already been destroyed
+     */
+    private void processBreak(BlockBreakEvent event, Material blockType) {
         // Check to see if the event is canceled before doing any logic.
         // Ex: Creative mode player with Sword in hand
         if (event.isCancelled())
@@ -93,14 +98,22 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
         }
 
         // Fire HoneypotPrePlayerBreakEvent
-        HoneypotPrePlayerBreakEvent hppbe = new HoneypotPrePlayerBreakEvent(player, event.getBlock());
-        Bukkit.getPluginManager().callEvent(hppbe);
-        logger.debug(Component.text("HoneypotPrePlayerBreakEvent is being called for " + player), true);
+        var hppbe = new HoneypotPrePlayerBreakEvent(player, event.getBlock());
+        var hpte = new HoneypotPreTriggerEvent(player, event.getBlock(), TriggerType.BREAK);
+        logger.debug(Component.text("DEPRECATED HoneypotPrePlayerBreakEvent is being called for " + player));
+        logger.debug(Component.text("HoneypotPreTriggerEvent is being called for " + player));
 
         // Check if the event was canceled. If it is, delete the block.
-        if (hppbe.isCancelled()) {
+        if (!hppbe.callEvent()) {
             regionManager.deleteRegionContaining(event.getBlock());
-            logger.debug(Component.text("HoneypotPrePlayerBreakEvent for " + player + " was cancelled, not continuing."), true);
+            logger.debug(Component.text("DEPRECATED HoneypotPrePlayerBreakEvent for " + player + " was cancelled, not continuing."));
+            return;
+        }
+
+        // Check if the event was canceled. If it is, delete the block.
+        if (!hpte.callEvent()) {
+            regionManager.deleteRegionContaining(event.getBlock());
+            logger.debug(Component.text("HoneypotPreTriggerEvent for " + player + " was cancelled, not continuing."));
             return;
         }
 
@@ -114,169 +127,70 @@ public class BlockBreakEventListener implements Listener, IHoneypotEvent {
             || player.hasPermission(BREAK_PERMISSION)
             || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
             deleteBlock = true;
-            logger.debug(Component.text("Player " + player + " is either allowed to break Honeypots or has some sort of permission. This Honeypot will be removed from the world"), false);
+            logger.debug(Component.text("Player " + player + " is either allowed to break Honeypots or has some sort of permission. This Honeypot will be removed from the world"));
         } else {
             event.setCancelled(true);
         }
 
-        // If "blocks-broken-before-action-taken" is less than or equal to 1, go to the break action.
-        // Otherwise, check if the player should have the action triggered
-        if (config.config().getInt("blocks-broken-before-action-taken") <= 1) {
-            // This is just a precaution to ensure that the player count is always less than
-            // 1 if the value in the
-            // config is 1
-            playerManager.setPlayerCount(player, 0);
-            breakAction(event);
-        } else {
-            countBreak(event);
+        // Count the break, log it, and run the action if the player has hit the trigger limit
+        if (actionHandler.checkAndHandle(player, event.getBlock(), blockType, TriggerType.BREAK) == ActionHandler.TriggerResult.EXEMPT
+            && (player.hasPermission(BREAK_PERMISSION) || player.hasPermission(WILDCARD_PERMISSION) || player.isOp())) {
+            player.sendMessage(commandFeedback.sendCommandFeedback("staff-broke"));
         }
 
         // Fire HoneypotPlayerBreakEvent
-        HoneypotPlayerBreakEvent hpbe = new HoneypotPlayerBreakEvent(player, event.getBlock());
-        Bukkit.getPluginManager().callEvent(hpbe);
-        logger.debug(Component.text("HoneypotPlayerBreakEvent is being called for " + player), true);
+        new HoneypotPlayerBreakEvent(player, event.getBlock()).callEvent();
+        new HoneypotTriggerEvent(player, event.getBlock(), TriggerType.BREAK).callEvent();
+        logger.debug(Component.text("HoneypotPlayerBreakEvent is being called for " + player));
 
         // If we flagged the block for deletion, remove it from the DB. Do this after
         // other actions have been
         // completed, otherwise the other actions will fail with NPEs
         if (deleteBlock) {
-            logger.debug(Component.text("Block is flagged for deletion, removing it from storage"), true);
+            logger.debug(Component.text("Block is flagged for deletion, removing it from storage"));
             regionManager.deleteRegionContaining(event.getBlock());
         }
     }
 
-    // This is a separate event from the one above. We want to know if any Honeypots
-    // were broken due to breaking a
-    // supporting block, such as torches breaking due to
-    // the block they're on being broken
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    // This is a separate event from the one above. We want to know if any Honeypots were broken due to breaking a
+    // supporting block, such as torches breaking due to the block they're on being broken
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void checkBlockBreakSideEffects(BlockBreakEvent event) {
-        if (!config.config().getBoolean("allow-player-destruction"))
-            return;
-
         Player player = event.getPlayer();
+        Block broken = event.getBlock();
 
-        if (!player.hasPermission(BREAK_PERMISSION)
-            && !player.hasPermission(WILDCARD_PERMISSION) && !player.isOp())
-            return;
-
-        // Check adjacent blocks to be sure an adjacent block wasn't broken either (e.g., A torch was broken due to its wall block being destroyed)
-        for (HoneypotRegionObject honeypot : regionManager.getNearbyHoneypots(event.getBlock().getLocation(), 1)) {
-            // If a break took place in a region, then there won't be any side effects.
+        // BlockBreakEvent fires before the block (and anything attached to it) is broken, so record what the adjacent
+        // Honeypots are now, and check whether they're gone once physics has run
+        Map<Block, Material> attached = new HashMap<>();
+        for (HoneypotRegionObject honeypot : regionManager.getNearbyHoneypots(broken.getLocation(), 1)) {
+            // Only single blocks can be attached to another block
             if (!honeypot.isSingleBlockRegion()) continue;
 
             Block block = honeypot.getPos1().getBlock();
-            if (!block.getType().equals(Material.AIR)) continue;
 
-            blockBreakEvent(new BlockBreakEvent(block, player));
+            // The broken block itself is handled by blockBreakEvent
+            if (block.equals(broken)) continue;
+
+            attached.put(block, block.getType());
+        }
+
+        if (attached.isEmpty()) return;
+
+        Bukkit.getRegionScheduler().runDelayed(plugin, broken.getLocation(), task -> attached.forEach((block, originalType) -> {
+            // Still intact, or no longer a Honeypot (e.g. it was removed by another listener)
+            if (block.getType() == originalType || !regionManager.isHoneypotBlock(block)) return;
+
+            if (player.isOnline()) {
+                processBreak(new BlockBreakEvent(block, player), originalType);
+            }
+
+            // The block is already gone, so the Honeypot is removed even if allow-player-destruction is false
             regionManager.deleteRegionContaining(block);
             logger.warning(Component.text(
                 "A Honeypot has been removed due to the block it's attached to being broken. It was located at "
                     + block.getX() + ", " + block.getY() + ", " + block.getZ()
                     + ". " + player.getName()
-                    + " is the player that indirectly broke it, so the assigned action was ran against them. If needed, please recreate the Honeypot"));
-        }
-    }
-
-    private void breakAction(BlockBreakEvent event) {
-
-        logger.debug(Component.text("Action should be taken for this block, attempting to take action"), true);
-
-        // Get the block broken and the chat prefix for prettiness
-        Block block = event.getBlock();
-        Player player = event.getPlayer();
-
-        // Ensure that the player has no exemption and isn't allowed to bypass it. This means that the player:
-        // 1. Cannot have `honeypot.exempt`, `honeypot.break`, or `honeypot.*`
-        // 2. Cannot be /op
-        if (!player.hasPermission(EXEMPT_PERMISSION) && !player.hasPermission(BREAK_PERMISSION)
-            && !player.hasPermission(WILDCARD_PERMISSION) && !player.isOp()) {
-            // Grab the action from the block via the storage manager
-            String action = regionManager.getAction(block);
-
-            if (action == null) {
-                logger.debug(Component.text("A BlockBreakEvent was called for player: " + player.getName() + ", UUID of " + player.getUniqueId() + ". However, the action was null, so this must be a FAKE HONEYPOT. Please investigate the block at " + block.getX() + ", " + block.getY() + ", " + block.getZ()), false);
-                return;
-            }
-
-            // Log the event in the history table
-            playerHistoryManager.addPlayerHistory(player,
-                event.getBlock(), action, "break");
-
-            // Run certain actions based on the action of the Honeypot Block
-            actionHandler.handle(action, block, player);
-            logger.debug(Component.text("Action successfully taken for block " + block + " on player " + player + " via BlockBreakEvent"), false);
-
-            sendWebhook(event);
-
-            // At this point we know the player has one of those permissions above. Now we
-            // need to figure out which
-            return;
-        } else if (player.hasPermission(BREAK_PERMISSION)
-            || player.hasPermission(WILDCARD_PERMISSION) || player.isOp()) {
-            logger.debug(Component.text("Action was not taken for this event, player " + player + " has permission to break Honeypots"), false);
-            player.sendMessage(commandFeedback.sendCommandFeedback("staff-broke"));
-            return;
-        }
-
-        // If it got to here, then they are exempt but don't explicitly have break privileges
-        logger.debug(Component.text("Action was not taken for this event, the player is exempt from having action taken against them. However, they are not allowed to break Honeypots, so the block still exists."), false);
-    }
-
-    private void countBreak(BlockBreakEvent event) {
-        logger.debug(Component.text("Attempting to count the break for player: " + event.getPlayer().getName() + ", UUID of " + event.getPlayer().getUniqueId()), true);
-
-        Player player = event.getPlayer();
-
-        // Don't count the break if they are exempt, have the remove permission,
-        // wildcard permission, or are Op
-        if (player.hasPermission(EXEMPT_PERMISSION) || player.isOp()
-            || player.hasPermission(BREAK_PERMISSION)
-            || player.hasPermission(WILDCARD_PERMISSION)) {
-            logger.debug(Component.text("This break was not counted, player " + player + " is either exempt or has permission to break Honeypots."), false);
-            return;
-        }
-
-        // Get the config value and the number of blocks broken
-        int breaksBeforeAction = config.config().getInt("blocks-broken-before-action-taken");
-        int blocksBroken = playerManager.getCount(player);
-
-        // getCount returns -1 if the player doesn't exist in the DB. If that's the
-        // case, add the player to the DB
-        if (blocksBroken == -1) {
-            playerManager.addPlayer(player, 0);
-            blocksBroken = 0;
-        }
-
-        // Increment the blocks broken counter
-        blocksBroken += 1;
-
-        // If the blocks broken are larger than or equals 'breaks before action' or if
-        // breaks before action equal 1, reset the count and perform the break
-        if (blocksBroken >= breaksBeforeAction || breaksBeforeAction == 1) {
-            logger.debug(Component.text("Player " + player + " has crossed the blocks broken threshold, triggering action against them"), false);
-            playerManager.setPlayerCount(player, 0);
-            breakAction(event);
-        } else {
-            logger.debug(Component.text("Player " + player + " has not yet crossed the blocks broken threshold, break is being counted and no action is being taken"), false);
-            // Just count it
-            playerManager.setPlayerCount(player, blocksBroken);
-            // Log the event in the history table
-            playerHistoryManager.addPlayerHistory(player, event.getBlock(), regionManager.getAction(event.getBlock()), "prelimBreak");
-
-            sendWebhook(event);
-        }
-    }
-
-    private void sendWebhook(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-
-        if (config.config().getBoolean("discord.enable")) {
-            WebhookActionType actionType;
-            String sendWhen = config.config().getString("discord.send-when");
-            actionType = sendWhen.equalsIgnoreCase("onbreak") ? WebhookActionType.BREAK : WebhookActionType.ACTION;
-
-            new DiscordWebhookNotifier(actionType, config.config().getString("discord.url"), event.getBlock(), player, logger).send();
-        }
+                    + " is the player that indirectly broke it, so it was treated as them breaking the Honeypot. If needed, please recreate the Honeypot"));
+        }), 1L);
     }
 }

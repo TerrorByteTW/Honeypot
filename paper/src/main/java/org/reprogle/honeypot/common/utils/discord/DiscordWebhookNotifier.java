@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -71,7 +71,7 @@ public class DiscordWebhookNotifier {
             this.CLIENT.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    logger.severe(Component.text("Failed to send webhook: " + e.getMessage()));
+                    logger.error(Component.text("Failed to send webhook: " + e.getMessage()));
                 }
 
                 @Override
@@ -110,6 +110,7 @@ public class DiscordWebhookNotifier {
         String tempBody = switch (webhookType) {
             case ACTION -> jsonTemplate.replace("%webhookType%", "Action Taken");
             case BREAK -> jsonTemplate.replace("%webhookType%", "Block Broken");
+            case TRIGGER -> jsonTemplate.replace("%webhookType%", "Honeypot Triggered");
         };
 
         return tempBody

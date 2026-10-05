@@ -1,5 +1,5 @@
 # File version (do NOT edit):
-file-version: 30
+file-version: 31
 
 ######################################################################
 #                     P L U G I N   S E T T I N G S                  #
@@ -10,15 +10,23 @@ file-version: 30
 # A full list of events that are considered "extra" is here: https://github.com/TerrorByteTW/Honeypot/wiki/Extra-Events
 enable-extra-events: false
 
-# The number of honeypot blocks a player is allowed to break before any action is taken. Default is 1 (immediate action)
-blocks-broken-before-action-taken: 1
+# The number of Honeypots a player is allowed to trigger before any action is taken. Each category represents a different type of Honeypot trigger.
+trigger-limits:
+  # The number of Honeypot blocks a player can break before any action is taken. Default is 1 (immediate action)
+  blocks-broken: 1
+  # The number of Honeypot Inventories a player can attempt to open before any action is taken. If `use-inventory-click` is true, this is ignored. Default is 1 (immediate action)
+  inventories-opened: 1
+  # The number of Honeypot Inventories a player can interact with (click, drag, etc.) before any action is taken. Simply opening an inventory does not count. If `use-inventory-click` is false, this is ignored. Default is 1 (immediate action)
+  inventories-interacted: 1
+  # If a Honeypot is triggered via another method (TNT, water flowing, etc.), this is the number of those triggers before any action is taken. Default is 1 (immediate action)
+  generic: 1
 
-# Allow players to break Honeypot blocks. If set to true, 
-# an action will *NOT* trigger until a player hits the blocks-broken-before-action-taken value, and the Honeypot will be silently removed (Since it was broken, obvi)
-# If you want action to take on all Honeypots, regardless if players can remove them or not, be sure to set blocks-broken-before-action-taken to 1.
+# Allow players to break Honeypot blocks. Block behavior will not be changed if this is true (drops will still drop, for example). The break WILL still count towards the appropriate trigger limit.
+# If you want Honeypot actions to still trigger regardless of if players can break blocks, be sure to set the appropriate trigger limits above to 1.
 allow-player-destruction: true
 
-# Allow honeypot blocks to be blown up (TnT, Creepers, Ghasts, etc.). Default is false
+# Allow honeypot blocks to be blown up (TNT, Creepers, Ghasts, etc.). Default is false
+# `allow-player-destruction` does not apply to explosions, such as player-lit TNT (if this is false, players can mine a Honeypot but not blow it up).
 allow-explode: false
 
 # Allow enderman to pick up Honeypot blocks. Default is false
@@ -33,28 +41,36 @@ container-actions:
   # Only trigger actions if inventory clicks are set to true and items are taken. This allows players to still deposit items into a Honeypot inventory. Defaults to true.
   only-trigger-on-withdrawal: true
 
-# Enable players to still open inventories if container actions are enabled. Always true if use-inventory-click is true. Defaults to false
+# Enable players to still open inventories if container actions are enabled. Always true if `use-inventory-click` is true. Defaults to false.
 # Essentially what this means is, if use-inventory-click is false and enable-container-actions are true, then a Honeypot will trigger upon opening the inventory,
 # but the inventory will still open and the player can still take or leave items.
 always-allow-container-access: false
 
-# Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search
+# Range in which /honeypot locate and /honeypot remove near (And their GUIs) will search by default.
+# When using /honeypot locate, you may specify a different radius to override this value.
+# When using Honeypot's default SQLite storage mechanism, high values shouldn't cause a performance hit :)
 search-range: 5
 
 # Removes Honeypots from storage if their corresponding blocks no longer exist (e.g., are air).
-# This used to require a restart to change, but now updates with /honeypot reload
-# enabled: Check for ghost pots periodically.
-# check-interval: How often to check for ghost pots, in MINUTES. 20 minutes = 1 Minecraft day.
+# May be changed on the fly with /honeypot reload
 ghost-honeypot-checker:
+  # Enable or disable checking for ghost Honeypots periodically.
   enable: true
+  # How often to check for ghost Honeypots, in MINUTES. 20 minutes = 1 Minecraft day.
   check-interval: 20
 
-# Enable more detailed logging, stored in a honeypot.log file in the Honeypot folder
-enable-logging: true
-
-# Silences more noisy log messages, such as events from non-player triggered actions (Pistons, leaf decay, etc.) or log messages that occur frequently
-# This only applies to DEBUG log messages; INFO, WARNING, etc. messages are not affected
-silence-noisy-logs: false
+# Logging settings for Honeypot
+# When reporting an issue to the developer, please enable this first, reproduce the issue, then report the issue with the `honeypot.log` file included.
+logging:
+  # Enable logging
+  enable-logging: true
+  # Enables logging to a file. Setting the minimum log level to VERBOSE or DEBUG will force-enable this value.
+  # If the minimum is INFO or higher, log-to-file will be respected.
+  log-to-file: true
+  # Sets the minimum log level for Honeypot. Affects both console and messages logged to the `honeypot.log` file.
+  # Options are: VERBOSE, DEBUG, INFO, WARNING, ERROR
+  # VERBOSE and DEBUG will never be output to console, only `honeypot.log`
+  minimum-log-level: INFO
 
 # Enable Discord Webhooks. This will send messages to Discord via your webhook URL if a Honeypot is broken and/or activated
 # Change "send-when" to "onbreak" when you want to be notified of all breaks (Including when action is taken).
@@ -70,6 +86,15 @@ discord:
 # However, you should assume this item *can* get stolen and should not be something valuable
 region-wand: HONEY_BOTTLE
 
+# Allows configuring the storage provider for all the internal Honeypot data types.
+# This allows you to do things like save blocks to SQLite, while saving player history to a text file (if you have a Store that provides that)
+# Honeypot, by default, only provides a single store for each type, so you should not change this unless you are sure you know what you're doing.
+# As long as the storage provider was registered on startup, you can switch between them at any time using `/honeypot reload`.
+storage-method:
+  regions: "sqlite-regions"
+  players: "sqlite-players"
+  player-history: "sqlite-player-history"
+
 ######################################################################
 #                      C H A T   S E T T I N G S                     #
 ######################################################################
@@ -81,9 +106,6 @@ language: en_US
 # If you're providing your own language file, set this to true. If you've incorrectly translated it, though, expect errors in console!
 # If you don't know what this is, leave it set to false
 bypass-language-check: false
-
-# The number of history entries to return from the '/honeypot history query' command
-history-length: 5
 
 ######################################################################
 #                     F I L T E R   S E T T I N G S                  #
@@ -118,19 +140,6 @@ respect-griefprevention: false
 # WorldGuard will register a flag which can be used to toggle whether Honeypots can be created in a region
 # Lands will automatically deny building Honeypots in a claimed area. This is not changeable at the current time.
 # Please remember that existing Honeypots will still function normally if an area is claimed where Honeypots already are.
-
-######################################################################
-#                       E X P E R I M E N T A L                      #
-######################################################################
-
-# Allows you to set the storage provider for all the internal Honeypot datatypes.
-# This allows you to do things like save blocks to SQLite, while saving player history to a text file (if you have a Store that provides that)
-# Honeypot, by default, only provides a single store for each type, so you should not change this unless you are sure you know what you're doing.
-# Believe it or not, this *can* be changed on the fly with /honeypot reload! As long as the storage provider was registered on startup, you can switch between them at any time.
-storage-method:
-  regions: "sqlite-regions"
-  players: "sqlite-players"
-  player-history: "sqlite-player-history"
 
 ######################################################################
 #                    S Q L I T E    S E T T I N G S                  #
