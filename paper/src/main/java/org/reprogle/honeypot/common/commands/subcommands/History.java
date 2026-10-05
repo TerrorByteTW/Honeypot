@@ -379,7 +379,7 @@ public class History implements CommandCallback {
 
     private record HoneypotHistoryArgs(@Nullable String action, @Nullable PlayerProfile player, int count) {
         public boolean isValid() {
-            return action != null && player != null;
+            return action != null && (action.equals("purge") || player != null);
         } // primitives can't be null, but we don't care if `count` is null or not
     }
 
@@ -417,7 +417,6 @@ public class History implements CommandCallback {
                             .then(
                                 CommandDsl.argument("count", IntegerArgumentType.integer(1, 100000))
                             )
-                    )
-            ).executes(History.class, factory);
+                    ).executes(History.class, factory));
     }
 }
