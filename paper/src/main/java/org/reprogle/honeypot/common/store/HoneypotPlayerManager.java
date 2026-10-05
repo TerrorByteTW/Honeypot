@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022 - 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -120,15 +120,29 @@ public class HoneypotPlayerManager {
      * @param store The store to check
      */
     public void warnIfOutdated(PlayerStore store) {
+        if (!isOutdated(store)) return;
+
+        logger.warning(Component.text("The player store \"" + store.getProviderName() + "\" was built for an older version of Honeypot. Only block breaks will be counted towards trigger limits (all other triggers take action immediately), and lifetime statistics will not be recorded. Please update the storage provider, or use Honeypot's built-in one. Support for outdated player stores will be removed in a future version of Honeypot"));
+    }
+
+    /**
+     * Checks whether the current player store can count the given trigger type. Stores built for older versions of
+     * Honeypot can only count {@link TriggerType#BREAK}.
+     *
+     * @param triggerType The trigger type to check
+     * @return True if the current player store counts the trigger type
+     */
+    public boolean canCount(TriggerType triggerType) {
+        return triggerType == TriggerType.BREAK || !isOutdated(Registry.getPlayerStore());
+    }
+
+    private static boolean isOutdated(PlayerStore store) {
         try {
-            if (store.getClass().getMethod("addPlayer", Player.class, TriggerType.class, int.class).getDeclaringClass() != PlayerStore.class)
-                return;
+            return store.getClass().getMethod("addPlayer", Player.class, TriggerType.class, int.class).getDeclaringClass() == PlayerStore.class;
         } catch (NoSuchMethodException e) {
             // Unreachable, the method is declared on PlayerStore
-            return;
+            return false;
         }
-
-        logger.warning(Component.text("The player store \"" + store.getProviderName() + "\" was built for an older version of Honeypot. Only block breaks will be tracked, and lifetime statistics will not be recorded. Please update the storage provider, or use Honeypot's built-in one. Support for outdated player stores will be removed in a future version of Honeypot"));
     }
 
     /**

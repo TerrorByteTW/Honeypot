@@ -1,7 +1,7 @@
 /*
  * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
  *
- * Copyright (c) TerrorByte and Honeypot Contributors 2022 - 2025.
+ * Copyright (c) 2022 - 2022-2026 TerrorByte and Honeypot Contributors.
  *
  * This program is free software: You can redistribute it and/or modify it under
  *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
@@ -149,7 +149,8 @@ public class ActionHandler {
             return TriggerResult.NO_ACTION;
         }
 
-        int limit = getTriggerLimit(triggerType);
+        // Outdated player stores can't count this trigger type, so take action immediately like older versions did
+        int limit = playerManager.canCount(triggerType) ? getTriggerLimit(triggerType) : 1;
         int count = playerManager.getCount(player, triggerType) + 1;
 
         playerManager.addPlayer(player, triggerType, 1);
