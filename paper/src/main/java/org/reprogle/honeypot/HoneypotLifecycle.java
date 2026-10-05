@@ -44,7 +44,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     private final Set<PlayerStore> playerStores;
     private final Set<PlayerHistoryStore> playerHistoryStores;
     private final BytePluginConfig config;
-    private final HoneypotSupportedVersions supportedVersions;
+    private final HoneypotUpdateChecker updateChecker;
     private final HoneypotMigrations migrations;
     private final HoneypotPlayerManager playerManager;
 
@@ -63,7 +63,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         Set<PlayerHistoryStore> playerHistoryStores,
         HoneypotMigrations migrations,
         BytePluginConfig config,
-        HoneypotSupportedVersions supportedVersions,
+        HoneypotUpdateChecker updateChecker,
         HoneypotPlayerManager playerManager
     ) {
         this.plugin = plugin;
@@ -79,7 +79,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         this.playerManager = playerManager;
         this.migrations = migrations;
         this.config = config;
-        this.supportedVersions = supportedVersions;
+        this.updateChecker = updateChecker;
     }
 
     @Override
@@ -213,20 +213,9 @@ public class HoneypotLifecycle implements PluginLifecycle {
                 Component.text("Welcome to Folia! It is assumed you know what you're doing, since Folia is not yet standard. While Honeypot can run on Folia, it is not yet officially endorsed by the developer, and is also not actively tested. Be wary when using it for now, and report any bugs in Honeypot caused by Folia to the developer!"));
         }
 
-        // Check the supported MC versions against the MC versions supported by this version of Honeypot
+        // Check for updates, and check the supported MC versions against the MC versions supported by this version of Honeypot
         // That's a mouthful, isn't it?
-        supportedVersions.checkIfServerSupported();
-
-        // Check for any updates
-        new HoneypotUpdateChecker(plugin, "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt")
-            .getVersion(latest -> {
-                if (HoneypotUpdateChecker.compareVersions(latest, plugin.getPluginMeta().getVersion()) > 0) {
-                    plugin.getServer().getConsoleSender()
-                        .sendMessage(commandFeedback.getChatPrefix().append(Component.text("There is a new update available: " + latest + ". Download for the latest features and performance improvements!", NamedTextColor.RED)));
-                } else {
-                    plugin.getServer().getConsoleSender().sendMessage(commandFeedback.getChatPrefix().append(Component.text(" You are on the latest version of Honeypot!", NamedTextColor.GREEN)));
-                }
-            }, logger);
+        updateChecker.checkOnStartup();
     }
 
     /**

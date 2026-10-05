@@ -16,36 +16,157 @@
 
 package org.reprogle.honeypot.common.utils;
 
-import net.kyori.adventure.text.Component;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.reprogle.honeypot.common.commands.CommandFeedback;
+import org.reprogle.honeypot.common.utils.updater.ReleaseNotes;
+import org.reprogle.honeypot.common.utils.updater.ServerVersionRange;
+import org.reprogle.honeypot.common.utils.updater.VersionManifest;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Scanner;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-public record HoneypotUpdateChecker(Plugin plugin, String link) {
+/**
+ * Downloads the version manifest to check for updates, and to verify that the server's Minecraft version is
+ * supported by the running version of Honeypot.
+ */
+@Singleton
+public class HoneypotUpdateChecker {
+
+	public static final String MANIFEST_URL = "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/refs/heads/master/version_manifest.yml";
+
+	private static final int TIMEOUT_MILLIS = 10_000;
+
+	private final JavaPlugin plugin;
+	private final HoneypotLogger logger;
+	private final CommandFeedback commandFeedback;
+
+	@Inject
+	HoneypotUpdateChecker(JavaPlugin plugin, HoneypotLogger logger, CommandFeedback commandFeedback) {
+		this.plugin = plugin;
+		this.logger = logger;
+		this.commandFeedback = commandFeedback;
+	}
 
 	/**
-	 * Grabs the version number from the link provided
-	 *
-	 * @param consumer The consumer function
+	 * @return The version of Honeypot running on this server
 	 */
-	public void getVersion(final Consumer<String> consumer, HoneypotLogger logger) {
+	public String currentVersion() {
+		return plugin.getPluginMeta().getVersion();
+	}
+
+	/**
+	 * Asynchronously downloads and parses the version manifest. The consumer is called off the main thread, and is
+	 * not called at all if the manifest can't be retrieved or parsed.
+	 *
+	 * @param consumer The consumer function, which accepts the parsed manifest
+	 */
+	public void fetchManifest(final Consumer<VersionManifest> consumer) {
 		Bukkit.getAsyncScheduler().runNow(this.plugin, scheduledTask -> {
-			logger.info(Component.text("Checking for updates"));
-			try (InputStream inputStream = new URI(this.link).toURL().openStream();
-				 Scanner scanner = new Scanner(inputStream)) {
-				if (scanner.hasNext()) {
-					consumer.accept(scanner.next());
+			logger.info(commandFeedback.sendCommandFeedback("updater.checking"));
+			try {
+				URLConnection connection = new URI(MANIFEST_URL).toURL().openConnection();
+				connection.setConnectTimeout(TIMEOUT_MILLIS);
+				connection.setReadTimeout(TIMEOUT_MILLIS);
+
+				String yaml;
+				try (InputStream inputStream = connection.getInputStream()) {
+					yaml = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 				}
+
+				consumer.accept(ManifestParser.parse(yaml));
 			} catch (IOException | URISyntaxException exception) {
-				logger.info(Component.text("Unable to check for updates" + exception.getMessage()));
+				logger.info(commandFeedback.sendCommandFeedback("updater.check-failed",
+					Placeholder.unparsed("reason", String.valueOf(exception.getMessage()))));
+			} catch (InvalidConfigurationException exception) {
+				logger.warning(commandFeedback.sendCommandFeedback("updater.manifest-invalid",
+					Placeholder.unparsed("reason", String.valueOf(exception.getMessage()))));
 			}
 		});
+	}
+
+	/**
+	 * Downloads the manifest once, then verifies the server version is supported and tells the console whether an
+	 * update is available. Meant to be called when the plugin is enabled.
+	 */
+	public void checkOnStartup() {
+		fetchManifest(manifest -> {
+			checkIfServerSupported(manifest);
+			notifyConsole(manifest);
+		});
+	}
+
+	/**
+	 * Downloads the manifest and verifies the server's Minecraft version is supported by this version of Honeypot.
+	 * Any problems are logged as warnings.
+	 */
+	public void checkIfServerSupported() {
+		fetchManifest(this::checkIfServerSupported);
+	}
+
+	/**
+	 * Verifies the server's Minecraft version is supported by this version of Honeypot, using an already downloaded
+	 * manifest. Also warns if this version of Honeypot has been pulled. Any problems are logged as warnings.
+	 *
+	 * @param manifest The parsed version manifest
+	 */
+	public void checkIfServerSupported(VersionManifest manifest) {
+		String pluginVersion = currentVersion();
+		Optional<ReleaseNotes> release = manifest.release(pluginVersion);
+
+		if (release.isEmpty()) {
+			logger.warning(commandFeedback.sendCommandFeedback("updater.version-not-in-manifest",
+				Placeholder.unparsed("version", pluginVersion)));
+			return;
+		}
+
+		if (release.get().pulled()) {
+			String reason = release.get().pulledReason();
+			logger.warning(reason == null
+				? commandFeedback.sendCommandFeedback("updater.version-pulled-no-reason", Placeholder.unparsed("version", pluginVersion))
+				: commandFeedback.sendCommandFeedback("updater.version-pulled", Placeholder.unparsed("version", pluginVersion), Placeholder.unparsed("reason", reason)));
+			return;
+		}
+
+		ServerVersionRange range = release.get().supportedServerVersions();
+		if (range == null) return;
+
+		String serverVersion = Bukkit.getMinecraftVersion();
+		if (!range.contains(serverVersion)) {
+			logger.warning(commandFeedback.sendCommandFeedback("updater.server-unsupported"));
+			logger.warning(commandFeedback.sendCommandFeedback("updater.supported-range",
+				Placeholder.unparsed("version", pluginVersion),
+				Placeholder.unparsed("min", range.min()),
+				Placeholder.unparsed("max", range.max()),
+				Placeholder.unparsed("server_version", serverVersion)));
+		}
+	}
+
+	private void notifyConsole(VersionManifest manifest) {
+		String currentVersion = currentVersion();
+		if (manifest.hasUpdate(currentVersion)) {
+			List<ReleaseNotes> newer = manifest.releasesNewerThan(currentVersion);
+			int features = newer.stream().mapToInt(release -> release.features().size()).sum();
+			int bugFixes = newer.stream().mapToInt(release -> release.bugFixes().size()).sum();
+			plugin.getServer().getConsoleSender().sendMessage(commandFeedback.sendCommandFeedback("updater.update-available-console",
+				Placeholder.unparsed("latest", manifest.latestVersion()),
+				Placeholder.unparsed("features", String.valueOf(features)),
+				Placeholder.unparsed("bug_fixes", String.valueOf(bugFixes)),
+				Placeholder.unparsed("url", manifest.downloadUrl())));
+		} else {
+			plugin.getServer().getConsoleSender().sendMessage(commandFeedback.sendCommandFeedback("updater.up-to-date"));
+		}
 	}
 
 	/**

@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reprogle.bytelib.config.Translator;
 
@@ -38,6 +39,19 @@ public class CommandFeedback {
      */
     @SuppressWarnings("java:S1192")
     public Component sendCommandFeedback(String feedback) {
+        return sendCommandFeedback(feedback, new TagResolver[0]);
+    }
+
+    /**
+     * Same as {@link #sendCommandFeedback(String)}, but allows passing MiniMessage tag resolvers
+     * (such as {@link net.kyori.adventure.text.minimessage.tag.resolver.Placeholder}s) to fill in the translation
+     *
+     * @param feedback  The string to send back
+     * @param resolvers The tag resolvers to apply to the translated string
+     * @return The Feedback string
+     */
+    @SuppressWarnings("java:S1192")
+    public Component sendCommandFeedback(String feedback, TagResolver... resolvers) {
         Component feedbackMessage;
 
         if (feedback.equalsIgnoreCase("usage")) {
@@ -56,7 +70,7 @@ public class CommandFeedback {
                 .build();
         } else {
             try {
-                feedbackMessage = translator.tr(feedback.toLowerCase());
+                feedbackMessage = translator.tr(feedback.toLowerCase(), resolvers);
             } catch (Exception e) {
                 feedbackMessage = translator.tr("unknown-error");
             }

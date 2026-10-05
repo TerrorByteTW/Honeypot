@@ -29,19 +29,19 @@ import org.reprogle.bytelib.commands.dsl.CommandCallback;
 import org.reprogle.bytelib.commands.dsl.CommandDsl;
 import org.reprogle.bytelib.commands.dsl.LiteralNode;
 import org.reprogle.honeypot.common.commands.CommandFeedback;
-import org.reprogle.honeypot.common.utils.HoneypotSupportedVersions;
+import org.reprogle.honeypot.common.utils.HoneypotUpdateChecker;
 
 public class Info implements CommandCallback {
 
     private final JavaPlugin plugin;
     private final CommandFeedback commandFeedback;
-    private final HoneypotSupportedVersions supportedVersions;
+    private final HoneypotUpdateChecker updateChecker;
 
     @Inject
-    public Info(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotSupportedVersions supportedVersions) {
+    public Info(JavaPlugin plugin, CommandFeedback commandFeedback, HoneypotUpdateChecker updateChecker) {
         this.plugin = plugin;
         this.commandFeedback = commandFeedback;
-        this.supportedVersions = supportedVersions;
+        this.updateChecker = updateChecker;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class Info implements CommandCallback {
         sender.sendMessage(commandFeedback.getChatPrefix()
             .append(Component.text(" "))
             .append(Component.text("Running on " + Bukkit.getServer().getName() + " " + Bukkit.getVersion(), NamedTextColor.WHITE)));
-        supportedVersions.checkIfServerSupported();
+        updateChecker.checkIfServerSupported();
 
         return Command.SINGLE_SUCCESS;
     }

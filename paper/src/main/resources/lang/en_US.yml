@@ -1,4 +1,4 @@
-language-version: 12
+language-version: 13
 prefix: '<gold>[Honeypot]<reset>'
 kick-reason: "<prefix> Kicked for breaking honeypot blocks. Don't grief!"
 ban-reason: "<prefix> You have been banned for breaking honeypot blocks"
@@ -41,3 +41,44 @@ creating-region:
   end: "<prefix> Region created!"
   error: "<prefix> The region was not created"
   cancel: "<prefix> Region creation cancelled"
+updater:
+  checking: "Checking for updates"
+  check-failed: "Unable to check for updates: <reason>"
+  manifest-invalid: "Unable to check for updates, the version manifest is invalid: <reason>"
+  update-available-console: "<prefix> <red>There is a new update available: <latest> (<features> new features, <bug_fixes> bug fixes). Download it at <url> for the latest features and performance improvements!</red>"
+  up-to-date: "<prefix> <green>You are on the latest version of Honeypot!</green>"
+  download-hover: "Click me to download the latest update!"
+  whats-new: "<yellow><bold>[Check out what's new!]</bold></yellow>"
+  whats-new-hover: "Click to see every feature and bug fix since v<version>"
+  version-not-in-manifest: "Honeypot <version> is not listed in the version manifest, so we can't confirm it supports this version of Minecraft. If this is a development build, you can ignore this message."
+  version-pulled: "Honeypot <version> has been pulled: <reason>"
+  version-pulled-no-reason: "Honeypot <version> has been pulled, it's recommended you update to the next available version immediately!"
+  server-unsupported: "Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but functionality is not guaranteed. If you experience any issues please report them to the developer."
+  supported-range: "Honeypot <version> supports server versions <min> - <max>, but this server is running <server_version>"
+changelog-gui:
+  title: "What's new in Honeypot"
+  previous-page: "<white>Previous Page</white>"
+  next-page: "<white>Next Page</white>"
+  download-link: "<prefix> <gold>Click here to download Honeypot <latest>!</gold>"
+  download-link-hover: "<url>"
+  empty:
+    name: "<red>Nothing to show</red>"
+    lore: "<gray>No changes were listed for the newer versions</gray>"
+  honey-bottle:
+    name: "<gold><bold>What's new in Honeypot</bold></gold>"
+    installed-version: "<gray>Installed version: <red><version></red></gray>"
+    latest-version: "<gray>Latest version: <green><latest></green></gray>"
+    versions-behind: "<gray>Versions behind: <white><count></white></gray>"
+    click: "<yellow>Click to get the download link!</yellow>"
+  features:
+    title: "<green><bold>FEATURES</bold></green>"
+    count: "<gray>New features since your version: <white><count></white></gray>"
+    entry-name: "<green><name></green>"
+    entry-description: "<gray><line></gray>"
+    entry-version: "<dark_gray>Added in v<version></dark_gray>"
+  bug-fixes:
+    title: "<red><bold>BUG FIXES</bold></red>"
+    count: "<gray>Bug fixes since your version: <white><count></white></gray>"
+    entry-name: "<red><name></red>"
+    entry-description: "<gray><line></gray>"
+    entry-version: "<dark_gray>Fixed in v<version></dark_gray>"
