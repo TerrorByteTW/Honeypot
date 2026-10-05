@@ -143,10 +143,10 @@ public class HoneypotRegionManager {
 
 
     /**
-     * Get the Honeypot Block object from Cache or the DB
+     * Get the Honeypot Region Object
      *
-     * @param block The Block to retrieve as a Honeypot Block Object
-     * @return The Honeypot Block Object if it exists, null if it doesn't
+     * @param block The Block to retrieve as a Honeypot Region Object
+     * @return The Honeypot Region Object if it exists, null if it doesn't
      */
     public HoneypotRegionObject getHoneypotRegion(Block block) {
 

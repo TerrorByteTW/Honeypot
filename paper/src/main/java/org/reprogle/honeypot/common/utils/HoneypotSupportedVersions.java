@@ -85,8 +85,8 @@ public class HoneypotSupportedVersions {
                 // to the plugin, we can update it on the GitHub side and server admins will not
                 // see an error message
                 if ((serverYearVer < lowerYearVer || serverYearVer > upperYearVer)
-                    && (serverDropVer < lowerDropVer || serverDropVer >= upperDropVer)
-                    && (serverHotfixVer < lowerHotfixVer || serverHotfixVer > upperHotfixVer)) {
+                    || (serverDropVer < lowerDropVer || serverDropVer >= upperDropVer)
+                    || (serverHotfixVer < lowerHotfixVer || serverHotfixVer > upperHotfixVer)) {
                     logger.warning(
                         Component.text("Honeypot is not guaranteed to support this version of Minecraft. We won't prevent you from using it, but functionality is not guaranteed. If you experience any issues please report them to the developer."));
                     logger.warning(Component.text("Honeypot " + pluginVersion + " supports server versions " + value));

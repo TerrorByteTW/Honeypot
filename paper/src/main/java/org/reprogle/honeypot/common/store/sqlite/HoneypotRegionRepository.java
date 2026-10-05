@@ -131,36 +131,34 @@ public class HoneypotRegionRepository implements RegionStore {
     }
 
     public void removeHoneypotRegion(Location location) {
-        db.execute("""
-                DELETE FROM honeypot_regions
-                WHERE id IN (
-                    SELECT
-                        id
-                    FROM
-                        honeypot_index
-                    WHERE   x_min <= ? AND x_max >= ?
-                      AND   y_min <= ? AND y_max >= ?
-                      AND   z_min <= ? AND z_max >= ?
-                );
+        // .queryOne() can return null if no rows are found, so this must be Integer and not int, since int is a primitive and cannot be null
+        // As well, even though there *could*, in theory, be more than one region, createHoneypotRegion() ensures that there is only one region per location, so this is safe.
+        Integer rowId = db.queryOne("""
+                SELECT r.id
+                FROM honeypot_regions r
+                JOIN honeypot_index i ON r.id = i.id
+                WHERE   i.x_min <= ? AND i.x_max >= ?
+                  AND   i.y_min <= ? AND i.y_max >= ?
+                  AND   i.z_min <= ? AND i.z_max >= ?
+                  AND   r.world = ?;
                 """,
+            row -> row.i32("id"),
             Param.i32(location.getBlockX()),
             Param.i32(location.getBlockX()),
             Param.i32(location.getBlockY()),
             Param.i32(location.getBlockY()),
             Param.i32(location.getBlockZ()),
-            Param.i32(location.getBlockZ()));
-        db.execute("""
-                DELETE FROM honeypot_index
-                WHERE   x_min <= ? AND x_max >= ?
-                  AND   y_min <= ? AND y_max >= ?
-                  AND   z_min <= ? AND z_max >= ?;
-                """,
-            Param.i32(location.getBlockX()),
-            Param.i32(location.getBlockX()),
-            Param.i32(location.getBlockY()),
-            Param.i32(location.getBlockY()),
             Param.i32(location.getBlockZ()),
-            Param.i32(location.getBlockZ()));
+            Param.text(location.getWorld().getName()));
+
+        if (rowId != null) {
+            db.transaction(tx -> {
+                tx.execute("DELETE FROM honeypot_regions WHERE id = ?;", Param.i32(rowId));
+                tx.execute("DELETE FROM honeypot_index WHERE id = ?;", Param.i32(rowId));
+                return null;
+            });
+        }
+
     }
 
     public boolean isHoneypot(Location location) {

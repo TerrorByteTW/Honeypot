@@ -58,6 +58,7 @@ public class GhostHoneypotMonitor {
      * Start a task to check for ghost honeypots every defined interval
      */
     public void startTask() {
+        if (!config.config().getBoolean("ghost-honeypot-checker.enable")) return;
         task = Bukkit.getGlobalRegionScheduler().runAtFixedRate(plugin, scheduledTask -> {
             logger.debug(Component.text("Checking for Ghost Honeypots..."));
             int removedPots = 0;

@@ -157,7 +157,7 @@ public class GUI implements CommandCallback {
 
     private void allHoneypotsInventory(Player p) {
         if (!p.hasPermission("honeypot.locate") && !p.hasPermission("honeypot.*") && !p.isOp()) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
             return;
         }
 
@@ -197,7 +197,7 @@ public class GUI implements CommandCallback {
 
     private void historyQueryInventory(Player p) {
         if (!p.hasPermission("honeypot.history") && !p.hasPermission("honeypot.*") && !p.isOp()) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
             return;
         }
 
@@ -238,7 +238,7 @@ public class GUI implements CommandCallback {
     @SuppressWarnings({"java:S3776", "java:S1192"})
     private void removeHoneypotInventory(Player p) {
         if (!p.hasPermission("honeypot.remove") && !p.hasPermission("honeypot.*") && !p.isOp()) {
-            p.sendMessage(commandFeedback.sendCommandFeedback("nopermission"));
+            p.sendMessage(commandFeedback.sendCommandFeedback("no-permission"));
             return;
         }
 

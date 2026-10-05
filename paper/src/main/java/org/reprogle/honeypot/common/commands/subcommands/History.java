@@ -418,6 +418,6 @@ public class History implements CommandCallback {
                                 CommandDsl.argument("count", IntegerArgumentType.integer(1, 100000))
                             )
                     )
-                    .executes(History.class, factory));
+            ).executes(History.class, factory);
     }
 }
