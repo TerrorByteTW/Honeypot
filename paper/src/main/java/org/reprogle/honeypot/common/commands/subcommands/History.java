@@ -38,6 +38,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -90,11 +91,19 @@ public class History implements CommandCallback {
             return Command.SINGLE_SUCCESS;
         }
 
-        // This is safe because args.isValid() will only be true if both of these variables are not null
+        // This is safe because args.isValid() will only be true if action is not null
         assert args.action != null;
-        assert args.player != null;
 
         var sender = ctx.getSource().getSender();
+
+        if (args.action.equals("purge")) {
+            playerHistoryManager.deleteAllHistory();
+            sender.sendMessage(commandFeedback.sendCommandFeedback("success"));
+            return Command.SINGLE_SUCCESS;
+        }
+
+        // Safe because args.isValid() only allows a null player for "purge", which is handled above
+        assert args.player != null;
         var id = args.player.getId();
 
         if (id == null) {
@@ -102,21 +111,24 @@ public class History implements CommandCallback {
             return Command.SINGLE_SUCCESS;
         }
 
-        Player player = Bukkit.getPlayer(id);
-        if (player == null || !player.isOnline()) {
-            player = Bukkit.getOfflinePlayer(id).getPlayer();
-            if (player == null) {
-                sender.sendMessage(commandFeedback.sendCommandFeedback("player-not-found"));
-                return Command.SINGLE_SUCCESS;
-            }
+        // History is keyed by UUID, so offline players can be looked up as long as they've joined before
+        OfflinePlayer target = Bukkit.getOfflinePlayer(id);
+        if (!target.isOnline() && !target.hasPlayedBefore()) {
+            sender.sendMessage(commandFeedback.sendCommandFeedback("player-not-found"));
+            return Command.SINGLE_SUCCESS;
         }
 
         switch (args.action) {
             case "delete":
-                if (args.count >= 1) { // Since primitives are not nullable, the argument has a minimum of 1 but defaults to 0 if not provided. So, we know that args.count == 0 means not provided, and anything <= 0 is not possible thanks to Brigadier
-                    playerHistoryManager.deletePlayerHistory(player, args.count);
-                } else {
-                    playerHistoryManager.deletePlayerHistory(player);
+                try {
+                    if (args.count >= 1) { // Since primitives are not nullable, the argument has a minimum of 1 but defaults to 0 if not provided. So, we know that args.count == 0 means not provided, and anything <= 0 is not possible thanks to Brigadier
+                        playerHistoryManager.deletePlayerHistory(target, args.count);
+                    } else {
+                        playerHistoryManager.deletePlayerHistory(target);
+                    }
+                } catch (UnsupportedOperationException e) {
+                    sender.sendMessage(Component.text("The current history storage provider can only manage history for online players", NamedTextColor.RED));
+                    break;
                 }
 
                 sender.sendMessage(commandFeedback.sendCommandFeedback("success"));
@@ -129,11 +141,9 @@ public class History implements CommandCallback {
                 }
 
                 sender.sendMessage(commandFeedback.sendCommandFeedback("searching"));
-                openHistoryGui(viewer, player);
-                break;
-            case "purge":
-                playerHistoryManager.deleteAllHistory();
-                sender.sendMessage(commandFeedback.sendCommandFeedback("success"));
+                String targetName = target.getName() != null ? target.getName()
+                    : args.player.getName() != null ? args.player.getName() : id.toString();
+                openHistoryGui(viewer, target, targetName);
                 break;
             default:
                 sender.sendMessage(commandFeedback.sendCommandFeedback("usage"));
@@ -147,7 +157,7 @@ public class History implements CommandCallback {
      * Opens a paginated history GUI for the target player. Only the entry count, break count, and first page are
      * fetched up front; every other page is loaded from the store the first time it's navigated to.
      */
-    private void openHistoryGui(Player viewer, Player target) {
+    private void openHistoryGui(Player viewer, OfflinePlayer target, String targetName) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             int total;
             List<HoneypotPlayerHistoryObject> firstPage;
@@ -155,8 +165,11 @@ public class History implements CommandCallback {
             try {
                 total = playerHistoryManager.getPlayerHistoryCount(target);
                 firstPage = total > 0 ? playerHistoryManager.getPlayerHistory(target, 0, PAGE_SIZE) : List.of();
+            } catch (UnsupportedOperationException e) {
+                Bukkit.getScheduler().runTask(plugin, () -> viewer.sendMessage(Component.text("The current history storage provider can only show history for online players", NamedTextColor.RED)));
+                return;
             } catch (Exception e) {
-                logger.warning(Component.text("Failed to load history for player " + target.getName() + ": " + e.getMessage()));
+                logger.warning(Component.text("Failed to load history for player " + targetName + ": " + e.getMessage()));
                 Bukkit.getScheduler().runTask(plugin, () -> viewer.sendMessage(commandFeedback.sendCommandFeedback("unknown-error")));
                 return;
             }
@@ -169,14 +182,15 @@ public class History implements CommandCallback {
                     return;
                 }
 
-                new HistoryView(viewer, target, total, firstPage).show();
+                new HistoryView(viewer, target, targetName, total, firstPage).show();
             });
         });
     }
 
     private final class HistoryView {
         private final Player viewer;
-        private final Player target;
+        private final OfflinePlayer target;
+        private final String targetName;
         private final int lastPage;
         private final Map<Integer, List<HoneypotPlayerHistoryObject>> loadedPages = new HashMap<>();
 
@@ -187,13 +201,14 @@ public class History implements CommandCallback {
         private int page = 0;
         private boolean loading = false;
 
-        private HistoryView(Player viewer, Player target, int total, List<HoneypotPlayerHistoryObject> firstPage) {
+        private HistoryView(Player viewer, OfflinePlayer target, String targetName, int total, List<HoneypotPlayerHistoryObject> firstPage) {
             this.viewer = viewer;
             this.target = target;
+            this.targetName = targetName;
             this.lastPage = (total - 1) / PAGE_SIZE;
             this.loadedPages.put(0, firstPage);
 
-            gui = new ChestGui(HISTORY_ROWS + 2, target.getName() + "'s History");
+            gui = new ChestGui(HISTORY_ROWS + 2, targetName + "'s History");
             gui.setOnGlobalClick(e -> e.setCancelled(true));
 
             gui.addPane(Slot.fromXY(0, 0), background());
@@ -232,7 +247,7 @@ public class History implements CommandCallback {
                 try {
                     result = playerHistoryManager.getPlayerHistory(target, offset, PAGE_SIZE);
                 } catch (Exception e) {
-                    logger.warning(Component.text("Failed to load history page " + (newPage + 1) + " for player " + target.getName() + ": " + e.getMessage()));
+                    logger.warning(Component.text("Failed to load history page " + (newPage + 1) + " for player " + targetName + ": " + e.getMessage()));
                     result = null;
                 }
 
@@ -287,7 +302,7 @@ public class History implements CommandCallback {
                 head.setItemMeta(skullMeta);
             }
 
-            return named(head, Component.text(target.getName(), NamedTextColor.GOLD),
+            return named(head, Component.text(targetName, NamedTextColor.GOLD),
                 List.of(Component.text(total + " history " + (total == 1 ? "entry" : "entries"), NamedTextColor.GRAY)));
         }
 

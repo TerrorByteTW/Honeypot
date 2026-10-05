@@ -19,6 +19,7 @@ package org.reprogle.honeypot.common.store;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.reprogle.honeypot.Registry;
@@ -77,40 +78,36 @@ public class HoneypotPlayerHistoryManager {
     }
 
     /**
-     * Get a single page of history for a player, newest first
+     * Get a single page of history for a player, newest first. The player doesn't need to be online
      *
      * @param p      The player to grab history for
      * @param offset The number of entries to skip
      * @param limit  The maximum number of entries to return
      * @return A list of HoneypotPlayerHistory objects within the requested range
      */
-    public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p, int offset, int limit) {
-        return Registry.getPlayerHistoryStore().getPlayerHistory(p, offset, limit);
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(OfflinePlayer p, int offset, int limit) {
+        return Registry.getPlayerHistoryStore().getPlayerHistory(p.getUniqueId(), offset, limit);
     }
 
     /**
-     * Get the number of history entries for a player
+     * Get the number of history entries for a player. The player doesn't need to be online
      *
      * @param p The player to count history for
      * @return The number of history entries
      */
-    public int getPlayerHistoryCount(Player p) {
-        return Registry.getPlayerHistoryStore().getPlayerHistoryCount(p);
+    public int getPlayerHistoryCount(OfflinePlayer p) {
+        return Registry.getPlayerHistoryStore().getPlayerHistoryCount(p.getUniqueId());
     }
 
     /**
      * Delete all history for a particular player. An optional n parameter for
-     * specifying the number of most recent rows to delete
+     * specifying the number of most recent rows to delete. The player doesn't need to be online
      *
      * @param p The player to delete
      * @param n Optional, the number of most recent rows
      */
-    public void deletePlayerHistory(Player p, int... n) {
-        if (n.length > 0) {
-            Registry.getPlayerHistoryStore().deletePlayerHistory(p, n);
-        } else {
-            Registry.getPlayerHistoryStore().deletePlayerHistory(p);
-        }
+    public void deletePlayerHistory(OfflinePlayer p, int... n) {
+        Registry.getPlayerHistoryStore().deletePlayerHistory(p.getUniqueId(), n);
 
         logger.debug(Component.text("Deleting player history for player " + p.getName()));
     }

@@ -20,6 +20,7 @@ import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Defines the SQLite Honeypot Store for PlayerHistory. You should NOT interact with this directly.
@@ -92,6 +93,11 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
 
     @Override
     public List<HoneypotPlayerHistoryObject> getPlayerHistory(Player p, int offset, int limit) {
+        return getPlayerHistory(p.getUniqueId(), offset, limit);
+    }
+
+    @Override
+    public List<HoneypotPlayerHistoryObject> getPlayerHistory(UUID uuid, int offset, int limit) {
         return db.query("""
                 SELECT *
                 FROM honeypot_history
@@ -100,20 +106,25 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
                 LIMIT ? OFFSET ?;
                 """,
             HoneypotPlayerHistoryRepository::mapRow,
-            Param.text(p.getUniqueId().toString()),
+            Param.text(uuid.toString()),
             Param.i32(limit),
             Param.i32(offset));
     }
 
     @Override
     public int getPlayerHistoryCount(Player p) {
+        return getPlayerHistoryCount(p.getUniqueId());
+    }
+
+    @Override
+    public int getPlayerHistoryCount(UUID uuid) {
         Integer count = db.queryOne("""
                 SELECT COUNT(*) AS count
                 FROM honeypot_history
                 WHERE playerUUID = ?;
                 """,
             row -> row.i32("count"),
-            Param.text(p.getUniqueId().toString()));
+            Param.text(uuid.toString()));
 
         return count == null ? 0 : count;
     }
@@ -136,6 +147,11 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
     }
 
     public void deletePlayerHistory(Player p, int... n) {
+        deletePlayerHistory(p.getUniqueId(), n);
+    }
+
+    @Override
+    public void deletePlayerHistory(UUID uuid, int... n) {
         if (n.length > 0) {
             db.execute("""
                     DELETE FROM honeypot_history
@@ -146,14 +162,14 @@ public class HoneypotPlayerHistoryRepository implements PlayerHistoryStore {
                         LIMIT ?
                     );
                     """,
-                Param.text(p.getUniqueId().toString()),
+                Param.text(uuid.toString()),
                 Param.i32(n[0]));
         } else {
             db.execute("""
                     DELETE FROM honeypot_history
                     WHERE playerUUID = ?;
                     """,
-                Param.text(p.getUniqueId().toString()));
+                Param.text(uuid.toString()));
         }
     }
 

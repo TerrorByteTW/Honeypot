@@ -1,10 +1,12 @@
 package org.reprogle.honeypot.common.storageproviders;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface PlayerHistoryStore extends Store {
     /**
@@ -73,8 +75,62 @@ public interface PlayerHistoryStore extends Store {
     void deletePlayerHistory(Player p, int... n);
 
     /**
+     * Retrieve a single page of history, newest first, for a player who may be offline. Stores should override this
+     * with a native query by UUID.
+     * <p>
+     * The default implementation exists only for providers built for older versions of Honeypot, and can only
+     * look up players who are currently online.
+     *
+     * @param uuid   UUID of the player
+     * @param offset Number of entries to skip
+     * @param limit  Maximum number of entries to return
+     * @return List of HoneypotPlayerHistoryObject for the player within the requested range
+     * @throws UnsupportedOperationException if the player is offline and this store doesn't support offline lookups
+     */
+    default List<HoneypotPlayerHistoryObject> getPlayerHistory(UUID uuid, int offset, int limit) {
+        return getPlayerHistory(requireOnline(uuid), offset, limit);
+    }
+
+    /**
+     * Count the number of history entries for a player who may be offline. Stores should override this with a
+     * native count query by UUID.
+     * <p>
+     * The default implementation exists only for providers built for older versions of Honeypot, and can only
+     * look up players who are currently online.
+     *
+     * @param uuid UUID of the player
+     * @return The number of history entries for the player
+     * @throws UnsupportedOperationException if the player is offline and this store doesn't support offline lookups
+     */
+    default int getPlayerHistoryCount(UUID uuid) {
+        return getPlayerHistoryCount(requireOnline(uuid));
+    }
+
+    /**
+     * Delete history entries for a player who may be offline. Stores should override this with a native delete by
+     * UUID.
+     * <p>
+     * The default implementation exists only for providers built for older versions of Honeypot, and can only
+     * delete history for players who are currently online.
+     *
+     * @param uuid UUID of the player
+     * @param n    Optional, the number of most recent entries to delete
+     * @throws UnsupportedOperationException if the player is offline and this store doesn't support offline lookups
+     */
+    default void deletePlayerHistory(UUID uuid, int... n) {
+        deletePlayerHistory(requireOnline(uuid), n);
+    }
+
+    /**
      * Delete all player history entries
      */
     void deleteAllHistory();
+
+    private Player requireOnline(UUID uuid) {
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null)
+            throw new UnsupportedOperationException("Storage provider " + getClass().getName() + " does not support history lookups for offline players");
+        return player;
+    }
 
 }
