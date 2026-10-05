@@ -52,7 +52,7 @@ public class HoneypotRegionRepository implements RegionStore {
     private void createSchema() {
         // Honeypot Blocks Index, used for querying blocks. Honeypot Blocks table will reference the ID for the world and action
         db.execute("""
-            CREATE VIRTUAL TABLE IF NOT EXISTS honeypot_index USING rtree(id INTEGER PRIMARY KEY, x_min INTEGER, x_max INTEGER, y_min INTEGER, y_max INTEGER, z_min INTEGER, z_max INTEGER);
+            CREATE VIRTUAL TABLE IF NOT EXISTS honeypot_index USING rtree_i32(id INTEGER PRIMARY KEY, x_min INTEGER, x_max INTEGER, y_min INTEGER, y_max INTEGER, z_min INTEGER, z_max INTEGER);
             """);
 
         // Honeypot Blocks Table

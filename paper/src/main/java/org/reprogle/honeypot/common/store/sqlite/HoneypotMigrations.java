@@ -43,7 +43,8 @@ public class HoneypotMigrations {
             // UserVersionMigrator happily handles jumps in user versions without issue.
             new MigrationStep(5, new RegionizeTables04(logger)),
             new MigrationStep(6, new AddBlockToHistory05(logger)),
-            new MigrationStep(7, new DropBlockCountColumn06(logger))
+            new MigrationStep(7, new DropBlockCountColumn06(logger)),
+            new MigrationStep(8, new ConvertIndexToInt32_07(logger))
         )));
         migrator.migrate(db);
 

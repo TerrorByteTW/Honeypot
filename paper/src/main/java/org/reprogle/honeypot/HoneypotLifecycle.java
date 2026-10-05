@@ -220,8 +220,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         // Check for any updates
         new HoneypotUpdateChecker(plugin, "https://raw.githubusercontent.com/TerrorByteTW/Honeypot/master/version.txt")
             .getVersion(latest -> {
-                if (Integer.parseInt(latest.replace(".", "")) > Integer
-                    .parseInt(plugin.getPluginMeta().getVersion().replace(".", ""))) {
+                if (HoneypotUpdateChecker.compareVersions(latest, plugin.getPluginMeta().getVersion()) > 0) {
                     plugin.getServer().getConsoleSender()
                         .sendMessage(commandFeedback.getChatPrefix().append(Component.text("There is a new update available: " + latest + ". Download for the latest features and performance improvements!", NamedTextColor.RED)));
                 } else {

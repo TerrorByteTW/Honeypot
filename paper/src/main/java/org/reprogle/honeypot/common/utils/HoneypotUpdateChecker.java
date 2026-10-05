@@ -47,4 +47,30 @@ public record HoneypotUpdateChecker(Plugin plugin, String link) {
 			}
 		});
 	}
+
+	/**
+	 * Compares two dotted version strings segment by segment (e.g. 5.2.0 vs 5.1.10). Missing segments are treated
+	 * as 0, and any non-numeric suffix on a segment (e.g. "0-SNAPSHOT") is ignored.
+	 *
+	 * @return a negative number if a &lt; b, 0 if equal, positive if a &gt; b
+	 */
+	public static int compareVersions(String a, String b) {
+		String[] aParts = a.trim().split("\\.");
+		String[] bParts = b.trim().split("\\.");
+		int length = Math.max(aParts.length, bParts.length);
+		for (int i = 0; i < length; i++) {
+			int aPart = i < aParts.length ? leadingInt(aParts[i]) : 0;
+			int bPart = i < bParts.length ? leadingInt(bParts[i]) : 0;
+			if (aPart != bPart)
+				return Integer.compare(aPart, bPart);
+		}
+		return 0;
+	}
+
+	private static int leadingInt(String segment) {
+		int end = 0;
+		while (end < segment.length() && Character.isDigit(segment.charAt(end)))
+			end++;
+		return end == 0 ? 0 : Integer.parseInt(segment.substring(0, end));
+	}
 }
