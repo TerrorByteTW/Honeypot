@@ -32,6 +32,24 @@ manifest-version: 1
 download-url: "https://github.com/TerrorByteTW/Honeypot/releases"
 
 versions:
+  - version: "5.1.1"
+    supported-server-versions:
+      min: "26.1"
+      max: "26.3"
+      features:
+        - name: "Better Drag Handling in Inventories"
+          description: "Dragging items in inventories now supports the 'only-trigger-on-withdrawal' config setting, allowing players to also drag items into Honeypot inventories!"
+          material: PAPER
+      bug-fixes:
+        - name: "Shift-Click Into Inventory"
+          description: "Fixed a bug where shift-clicking items into an inventory would be allowed even if the player was not."
+          material: CHEST
+        - name: "Pulling From Inventories"
+          description: "Fixed a bug where players could take items from Honeypot inventories by 'gathering items to cursor' via double-clicking the same item in their own inventory."
+          material: LEAD
+        - name: "Inventory Event Standardization"
+          description: "Standardized and de-duplicated the 'InventoryDragEvent' handler to ensure it more closely matches the click handler and can't be canceled by other plugins."
+          material: CHEST
   - version: "5.1.0"
     supported-server-versions:
       min: "26.1"
