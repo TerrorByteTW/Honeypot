@@ -29,9 +29,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.reprogle.bytelib.config.BytePluginConfig;
 import org.reprogle.honeypot.api.events.*;
 import org.reprogle.honeypot.common.store.HoneypotRegionManager;
@@ -39,7 +39,7 @@ import org.reprogle.honeypot.common.utils.ActionHandler;
 
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,93 +67,53 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        // Because for some reason DoubleChest is its own class and does not implement Container. It only *extends* InventoryHolder :|
-        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof ChestGui)
-            return;
-
-        // Support weird slot types that may bypass the checks
-        if (!EnumSet.of(SlotType.CONTAINER, SlotType.CRAFTING, SlotType.FUEL, SlotType.RESULT).contains(event.getSlotType()))
-            return;
-
-        //noinspection DataFlowIssue getType() is marked @NotNull but IntelliJ thinks otherwise
-        if (event.getClickedInventory().getType().equals(InventoryType.PLAYER)) return;
-
         InventoryHolder holder = event.getInventory().getHolder();
 
-        // Stupid hack because DoubleChest is the ONLY inventory in the entire game that implements InventoryHolder instead of extending Container.
-        Block block;
-        if (holder instanceof DoubleChest doubleChest) {
-            //noinspection DataFlowIssue Same issue as above, getBlockAt() is claiming to be nullable when it clearly is marked @NotNull
-            block = doubleChest.getWorld().getBlockAt(doubleChest.getLocation());
-        } else {
-            //noinspection DataFlowIssue
-            block = ((Container) event.getClickedInventory().getHolder()).getBlock();
-        }
-
-        if (!regionManager.isHoneypotBlock(block)) return;
+        // Because for some reason DoubleChest is its own class and does not implement Container. It only *extends* InventoryHolder :|
+        if (!(holder instanceof DoubleChest || holder instanceof Container) || holder instanceof ChestGui)
+            return;
 
         final Inventory inventory = event.getInventory();
+        final Inventory clicked = event.getClickedInventory();
+        if (clicked == null) return;
 
-        if (!checkFilter(block)) return;
+        Interaction interaction = classify(event, inventory, clicked.equals(inventory));
+        if (interaction == Interaction.NONE) return;
+        if (interaction == Interaction.DEPOSIT && onlyTriggerOnWithdrawal()) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
-            logger.verbose(Component.text("InventoryClickEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
-
-            // Fire HoneypotPreInventoryClickEvent
-            var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
-            var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
-
-            // Both events are always fired, and cancelling either one stops processing
-            boolean preClick = hpice.callEvent();
-            boolean preTrigger = hpte.callEvent();
-            if (!preClick || !preTrigger) return;
-
-            if (!actionHandler.isExempt(player, TriggerType.INVENTORY_INTERACT)) {
-
-                // If the clicked slot is null, that means the slot didn't have something in it,
-                // whether the player placed something in that slot. slot == null
-                // corresponds to a click or place, not a take
-                if (inventory.getItem(event.getSlot()) == null && config.config().getBoolean("container-actions.only-trigger-on-withdrawal")) {
-                    return;
-                }
-                event.setCancelled(true);
-
-                executeAction(player, block, inventory);
-            }
-        }
+        process(player, inventory, event);
     }
 
     @SuppressWarnings({"java:S3776"})
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void inventoryDragEvent(InventoryDragEvent event) {
         if (!useInventoryClick()) return;
 
         // Sanity checks to ensure the clicker is a Player and the holder is a Container
         // that is NOT a custom one and is NOT their own inventory
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        // Because for some reason DoubleChest is its own class and does not implement Container. It only implements InventoryHolder :|
-        if (!(event.getInventory().getHolder() instanceof DoubleChest || event.getInventory().getHolder() instanceof Container) || event.getInventory().getHolder() instanceof ChestGui)
-            return;
-        if (event.getInventory().getType().equals(InventoryType.PLAYER)) return;
 
         InventoryHolder holder = event.getInventory().getHolder();
 
-        Block block;
-        // Stupid hack because DoubleChest is the ONLY inventory in the entire game that implements InventoryHolder instead of extending Container.
-        if (holder instanceof DoubleChest doubleChest) {
-            //noinspection DataFlowIssue Same issue as above, getBlockAt() is claiming to be nullable when it clearly is marked @NotNull
-            block = doubleChest.getWorld().getBlockAt(doubleChest.getLocation());
-        } else {
-            //noinspection DataFlowIssue
-            block = ((Container) event.getInventory().getHolder()).getBlock();
-        }
-
+        // Because for some reason DoubleChest is its own class and does not implement Container. It only implements InventoryHolder :|
+        if (!(holder instanceof DoubleChest || holder instanceof Container) || holder instanceof ChestGui)
+            return;
         final Inventory inventory = event.getInventory();
+
+        // Drags only ever place items, so they're always deposits, and only matter if they touch the top inventory
+        if (onlyTriggerOnWithdrawal()) return;
+        if (event.getRawSlots().stream().noneMatch(slot -> slot < inventory.getSize())) return;
+
+        process(player, inventory, event);
+    }
+
+    private void process(Player player, Inventory inventory, InventoryInteractEvent event) {
+        Block block = resolveBlock(inventory.getHolder());
 
         if (!checkFilter(block)) return;
 
-        if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(Objects.requireNonNull(block))) {
-            logger.verbose(Component.text("InventoryClickEvent being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
+        if (!block.getType().equals(Material.ENDER_CHEST) && regionManager.isHoneypotBlock(block)) {
+            logger.verbose(Component.text((event instanceof InventoryClickEvent ? "InventoryClickEvent" : "InventoryDragEvent") + " being called for Honeypot: " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
             // Fire HoneypotPreInventoryClickEvent
             var hpice = new HoneypotPreInventoryClickEvent(player, inventory);
             var hpte = new HoneypotPreTriggerEvent(player, block, TriggerType.INVENTORY_INTERACT);
@@ -180,6 +140,57 @@ public class InventoryClickDragEventListener implements Listener, IHoneypotEvent
     private boolean useInventoryClick() {
         return config.config().getBoolean("container-actions.enable-container-actions")
             && config.config().getBoolean("container-actions.use-inventory-click");
+    }
+
+    private boolean onlyTriggerOnWithdrawal() {
+        return config.config().getBoolean("container-actions.only-trigger-on-withdrawal");
+    }
+
+    private enum Interaction {NONE, DEPOSIT, WITHDRAWAL}
+
+    /**
+     * Determines how a click affects the Honeypot (top) inventory
+     *
+     * @param event      The click event
+     * @param top        The Honeypot inventory
+     * @param clickedTop Whether the clicked slot belongs to the Honeypot inventory
+     * @return The kind of interaction this click has with the Honeypot inventory
+     */
+    private Interaction classify(InventoryClickEvent event, Inventory top, boolean clickedTop) {
+        InventoryAction action = event.getAction();
+
+        // Double-clicking gathers matching items from both inventories, regardless of which side was clicked
+        if (action == InventoryAction.COLLECT_TO_CURSOR) {
+            ItemStack cursor = event.getCursor();
+            return Arrays.stream(top.getContents()).anyMatch(cursor::isSimilar) ? Interaction.WITHDRAWAL : Interaction.NONE;
+        }
+
+        if (!clickedTop) {
+            // Shift-clicking from the player inventory is the only other way to affect the top inventory
+            return action == InventoryAction.MOVE_TO_OTHER_INVENTORY ? Interaction.DEPOSIT : Interaction.NONE;
+        }
+
+        return switch (action) {
+            case PLACE_ALL, PLACE_SOME, PLACE_ONE, PLACE_FROM_BUNDLE, PLACE_ALL_INTO_BUNDLE, PLACE_SOME_INTO_BUNDLE ->
+                Interaction.DEPOSIT;
+            case NOTHING -> Interaction.NONE;
+            // Everything else (pickups, swaps, drops, shift-clicks out, etc.) removes the item in the clicked slot, if there is one
+            default -> event.getCurrentItem() == null || event.getCurrentItem().isEmpty()
+                ? Interaction.DEPOSIT
+                : Interaction.WITHDRAWAL;
+        };
+    }
+
+    /**
+     * Resolves the block backing a container inventory.
+     * DoubleChest is the only holder that doesn't implement Container, so it needs special handling.
+     */
+    private Block resolveBlock(InventoryHolder holder) {
+        if (holder instanceof DoubleChest doubleChest) {
+            //noinspection DataFlowIssue getBlockAt() is marked @NotNull
+            return doubleChest.getWorld().getBlockAt(doubleChest.getLocation());
+        }
+        return ((Container) holder).getBlock();
     }
 
     private void executeAction(Player player, Block block, Inventory inventory) {
