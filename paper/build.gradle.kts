@@ -18,7 +18,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.kotlin.dsl.filter
 
 group = "org.reprogle"
-version = "5.1.1"
+version = "5.1.2"
 
 extra["platform"] = "paper"
 

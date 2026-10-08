@@ -14,7 +14,7 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 group = "org.reprogle"
-version = "5.1.1"
+version = "5.1.2"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 
