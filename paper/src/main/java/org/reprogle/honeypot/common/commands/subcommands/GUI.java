@@ -33,6 +33,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -166,8 +167,19 @@ public class GUI implements CommandCallback {
         boolean displayAsPot = config.require("gui").getBoolean("display-button-as-honeypot");
 
         List<HoneypotRegionObject> blocks = new ArrayList<>(regionManager.getAllHoneypots());
-        // Sort based on distance to player
-        blocks.sort(Comparator.comparingDouble(b -> b.getPos1().distanceSquared(p.getLocation())));
+
+        Location playerLoc = p.getLocation();
+
+        // Sort based on distance to player. Ignore different worlds, as `distanceSquared()` throws an IllegalArgumentException for differing worlds
+        blocks.sort(Comparator
+            .comparing((HoneypotRegionObject r) -> !Objects.equals(r.getPos1().getWorld(), playerLoc.getWorld()))
+            .thenComparing(r -> r.getPos1().getWorld().getName())
+            .thenComparingDouble(r -> {
+                Location loc = r.getPos1();
+                return loc.getWorld().equals(playerLoc.getWorld())
+                    ? loc.distanceSquared(playerLoc)
+                    : 0;
+            }));
 
         fillPages(pages, blocks, 18, block -> {
             BehaviorProvider provider = Registry.getBehaviorRegistry().getBehaviorProvider(block.getAction());
@@ -180,7 +192,7 @@ public class GUI implements CommandCallback {
             String mat = displayAsPot && block.isSingleBlockRegion() ? block.getPos1().getBlock().getType().name() : iconMaterial;
 
             return button(mat,
-                "Region: " + block.getPos1().getBlockX() + ", " + block.getPos1().getBlockY() + ", " + block.getPos1().getBlockZ(),
+                "Region: " + block.getPos1().getWorld().getName() + " @ " + block.getPos1().getBlockX() + ", " + block.getPos1().getBlockY() + ", " + block.getPos1().getBlockZ(),
                 "Click to teleport to Honeypot",
                 e -> {
                     Player clicker = (Player) e.getWhoClicked();

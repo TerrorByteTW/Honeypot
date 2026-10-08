@@ -32,6 +32,18 @@ manifest-version: 1
 download-url: "https://github.com/TerrorByteTW/Honeypot/releases"
 
 versions:
+  - version: "5.1.2"
+    supported-server-versions:
+      min: "26.1"
+      max: "26.3"
+    features:
+      - name: "Improved List Command"
+        description: "The /honeypot list command now shows the world of each Honeypot, and is sorted by distance from the player."
+        material: ANVIL
+    bug-fixes:
+      - name: "Multi-World Honeypot Listing"
+        description: "Fixed a bug where /honeypot list would error if Honeypots were created in multiple worlds. My bad, y'all!"
+        material: COMPASS
   - version: "5.1.1"
     supported-server-versions:
       min: "26.1"
