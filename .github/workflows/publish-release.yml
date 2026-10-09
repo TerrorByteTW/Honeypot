@@ -1,0 +1,159 @@
+name: Publish Release
+
+on:
+  release:
+    types: [ released ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to build (e.g. v5.1.2)"
+        required: true
+      dry_run:
+        description: "Dry run: don't touch the GitHub release, create a Modrinth DRAFT, and skip the Hangar upload"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+env:
+  MODRINTH_PROJECT_ID: MJC8WBdk
+  HANGAR_PROJECT: Honeypot
+  LOADERS: '["paper", "purpur", "folia"]'
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+  DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+          submodules: recursive
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'zulu'
+          cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve release metadata
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          VERSION="${TAG#v}"
+          MIN=$(yq ".versions[] | select(.version == \"$VERSION\") | .[\"supported-server-versions\"].min" version_manifest.yml)
+          MAX=$(yq ".versions[] | select(.version == \"$VERSION\") | .[\"supported-server-versions\"].max" version_manifest.yml)
+          if [ -z "$MIN" ] || [ "$MIN" = "null" ] || [ -z "$MAX" ] || [ "$MAX" = "null" ]; then
+            echo "::error::version_manifest.yml has no supported-server-versions min/max for $VERSION"
+            exit 1
+          fi
+
+          NAME=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json name --jq '.name')
+          BODY=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body --jq '.body')
+          DELIM="EOF_$(openssl rand -hex 8)"
+
+          {
+            echo "version=$VERSION"
+            echo "min=$MIN"
+            echo "max=$MAX"
+            echo "name=${NAME:-$VERSION}"
+            echo "paper-jar=paper/build/libs/honeypot-paper-$VERSION.jar"
+            echo "changelog<<$DELIM"
+            echo "$BODY"
+            echo "$DELIM"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Version: $VERSION | MC: $MIN - $MAX | Dry run: $DRY_RUN"
+
+      - name: Build
+        run: ./gradlew build --no-daemon
+
+      - name: Verify artifacts
+        run: |
+          if [ ! -f "${{ steps.meta.outputs.paper-jar }}" ]; then
+            echo "::error::${{ steps.meta.outputs.paper-jar }} not found. Does the Gradle version match the release tag?"
+            ls -la paper/build/libs api/build/libs
+            exit 1
+          fi
+
+      - name: Upload artifacts to GitHub release
+        if: env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$TAG" \
+            paper/build/libs/*.jar \
+            api/build/libs/*.jar \
+            --clobber
+
+      - name: Upload artifacts to workflow run (dry run)
+        if: env.DRY_RUN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: |
+            paper/build/libs/*.jar
+            api/build/libs/*.jar
+
+      - name: Publish to Modrinth
+        uses: cloudnode-pro/modrinth-publish@v2
+        with:
+          token: ${{ secrets.MODRINTH_TOKEN }}
+          project: ${{ env.MODRINTH_PROJECT_ID }}
+          name: ${{ steps.meta.outputs.name }}
+          version: ${{ steps.meta.outputs.version }}
+          changelog: ${{ steps.meta.outputs.changelog }}
+          loaders: ${{ env.LOADERS }}
+          game-versions: ${{ steps.meta.outputs.min }} - ${{ steps.meta.outputs.max }}
+          files: ${{ steps.meta.outputs.paper-jar }}
+          status: ${{ env.DRY_RUN == 'true' && 'draft' || 'listed' }}
+
+      - name: Publish to Hangar
+        env:
+          HANGAR_API_KEY: ${{ secrets.HANGAR_API_KEY }}
+          CHANGELOG: ${{ steps.meta.outputs.changelog }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          PLATFORM_VERSIONS: ${{ steps.meta.outputs.min }}-${{ steps.meta.outputs.max }}
+          JAR: ${{ steps.meta.outputs.paper-jar }}
+        run: |
+          set -euo pipefail
+          UA="TerrorByteTW/Honeypot GitHub Actions"
+
+          JWT=$(curl -sS --fail-with-body -X POST -H "User-Agent: $UA" \
+            "https://hangar.papermc.io/api/v1/authenticate?apiKey=$HANGAR_API_KEY" | jq -r '.token')
+
+          jq -n \
+            --arg version "$VERSION" \
+            --arg description "$CHANGELOG" \
+            --arg platformVersions "$PLATFORM_VERSIONS" \
+            '{
+              version: $version,
+              channel: "Release",
+              description: $description,
+              files: [{ platforms: ["PAPER"] }],
+              platformDependencies: { PAPER: [$platformVersions] },
+              pluginDependencies: {}
+            }' > version-upload.json
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run: Hangar authentication succeeded. Would upload $JAR with:"
+            cat version-upload.json
+            exit 0
+          fi
+
+          curl -sS --fail-with-body -X POST \
+            -H "User-Agent: $UA" \
+            -H "Authorization: $JWT" \
+            -F "versionUpload=@version-upload.json;type=application/json" \
+            -F "files=@$JAR;type=application/java-archive" \
+            "https://hangar.papermc.io/api/v1/projects/$HANGAR_PROJECT/upload"

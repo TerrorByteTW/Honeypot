@@ -23,6 +23,7 @@ jobs:
       with:
         java-version: '25'
         distribution: 'zulu'
+        cache: gradle
 
     - name: Publish to GitHub Packages Apache Maven
       run: ./gradlew api:publish
