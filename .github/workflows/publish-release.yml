@@ -120,7 +120,7 @@ jobs:
 
       - name: Publish to Hangar
         env:
-          HANGAR_API_KEY: ${{ secrets.HANGAR_API_KEY }}
+          HANGAR_TOKEN: ${{ secrets.HANGAR_TOKEN }}
           CHANGELOG: ${{ steps.meta.outputs.changelog }}
           VERSION: ${{ steps.meta.outputs.version }}
           PLATFORM_VERSIONS: ${{ steps.meta.outputs.min }}-${{ steps.meta.outputs.max }}
@@ -130,7 +130,7 @@ jobs:
           UA="TerrorByteTW/Honeypot GitHub Actions"
 
           JWT=$(curl -sS --fail-with-body -X POST -H "User-Agent: $UA" \
-            "https://hangar.papermc.io/api/v1/authenticate?apiKey=$HANGAR_API_KEY" | jq -r '.token')
+            "https://hangar.papermc.io/api/v1/authenticate?apiKey=$HANGAR_TOKEN" | jq -r '.token')
 
           jq -n \
             --arg version "$VERSION" \
