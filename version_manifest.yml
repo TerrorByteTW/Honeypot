@@ -38,10 +38,10 @@ versions:
       max: "26.3"
     features:
       - name: "Improved Performance of Honeypot Checks"
-        description: "Honeypot now caches which chunks have Honeypots within them, and won't even bother checking its database if the chunk contains no Honeypots, leading to **drastic** performance improvements!"
+        description: "Honeypot now caches which chunks have Honeypots within them, and won't even bother processing if the chunk contains no Honeypots. This change sits in front of all registered Storage Providers, so even existing ones will see a performance bump!"
         material: CLOCK
       - name: "Updated backend Database libraries"
-        description: "Honeypot's database library, provided by ByteLib, has been updated to the latest version, which includes drastic performance improvements to its cache eviction process, leaading to faster query times when querying the database frequently."
+        description: "Honeypot's database library, provided by ByteLib, has been updated to the latest version, which includes drastic performance improvements to its cache eviction process, leading to faster query times when querying the database frequently."
         material: FEATHER
     bug-fixes:
       - name: "Error on /honeypot reload"
