@@ -337,11 +337,99 @@ export function shouldHandleComment(issue, comment) {
   return null;
 }
 
+// ---------- @honeypot-bot commands ----------
+const BOT_MENTION = 'honeypot-bot';
+const COMMANDS = ['logs', 'recheck', 'help'];
+const TRUSTED_ASSOCIATIONS = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+
+// Removes quoted replies and code so quoting someone's command (or the help text) doesn't re-run it.
+export function stripQuotesAndCode(markdown) {
+  return (markdown ?? '').replace(/\r\n/g, '\n')
+    .replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '')
+    .replace(/`[^`\n]*`/g, '')
+    .split('\n').filter((line) => !/^\s*>/.test(line)).join('\n');
+}
+
+// Returns 'logs' | 'recheck' | 'help', or null if the bot wasn't mentioned.
+// The first known command after the mention wins ("@honeypot-bot can you recheck?" -> recheck).
+// A bare mention means "logs" if the comment has mclo.gs links, otherwise "help".
+export function parseCommand(body) {
+  const text = stripQuotesAndCode(body);
+  const m = text.match(new RegExp(`(?:^|[^\\w@/.-])@${BOT_MENTION}(?![\\w-])([^\\n]*)`, 'i'));
+  if (!m) return null;
+  const words = m[1].toLowerCase().match(/[a-z]+/g) ?? [];
+  return words.find((w) => COMMANDS.includes(w)) ?? (findLogIds(body).length ? 'logs' : 'help');
+}
+
+export function isTrusted(issue, comment) {
+  return comment?.user?.login === issue?.user?.login || TRUSTED_ASSOCIATIONS.includes(comment?.author_association);
+}
+
+export function buildHelpComment() {
+  return [
+    '# HoneyBot commands 🍯',
+    'Mention me in a comment, followed by one of these commands:',
+    '',
+    '| Command | What it does |',
+    '|---|---|',
+    '| `@honeypot-bot logs` | Pulls in the mclo.gs logs linked in your comment, or from the issue description if your comment has none. |',
+    '| `@honeypot-bot recheck` | Re-checks your Honeypot and Minecraft versions, for example after you edit the issue. |',
+    '| `@honeypot-bot help` | Shows this message. |',
+    '',
+    'Commands can be used by the person who opened the issue and by the Honeypot team.',
+  ].join('\n');
+}
+
+export function buildRecheckComment(issue, manifest) {
+  const sections = parseIssueForm(issue.body);
+  if (!(FIELDS.honeypot in sections) && !(FIELDS.mc in sections)) {
+    return "# Version recheck 🍯\nThis issue doesn't use the bug report form, so there are no versions for me to check.";
+  }
+  const support = checkSupport(sections, manifest);
+  const parsed = `Honeypot \`${support.honeypot ?? 'unknown'}\` on Minecraft \`${support.server ?? 'unknown'}\``;
+  const result = renderSupportAlert(support)
+    ?? (support.result === 'supported'
+      ? '✅ These versions are compatible. Thanks for confirming!'
+      : "I couldn't find this Honeypot version's supported server versions, so I can't confirm compatibility.");
+  return `# Version recheck 🍯\nI read: ${parsed}\n\n${result}`;
+}
+
+async function runCommand(command, issue, comment) {
+  if (command === 'help') return postComment(issue.number, buildHelpComment());
+  if (command === 'recheck') {
+    return postComment(issue.number, buildRecheckComment(issue, loadManifest(process.env.MANIFEST_JSON)));
+  }
+  // logs: links in the comment first, falling back to the issue description.
+  const source = findLogIds(comment.body).length ? comment.body : issue.body;
+  if (findLogIds(source).length === 0) {
+    return postComment(issue.number, [
+      '# HoneyBot here again 🍯',
+      "I couldn't find any mclo.gs links in your comment or the issue description.",
+      '',
+      'Upload your server logs to [https://mclo.gs](https://mclo.gs), then include the link with the command, like `@honeypot-bot logs https://mclo.gs/abc123`.',
+    ].join('\n'));
+  }
+  return postComment(issue.number, buildLogsComment({ logs: await fetchLogs(source) }));
+}
+
 async function handleComment(issue, comment) {
+  if (!issue || !comment) return console.log('Skipping: missing issue or comment.');
+  if (issue.pull_request) return console.log('Skipping: comment is on a pull request.');
+  if (comment.user?.type === 'Bot') return console.log('Skipping: comment is from a bot.');
+
+  // A mention is always treated as a command, so it never also triggers the automatic log reply.
+  const command = parseCommand(comment.body);
+  if (command) {
+    if (!isTrusted(issue, comment)) {
+      return console.log(`Skipping: ${comment.user?.login} (${comment.author_association}) may not run commands.`);
+    }
+    console.log(`Running command: ${command}`);
+    return runCommand(command, issue, comment);
+  }
+
   const skip = shouldHandleComment(issue, comment);
   if (skip) return console.log(`Skipping: ${skip}.`);
-  const logs = await fetchLogs(comment.body);
-  await postComment(issue.number, buildLogsComment({ logs }));
+  await postComment(issue.number, buildLogsComment({ logs: await fetchLogs(comment.body) }));
 }
 
 async function main() {

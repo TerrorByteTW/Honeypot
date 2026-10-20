@@ -12,17 +12,19 @@ permissions:
 
 jobs:
   triage:
-    # New issues always run. Comments only run when the issue author (not a bot) posts an
-    # mclo.gs link on a Bug issue (issue type "Bug" or a "bug" label; not a PR).
+    # New issues always run. Comments (on issues, not PRs, and not from bots) run when they either:
+    #   - mention @honeypot-bot (a command; the script checks the commenter is allowed), or
+    #   - are from the issue author, on a Bug issue, and contain an mclo.gs link (automatic log reply).
     # The script re-checks all of this as well. String comparisons here are case-insensitive.
     if: >-
       github.event_name == 'issues' ||
       (github.event_name == 'issue_comment' &&
        !github.event.issue.pull_request &&
-       (github.event.issue.type.name == 'Bug' || contains(github.event.issue.labels.*.name, 'bug')) &&
        github.event.comment.user.type != 'Bot' &&
-       github.event.comment.user.login == github.event.issue.user.login &&
-       contains(github.event.comment.body, 'mclo.gs/'))
+       (contains(github.event.comment.body, '@honeypot-bot') ||
+        ((github.event.issue.type.name == 'Bug' || contains(github.event.issue.labels.*.name, 'bug')) &&
+         github.event.comment.user.login == github.event.issue.user.login &&
+         contains(github.event.comment.body, 'mclo.gs/'))))
     runs-on: ubuntu-latest
     steps:
       # Optional: post as your own GitHub App (e.g. "Honeypot") instead of github-actions.
@@ -46,7 +48,6 @@ jobs:
       # yq ships preinstalled on GitHub's Ubuntu runners, so no npm install is needed.
       # If the manifest is missing or invalid, the script just skips the support check.
       - name: Convert version manifest to JSON
-        if: github.event_name == 'issues'
         run: |
           if [ -f version_manifest.yml ]; then
             yq -o=json '.' version_manifest.yml > "$RUNNER_TEMP/manifest.json" \
