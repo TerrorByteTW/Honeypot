@@ -19,7 +19,6 @@ package org.reprogle.honeypot;
 import com.google.inject.Inject;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -35,7 +34,7 @@ import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
 import org.reprogle.honeypot.common.storageproviders.PlayerStore;
 import org.reprogle.honeypot.common.storageproviders.RegionStore;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
-import org.reprogle.honeypot.common.store.HoneypotRegionManager;
+import org.reprogle.honeypot.common.store.HoneypotChunkCache;
 import org.reprogle.honeypot.common.store.sqlite.HoneypotMigrations;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -64,7 +63,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     private final HoneypotUpdateChecker updateChecker;
     private final HoneypotMigrations migrations;
     private final HoneypotPlayerManager playerManager;
-    private final HoneypotRegionManager regionManager;
+    private final HoneypotChunkCache chunkCache;
 
 
     @Inject
@@ -83,7 +82,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         BytePluginConfig config,
         HoneypotUpdateChecker updateChecker,
         HoneypotPlayerManager playerManager,
-        HoneypotRegionManager regionManager
+        HoneypotChunkCache chunkCache
     ) {
         this.plugin = plugin;
         this.adapterManager = adapterManager;
@@ -96,7 +95,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         this.playerStores = playerStores;
         this.playerHistoryStores = playerHistoryStores;
         this.playerManager = playerManager;
-        this.regionManager = regionManager;
+        this.chunkCache = chunkCache;
         this.migrations = migrations;
         this.config = config;
         this.updateChecker = updateChecker;
@@ -180,7 +179,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
             throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", regionStoreName));
         }
 
-        regionManager.rebuildChunkCache();
+        chunkCache.rebuild();
 
         if (playerStore.isPresent()) {
             try {
