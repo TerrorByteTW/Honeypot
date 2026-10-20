@@ -1,0 +1,43 @@
+name: HoneyBot Issue Triage
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout manifest and script
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            version_manifest.yml
+            .github/scripts
+          sparse-checkout-cone-mode: false
+
+      # yq ships preinstalled on GitHub's Ubuntu runners, so no npm install is needed.
+      # If the manifest is missing or invalid, the script just skips the support check.
+      - name: Convert version manifest to JSON
+        run: |
+          if [ -f version_manifest.yml ]; then
+            yq -o=json '.' version_manifest.yml > "$RUNNER_TEMP/manifest.json" \
+              || echo "::warning::Could not parse version_manifest.yml"
+          else
+            echo "::warning::version_manifest.yml not found"
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run HoneyBot
+        run: node .github/scripts/honeybot.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MANIFEST_JSON: ${{ runner.temp }}/manifest.json
