@@ -181,23 +181,32 @@ function fence(text, lang = '') {
   return `${f}${lang}\n${text}\n${f}`;
 }
 
-function renderProblems(problems) {
-  if (!Array.isArray(problems) || problems.length === 0) return '_None detected._';
-  return problems.map((p) => {
-    const msg = p?.message ?? JSON.stringify(p);
-    const count = p?.counter > 1 ? ` (×${p.counter})` : '';
-    const sols = (p?.solutions ?? [])
-      .map((s) => `  - 💡 ${safe(s?.message ?? JSON.stringify(s))}`).join('\n');
-    return `- **${safe(msg)}**${count}${sols ? `\n${sols}` : ''}`;
-  }).join('\n');
+// Text for a markdown table cell: safe, single-line, no stray pipes.
+const cell = (v) => safe(v).replace(/\|/g, '\\|').replace(/\s*\n\s*/g, ' ').trim();
+
+// mclo.gs could identify the log (e.g. "paper/server") rather than giving up ("unknown/unknown").
+export function isIdentifiedLog(insights) {
+  if (!insights || typeof insights !== 'object') return false;
+  const id = String(insights.id ?? 'unknown/unknown').toLowerCase();
+  const type = String(insights.type ?? 'Unknown Log').toLowerCase();
+  return id !== 'unknown/unknown' && type !== 'unknown log';
 }
 
-function renderInformation(info) {
-  if (!Array.isArray(info) || info.length === 0) return '_None detected._';
-  return info.map((i) => {
-    if (i?.label != null && i?.value != null) return `- **${safe(i.label)}:** ${safe(i.value)}`;
-    return `- ${safe(i?.message ?? JSON.stringify(i))}`;
-  }).join('\n');
+export function renderProblemsTable(problems) {
+  if (!Array.isArray(problems) || problems.length === 0) return '_No problems detected._';
+  const rows = problems.map((p) => {
+    const sols = (p?.solutions ?? []).map((x) => x?.message).filter(Boolean).map(cell);
+    const count = p?.counter > 1 ? ` (×${p.counter})` : '';
+    return `| ${cell(p?.message ?? 'Unknown problem')}${count} | ${sols.length ? sols.map((x) => `• ${x}`).join('<br>') : '_None suggested_'} |`;
+  });
+  return ['| Problem | Possible solutions |', '|---|---|', ...rows].join('\n');
+}
+
+export function renderLogInfo(insights) {
+  return [
+    `- **Software:** ${safe(insights?.name ?? 'Unknown')}`,
+    `- **Version:** ${safe(insights?.version ?? 'Unknown')}`,
+  ].join('\n');
 }
 
 // Keep the tail of the log (crashes and stack traces are usually at the end).
@@ -221,24 +230,31 @@ function renderLog(log, rawBudget) {
   }
   const d = log.data;
   const meta = [d.lines != null && `${d.lines} lines`, d.errors != null && `${d.errors} errors`].filter(Boolean).join(', ');
+  const insights = d.content?.insights;
+
+  const analysis = isIdentifiedLog(insights)
+    ? [
+      '### Detected problems',
+      renderProblemsTable(insights.analysis?.problems),
+      '',
+      '### Detected information',
+      renderLogInfo(insights),
+    ]
+    : ["_mclo.gs couldn't identify what kind of log this is, so it wasn't able to detect any problems._"];
+
+  // The raw log alone stays collapsed: it can be tens of thousands of characters long.
   const raw = String(d.content?.raw ?? '');
   const { text, cut } = truncateTail(raw, Math.max(0, rawBudget));
-  const rawNote = cut > 0
-    ? `**Raw log** (first ${cut} lines omitted to fit GitHub's comment limit; [view full log](${url}))`
-    : `**Raw log**`;
-  const rawBlock = text ? fence(text, 'log') : `_Log too large to include here; [view full log](${url})._`;
+  const rawSummary = cut > 0 ? `Raw log (last part only; first ${cut} lines omitted)` : 'Raw log';
+  const rawBlock = text ? fence(text, 'log') : `_Log too large to include here; [view the full log](${url})._`;
 
   return [
+    `## 📄 [${url.replace(/^https?:\/\//, '')}](${url})${meta ? ` (${meta})` : ''}`,
+    '',
+    ...analysis,
+    '',
     '<details>',
-    `<summary>📄 ${url}${meta ? ` (${meta})` : ''}</summary>`,
-    '',
-    '**Detected problems**',
-    renderProblems(d.content?.insights?.problems),
-    '',
-    '**Detected information**',
-    renderInformation(d.content?.insights?.information),
-    '',
-    rawNote,
+    `<summary>${rawSummary}</summary>`,
     '',
     rawBlock,
     '',

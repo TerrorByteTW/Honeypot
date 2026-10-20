@@ -32,11 +32,13 @@ It then looks up the Honeypot version in `version_manifest.yml` and compares the
 
 ### mclo.gs log parsing
 
-For each mclo.gs link it finds (up to 3 per comment), HoneyBot fetches the log from the mclo.gs API and adds a collapsible section containing:
+For each mclo.gs link it finds (up to 3 per comment), HoneyBot fetches the log from the mclo.gs API and adds a section under **Logs** containing:
 
-- **Detected problems**, along with any suggested solutions from mclo.gs
-- **Detected information**, such as server software and Minecraft version
-- **The raw log**
+- **Detected problems:** a table listing each problem mclo.gs found and its suggested solutions.
+- **Detected information:** the server software and its version, such as Paper 26.2.
+- **The raw log**, in a collapsed section so it doesn't take over the comment.
+
+If mclo.gs can't identify the type of log (it reports `unknown/unknown` or `Unknown Log`), HoneyBot says so and shows only the raw log.
 
 GitHub limits comments to about 65,000 characters. When a log is too long to fit, HoneyBot keeps the *end* of the log, where crashes and stack traces usually appear, and links to the full log. If a log can't be loaded, for example because it expired or was deleted, HoneyBot says so instead of failing.
 
