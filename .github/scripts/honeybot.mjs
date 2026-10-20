@@ -265,12 +265,12 @@ function renderLog(log, rawBudget) {
 export function buildComment({ support, logs }) {
   const intro = [
     "# Hey there, I'm HoneyBot 🍯",
-    "Thanks for reporting an issue, and sorry you're having issues!",
+    "Thanks for reporting an issue, and sorry you're having problems! Don't sweat, I'm here to help. My goal is to ensure all the necessary information has been provided to the Honeypot team so when they get to looking at this they don't have to wait on anything and can hit the ground running.",
     '',
-    "If you haven't yet, please change `logging.enable-logging` to `true` and `logging.minimum-log-level` to `DEBUG` or `VERBOSE` in Honeypot's config.yml. Once done, run `/honeypot reload` or restart your server and reproduce the issue. Please provide the results of those logs in a comment! ",
+    "If you haven't already done so, please set `logging.enable-logging` to `true` and `logging.minimum-log-level` to `DEBUG` or `VERBOSE` in Honeypot's `config.yml`. Once done, run `/honeypot reload` or restart your server and reproduce the issue. Please provide the results of those logs in a comment! ",
   ];
   if (logs.length === 0) {
-    intro.push('', "If this is related to a crash, please upload your server logs to [https://mclo.gs](https://mclo.gs), then paste the link in a comment. I'll try to parse them!");
+    intro.push('', "If this is related to a crash, please upload your server logs to [https://mclo.gs](https://mclo.gs), then paste the link in a comment. I'll try to take a look at them!");
   }
 
   const supportAlert = renderSupportAlert(support);
