@@ -40,5 +40,6 @@ public class ListenerModule extends AbstractModule {
         eventBinder.addBinding().to(StructureGrowEventListener.class);
         eventBinder.addBinding().to(BlockPlaceEventListener.class);
         eventBinder.addBinding().to(HoneypotWandListeners.class);
+        eventBinder.addBinding().to(WorldLoadEventListener.class);
     }
 }

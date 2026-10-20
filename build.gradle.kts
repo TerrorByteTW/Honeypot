@@ -14,7 +14,7 @@
  * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
  */
 group = "org.reprogle"
-version = "5.1.2"
+version = "5.1.3"
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 
@@ -42,7 +42,7 @@ tasks.register("thankYou") {
     doLast {
         println("\n\n\n\n\n\n\n\n\n\n\n\n====================================================================================================================================================")
         println("Thanks for downloading Honeypot! If you enjoy the project, consider rating it on one of the many sites I release on, or give it a star on GitHub.")
-        println("Your compiled jar files are located in honeypot-{platform}/build/libs. Be sure to grab the jar file for the version you're actually planning to use!")
+        println("Your compiled jar files are located in ./{platform}/build/libs. Be sure to grab the jar file for the version you're actually planning to use!")
         println("====================================================================================================================================================")
     }
 }

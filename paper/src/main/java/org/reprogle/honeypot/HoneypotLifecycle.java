@@ -19,7 +19,6 @@ package org.reprogle.honeypot;
 import com.google.inject.Inject;
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -35,6 +34,7 @@ import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
 import org.reprogle.honeypot.common.storageproviders.PlayerStore;
 import org.reprogle.honeypot.common.storageproviders.RegionStore;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
+import org.reprogle.honeypot.common.store.HoneypotChunkCache;
 import org.reprogle.honeypot.common.store.sqlite.HoneypotMigrations;
 import org.reprogle.honeypot.common.utils.*;
 import org.reprogle.honeypot.common.utils.integrations.AdapterManager;
@@ -63,6 +63,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
     private final HoneypotUpdateChecker updateChecker;
     private final HoneypotMigrations migrations;
     private final HoneypotPlayerManager playerManager;
+    private final HoneypotChunkCache chunkCache;
 
 
     @Inject
@@ -80,7 +81,8 @@ public class HoneypotLifecycle implements PluginLifecycle {
         HoneypotMigrations migrations,
         BytePluginConfig config,
         HoneypotUpdateChecker updateChecker,
-        HoneypotPlayerManager playerManager
+        HoneypotPlayerManager playerManager,
+        HoneypotChunkCache chunkCache
     ) {
         this.plugin = plugin;
         this.adapterManager = adapterManager;
@@ -93,6 +95,7 @@ public class HoneypotLifecycle implements PluginLifecycle {
         this.playerStores = playerStores;
         this.playerHistoryStores = playerHistoryStores;
         this.playerManager = playerManager;
+        this.chunkCache = chunkCache;
         this.migrations = migrations;
         this.config = config;
         this.updateChecker = updateChecker;
@@ -175,6 +178,8 @@ public class HoneypotLifecycle implements PluginLifecycle {
             logger.level(HoneypotLogger.LogLevel.INFO).error(Component.text("THE PLUGIN WAS PURPOSELY SHUT DOWN, THIS IS NOT A BUG. The Region Store that is set in config could not be found, check with the developer of the provider!"));
             throw new ConfigurationException(config.lang().getString("invalid-storage-provider").replace("%s", regionStoreName));
         }
+
+        chunkCache.rebuild();
 
         if (playerStore.isPresent()) {
             try {

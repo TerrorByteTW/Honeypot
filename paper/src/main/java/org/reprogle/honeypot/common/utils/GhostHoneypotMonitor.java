@@ -121,6 +121,7 @@ public class GhostHoneypotMonitor {
      * Cancel the ghost honeypot task
      */
     public void cancelTask() {
+        if (task == null || task.isCancelled()) return;
         task.cancel();
     }
 

@@ -43,6 +43,14 @@ public class HoneypotRegionManager {
     @Inject
     HoneypotLogger logger;
 
+    @Inject
+    HoneypotChunkCache chunkCache;
+
+    private static boolean isOnChunkEdge(Block block) {
+        int x = block.getX() & 15, z = block.getZ() & 15;
+        return x == 0 || x == 15 || z == 0 || z == 15;
+    }
+
     /**
      * Create a Honeypot {@link Block} and add it to the DB
      *
@@ -50,7 +58,10 @@ public class HoneypotRegionManager {
      * @param action The action of the Honeypot
      */
     public void createBlock(Block block, String action) {
-        Registry.getRegionStore().createHoneypotRegion(block, action);
+        synchronized (chunkCache) {
+            Registry.getRegionStore().createHoneypotRegion(block, action);
+            chunkCache.add(new HoneypotRegionObject(block, action));
+        }
 
         logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
     }
@@ -63,7 +74,10 @@ public class HoneypotRegionManager {
      * @param action The action of the Honeypot region
      */
     public void createRegion(Location pos1, Location pos2, String action) {
-        Registry.getRegionStore().createHoneypotRegion(pos1, pos2, action);
+        synchronized (chunkCache) {
+            Registry.getRegionStore().createHoneypotRegion(pos1, pos2, action);
+            chunkCache.add(new HoneypotRegionObject(pos1, pos2, action));
+        }
 
         logger.debug(Component.text("Created Honeypot region with action " + action + " from " + pos1 + " to " + pos2));
     }
@@ -81,7 +95,12 @@ public class HoneypotRegionManager {
 
         if (matched.isEmpty()) return;
 
-        Registry.getRegionStore().removeHoneypotRegion(matched.get().getLocation());
+        // Look up the full region first, since the store deletes the entire region containing this location
+        synchronized (chunkCache) {
+            HoneypotRegionObject region = Registry.getRegionStore().getHoneypotRegion(matched.get().getLocation());
+            Registry.getRegionStore().removeHoneypotRegion(matched.get().getLocation());
+            if (region != null) chunkCache.remove(region);
+        }
 
         logger.debug(Component.text("Deleted Honeypot block at " + matched.get().getX() + ", " + matched.get().getY() + ", " + matched.get().getZ()));
     }
@@ -93,6 +112,14 @@ public class HoneypotRegionManager {
      * @return true or false
      */
     public boolean isHoneypotBlock(Block block) {
+        // Fast path: skip the store entirely if the block isn't in a chunk containing a Honeypot. Two-block structures
+        // (chests, beds) can straddle a chunk border, so blocks on a chunk edge also check their other half's chunk
+        if (!chunkCache.contains(block)
+            && (!isOnChunkEdge(block) || resolveLogicalBlocks(block).noneMatch(chunkCache::contains))) {
+            logger.verbose(Component.text("Skipping store check for block at " + block.getX() + ", " + block.getY() + ", " + block.getZ() + " because no Honeypots are in its chunk"));
+            return false;
+        }
+
         Optional<Block> matched = resolveLogicalBlocks(block)
             .filter(b -> Registry.getRegionStore().isHoneypot(b.getLocation()))
             .findFirst();
@@ -184,7 +211,10 @@ public class HoneypotRegionManager {
      * Delete all Honeypots in the entire DB
      */
     public void deleteAllHoneypotBlocks() {
-        Registry.getRegionStore().deleteAllHoneypotRegions();
+        synchronized (chunkCache) {
+            Registry.getRegionStore().deleteAllHoneypotRegions();
+            chunkCache.clear();
+        }
 
         logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }

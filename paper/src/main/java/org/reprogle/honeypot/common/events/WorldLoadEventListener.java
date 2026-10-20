@@ -1,0 +1,42 @@
+/*
+ * Honeypot is a plugin written for Paper which assists with griefing auto-moderation
+ *
+ * Copyright (c) 2022-2026 TerrorByte and Honeypot Contributors.
+ *
+ * This program is free software: You can redistribute it and/or modify it under
+ *  the terms of the Mozilla Public License 2.0 as published by the Mozilla under the Mozilla Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but provided on an "as is" basis,
+ * without warranty of any kind, either expressed, implied, or statutory, including,
+ * without limitation, warranties that the Covered Software is free of defects, merchantable,
+ * fit for a particular purpose or non-infringing. See the MPL 2.0 license for more details.
+ *
+ * For a full copy of the license in its entirety, please visit <https://www.mozilla.org/en-US/MPL/2.0/>
+ */
+
+package org.reprogle.honeypot.common.events;
+
+import com.google.inject.Inject;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.reprogle.honeypot.common.store.HoneypotChunkCache;
+
+public class WorldLoadEventListener implements Listener, IHoneypotEvent {
+    private final HoneypotChunkCache chunkCache;
+
+    @Inject
+    WorldLoadEventListener(HoneypotChunkCache chunkCache) {
+        this.chunkCache = chunkCache;
+    }
+
+    /**
+     * Regions in worlds that weren't loaded when the chunk cache was built can't be resolved, so pick them up once their world loads
+     *
+     * @param event The WorldLoadEvent, passed from Bukkit's event handler
+     */
+    @EventHandler
+    public void worldLoadEvent(WorldLoadEvent event) {
+        if (chunkCache.hasUnloadedRegions()) chunkCache.rebuild();
+    }
+}
