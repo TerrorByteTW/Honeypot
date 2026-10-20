@@ -1,0 +1,40 @@
+name: Feature request
+about: Suggest an idea for this project
+type: "Feature"
+labels: ["enhancement"]
+assignees: ["natereprogle"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "What feature are you requesting?"
+      description: "Describe the feature you're wanting to suggest"
+      placeholder: "I'd like to be able to [...]"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: why-requested
+    attributes:
+      label: "Why are you requesting this feature?"
+      description: "I like knowing *why* someone is requesting a feature so I know why and how to implement it. If the feature request is related to a problem (i.e., I'm always frustrated when [...]), it's good to know how to resolve it, as well."
+      placeholder: "I want this feature because [...]"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: benefit
+    attributes:
+      label: "How would this benefit Honeypot?"
+      description: "Features will not be considered if they are specific to only your server. If you need a specific feature added, please reference the Honeypot API, or fork Honeypot and build onto it separately."
+      placeholder: "This would benefit Honeypot by [...]"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: "Add any other context about the feature request."
+    validations:
+      required: false
