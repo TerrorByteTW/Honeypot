@@ -138,6 +138,16 @@ public class HoneypotRegionObject {
     }
 
     /**
+     * Get the name of the world the Honeypot Region is in. Unlike {@code getPos1().getWorld()}, this is always
+     * available, even if the world is not currently loaded
+     *
+     * @return The world name
+     */
+    public String getWorldName() {
+        return world;
+    }
+
+    /**
      * Get the action of the Honeypot
      *
      * @return action

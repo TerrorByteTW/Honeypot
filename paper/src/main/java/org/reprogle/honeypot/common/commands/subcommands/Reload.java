@@ -32,6 +32,7 @@ import org.reprogle.honeypot.common.storageproviders.PlayerHistoryStore;
 import org.reprogle.honeypot.common.storageproviders.PlayerStore;
 import org.reprogle.honeypot.common.storageproviders.RegionStore;
 import org.reprogle.honeypot.common.store.HoneypotPlayerManager;
+import org.reprogle.honeypot.common.store.HoneypotRegionManager;
 import org.reprogle.honeypot.common.utils.GhostHoneypotMonitor;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
@@ -44,14 +45,16 @@ public class Reload implements CommandCallback {
     private final CommandFeedback commandFeedback;
     private final HoneypotLogger logger;
     private final HoneypotPlayerManager playerManager;
+    private final HoneypotRegionManager regionManager;
 
     @Inject
-    public Reload(BytePluginConfig config, GhostHoneypotMonitor monitor, CommandFeedback commandFeedback, HoneypotLogger logger, HoneypotPlayerManager playerManager) {
+    public Reload(BytePluginConfig config, GhostHoneypotMonitor monitor, CommandFeedback commandFeedback, HoneypotLogger logger, HoneypotPlayerManager playerManager, HoneypotRegionManager regionManager) {
         this.config = config;
         this.monitor = monitor;
         this.commandFeedback = commandFeedback;
         this.logger = logger;
         this.playerManager = playerManager;
+        this.regionManager = regionManager;
     }
 
     @Override
@@ -71,6 +74,7 @@ public class Reload implements CommandCallback {
             Optional<RegionStore> provider = Registry.getStorageManagerRegistry().get(regionStore, RegionStore.class);
             if (provider.isPresent()) {
                 Registry.setRegionStore(provider.get());
+                regionManager.rebuildChunkCache();
                 logger.info(Component.text("The region store was updated to \"" + regionStore + "\""));
             } else {
                 logger.error(Component.text("The region store was updated to \"" + regionStore + "\" but it is not registered! Honeypot will continue to use the previously set provider, but on your next reboot Honeypot WILL crash ON PURPOSE until fixed! Please validate your config"));

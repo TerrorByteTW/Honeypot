@@ -17,6 +17,7 @@
 package org.reprogle.honeypot.common.store;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -32,16 +33,82 @@ import org.reprogle.honeypot.common.storageproviders.HoneypotRegionObject;
 import org.reprogle.honeypot.common.utils.HoneypotLogger;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 /**
  * A class for managing Honeypot blocks. Interacts with the Registry to use the currently selected Store.
  */
+@Singleton
 public class HoneypotRegionManager {
 
     @Inject
     HoneypotLogger logger;
+
+    /**
+     * World name -> (chunk key -> number of Honeypot regions overlapping that chunk).
+     * Used as a fast negative check so chunks without Honeypots never hit the store.
+     * Keyed by world name to match how stores persist worlds (and because worlds may not be loaded when the cache is built).
+     */
+    private volatile Map<String, Map<Long, AtomicInteger>> honeypotChunks = new ConcurrentHashMap<>();
+
+    private static long chunkKey(int chunkX, int chunkZ) {
+        return (((long) chunkX) << 32) ^ (chunkZ & 0xffffffffL);
+    }
+
+    private static void track(Map<String, Map<Long, AtomicInteger>> cache, String world, int x1, int z1, int x2, int z2, int delta) {
+        Map<Long, AtomicInteger> chunks = cache.computeIfAbsent(world, k -> new ConcurrentHashMap<>());
+        int minCx = Math.min(x1, x2) >> 4, maxCx = Math.max(x1, x2) >> 4;
+        int minCz = Math.min(z1, z2) >> 4, maxCz = Math.max(z1, z2) >> 4;
+
+        for (int cx = minCx; cx <= maxCx; cx++) {
+            for (int cz = minCz; cz <= maxCz; cz++) {
+                long key = chunkKey(cx, cz);
+                if (delta > 0) {
+                    chunks.computeIfAbsent(key, k -> new AtomicInteger()).addAndGet(delta);
+                } else {
+                    chunks.computeIfPresent(key, (k, count) -> count.addAndGet(delta) <= 0 ? null : count);
+                }
+            }
+        }
+    }
+
+    private void track(HoneypotRegionObject region, int delta) {
+        track(honeypotChunks, region.getWorldName(),
+            region.getPos1().getBlockX(), region.getPos1().getBlockZ(),
+            region.getPos2().getBlockX(), region.getPos2().getBlockZ(), delta);
+    }
+
+    private boolean chunkHasHoneypot(Block block) {
+        Map<Long, AtomicInteger> chunks = honeypotChunks.get(block.getWorld().getName());
+        return chunks != null && chunks.containsKey(chunkKey(block.getX() >> 4, block.getZ() >> 4));
+    }
+
+    private static boolean isOnChunkEdge(Block block) {
+        int x = block.getX() & 15, z = block.getZ() & 15;
+        return x == 0 || x == 15 || z == 0 || z == 15;
+    }
+
+    /**
+     * Rebuilds the chunk cache from the currently selected region store.
+     * Must be called whenever the region store is set or changed.
+     */
+    public void rebuildChunkCache() {
+        Map<String, Map<Long, AtomicInteger>> fresh = new ConcurrentHashMap<>();
+        List<HoneypotRegionObject> regions = Registry.getRegionStore().getAllHoneypotRegions();
+
+        for (HoneypotRegionObject region : regions) {
+            track(fresh, region.getWorldName(),
+                region.getPos1().getBlockX(), region.getPos1().getBlockZ(),
+                region.getPos2().getBlockX(), region.getPos2().getBlockZ(), 1);
+        }
+
+        honeypotChunks = fresh;
+        logger.debug(Component.text("Rebuilt Honeypot chunk cache with " + regions.size() + " regions"));
+    }
 
     /**
      * Create a Honeypot {@link Block} and add it to the DB
@@ -51,6 +118,8 @@ public class HoneypotRegionManager {
      */
     public void createBlock(Block block, String action) {
         Registry.getRegionStore().createHoneypotRegion(block, action);
+
+        track(new HoneypotRegionObject(block, action), 1);
 
         logger.debug(Component.text("Created Honeypot block with action " + action + " at " + block.getX() + ", " + block.getY() + ", " + block.getZ()));
     }
@@ -64,6 +133,8 @@ public class HoneypotRegionManager {
      */
     public void createRegion(Location pos1, Location pos2, String action) {
         Registry.getRegionStore().createHoneypotRegion(pos1, pos2, action);
+
+        track(new HoneypotRegionObject(pos1, pos2, action), 1);
 
         logger.debug(Component.text("Created Honeypot region with action " + action + " from " + pos1 + " to " + pos2));
     }
@@ -81,7 +152,12 @@ public class HoneypotRegionManager {
 
         if (matched.isEmpty()) return;
 
+        // Grab the full region before removing it, since the store deletes the entire region containing this location
+        HoneypotRegionObject region = Registry.getRegionStore().getHoneypotRegion(matched.get().getLocation());
+
         Registry.getRegionStore().removeHoneypotRegion(matched.get().getLocation());
+
+        if (region != null) track(region, -1);
 
         logger.debug(Component.text("Deleted Honeypot block at " + matched.get().getX() + ", " + matched.get().getY() + ", " + matched.get().getZ()));
     }
@@ -93,6 +169,11 @@ public class HoneypotRegionManager {
      * @return true or false
      */
     public boolean isHoneypotBlock(Block block) {
+        // Fast path: skip the store entirely if the block isn't in a chunk containing a Honeypot. Two-block structures
+        // (chests, beds) can straddle a chunk border, so blocks on a chunk edge also check their other half's chunk
+        if (!chunkHasHoneypot(block)
+            && (!isOnChunkEdge(block) || resolveLogicalBlocks(block).noneMatch(this::chunkHasHoneypot))) return false;
+
         Optional<Block> matched = resolveLogicalBlocks(block)
             .filter(b -> Registry.getRegionStore().isHoneypot(b.getLocation()))
             .findFirst();
@@ -185,6 +266,7 @@ public class HoneypotRegionManager {
      */
     public void deleteAllHoneypotBlocks() {
         Registry.getRegionStore().deleteAllHoneypotRegions();
+        honeypotChunks = new ConcurrentHashMap<>();
 
         logger.debug(Component.text("Deleted all Honeypot blocks!"));
     }

@@ -19,7 +19,7 @@ bstats = "3.2.1"
 guice = '7.0.0'
 okhttp = '5.3.0'
 
-bytelib = 'ByteLib-1.1.4'
+bytelib = '-SNAPSHOT'
 auto-service = "1.1.1"
 
 [plugins]
