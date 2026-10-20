@@ -25,13 +25,6 @@ const MIN_KEYS = ['min', 'minimum', 'min-version', 'min_version', 'minVersion',
 const MAX_KEYS = ['max', 'maximum', 'max-version', 'max_version', 'maxVersion',
   'max-mc-version', 'max_mc_version', 'maxMcVersion', 'max-supported', 'max_supported'];
 
-const MSG = {
-  supported: 'This version of Honeypot is supported! That helps a lot, thanks!',
-  noHoneypot: 'Could not determine the version of Honeypot',
-  noServer: 'Could not determine the version of the server',
-  unknownSupport: 'Could not determine if Honeypot supports this server version',
-  unsupported: "Honeypot isn't confirmed to support this version of MC. Support may be limited.",
-};
 
 // ---------- Issue form parsing ----------
 export function parseIssueForm(markdown) {
@@ -131,15 +124,35 @@ export function checkSupport(sections, manifest) {
   const honeypot = parseVersion(hpRaw);
   const server = parseVersion(mcRaw);
 
-  let status;
-  if (!honeypot) status = MSG.noHoneypot;
-  else if (!server) status = MSG.noServer;
-  else {
-    const entry = findManifestEntry(manifest, honeypot);
-    if (!entry || (!entry.min && !entry.max)) status = MSG.unknownSupport;
-    else status = isInRange(server, entry.min, entry.max) ? MSG.supported : MSG.unsupported;
+  // result: 'unparsed' | 'unknown' (not in manifest / no bounds) | 'supported' | 'unsupported'
+  if (!honeypot || !server) return { honeypot, server, result: 'unparsed' };
+  const entry = findManifestEntry(manifest, honeypot);
+  if (!entry || (!entry.min && !entry.max)) return { honeypot, server, result: 'unknown' };
+  return { honeypot, server, result: isInRange(server, entry.min, entry.max) ? 'supported' : 'unsupported' };
+}
+
+// GitHub only renders an alert when [!TYPE] is alone on its first line, so the title goes on the next line in bold.
+const alert = (type, title, text) => `> [!${type}]\n> **${title}**\n> ${text}`;
+
+// Only problems get an alert; a supported (or unverifiable) setup adds nothing to the comment.
+export function renderSupportAlert({ honeypot, server, result }) {
+  if (result === 'unparsed') {
+    if (!honeypot && !server) {
+      return alert('WARNING', "Couldn't read your Honeypot or server version",
+        'Could not determine the Honeypot version or the Minecraft server version from your report. Please double-check what you entered (e.g. `5.1.3` and `26.3`) so compatibility can be checked.');
+    }
+    if (!honeypot) {
+      return alert('WARNING', "Couldn't read your Honeypot version",
+        'Could not determine the Honeypot version from your report. Please double-check what you entered (e.g. `5.1.3`) so compatibility can be checked.');
+    }
+    return alert('WARNING', "Couldn't read your server version",
+      'Could not determine the Minecraft server version from your report. Please double-check what you entered (e.g. `26.3`) so compatibility can be checked.');
   }
-  return { honeypot, server, status };
+  if (result === 'unsupported') {
+    return alert('CAUTION', 'Unsupported Configuration',
+      'The version of Honeypot running on this server is not guaranteed to be compatible. Support may be limited. Please try updating Honeypot first, if possible, and see if the issue is resolved.');
+  }
+  return null;
 }
 
 // ---------- mclo.gs ----------
@@ -244,15 +257,8 @@ export function buildComment({ support, logs }) {
     intro.push('', "If this is related to a crash, please upload your server logs to [https://mclo.gs](https://mclo.gs), then paste the link in a comment. I'll try to parse them!");
   }
 
-  const info = [
-    '',
-    '# Server Information',
-    `Parsed Honeypot Version: ${support.honeypot ?? 'Unknown'}`,
-    `Parsed Server Version: ${support.server ?? 'Unknown'}`,
-    support.status,
-    '',
-    '# Logs',
-  ];
+  const supportAlert = renderSupportAlert(support);
+  const info = [...(supportAlert ? ['', supportAlert] : []), '', '# Logs'];
 
   const head = [...intro, ...info].join('\n');
   if (logs.length === 0) return `${head}\n_No logs provided yet._`;
