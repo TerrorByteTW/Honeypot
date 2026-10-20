@@ -161,7 +161,7 @@ export function findLogIds(text) {
 }
 
 async function fetchLog(id) {
-  const res = await fetch(`https://api.mclo.gs/1/log/${encodeURIComponent(id)}?get=true&insights=true`, {
+  const res = await fetch(`https://api.mclo.gs/1/log/${encodeURIComponent(id)}?raw=true&insights=true`, {
     headers: { Accept: 'application/json', 'User-Agent': 'HoneyBot GitHub Action' },
     signal: AbortSignal.timeout(20000),
   });
