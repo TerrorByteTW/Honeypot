@@ -3,6 +3,8 @@ name: HoneyBot Issue Triage
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
@@ -10,8 +12,29 @@ permissions:
 
 jobs:
   triage:
+    # New issues always run. Comments only run when the issue author (not a bot) posts an
+    # mclo.gs link on a Bug issue (issue type "Bug" or a "bug" label; not a PR).
+    # The script re-checks all of this as well. String comparisons here are case-insensitive.
+    if: >-
+      github.event_name == 'issues' ||
+      (github.event_name == 'issue_comment' &&
+       !github.event.issue.pull_request &&
+       (github.event.issue.type.name == 'Bug' || contains(github.event.issue.labels.*.name, 'bug')) &&
+       github.event.comment.user.type != 'Bot' &&
+       github.event.comment.user.login == github.event.issue.user.login &&
+       contains(github.event.comment.body, 'mclo.gs/'))
     runs-on: ubuntu-latest
     steps:
+      # Optional: post as your own GitHub App (e.g. "Honeypot") instead of github-actions.
+      # Skipped automatically if the HONEYBOT_APP_ID variable isn't set.
+      - name: Generate GitHub App token
+        id: app-token
+        if: vars.HONEYBOT_APP_ID != ''
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.HONEYBOT_APP_ID }}
+          private-key: ${{ secrets.HONEYBOT_APP_PRIVATE_KEY }}
+
       - name: Checkout manifest and script
         uses: actions/checkout@v4
         with:
@@ -23,6 +46,7 @@ jobs:
       # yq ships preinstalled on GitHub's Ubuntu runners, so no npm install is needed.
       # If the manifest is missing or invalid, the script just skips the support check.
       - name: Convert version manifest to JSON
+        if: github.event_name == 'issues'
         run: |
           if [ -f version_manifest.yml ]; then
             yq -o=json '.' version_manifest.yml > "$RUNNER_TEMP/manifest.json" \
@@ -39,5 +63,5 @@ jobs:
       - name: Run HoneyBot
         run: node .github/scripts/honeybot.mjs
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
           MANIFEST_JSON: ${{ runner.temp }}/manifest.json

@@ -256,39 +256,40 @@ export function buildComment({ support, logs }) {
 
   const head = [...intro, ...info].join('\n');
   if (logs.length === 0) return `${head}\n_No logs provided yet._`;
+  return withLogs(head, logs);
+}
 
-  // Render everything without raw logs first, then share the remaining space between them.
+// Comment posted when the issue author later replies with an mclo.gs link.
+export function buildLogsComment({ logs }) {
+  const head = [
+    '# HoneyBot here again 🍯',
+    "Thanks for sharing your logs! Here's what I was able to pull from them.",
+    '',
+    '# Logs',
+  ].join('\n');
+  return withLogs(head, logs);
+}
+
+// Render everything without raw logs first, then share the remaining space between them.
+function withLogs(head, logs) {
   const skeleton = logs.map((l) => renderLog(l, 0)).join('\n\n');
   const loaded = logs.filter((l) => !l.error).length || 1;
   const perLog = Math.floor((MAX_COMMENT_CHARS - head.length - skeleton.length - 500) / loaded);
   return `${head}\n${logs.map((l) => renderLog(l, perLog)).join('\n\n')}`;
 }
 
-// ---------- Main ----------
-async function main() {
-  const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
-  const issue = event.issue;
-  if (!issue) return console.log('No issue in event payload; exiting.');
-
-  const sections = parseIssueForm(issue.body);
-  if (!(FIELDS.honeypot in sections) && !(FIELDS.mc in sections)) {
-    return console.log('Issue does not use the bug report form; skipping.');
-  }
-
-  const support = checkSupport(sections, loadManifest(process.env.MANIFEST_JSON));
-  console.log('Support check:', support);
-
-  const logs = await Promise.all(findLogIds(issue.body).map(async (id) => {
+// ---------- GitHub / orchestration ----------
+async function fetchLogs(text) {
+  return Promise.all(findLogIds(text).map(async (id) => {
     try { return { id, data: await fetchLog(id) }; }
     catch (err) { console.warn(`mclo.gs ${id}: ${err.message}`); return { id, error: err.message }; }
   }));
+}
 
-  const comment = buildComment({ support, logs });
-
+async function postComment(issueNumber, comment) {
   if (process.env.DRY_RUN) return console.log(comment);
-
   const api = process.env.GITHUB_API_URL ?? 'https://api.github.com';
-  const res = await fetch(`${api}/repos/${process.env.GITHUB_REPOSITORY}/issues/${issue.number}/comments`, {
+  const res = await fetch(`${api}/repos/${process.env.GITHUB_REPOSITORY}/issues/${issueNumber}/comments`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
@@ -299,7 +300,49 @@ async function main() {
     body: JSON.stringify({ body: comment }),
   });
   if (!res.ok) throw new Error(`Failed to post comment: HTTP ${res.status} ${await res.text()}`);
-  console.log(`Posted comment on #${issue.number}`);
+  console.log(`Posted comment on #${issueNumber}`);
+}
+
+async function handleIssueOpened(issue) {
+  const sections = parseIssueForm(issue.body);
+  if (!(FIELDS.honeypot in sections) && !(FIELDS.mc in sections)) {
+    return console.log('Issue does not use the bug report form; skipping.');
+  }
+  const support = checkSupport(sections, loadManifest(process.env.MANIFEST_JSON));
+  console.log('Support check:', support);
+  const logs = await fetchLogs(issue.body);
+  await postComment(issue.number, buildComment({ support, logs }));
+}
+
+// True when the issue's type is "Bug", or (fallback) it carries a "bug" label.
+export function isBugIssue(issue) {
+  const isBug = (name) => String(name ?? '').trim().toLowerCase() === 'bug';
+  return isBug(issue?.type?.name) || (issue?.labels ?? []).some((l) => isBug(typeof l === 'string' ? l : l?.name));
+}
+
+// Only reacts to the issue author's own comments on Bug issues, never to bots (prevents HoneyBot replying to itself).
+export function shouldHandleComment(issue, comment) {
+  if (!issue || !comment) return 'missing issue or comment';
+  if (issue.pull_request) return 'comment is on a pull request';
+  if (!isBugIssue(issue)) return 'issue is not of type Bug';
+  if (comment.user?.type === 'Bot') return 'comment is from a bot';
+  if (comment.user?.login !== issue.user?.login) return 'commenter is not the issue author';
+  if (findLogIds(comment.body).length === 0) return 'no mclo.gs link in comment';
+  return null;
+}
+
+async function handleComment(issue, comment) {
+  const skip = shouldHandleComment(issue, comment);
+  if (skip) return console.log(`Skipping: ${skip}.`);
+  const logs = await fetchLogs(comment.body);
+  await postComment(issue.number, buildLogsComment({ logs }));
+}
+
+async function main() {
+  const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'));
+  if (!event.issue) return console.log('No issue in event payload; exiting.');
+  if (process.env.GITHUB_EVENT_NAME === 'issue_comment') return handleComment(event.issue, event.comment);
+  return handleIssueOpened(event.issue);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
