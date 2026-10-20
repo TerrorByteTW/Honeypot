@@ -1,0 +1,75 @@
+name: Bug report
+description: If you believe you found a bug in Honeypot, report it!
+labels: ["bug"]
+type: "Bug"
+assignees: ["natereprogle"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: "Also, what did you expect to happen? Screenshots are appreciated, but not required."
+      placeholder: "When a player breaks a block, the Honeypot isn't triggering"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How do you reproduce it?
+      description: "Issues are almost never one-offs, and can be reproduced. Please provide the steps for how to do so. If you can't reproduce the bug, your issue will be less likely to be investigated."
+      placeholder: "Create a Honeypot block with `/honeypot create block [type]`, then have a player break it"
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: "### Version Info"
+
+  - type: input
+    id: honeypot-version
+    attributes:
+      label: What version of Honeypot are you using?
+      description: "If you don't know it, use `/honeypot info` or check the splash-screen message output to console on startup."
+      placeholder: e.g. 5.1.2
+    validations:
+      required: true
+
+  - type: input
+    id: java-version
+    attributes:
+      label: What version of Java is your server running?
+      description: "If you don't know it, check your server startup logs, it should be the very first line. Or, if you have access to the terminal, run `java -version`."
+      placeholder: Java 25
+    validations:
+      required: true
+
+  - type: input
+    id: mc-version
+    attributes:
+      label: MC Server Version
+      description: "What version of Minecraft is your server running?"
+      placeholder: 26.3
+    validations:
+      required: true
+
+  - type: dropdown
+    id: server-type
+    attributes:
+      label: "What server software are you running"
+      description: "If you're unsure, the server software vendor is normally shown in the F3 screen unless you use plugins to mask this from players."
+      options:
+        - Paper
+        - Purpur
+        - Folia
+        - Other (please list below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: "Add any other context about the problem here. If you selected 'Other' above, please provide your server software vendor, as well."
+    validations:
+      required: false
